@@ -3,23 +3,32 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../consts/enum_screen_size.dart';
-import '../entities/entity_bloc.dart';
+import '../jocaaguraarchetype.dart';
 
 class BlocResponsive extends BlocModule {
   static String name = 'responsiveBloc';
 
   final BlocGeneral<Size> _blocSizeGeneral = BlocGeneral<Size>(Size.zero);
 
+  final BlocGeneral<bool> _blocShowAppbar = BlocGeneral<bool>(true);
+
   Stream<Size> get appScreenSizeStream => _blocSizeGeneral.stream;
+  Stream<bool> get showAppbarStream => _blocShowAppbar.stream;
 
   Size get value => _blocSizeGeneral.value;
   double get drawerWidth => size.width - workAreaSize.width;
   double get secondaryDrawerWidth => columnWidth;
 
-  double get appBarHeight => 60.0;
+  double get appBarHeight => kAppBarHeight;
   double get screenHeightWithoutAppbar =>
       showAppbar ? size.height - appBarHeight : size.height;
-  bool showAppbar = true;
+  bool get showAppbar => _blocShowAppbar.value;
+  set showAppbar(bool val) {
+    _blocShowAppbar.value = val;
+  }
+
+  bool get showAppBarStreamIsClosed => _blocShowAppbar.isClosed;
+  bool get appScreenSizeStreamIsClosed => _blocSizeGeneral.isClosed;
 
   void setSizeFromContext(BuildContext context) {
     final Size sizeTmp = MediaQuery.of(context).size;
@@ -98,9 +107,11 @@ class BlocResponsive extends BlocModule {
   }
 
   ScreenSizeEnum get getDeviceType {
-    if (size.width >= 1200) {
+    if (size.width >= 1920) {
+      return ScreenSizeEnum.tv;
+    } else if (size.width < 1920 && size.width > 1100) {
       return ScreenSizeEnum.desktop;
-    } else if (size.width < 1200 && size.width > 520) {
+    } else if (size.width <= 1100 && size.width > 520) {
       return ScreenSizeEnum.tablet;
     }
     return ScreenSizeEnum.movil;
@@ -127,5 +138,6 @@ class BlocResponsive extends BlocModule {
   @override
   FutureOr<void> dispose() {
     _blocSizeGeneral.dispose();
+    _blocShowAppbar.dispose();
   }
 }

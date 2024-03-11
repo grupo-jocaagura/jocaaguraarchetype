@@ -19,6 +19,8 @@ export 'ui/pages/onboarding_page.dart';
 export 'ui/pages/test_page_builder_page.dart';
 export 'ui/widgets/forms/custom_autocomplete_input_widget.dart';
 
+const double kAppBarHeight = 60.0;
+
 class JocaaguraArchetype {
   /// Returns [value] plus 1.
   int addOne(int value) => value + 1;
