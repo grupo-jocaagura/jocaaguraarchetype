@@ -54,8 +54,9 @@ class BlocMainMenuDrawer extends BlocModule {
     _drawerMainMenu.value = existingOptions;
   }
 
+  bool get isClosed => _drawerMainMenu.isClosed;
   @override
-  FutureOr<void> dispose() {
+  void dispose() {
     _drawerMainMenu.dispose();
   }
 }

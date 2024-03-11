@@ -89,6 +89,10 @@ abstract class Bloc<T> {
   /// ```
   Stream<T> get stream => _streamController.stream(value);
 
+  /// [isClosed] access granted to check if the current _streamController is
+  /// closed
+  bool get isClosed => _streamController.isClosed;
+
   /// [value] Sets the current value of the bloc to `val` and notifies subscribers.
   ///
   /// Example usage:
@@ -161,7 +165,7 @@ abstract class Bloc<T> {
 
 abstract class BlocModule {
   const BlocModule();
-  FutureOr<void> dispose();
+  void dispose();
 }
 
 class BlocGeneral<T> extends Bloc<T> {

@@ -140,5 +140,21 @@ void main() {
         ),
       );
     });
+
+    test('dispose blocMenu', () {
+      void onPressed() {}
+
+      const String label = 'Option 1';
+      const IconData iconData = Icons.home;
+      final BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
+      blocMainMenuDrawer.addMainMenuOption(
+        onPressed: onPressed,
+        label: label,
+        iconData: iconData,
+      );
+
+      blocMainMenuDrawer.dispose();
+      expectLater(blocMainMenuDrawer.isClosed, true);
+    });
   });
 }
