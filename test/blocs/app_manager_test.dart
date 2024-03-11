@@ -12,7 +12,7 @@ void main() {
     late AppManager appManager;
 
     setUp(() {
-      final AppConfig appConfig = AppConfig(
+      appConfig = AppConfig(
         blocTheme: MockBlocTheme(ProviderThemeMock()),
         blocUserNotifications: MockBlocUserNotifications(),
         blocLoading: MockBlocLoading(),
