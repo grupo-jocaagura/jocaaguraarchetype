@@ -63,11 +63,11 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
 
       context.appManager.secondaryMenu.addMainMenuOption(
         onPressed: () async {
-          context.appManager.loading.loadingMsg = 'Cargando';
+          final AppManager appManager = context.appManager;
+          appManager.loading.loadingMsg = 'Cargando';
           await f();
-          context.appManager.loading.clearLoading();
-          context.appManager.mainMenu
-              .removeMainMenuOption('EliminaLoadingManual');
+          appManager.loading.clearLoading();
+          appManager.mainMenu.removeMainMenuOption('EliminaLoadingManual');
         },
         label: 'EliminaLoadingManual',
         iconData: Icons.remove,

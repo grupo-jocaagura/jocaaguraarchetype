@@ -16,7 +16,7 @@ class MovilSecondaryOptionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double iconSize = width * 0.7;
+    final double iconSize = width * 0.65;
 
     return MaterialButton(
       padding: EdgeInsets.zero,
