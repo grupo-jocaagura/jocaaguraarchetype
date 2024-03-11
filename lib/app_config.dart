@@ -8,8 +8,6 @@ import 'blocs/bloc_theme.dart';
 import 'blocs/bloc_user_notifications.dart';
 import 'entities/entity_bloc.dart';
 
-bool _init = false;
-
 class AppConfig {
   const AppConfig({
     required this.blocTheme,
@@ -29,8 +27,6 @@ class AppConfig {
   final BlocResponsive blocResponsive;
   final BlocOnboarding blocOnboarding;
   final BlocNavigator blocNavigator;
-
-  bool get isInit => _init;
 
   BlocCore<dynamic> blocCore() {
     return BlocCore<dynamic>(<String, BlocModule>{

@@ -16,7 +16,7 @@ import 'provider_theme_mock.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 class MockAppManager extends AppManager {
-  MockAppManager(super.blocCore);
+  MockAppManager(super.appConfig);
 
   @override
   BlocResponsive get responsive => MockBlocResponsive();
