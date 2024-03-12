@@ -93,5 +93,5 @@ class MockBlocOnboarding extends BlocOnboarding {
 
   void setOnboardingCompleted() {}
 }
-44
+
 class MockBlocUserNotifications extends BlocUserNotifications {}
