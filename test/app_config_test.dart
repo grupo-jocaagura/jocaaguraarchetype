@@ -33,7 +33,9 @@ void main() {
         isA<MockBlocUserNotifications>(),
       );
       expect(
-          blocCore.getBlocModule(MockBlocLoading.name), isA<MockBlocLoading>());
+        blocCore.getBlocModule(MockBlocLoading.name),
+        isA<MockBlocLoading>(),
+      );
       expect(
         blocCore.getBlocModule(MockBlocMainMenuDrawer.name),
         isA<MockBlocMainMenuDrawer>(),

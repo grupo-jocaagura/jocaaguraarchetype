@@ -28,7 +28,9 @@ void main() {
     test('should provide access to BLoCs', () {
       expect(appManager.theme, isA<MockBlocTheme>());
       expect(
-          appManager.blocUserNotifications, isA<MockBlocUserNotifications>());
+        appManager.blocUserNotifications,
+        isA<MockBlocUserNotifications>(),
+      );
       expect(appManager.loading, isA<MockBlocLoading>());
       expect(appManager.mainMenu, isA<MockBlocMainMenuDrawer>());
       expect(appManager.secondaryMenu, isA<MockBlocSecondaryMenuDrawer>());
