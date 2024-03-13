@@ -60,7 +60,7 @@ void main() {
 
     test('should pop route', () async {
       // Push a new page
-      myAppRouterDelegate.myPageManager.push(
+      myAppRouterDelegate.pageManagerForTesting.push(
         'hola',
         const Text('hola'),
       );
@@ -70,7 +70,7 @@ void main() {
 
       // Check if the route is popped successfully
       expect(result, true);
-      expect(myAppRouterDelegate.myPageManager.pages.length, 1);
+      expect(myAppRouterDelegate.pageManagerForTesting.pages.length, 1);
     });
   });
 }

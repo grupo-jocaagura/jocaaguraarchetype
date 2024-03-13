@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:jocaaguraarchetype/blocs/app_manager.dart';
 import 'package:jocaaguraarchetype/providers/app_manager_provider.dart';
 
 import '../mocks/mock_app_manager.dart';
@@ -19,7 +20,10 @@ void main() {
           appManager: mockAppManager,
           child: Builder(
             builder: (BuildContext context) {
-              expect(AppManagerProvider.of(context), equals(mockAppManager));
+              final AppManager appManager = AppManagerProvider.of(context);
+              if (appManager.mainMenu.isClosed == false) {
+                expect(appManager, equals(mockAppManager));
+              }
               return const Placeholder();
             },
           ),

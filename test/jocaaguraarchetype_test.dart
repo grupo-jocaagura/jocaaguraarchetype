@@ -10,4 +10,12 @@ void main() {
     expect(calculator.addOne(-7), -6);
     expect(calculator.addOne(0), 1);
   });
+
+  test('testMe function', () async {
+    final DateTime dateTime = DateTime.now();
+    final JocaaguraArchetype jocaaguraArchetype = JocaaguraArchetype();
+    await jocaaguraArchetype.testMe();
+    final int duration = DateTime.now().difference(dateTime).inMilliseconds;
+    expect(duration, greaterThan(2000));
+  });
 }
