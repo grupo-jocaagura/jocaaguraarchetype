@@ -11,6 +11,7 @@ class MyDemoHomePage extends StatefulWidget {
   });
   final String title;
   static const String name = 'MyDemoHomePage';
+  static const String maniMenuKey = 'mainMenuKey';
 
   @override
   State<MyDemoHomePage> createState() => _MyDemoHomePageState();
@@ -97,16 +98,20 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO(alberjjimenezp): extraer esto al BlocMainMenu
     final List<Widget> listWidget = <Widget>[];
+    int index = 0;
     for (final ModelMainMenu element
         in context.appManager.mainMenu.listMenuOptions) {
       listWidget.add(
         DrawerOptionWidget(
+          key: ValueKey<String>('${MyDemoHomePage.maniMenuKey}$index'),
           onPressed: element.onPressed,
           label: element.label,
           icondata: element.iconData,
         ),
       );
+      index++;
     }
     return Scaffold(
       drawer: listWidget.isNotEmpty
