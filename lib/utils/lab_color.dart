@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
-import '../entities/entity_util.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
 class LabColor extends EntityUtil {
   const LabColor(this.lightness, this.a, this.b);

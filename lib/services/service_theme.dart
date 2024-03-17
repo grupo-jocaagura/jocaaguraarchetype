@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
-import '../entities/entity_service.dart';
 import '../utils/lab_color.dart';
 
 class ServiceTheme extends EntityService {

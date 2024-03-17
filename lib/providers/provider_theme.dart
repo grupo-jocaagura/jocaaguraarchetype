@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
-import '../entities/entity_provider.dart';
 import '../services/service_theme.dart';
 
 class ProviderTheme extends EntityProvider {
