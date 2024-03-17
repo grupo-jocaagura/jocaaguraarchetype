@@ -18,6 +18,7 @@ class AppConfig {
     required this.blocResponsive,
     required this.blocOnboarding,
     required this.blocNavigator,
+    this.blocModuleList = const <String, BlocModule>{},
   });
   final BlocTheme blocTheme;
   final BlocUserNotifications blocUserNotifications;
@@ -27,6 +28,7 @@ class AppConfig {
   final BlocResponsive blocResponsive;
   final BlocOnboarding blocOnboarding;
   final BlocNavigator blocNavigator;
+  final Map<String, BlocModule> blocModuleList;
 
   BlocCore<dynamic> blocCore() {
     return BlocCore<dynamic>(<String, BlocModule>{
@@ -38,6 +40,7 @@ class AppConfig {
       BlocSecondaryMenuDrawer.name: blocSecondaryMenuDrawer,
       BlocLoading.name: blocLoading,
       BlocUserNotifications.name: blocUserNotifications,
+      ...blocModuleList,
     });
   }
 }

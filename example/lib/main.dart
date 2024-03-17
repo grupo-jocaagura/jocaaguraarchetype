@@ -1,3 +1,4 @@
+import 'package:example/blocs/bloc_counter.dart';
 import 'package:example/ui/pages/my_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
@@ -52,6 +53,7 @@ final AppManager appManager = AppManager(
     blocResponsive: blocResponsive,
     blocOnboarding: blocOnboarding,
     blocNavigator: blocNavigator,
+    blocModuleList: {BlocCounter.name: BlocCounter()},
   ),
 );
 

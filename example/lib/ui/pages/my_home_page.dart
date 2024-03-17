@@ -1,7 +1,6 @@
+import 'package:example/blocs/bloc_counter.dart';
 import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-
-import '../../main.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({
@@ -13,12 +12,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
   void _incrementCounter() {
-    setState(() {
-      _counter = jocaaguraArchetype.addOne(_counter);
-    });
+    BlocCounter blocCounter = context.appManager.blocCore
+        .getBlocModule<BlocCounter>(BlocCounter.name);
+    blocCounter.add();
+    print(blocCounter.value);
   }
 
   void changeTheme() {
@@ -27,6 +25,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    BlocCounter blocCounter = context.appManager.blocCore
+        .getBlocModule<BlocCounter>(BlocCounter.name);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -48,10 +48,15 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             InkWell(
               onTap: changeTheme,
-              child: Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
+              child: StreamBuilder(
+                  stream: blocCounter.counterStream,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                    return Text(
+                      '${blocCounter.value}',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    );
+                  }),
             ),
           ],
         ),
