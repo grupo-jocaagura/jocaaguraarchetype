@@ -18,6 +18,7 @@ export 'ui/pages/my_demo_home_page.dart';
 export 'ui/pages/onboarding_page.dart';
 export 'ui/pages/test_page_builder_page.dart';
 export 'ui/widgets/forms/custom_autocomplete_input_widget.dart';
+export 'ui/widgets/responsive_generator_widget.dart';
 
 const double kAppBarHeight = 60.0;
 

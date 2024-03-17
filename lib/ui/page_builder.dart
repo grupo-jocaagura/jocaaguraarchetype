@@ -86,7 +86,6 @@ class _PageBuilderState extends State<PageBuilder> {
   Widget build(BuildContext context) {
     final AppManager appManager = context.appManager;
     // TODO(albertjjimenezp): revisar y extraer el codigo de este lugar para
-    //  evitar reconstrucciones innecesarias
     update();
     return StreamBuilder<String>(
       stream: appManager.loading.loadingMsgStream,
