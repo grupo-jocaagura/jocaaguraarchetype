@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../jocaaguraarchetype.dart';
-import '../models/model_main_menu.dart';
 
 /// [BlocSecondaryMenuDrawer] A BLoC for managing the main menu drawer options.
 ///
@@ -14,16 +13,16 @@ class BlocSecondaryMenuDrawer extends BlocModule {
   BlocSecondaryMenuDrawer();
 
   static const String name = 'secondaryMenuBloc';
-  final BlocGeneral<List<ModelMainMenu>> _drawerMainMenu =
-      BlocGeneral<List<ModelMainMenu>>(<ModelMainMenu>[]);
+  final BlocGeneral<List<ModelMainMenuModel>> _drawerMainMenu =
+      BlocGeneral<List<ModelMainMenuModel>>(<ModelMainMenuModel>[]);
 
-  Stream<List<ModelMainMenu>> get listDrawerOptionSizeStream =>
+  Stream<List<ModelMainMenuModel>> get listDrawerOptionSizeStream =>
       _drawerMainMenu.stream;
 
-  List<ModelMainMenu> get listMenuOptions => _drawerMainMenu.value;
+  List<ModelMainMenuModel> get listMenuOptions => _drawerMainMenu.value;
 
   void clearMainDrawer() {
-    _drawerMainMenu.value = <ModelMainMenu>[];
+    _drawerMainMenu.value = <ModelMainMenuModel>[];
   }
 
   void addMainMenuOption({
@@ -32,23 +31,24 @@ class BlocSecondaryMenuDrawer extends BlocModule {
     required IconData iconData,
     String description = '',
   }) {
-    final List<ModelMainMenu> existingOptions =
-        List<ModelMainMenu>.from(_drawerMainMenu.value);
-    final ModelMainMenu optionMenu = ModelMainMenu(
+    final List<ModelMainMenuModel> existingOptions =
+        List<ModelMainMenuModel>.from(_drawerMainMenu.value);
+    final ModelMainMenuModel optionMenu = ModelMainMenuModel(
       onPressed: onPressed,
       label: label,
       iconData: iconData,
     );
-    existingOptions.removeWhere((ModelMainMenu option) => option == optionMenu);
+    existingOptions
+        .removeWhere((ModelMainMenuModel option) => option == optionMenu);
     existingOptions.add(optionMenu);
     _drawerMainMenu.value = existingOptions;
   }
 
   void removeMainMenuOption(String label) {
-    final List<ModelMainMenu> existingOptions =
-        List<ModelMainMenu>.from(_drawerMainMenu.value);
+    final List<ModelMainMenuModel> existingOptions =
+        List<ModelMainMenuModel>.from(_drawerMainMenu.value);
     existingOptions.removeWhere(
-      (ModelMainMenu option) =>
+      (ModelMainMenuModel option) =>
           option.label.toLowerCase() == label.toLowerCase(),
     );
     _drawerMainMenu.value = existingOptions;

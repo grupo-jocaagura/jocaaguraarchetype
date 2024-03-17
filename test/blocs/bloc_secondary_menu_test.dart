@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/blocs/bloc_secondary_menu.dart';
-import 'package:jocaaguraarchetype/models/model_main_menu.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 void main() {
@@ -95,8 +95,8 @@ void main() {
       expectLater(
         bloc.listDrawerOptionSizeStream,
         emits(
-          <ModelMainMenu>[
-            ModelMainMenu(
+          <ModelMainMenuModel>[
+            ModelMainMenuModel(
               label: label,
               iconData: iconData,
               onPressed: onPressed,

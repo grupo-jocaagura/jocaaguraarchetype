@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
-import '../../models/model_main_menu.dart';
 import 'movil_secondary_option_widget.dart';
 
 class MovilSecondaryMenuWidget extends StatelessWidget {
@@ -10,7 +10,7 @@ class MovilSecondaryMenuWidget extends StatelessWidget {
     super.key,
   });
 
-  final List<ModelMainMenu> listOfModelMainMenu;
+  final List<ModelMainMenuModel> listOfModelMainMenu;
   final double menuItemWidth;
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class MovilSecondaryMenuWidget extends StatelessWidget {
     final Widget separator = SizedBox(
       width: tmp * 0.2,
     );
-    for (final ModelMainMenu option in listOfModelMainMenu) {
+    for (final ModelMainMenuModel option in listOfModelMainMenu) {
       children.add(
         MovilSecondaryOptionWidget(
           width: tmp,

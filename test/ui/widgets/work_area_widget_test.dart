@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/consts/enum_screen_size.dart';
-import 'package:jocaaguraarchetype/models/model_main_menu.dart';
 import 'package:jocaaguraarchetype/ui/widgets/columns_blueprint_widget.dart';
 import 'package:jocaaguraarchetype/ui/widgets/main_menu_widget.dart';
 import 'package:jocaaguraarchetype/ui/widgets/work_area_widget.dart';
@@ -21,8 +21,8 @@ void main() {
         columnWidth: 120,
         gutterWidth: 8,
         drawerWidth: 200,
-        listMenuOptions: <ModelMainMenu>[],
-        listSecondaryMenuOptions: <ModelMainMenu>[],
+        listMenuOptions: <ModelMainMenuModel>[],
+        listSecondaryMenuOptions: <ModelMainMenuModel>[],
       );
 
       // Act
@@ -49,14 +49,14 @@ void main() {
         columnWidth: 180,
         gutterWidth: 12,
         drawerWidth: 240,
-        listSecondaryMenuOptions: const <ModelMainMenu>[],
-        listMenuOptions: <ModelMainMenu>[
-          ModelMainMenu(
+        listSecondaryMenuOptions: const <ModelMainMenuModel>[],
+        listMenuOptions: <ModelMainMenuModel>[
+          ModelMainMenuModel(
             label: 'Option 1',
             onPressed: () {},
             iconData: Icons.add,
           ),
-          ModelMainMenu(
+          ModelMainMenuModel(
             label: 'Option 2',
             onPressed: () {},
             iconData: Icons.add,
@@ -89,19 +89,19 @@ void main() {
         columnWidth: 200,
         gutterWidth: 16,
         drawerWidth: 280,
-        listSecondaryMenuOptions: const <ModelMainMenu>[],
-        listMenuOptions: <ModelMainMenu>[
-          ModelMainMenu(
+        listSecondaryMenuOptions: const <ModelMainMenuModel>[],
+        listMenuOptions: <ModelMainMenuModel>[
+          ModelMainMenuModel(
             label: 'Option 1',
             onPressed: () {},
             iconData: Icons.add,
           ),
-          ModelMainMenu(
+          ModelMainMenuModel(
             label: 'Option 2',
             onPressed: () {},
             iconData: Icons.add,
           ),
-          ModelMainMenu(
+          ModelMainMenuModel(
             label: 'Option 3',
             onPressed: () {},
             iconData: Icons.add,
@@ -133,8 +133,8 @@ void main() {
         columnWidth: 200,
         gutterWidth: 16,
         drawerWidth: 280,
-        listSecondaryMenuOptions: <ModelMainMenu>[],
-        listMenuOptions: <ModelMainMenu>[],
+        listSecondaryMenuOptions: <ModelMainMenuModel>[],
+        listMenuOptions: <ModelMainMenuModel>[],
       );
 
       // Act

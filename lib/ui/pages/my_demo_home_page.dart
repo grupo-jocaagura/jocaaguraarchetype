@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../jocaaguraarchetype.dart';
-import '../../models/model_main_menu.dart';
 import '../widgets/drawer_option_widget.dart';
 
 class MyDemoHomePage extends StatefulWidget {
@@ -101,7 +100,7 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
     // TODO(alberjjimenezp): extraer esto al BlocMainMenu
     final List<Widget> listWidget = <Widget>[];
     int index = 0;
-    for (final ModelMainMenu element
+    for (final ModelMainMenuModel element
         in context.appManager.mainMenu.listMenuOptions) {
       listWidget.add(
         DrawerOptionWidget(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/consts/enum_screen_size.dart';
-import 'package:jocaaguraarchetype/models/model_main_menu.dart';
 import 'package:jocaaguraarchetype/ui/widgets/movil_secondary_menu_widget.dart';
 import 'package:jocaaguraarchetype/ui/widgets/page_with_secondary_menu_widget.dart';
 
@@ -10,14 +10,14 @@ void testMe() {}
 void main() {
   testWidgets('PageWidthSecondaryMenuWidget should render correctly',
       (WidgetTester tester) async {
-    const List<ModelMainMenu> listOfModelMainMenu = <ModelMainMenu>[
-      ModelMainMenu(
+    const List<ModelMainMenuModel> listOfModelMainMenu = <ModelMainMenuModel>[
+      ModelMainMenuModel(
         iconData: Icons.ac_unit,
         onPressed: testMe,
         label: 'Option 1',
         description: 'Description 1',
       ),
-      ModelMainMenu(
+      ModelMainMenuModel(
         iconData: Icons.access_alarm,
         onPressed: testMe,
         label: 'Option 2',

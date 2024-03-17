@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/blocs/bloc_main_menu.dart';
-import 'package:jocaaguraarchetype/models/model_main_menu.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 void main() {
@@ -36,7 +36,7 @@ void main() {
         iconData: iconData,
       );
 
-      final List<ModelMainMenu> menuOptions =
+      final List<ModelMainMenuModel> menuOptions =
           blocMainMenuDrawer.listMenuOptions;
       expect(menuOptions.length, 1);
       expect(menuOptions[0].onPressed, onPressed);
@@ -69,7 +69,7 @@ void main() {
         iconData: iconData2,
       );
 
-      final List<ModelMainMenu> menuOptions =
+      final List<ModelMainMenuModel> menuOptions =
           blocMainMenuDrawer.listMenuOptions;
       expect(menuOptions.length, 2);
       menuOptions[0].onPressed();
@@ -107,7 +107,7 @@ void main() {
 
       blocMainMenuDrawer.removeMainMenuOption(label1);
 
-      final List<ModelMainMenu> menuOptions =
+      final List<ModelMainMenuModel> menuOptions =
           blocMainMenuDrawer.listMenuOptions;
       expect(menuOptions.length, 1);
       menuOptions[0].onPressed();
@@ -130,8 +130,8 @@ void main() {
       expectLater(
         blocMainMenuDrawer.listDrawerOptionSizeStream,
         emits(
-          <ModelMainMenu>[
-            ModelMainMenu(
+          <ModelMainMenuModel>[
+            ModelMainMenuModel(
               label: label,
               iconData: iconData,
               onPressed: onPressed,

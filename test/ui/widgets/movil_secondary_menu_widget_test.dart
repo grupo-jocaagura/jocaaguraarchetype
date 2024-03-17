@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/models/model_main_menu.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/ui/widgets/movil_secondary_menu_widget.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
@@ -8,14 +8,14 @@ void testMe() {}
 void main() {
   testWidgets('MovilSecondaryMenuWidget should render correctly',
       (WidgetTester tester) async {
-    const List<ModelMainMenu> listOfModelMainMenu = <ModelMainMenu>[
-      ModelMainMenu(
+    const List<ModelMainMenuModel> listOfModelMainMenu = <ModelMainMenuModel>[
+      ModelMainMenuModel(
         iconData: Icons.ac_unit,
         onPressed: testMe,
         label: 'Option 1',
         description: 'Description 1',
       ),
-      ModelMainMenu(
+      ModelMainMenuModel(
         iconData: Icons.access_alarm,
         onPressed: testMe,
         label: 'Option 2',
@@ -38,7 +38,7 @@ void main() {
     );
 
     // Verificar que los elementos del widget se muestren correctamente
-    for (final ModelMainMenu modelMainMenu in listOfModelMainMenu) {
+    for (final ModelMainMenuModel modelMainMenu in listOfModelMainMenu) {
       expect(find.text(modelMainMenu.label), findsOneWidget);
       expect(find.byIcon(modelMainMenu.iconData), findsOneWidget);
     }

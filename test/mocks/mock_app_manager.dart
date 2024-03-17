@@ -1,17 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:jocaaguraarchetype/app_config.dart';
-import 'package:jocaaguraarchetype/blocs/app_manager.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_loading.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_main_menu.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_navigator.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_onboarding.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_responsive.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_secondary_menu.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_theme.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_user_notifications.dart';
-import 'package:jocaaguraarchetype/models/model_main_menu.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import 'pagemanager_mock.dart';
 import 'provider_theme_mock.dart';
@@ -70,7 +60,7 @@ class MockBlocLoading extends BlocLoading {}
 
 class MockBlocMainMenuDrawer extends BlocMainMenuDrawer {
   @override
-  List<ModelMainMenu> get listMenuOptions => <ModelMainMenu>[];
+  List<ModelMainMenuModel> get listMenuOptions => <ModelMainMenuModel>[];
 }
 
 class MockBlocSecondaryMenuDrawer extends BlocSecondaryMenuDrawer {}

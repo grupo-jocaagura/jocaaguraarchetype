@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
 import '../../consts/enum_screen_size.dart';
-import '../../models/model_main_menu.dart';
 import 'movil_secondary_menu_widget.dart';
 import 'secondary_option_widget.dart';
 
@@ -13,7 +13,7 @@ class PageWidthSecondaryMenuWidget extends StatelessWidget {
     required this.listOfModelMainMenu,
     super.key,
   });
-  final List<ModelMainMenu> listOfModelMainMenu;
+  final List<ModelMainMenuModel> listOfModelMainMenu;
   final double secondaryMenuWidth;
   final ScreenSizeEnum screenSizeEnum;
   final Widget page;
@@ -50,7 +50,7 @@ class PageWidthSecondaryMenuWidget extends StatelessWidget {
 
     if (listOfModelMainMenu.isNotEmpty) {
       final List<Widget> secondaryMenuTmp = <Widget>[];
-      for (final ModelMainMenu option in listOfModelMainMenu) {
+      for (final ModelMainMenuModel option in listOfModelMainMenu) {
         secondaryMenuTmp.add(
           SecondaryOptionWidget(
             onPressed: option.onPressed,

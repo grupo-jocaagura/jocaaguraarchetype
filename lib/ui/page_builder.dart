@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../jocaaguraarchetype.dart';
-import '../models/model_main_menu.dart';
 import 'pages/loading_page.dart';
 import 'widgets/drawer_option_widget.dart';
 import 'widgets/my_snack_bar_widget.dart';
@@ -24,9 +23,10 @@ class PageBuilder extends StatefulWidget {
 class _PageBuilderState extends State<PageBuilder> {
   final List<Widget> listWidget = <Widget>[];
   final List<Widget> actions = <Widget>[];
-  late StreamSubscription<List<ModelMainMenu>> streamSubscription;
+  late StreamSubscription<List<ModelMainMenuModel>> streamSubscription;
   late StreamSubscription<Size> streamSizeSubscription;
-  late StreamSubscription<List<ModelMainMenu>> streamSecondaryMenuSubscription;
+  late StreamSubscription<List<ModelMainMenuModel>>
+      streamSecondaryMenuSubscription;
   @override
   void initState() {
     super.initState();
@@ -36,7 +36,7 @@ class _PageBuilderState extends State<PageBuilder> {
     });
     streamSecondaryMenuSubscription = context
         .appManager.secondaryMenu.listDrawerOptionSizeStream
-        .listen((List<ModelMainMenu> event) {
+        .listen((List<ModelMainMenuModel> event) {
       setState(() {});
     });
     streamSubscription = context.appManager.mainMenu.listDrawerOptionSizeStream
@@ -55,7 +55,7 @@ class _PageBuilderState extends State<PageBuilder> {
 
   void update() {
     listWidget.clear();
-    for (final ModelMainMenu element
+    for (final ModelMainMenuModel element
         in context.appManager.mainMenu.listMenuOptions) {
       listWidget.add(
         DrawerOptionWidget(
@@ -96,11 +96,11 @@ class _PageBuilderState extends State<PageBuilder> {
         return Scaffold(
           drawer: listWidget.isNotEmpty
               ? Drawer(
-                  child: StreamBuilder<List<ModelMainMenu>>(
+                  child: StreamBuilder<List<ModelMainMenuModel>>(
                     stream: appManager.mainMenu.listDrawerOptionSizeStream,
                     builder: (
                       BuildContext context,
-                      AsyncSnapshot<List<ModelMainMenu>> snapshot,
+                      AsyncSnapshot<List<ModelMainMenuModel>> snapshot,
                     ) {
                       return ListView(
                         children: <Widget>[

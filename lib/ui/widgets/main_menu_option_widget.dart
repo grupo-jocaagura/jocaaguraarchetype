@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../models/model_main_menu.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
 class MainMenuOptionWidget extends StatelessWidget {
   const MainMenuOptionWidget({
@@ -8,7 +7,7 @@ class MainMenuOptionWidget extends StatelessWidget {
     super.key,
   });
 
-  final ModelMainMenu option;
+  final ModelMainMenuModel option;
 
   @override
   Widget build(BuildContext context) {

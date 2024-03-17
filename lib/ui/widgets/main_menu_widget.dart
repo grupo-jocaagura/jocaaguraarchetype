@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
-import '../../models/model_main_menu.dart';
 import 'main_menu_option_widget.dart';
 
 class MainMenuWidget extends StatelessWidget {
@@ -10,13 +10,13 @@ class MainMenuWidget extends StatelessWidget {
     super.key,
   });
 
-  final List<ModelMainMenu> listMenuOptions;
+  final List<ModelMainMenuModel> listMenuOptions;
   final double drawerWidth;
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> children = <Widget>[];
-    for (final ModelMainMenu option in listMenuOptions) {
+    for (final ModelMainMenuModel option in listMenuOptions) {
       children.add(
         MainMenuOptionWidget(option: option),
       );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/models/model_main_menu.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/ui/widgets/main_menu_option_widget.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
@@ -8,7 +8,7 @@ void main() {
   testWidgets('MainMenuOptionWidget should display the correct content',
       (WidgetTester tester) async {
     // Create a dummy ModelMainMenu
-    final ModelMainMenu option = ModelMainMenu(
+    final ModelMainMenuModel option = ModelMainMenuModel(
       label: 'Option 1',
       description: 'Description for Option 1',
       iconData: Icons.star,
@@ -37,7 +37,7 @@ void main() {
     bool onPressedCalled = false;
 
     // Create a dummy ModelMainMenu
-    final ModelMainMenu option = ModelMainMenu(
+    final ModelMainMenuModel option = ModelMainMenuModel(
       label: 'Option 1',
       description: 'Description for Option 1',
       iconData: Icons.star,

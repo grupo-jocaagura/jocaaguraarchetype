@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
 import '../../consts/enum_screen_size.dart';
-import '../../models/model_main_menu.dart';
 import 'columns_blueprint_widget.dart';
 import 'main_menu_widget.dart';
 import 'page_with_secondary_menu_widget.dart';
@@ -28,8 +28,8 @@ class WorkAreaWidget extends StatelessWidget {
   final double gutterWidth;
   final double drawerWidth;
   final ScreenSizeEnum screenSizeEnum;
-  final List<ModelMainMenu> listMenuOptions;
-  final List<ModelMainMenu> listSecondaryMenuOptions;
+  final List<ModelMainMenuModel> listMenuOptions;
+  final List<ModelMainMenuModel> listSecondaryMenuOptions;
 
   final Widget? page;
   @override
