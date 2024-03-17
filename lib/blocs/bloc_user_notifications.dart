@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../entities/entity_bloc.dart';
+import '../jocaaguraarchetype.dart';
 
 class BlocUserNotifications extends BlocModule {
   static const String name = 'blocUserNotifications';

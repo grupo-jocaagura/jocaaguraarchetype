@@ -1,3 +1,5 @@
+export 'package:jocaagura_domain/jocaagura_domain.dart';
+
 export 'app_config.dart';
 export 'blocs/app_manager.dart';
 export 'blocs/bloc_loading.dart';
@@ -8,7 +10,6 @@ export 'blocs/bloc_responsive.dart';
 export 'blocs/bloc_secondary_menu.dart';
 export 'blocs/bloc_theme.dart';
 export 'blocs/bloc_user_notifications.dart';
-export 'entities/entity_bloc.dart';
 export 'navigator/page_manager.dart';
 export 'providers/app_manager_provider.dart';
 export 'providers/provider_theme.dart';

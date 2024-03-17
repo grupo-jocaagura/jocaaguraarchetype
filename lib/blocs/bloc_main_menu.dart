@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../entities/entity_bloc.dart';
+import '../jocaaguraarchetype.dart';
 import '../models/model_main_menu.dart';
 
 /// [BlocMainMenuDrawer] A BLoC for managing the main menu drawer options.

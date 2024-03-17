@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../entities/entity_bloc.dart';
-import '../providers/provider_theme.dart';
+import '../jocaaguraarchetype.dart';
 
 class BlocTheme extends BlocModule {
   BlocTheme(this.providerTheme);

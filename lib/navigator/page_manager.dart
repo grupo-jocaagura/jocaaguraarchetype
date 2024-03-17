@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../entities/entity_bloc.dart';
+import '../jocaaguraarchetype.dart';
 import '../ui/pages/page_404_widget.dart';
 
 const String _k404Name = '/404';

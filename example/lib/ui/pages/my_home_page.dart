@@ -16,7 +16,6 @@ class _MyHomePageState extends State<MyHomePage> {
     BlocCounter blocCounter = context.appManager.blocCore
         .getBlocModule<BlocCounter>(BlocCounter.name);
     blocCounter.add();
-    print(blocCounter.value);
   }
 
   void changeTheme() {

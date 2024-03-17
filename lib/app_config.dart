@@ -1,12 +1,4 @@
-import 'blocs/bloc_loading.dart';
-import 'blocs/bloc_main_menu.dart';
-import 'blocs/bloc_navigator.dart';
-import 'blocs/bloc_onboarding.dart';
-import 'blocs/bloc_responsive.dart';
-import 'blocs/bloc_secondary_menu.dart';
-import 'blocs/bloc_theme.dart';
-import 'blocs/bloc_user_notifications.dart';
-import 'entities/entity_bloc.dart';
+import 'jocaaguraarchetype.dart';
 
 class AppConfig {
   const AppConfig({

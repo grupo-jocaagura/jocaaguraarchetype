@@ -1,15 +1,6 @@
 import 'dart:async';
 
-import '../app_config.dart';
-import '../entities/entity_bloc.dart';
-import 'bloc_loading.dart';
-import 'bloc_main_menu.dart';
-import 'bloc_navigator.dart';
-import 'bloc_onboarding.dart';
-import 'bloc_responsive.dart';
-import 'bloc_secondary_menu.dart';
-import 'bloc_theme.dart';
-import 'bloc_user_notifications.dart';
+import '../jocaaguraarchetype.dart';
 
 class AppManager {
   const AppManager(this.appConfig);
