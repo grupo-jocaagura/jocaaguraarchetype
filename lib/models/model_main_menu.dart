@@ -1,10 +1,9 @@
 // ignore_for_file: require_trailing_commas
 
 import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
-import '../entities/entity_model.dart';
-
-class ModelMainMenu extends EntityModel {
+class ModelMainMenu extends Model {
   const ModelMainMenu(
       {required this.iconData,
       required this.onPressed,
@@ -42,4 +41,9 @@ class ModelMainMenu extends EntityModel {
 
   @override
   int get hashCode => label.toLowerCase().hashCode;
+
+  @override
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{};
+  }
 }
