@@ -16,25 +16,25 @@ class AppManager {
 
   final AppConfig appConfig;
 
-  BlocCore<dynamic> get _blocCore => appConfig.blocCore();
+  BlocCore<dynamic> get blocCore => appConfig.blocCore();
 
   BlocResponsive get responsive =>
-      _blocCore.getBlocModule<BlocResponsive>(BlocResponsive.name);
+      blocCore.getBlocModule<BlocResponsive>(BlocResponsive.name);
   BlocLoading get loading =>
-      _blocCore.getBlocModule<BlocLoading>(BlocLoading.name);
+      blocCore.getBlocModule<BlocLoading>(BlocLoading.name);
   BlocMainMenuDrawer get mainMenu =>
-      _blocCore.getBlocModule<BlocMainMenuDrawer>(BlocMainMenuDrawer.name);
-  BlocSecondaryMenuDrawer get secondaryMenu => _blocCore
+      blocCore.getBlocModule<BlocMainMenuDrawer>(BlocMainMenuDrawer.name);
+  BlocSecondaryMenuDrawer get secondaryMenu => blocCore
       .getBlocModule<BlocSecondaryMenuDrawer>(BlocSecondaryMenuDrawer.name);
-  BlocTheme get theme => _blocCore.getBlocModule<BlocTheme>(BlocTheme.name);
+  BlocTheme get theme => blocCore.getBlocModule<BlocTheme>(BlocTheme.name);
   BlocNavigator get navigator =>
-      _blocCore.getBlocModule<BlocNavigator>(BlocNavigator.name);
+      blocCore.getBlocModule<BlocNavigator>(BlocNavigator.name);
   BlocOnboarding get onboarding =>
-      _blocCore.getBlocModule<BlocOnboarding>(BlocOnboarding.name);
+      blocCore.getBlocModule<BlocOnboarding>(BlocOnboarding.name);
   BlocUserNotifications get blocUserNotifications =>
-      _blocCore.getBlocModule(BlocUserNotifications.name);
+      blocCore.getBlocModule(BlocUserNotifications.name);
 
   FutureOr<void> dispose() {
-    _blocCore.dispose();
+    blocCore.dispose();
   }
 }
