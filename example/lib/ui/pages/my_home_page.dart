@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             InkWell(
               onTap: changeTheme,
-              child: StreamBuilder(
+              child: StreamBuilder<int>(
                   stream: blocCounter.counterStream,
                   builder:
                       (BuildContext context, AsyncSnapshot<dynamic> snapshot) {

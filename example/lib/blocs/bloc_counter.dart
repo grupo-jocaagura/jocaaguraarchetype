@@ -1,15 +1,29 @@
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class BlocCounter extends BlocModule {
-  static const String name = 'blocModule';
-  final BlocGeneral _counter = BlocGeneral<int>(0);
+  static const String name = 'blocCounter';
+  final BlocGeneral<int> _counter = BlocGeneral<int>(0);
 
   void add([int val = 1]) {
     _counter.value = _counter.value + val;
   }
 
-  Stream get counterStream => _counter.stream;
+  void decrement([int val = 1]) {
+    _counter.value = _counter.value - val;
+  }
+
+  void reset([int val = 0]) {
+    _counter.value = val;
+  }
+
+  Stream<int> get counterStream => _counter.stream;
   int get value => _counter.value;
+
+  @override
+  String toString() {
+    return 'Llevamos $value';
+  }
+
   @override
   void dispose() {
     _counter.dispose();
