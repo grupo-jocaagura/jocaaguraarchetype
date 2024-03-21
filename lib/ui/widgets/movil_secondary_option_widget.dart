@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../jocaaguraarchetype.dart';
+
 class MovilSecondaryOptionWidget extends StatelessWidget {
   const MovilSecondaryOptionWidget({
     required this.onPressed,
@@ -18,37 +20,38 @@ class MovilSecondaryOptionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final double iconSize = width * 0.65;
 
-    return MaterialButton(
-      padding: EdgeInsets.zero,
-      onPressed: onPressed,
-      child: Tooltip(
-        message: description,
-        child: Container(
-          width: width,
-          height: width,
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            borderRadius: BorderRadius.circular(width * 0.1),
-          ),
-          child: Column(
-            children: <Widget>[
-              SizedBox(
-                width: iconSize,
-                height: iconSize,
-                child: Icon(
+    return Responsive1x1Widget(
+      width: width,
+      child: MaterialButton(
+        padding: EdgeInsets.zero,
+        onPressed: onPressed,
+        child: Tooltip(
+          message: description,
+          child: Container(
+            width: width,
+            height: width,
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: BorderRadius.circular(width * 0.1),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Icon(
                   icondata,
+                  size: iconSize,
                   color: Theme.of(context).canvasColor,
                 ),
-              ),
-              Text(
-                label,
-                style: TextStyle(
-                  color: Theme.of(context).canvasColor,
-                  overflow: TextOverflow.ellipsis,
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Theme.of(context).canvasColor,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

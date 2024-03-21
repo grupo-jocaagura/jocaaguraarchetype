@@ -19,7 +19,14 @@ export 'ui/pages/my_demo_home_page.dart';
 export 'ui/pages/onboarding_page.dart';
 export 'ui/pages/test_page_builder_page.dart';
 export 'ui/widgets/forms/custom_autocomplete_input_widget.dart';
+export 'ui/widgets/main_menu_option_widget.dart';
+export 'ui/widgets/main_menu_widget.dart';
+export 'ui/widgets/page_with_secondary_menu_widget.dart';
+export 'ui/widgets/responsive_1x1_widget.dart';
+export 'ui/widgets/responsive_1x2_widget.dart';
+export 'ui/widgets/responsive_1x3_widget.dart';
 export 'ui/widgets/responsive_generator_widget.dart';
+export 'ui/widgets/responsive_size_widget.dart';
 
 const double kAppBarHeight = 60.0;
 

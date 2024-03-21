@@ -1,7 +1,8 @@
-import 'package:example/blocs/bloc_counter.dart';
-import 'package:example/ui/pages/my_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+
+import 'blocs/bloc_counter.dart';
+import 'ui/pages/my_home_page.dart';
 
 final JocaaguraArchetype jocaaguraArchetype = JocaaguraArchetype();
 
@@ -53,12 +54,12 @@ final AppManager appManager = AppManager(
     blocResponsive: blocResponsive,
     blocOnboarding: blocOnboarding,
     blocNavigator: blocNavigator,
-    blocModuleList: {BlocCounter.name: BlocCounter()},
+    blocModuleList: <String, BlocModule>{BlocCounter.name: BlocCounter()},
   ),
 );
 
 void main() {
   runApp(JocaaguraApp(
     appManager: appManager,
-  ));
+  ),);
 }

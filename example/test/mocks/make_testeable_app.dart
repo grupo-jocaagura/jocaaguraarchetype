@@ -37,9 +37,9 @@ Widget makeTesteablePage({
         blocResponsive: blocResponsive,
         blocOnboarding: blocOnboarding,
         blocNavigator: blocNavigator,
-        blocModuleList: {
+        blocModuleList: <String, BlocModule>{
           BlocCounter.name: BlocCounter(),
-        }),
+        },),
   );
 
   return JocaaguraApp(

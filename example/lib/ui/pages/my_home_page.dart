@@ -1,6 +1,8 @@
-import 'package:example/blocs/bloc_counter.dart';
 import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+
+import '../../blocs/bloc_counter.dart';
+import 'index_app.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({
@@ -13,7 +15,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   void _incrementCounter() {
-    BlocCounter blocCounter = context.appManager.blocCore
+    final BlocCounter blocCounter = context.appManager.blocCore
         .getBlocModule<BlocCounter>(BlocCounter.name);
     blocCounter.add();
   }
@@ -24,7 +26,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    BlocCounter blocCounter = context.appManager.blocCore
+    final BlocCounter blocCounter = context.appManager.blocCore
         .getBlocModule<BlocCounter>(BlocCounter.name);
     return Scaffold(
       appBar: AppBar(
@@ -37,7 +39,20 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             InkWell(
               onTap: () {
-                final navigator = context.appManager.navigator;
+                final BlocNavigator navigator = context.appManager.navigator;
+                navigator.pushPageWidthTitle(
+                  'Index',
+                  'index-app',
+                  const IndexApp(),
+                );
+              },
+              child: const Text(
+                'Go to demo:',
+              ),
+            ),
+            InkWell(
+              onTap: () {
+                final BlocNavigator navigator = context.appManager.navigator;
                 navigator.setTitle('my demo page');
                 navigator.pushNamed('MyDemoHomePage');
               },
@@ -55,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       '${blocCounter.value}',
                       style: Theme.of(context).textTheme.headlineMedium,
                     );
-                  }),
+                  },),
             ),
           ],
         ),

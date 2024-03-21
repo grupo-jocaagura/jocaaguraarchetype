@@ -6,7 +6,7 @@ class SecondaryOptionWidget extends StatelessWidget {
     required this.label,
     required this.icondata,
     this.description = '',
-    this.getOutOnTap = true,
+    this.getOutOnTap = false,
     super.key,
   });
   final VoidCallback onPressed;

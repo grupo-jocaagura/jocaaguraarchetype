@@ -15,7 +15,10 @@ class Responsive1x3Widget extends StatelessWidget {
     return SizedBox(
       width: height * 3,
       height: height,
-      child: child,
+      child: FittedBox(
+        fit: BoxFit.fitWidth,
+        child: child,
+      ),
     );
   }
 }

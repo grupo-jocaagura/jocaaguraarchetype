@@ -15,7 +15,10 @@ class Responsive1x2Widget extends StatelessWidget {
     return SizedBox(
       width: height * 2,
       height: height,
-      child: child,
+      child: FittedBox(
+        fit: BoxFit.fitWidth,
+        child: child,
+      ),
     );
   }
 }
