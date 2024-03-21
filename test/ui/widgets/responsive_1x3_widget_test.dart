@@ -29,7 +29,6 @@ void main() {
     expect(widgetFinder, findsOneWidget);
 
     final RenderBox renderBox = tester.renderObject<RenderBox>(widgetFinder);
-    print(renderBox.size);
 
     expect(renderBox.size.width, expectedWidth);
     expect(renderBox.size.height, expectedHeight);
