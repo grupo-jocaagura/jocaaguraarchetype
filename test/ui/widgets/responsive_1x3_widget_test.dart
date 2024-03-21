@@ -6,11 +6,16 @@ import 'package:jocaaguraarchetype/ui/widgets/responsive_1x3_widget.dart';
 void main() {
   testWidgets('Responsive1x3Widget has correct width and height',
       (WidgetTester tester) async {
-    final Container child = Container();
     const double height = 100.0;
+    const double expectedWidth = height * 3;
+    const double expectedHeight = height;
+    const SizedBox child = SizedBox(
+      width: expectedWidth,
+      height: expectedHeight,
+    );
 
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: Responsive1x3Widget(
             height: height,
@@ -20,13 +25,12 @@ void main() {
       ),
     );
 
-    const double expectedWidth = height * 3;
-    const double expectedHeight = height;
-
     final Finder widgetFinder = find.byWidget(child);
     expect(widgetFinder, findsOneWidget);
 
     final RenderBox renderBox = tester.renderObject<RenderBox>(widgetFinder);
+    print(renderBox.size);
+
     expect(renderBox.size.width, expectedWidth);
     expect(renderBox.size.height, expectedHeight);
   });
