@@ -3,6 +3,7 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import '../../blocs/bloc_counter.dart';
 import '../widgets/basic_counter_app.dart';
+import '../widgets/second_counter_app.dart';
 
 class IndexApp extends StatelessWidget {
   const IndexApp({super.key});
@@ -22,12 +23,31 @@ class IndexApp extends StatelessWidget {
             subtitle: const Text('Here we go!! To basic app demo'),
             onTap: () => basicApp(appManager),
           ),
+          ListTile(
+            title: const Text('Go to Second counter'),
+            subtitle: const Text('Here we go!! To second app demo'),
+            onTap: () => basicApp(
+              appManager,
+              const PageWidget(
+                routeName: 'SecondCounterApp',
+                title: 'Secondary app',
+                widget: SecondCounterApp(),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  void basicApp(AppManager appManager) {
+  void basicApp(
+    AppManager appManager, [
+    PageWidget app = const PageWidget(
+      title: 'Basic app counter 1',
+      routeName: 'BasicAppCounter',
+      widget: BasicCounterApp(),
+    ),
+  ]) {
     final BlocCounter blocCounter =
         appManager.blocCore.getBlocModule<BlocCounter>(BlocCounter.name);
     appManager.secondaryMenu.clearMainDrawer();
@@ -56,9 +76,23 @@ class IndexApp extends StatelessWidget {
     );
 
     appManager.navigator.pushPageWidthTitle(
-      'Basic app counter 1',
-      'BasicAppCounter',
-      const BasicCounterApp(),
+      app.title,
+      app.routeName,
+      app.widget,
     );
   }
+}
+
+class PageWidget {
+  const PageWidget({
+    required this.routeName,
+    required this.title,
+    required this.widget,
+    this.arguments,
+  });
+
+  final String routeName;
+  final String title;
+  final Widget widget;
+  final Object? arguments;
 }

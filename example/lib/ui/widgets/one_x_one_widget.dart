@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class OneXOneWidget extends StatelessWidget {
   const OneXOneWidget({
-    required this.child, this.width = 100,
+    required this.child,
+    this.width = 100,
     super.key,
   });
 
@@ -11,8 +12,8 @@ class OneXOneWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 100,
-      height: 100,
+      width: width,
+      height: width,
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).splashColor),
         borderRadius: BorderRadius.circular(5),

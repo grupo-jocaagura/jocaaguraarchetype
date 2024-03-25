@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 class OneXThreeWidget extends StatelessWidget {
-  const OneXThreeWidget({required this.child, this.width = 300, super.key});
+  const OneXThreeWidget({
+    required this.child,
+    this.width = 300,
+    super.key,
+  });
 
   final Widget child;
   final double width;

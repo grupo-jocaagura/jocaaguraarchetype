@@ -7,8 +7,10 @@ import '../../blocs/bloc_counter.dart';
 import 'basic_app_counter_widget.dart';
 import 'one_x_one_widget.dart';
 
-class BasicCounterApp extends StatelessWidget {
-  const BasicCounterApp({super.key});
+class SecondCounterApp extends StatelessWidget {
+  const SecondCounterApp({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +20,26 @@ class BasicCounterApp extends StatelessWidget {
         appManager.blocCore.getBlocModule<BlocCounter>(BlocCounter.name);
 
     final Size size = MediaQuery.of(context).size;
+    final AppBar appBar = AppBar(
+      title: Text('II ${appManager.responsive.getDeviceType} - $size'),
+      leading: appManager.navigator.showBackButton
+          ? IconButton(
+              icon: const Icon(Icons.arrow_back_ios),
+              onPressed: () => appManager.navigator.back(),
+            )
+          : null,
+      actions: <Widget>[
+        if (appManager.mainMenu.listMenuOptions.isNotEmpty)
+          Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              );
+            },
+          ),
+      ],
+    );
 
     if (appManager.responsive.isTv) {
       final List<ListTile> mainMenuTile = <ListTile>[];
@@ -42,26 +64,6 @@ class BasicCounterApp extends StatelessWidget {
                 ),
               )
             : null,
-        appBar: AppBar(
-          title: Text('${appManager.responsive.getDeviceType} - $size'),
-          leading: appManager.navigator.showBackButton
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: () => appManager.navigator.back(),
-                )
-              : null,
-          actions: <Widget>[
-            if (appManager.mainMenu.listMenuOptions.isNotEmpty)
-              Builder(
-                builder: (BuildContext context) {
-                  return IconButton(
-                    icon: const Icon(Icons.menu),
-                    onPressed: () => Scaffold.of(context).openDrawer(),
-                  );
-                },
-              ),
-          ],
-        ),
         body: Row(
           children: <Widget>[
             Container(
@@ -326,88 +328,67 @@ class BasicCounterApp extends StatelessWidget {
     }
 
     // movil es el default
-    return Material(
-      child: Scaffold(
-        drawer: appManager.mainMenu.listMenuOptions.isNotEmpty
-            ? Drawer(
-                child: MainMenuWidget(
-                  drawerWidth: appManager.responsive.drawerWidth,
-                  listMenuOptions: appManager.mainMenu.listMenuOptions,
+    return Scaffold(
+      drawer: appManager.mainMenu.listMenuOptions.isNotEmpty
+          ? Drawer(
+              child: MainMenuWidget(
+                drawerWidth: appManager.responsive.drawerWidth,
+                listMenuOptions: appManager.mainMenu.listMenuOptions,
+              ),
+            )
+          : null,
+      appBar: appBar,
+      body: PageWidthSecondaryMenuWidget(
+        page: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                OneXOneWidget(
+                  child: BasicAppCounterWidget(
+                    blocCounter: blocCounter,
+                  ),
                 ),
-              )
-            : null,
-        appBar: AppBar(
-          title: Text('${appManager.responsive.getDeviceType} - $size'),
-          leading: appManager.navigator.showBackButton
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: () => appManager.navigator.back(),
-                )
-              : null,
-          actions: <Widget>[
-            if (appManager.mainMenu.listMenuOptions.isNotEmpty)
-              Builder(
-                builder: (BuildContext context) {
-                  return IconButton(
-                    icon: const Icon(Icons.menu),
-                    onPressed: () => Scaffold.of(context).openDrawer(),
-                  );
-                },
-              ),
-          ],
-        ),
-        body: PageWidthSecondaryMenuWidget(
-          page: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  OneXOneWidget(
-                    child: BasicAppCounterWidget(
-                      blocCounter: blocCounter,
-                    ),
+                SizedBox(
+                  width: 200,
+                  height: 100,
+                  child: BasicAppCounterWidget(
+                    blocCounter: blocCounter,
                   ),
-                  SizedBox(
-                    width: 200,
-                    height: 100,
-                    child: BasicAppCounterWidget(
-                      blocCounter: blocCounter,
-                    ),
+                ),
+                SizedBox(
+                  width: 300,
+                  height: 100,
+                  child: BasicAppCounterWidget(
+                    blocCounter: blocCounter,
                   ),
-                  SizedBox(
-                    width: 300,
-                    height: 100,
-                    child: BasicAppCounterWidget(
-                      blocCounter: blocCounter,
-                    ),
+                ),
+                SizedBox(
+                  width: 288,
+                  height: 162,
+                  child: BasicAppCounterWidget(
+                    blocCounter: blocCounter,
                   ),
-                  SizedBox(
-                    width: 288,
-                    height: 162,
-                    child: BasicAppCounterWidget(
-                      blocCounter: blocCounter,
-                    ),
+                ),
+                SizedBox(
+                  width: 162,
+                  height: 288,
+                  child: BasicAppCounterWidget(
+                    blocCounter: blocCounter,
                   ),
-                  SizedBox(
-                    width: 162,
-                    height: 288,
-                    child: BasicAppCounterWidget(
-                      blocCounter: blocCounter,
-                    ),
-                  ),
-                  MyAppButtonWidget(
-                    iconData: Icons.sports_football,
-                    label: 'Paso',
-                    onPressed: blocCounter.add,
-                  ),
-                ],
-              ),
+                ),
+                MyAppButtonWidget(
+                  iconData: Icons.sports_football,
+                  label: 'Paso',
+                  onPressed: blocCounter.add,
+                ),
+              ],
             ),
           ),
-          screenSizeEnum: appManager.responsive.getDeviceType,
-          listOfModelMainMenu: appManager.secondaryMenu.listMenuOptions,
-          secondaryMenuWidth: 80.0,
         ),
+        screenSizeEnum: appManager.responsive.getDeviceType,
+        listOfModelMainMenu: appManager.secondaryMenu.listMenuOptions,
+        secondaryMenuWidth: 80.0,
       ),
     );
   }
