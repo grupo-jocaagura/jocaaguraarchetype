@@ -5,10 +5,41 @@ import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'provider_session.dart';
 
 class FakeSessionProvider extends ProviderSession {
+  FakeSessionProvider() : _lastActionTime = DateTime.now();
+  DateTime _lastActionTime;
+
+  void updateLastActionTime() {
+    _lastActionTime = DateTime.now();
+  }
+
+  // Método para verificar si la sesión debería ser considerada como expirada
+  bool get isSessionExpired {
+    return DateTime.now().difference(_lastActionTime).inMinutes >=
+        Random().nextInt(10).clamp(5, 20);
+  }
+
   UserModel _user = defaultUserModel;
 
   @override
-  UserModel get user => _user;
+  UserModel get user {
+    if (isSessionExpired == false) {
+      logOutUser(_user);
+      return _user;
+    }
+    updateLastActionTime();
+    return _user;
+  }
+
+  Future<Either<String, UserModel>> checkSessionExpired() async {
+    if (isSessionExpired == false) {
+      logOutUser(user);
+      return logInSilently(user);
+    }
+    updateLastActionTime();
+    return Future<Either<String, UserModel>>.value(
+      Right<String, UserModel>(user),
+    );
+  }
 
   @override
   Future<Either<String, UserModel>> logInUserAndPassword(
