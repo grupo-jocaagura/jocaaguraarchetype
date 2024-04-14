@@ -1,3 +1,13 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+* Iniciaremos el Changelog desde la version de modulos actual
+
+## 1.1.0 @albertjjimenezp
+* Modulos agregados
+- Inicio de sesion
+  - bloc_session, service_session y provider_session para el manejo de sesiones
+  - fake_session_provider para simular el inicio de sesiones
+* Aportes adicionales
+- Correccion de dart code wrnings e info
+  - bloc_counter
+  - second_app_counter

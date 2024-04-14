@@ -55,7 +55,7 @@ class SecondAppCounterWidget extends StatelessWidget {
                       width: 30.0,
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -98,7 +98,7 @@ class SecondAppCounterWidget extends StatelessWidget {
                             width: 15.0,
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -162,13 +162,13 @@ class SecondAppCounterWidget extends StatelessWidget {
             ),
           ),
           childVertical: VerticalWidget(
-            size: Size(300, 400),
+            size: const Size(300, 400),
             child: SizedBox(
               width: 300,
               height: 400,
               child: Stack(
-                children: [
-                  Positioned(
+                children: <Widget>[
+                  const Positioned(
                     left: 15.0,
                     top: 25.0,
                     child: Icon(
@@ -197,7 +197,7 @@ class SecondAppCounterWidget extends StatelessWidget {
                       label: 'Reset',
                       onPressed: blocCounter.reset,
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -223,7 +223,7 @@ class SecondAppCounterWidget extends StatelessWidget {
                               ),
                     ),
                   ),
-                  Positioned(
+                  const Positioned(
                     top: 20,
                     right: 25,
                     width: 280,
@@ -239,16 +239,16 @@ class SecondAppCounterWidget extends StatelessWidget {
                     width: 280,
                     height: 100,
                     child: Row(
-                      children: [
+                      children: <Widget>[
                         IconButton(
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.add,
                             size: 100,
                           ),
                           onPressed: blocCounter.add,
                         ),
                         IconButton(
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.remove,
                             size: 100,
                           ),

@@ -13,7 +13,9 @@ class BlocCounter extends BlocModule {
   }
 
   void reset([int val = 0]) {
-    _counter.value = val;
+    if (val != _counter.value) {
+      _counter.value = val;
+    }
   }
 
   Stream<int> get counterStream => _counter.stream;
