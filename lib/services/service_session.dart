@@ -7,21 +7,22 @@ class ServiceSession {
   final ProviderSession _providerSession;
 
   UserModel get user => _providerSession.user;
+  bool get isLogged => _providerSession.jwtValid;
 
   Future<Either<String, UserModel>> logInUserAndPassword(
     UserModel user,
     String password,
   ) =>
-      logInUserAndPassword(user, password);
+      _providerSession.logInUserAndPassword(user, password);
   Future<Either<String, UserModel>> logOutUser(UserModel user) =>
-      logOutUser(user);
+      _providerSession.logOutUser(user);
   Future<Either<String, UserModel>> signInUserAndPassword(
     UserModel user,
     String password,
   ) =>
-      signInUserAndPassword(user, password);
+      _providerSession.signInUserAndPassword(user, password);
   Future<Either<String, UserModel>> recoverPassword(UserModel user) =>
-      recoverPassword(user);
+      _providerSession.recoverPassword(user);
   Future<Either<String, UserModel>> logInSilently(UserModel user) =>
-      logInSilently(user);
+      _providerSession.logInSilently(user);
 }

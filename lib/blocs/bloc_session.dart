@@ -1,7 +1,4 @@
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
 import '../jocaaguraarchetype.dart';
-import '../services/service_session.dart';
 
 class BlocSession extends BlocModule {
   BlocSession(this._serviceSession);
@@ -13,16 +10,12 @@ class BlocSession extends BlocModule {
 
   String get password => _password.value;
 
-  bool get isLogged {
-    return _blocSession.value.fold(
-      (_) => false,
-      (UserModel user) => user.jwt.isNotEmpty,
-    );
-  }
+  bool get isLogged => _serviceSession.isLogged;
 
   Stream<Either<String, UserModel>> get userStream => _blocSession.stream;
 
-  Future<void> logInUserAndPassword(UserModel user) async {
+  Future<void> logInUserAndPassword(UserModel user, String password) async {
+    _password.value = password;
     _blocSession.value = await _serviceSession.logInUserAndPassword(
       user,
       password,
@@ -30,10 +23,12 @@ class BlocSession extends BlocModule {
   }
 
   Future<void> logOutUser(UserModel user) async {
+    _password.value = '';
     _blocSession.value = await _serviceSession.logOutUser(user);
   }
 
-  Future<void> signInUserAndPassword(UserModel user) async {
+  Future<void> signInUserAndPassword(UserModel user, String password) async {
+    _password.value = password;
     _blocSession.value = await _serviceSession.signInUserAndPassword(
       user,
       password,
@@ -41,6 +36,7 @@ class BlocSession extends BlocModule {
   }
 
   Future<void> recoverPassword(UserModel user) async {
+    _password.value = '';
     _blocSession.value = await _serviceSession.recoverPassword(user);
   }
 
@@ -59,7 +55,7 @@ class BlocSession extends BlocModule {
   }
 
   void removeFunctionToSessionChanges(String key) {
-    _blocSession.deleteFunctionToProcessTValueOnStream(key);
+    _blocSession.deleteFunctionToProcessTValueOnStream(key.toLowerCase());
   }
 
   @override

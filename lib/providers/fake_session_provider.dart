@@ -8,8 +8,8 @@ class FakeSessionProvider extends ProviderSession {
   FakeSessionProvider() : _lastActionTime = DateTime.now();
   DateTime _lastActionTime;
 
-  void updateLastActionTime() {
-    _lastActionTime = DateTime.now();
+  void updateLastActionTime([DateTime? testDateTime]) {
+    _lastActionTime = testDateTime ?? DateTime.now();
   }
 
   // Método para verificar si la sesión debería ser considerada como expirada
