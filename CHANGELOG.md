@@ -14,5 +14,6 @@
 
 ## 1.2.0 @albertjjimenezp
 * Modulos agregados
-- Internet checker
-  - 
+- Bloc Connectivity
+  - ConnectivityProvider 
+  - InternetProvider
