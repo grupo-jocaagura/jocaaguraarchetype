@@ -8,6 +8,11 @@
   - bloc_session, service_session y provider_session para el manejo de sesiones
   - fake_session_provider para simular el inicio de sesiones
 * Aportes adicionales
-- Correccion de dart code wrnings e info
+- Correccion de dart code warnings e info
   - bloc_counter
   - second_app_counter
+
+## 1.2.0 @albertjjimenezp
+* Modulos agregados
+- Internet checker
+  - 

@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:jocaagura_domain/jocaagura_domain.dart';
 
-import 'provider_session.dart';
+import '../providers/provider_session.dart';
 
 class FakeSessionProvider extends ProviderSession {
   FakeSessionProvider() : _lastActionTime = DateTime.now();

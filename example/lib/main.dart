@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:jocaaguraarchetype/blocs/bloc_connectivity.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:jocaaguraarchetype/services/service_connectivity.dart';
 
 import 'blocs/bloc_counter.dart';
 import 'ui/pages/my_home_page.dart';
@@ -10,6 +12,13 @@ final JocaaguraArchetype jocaaguraArchetype = JocaaguraArchetype();
 final BlocTheme blocTheme = BlocTheme(
   const ProviderTheme(
     ServiceTheme(),
+  ),
+);
+final BlocConnectivity blocConnectivity = BlocConnectivity(
+  ServiceConnectivity(
+    const FakeConnectivityProvider(),
+    const FakeInternetProvider(),
+    debouncer: Debouncer(milliseconds: 1000),
   ),
 );
 final BlocUserNotifications blocUserNotifications = BlocUserNotifications();
@@ -54,12 +63,17 @@ final AppManager appManager = AppManager(
     blocResponsive: blocResponsive,
     blocOnboarding: blocOnboarding,
     blocNavigator: blocNavigator,
-    blocModuleList: <String, BlocModule>{BlocCounter.name: BlocCounter()},
+    blocModuleList: <String, BlocModule>{
+      BlocCounter.name: BlocCounter(),
+      BlocConnectivity.name: blocConnectivity,
+    },
   ),
 );
 
 void main() {
-  runApp(JocaaguraApp(
-    appManager: appManager,
-  ),);
+  runApp(
+    JocaaguraApp(
+      appManager: appManager,
+    ),
+  );
 }

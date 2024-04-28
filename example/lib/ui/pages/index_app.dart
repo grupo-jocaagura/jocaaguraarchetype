@@ -4,6 +4,7 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 import '../../blocs/bloc_counter.dart';
 import '../widgets/basic_counter_app.dart';
 import '../widgets/second_counter_app.dart';
+import 'connectivity_page.dart';
 
 class IndexApp extends StatelessWidget {
   const IndexApp({super.key});
@@ -32,6 +33,18 @@ class IndexApp extends StatelessWidget {
                 routeName: 'SecondCounterApp',
                 title: 'Secondary app',
                 widget: SecondCounterApp(),
+              ),
+            ),
+          ),
+          ListTile(
+            title: const Text('Go to fake connectivity'),
+            subtitle: const Text('Here we go!! To see connectivity'),
+            onTap: () => basicApp(
+              appManager,
+              const PageWidget(
+                routeName: 'ConnectivityPage',
+                title: 'Connectivity test',
+                widget: ConnectivityPage(),
               ),
             ),
           ),
