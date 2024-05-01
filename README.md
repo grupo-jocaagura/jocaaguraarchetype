@@ -267,13 +267,45 @@ void main(){
   int newPosition = blocOnboarding.addFunction(additionalFunction);
 }
 ```
+## BlocUserNotifications
 
 ### Métodos Principales
 - `execute(Duration duration)`: Inicia la ejecución del proceso de onboarding después de un retardo especificado.
 - `addFunction(FutureOr<void> Function() function)`: Añade una nueva función al proceso de onboarding y retorna la nueva longitud de la lista de funciones.
 
+### Descripción
+`BlocUserNotifications` es un componente destinado a gestionar las notificaciones de usuario en forma de mensajes breves o "toasts". Facilita la visualización de mensajes y su eliminación automática después de un tiempo predefinido, mejorando la interacción del usuario con la aplicación.
+
+### Parámetros
+- `_msgController`: Controlador que maneja el estado del mensaje de notificación.
+
+### Ejemplo de uso en lenguaje natural
+Para mostrar un mensaje de notificación al usuario, se utiliza el método `showToast`. Este método limpia cualquier mensaje anterior, establece el nuevo mensaje y lo elimina automáticamente después de un intervalo de tiempo, en este caso, 7 segundos.
+
+```dart
+void main(){
+  BlocUserNotifications blocUserNotifications = BlocUserNotifications();
+  blocUserNotifications.showToast("Bienvenido a la aplicación!");
+
+}
+```
+
+### Ejemplo de uso en lenguaje natural
+Para eliminar manualmente un mensaje de notificación antes de que expire el tiempo, se puede usar el método `clear`. Esto es útil en escenarios donde el usuario realiza una acción que debería interrumpir la visualización del mensaje.
 
 
+```dart
+void main(){
+  blocUserNotifications.clear();
+
+}
+```
+
+### Métodos Principales
+- `showToast(String message)`: Muestra un mensaje de toast y lo limpia automáticamente después de 7 segundos.
+- `clear()`: Limpia el mensaje de notificación activo inmediatamente.
+
+ 
 
 
 
