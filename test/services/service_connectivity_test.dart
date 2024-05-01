@@ -16,8 +16,8 @@ void main() {
       mockConnectivityProvider = MockConnectivityProvider();
       mockInternetProvider = MockInternetProvider();
       debouncer = Debouncer(
-          milliseconds:
-              1000); // Utiliza un debouncer con 1 segundo de delay para pruebas
+        milliseconds: 1000,
+      ); // Utiliza un debouncer con 1 segundo de delay para pruebas
       serviceConnectivity = ServiceConnectivity(
         mockConnectivityProvider,
         mockInternetProvider,
@@ -27,39 +27,44 @@ void main() {
 
     test('checkConnectivity returns correct result after debounce delay',
         () async {
-      var connectivityModel = ConnectivityModel(
+      const ConnectivityModel connectivityModel = ConnectivityModel(
         connectionType: ConnectionTypeEnum.wifi,
         internetSpeed: 50.0,
       );
       // Simula la llamada y espera
-      final future = serviceConnectivity.checkConnectivity(connectivityModel);
-      await Future.delayed(
-          Duration(milliseconds: 1100)); // Espera más que el debounce
-      final result = await future;
+      final Future<Either<String, ConnectivityModel>> future =
+          serviceConnectivity.checkConnectivity(connectivityModel);
+      await Future<void>.delayed(
+        const Duration(milliseconds: 1100),
+      ); // Espera más que el debounce
+      final Either<String, ConnectivityModel> result = await future;
 
       expect(result.isRight, isTrue);
       result.fold(
-        (l) => fail('Expected a successful result'),
-        (r) => expect(r.connectionType, ConnectionTypeEnum.wifi),
+        (String l) => fail('Expected a successful result'),
+        (ConnectivityModel r) =>
+            expect(r.connectionType, ConnectionTypeEnum.wifi),
       );
     });
 
     test(
         'checkInternetSpeed returns updated internet speed after debounce delay',
         () async {
-      var connectivityModel = ConnectivityModel(
+      const ConnectivityModel connectivityModel = ConnectivityModel(
         connectionType: ConnectionTypeEnum.mobile,
         internetSpeed: 20.0,
       );
-      final future = serviceConnectivity.checkInternetSpeed(connectivityModel);
-      await Future.delayed(
-          Duration(milliseconds: 1100)); // Espera más que el debounce
-      final result = await future;
+      final Future<Either<String, ConnectivityModel>> future =
+          serviceConnectivity.checkInternetSpeed(connectivityModel);
+      await Future<void>.delayed(
+        const Duration(milliseconds: 1100),
+      ); // Espera más que el debounce
+      final Either<String, ConnectivityModel> result = await future;
 
       expect(result.isRight, isTrue);
       result.fold(
-        (l) => fail('Expected a successful result'),
-        (r) => expect(r.internetSpeed, 100.0),
+        (String l) => fail('Expected a successful result'),
+        (ConnectivityModel r) => expect(r.internetSpeed, 100.0),
       );
     });
   });

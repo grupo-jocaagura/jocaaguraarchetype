@@ -7,6 +7,7 @@ class MockConnectivityProvider implements ProviderConnectivity {
     ConnectivityModel connectivityModel,
   ) async {
     return Right<String, ConnectivityModel>(
-        connectivityModel); // Simula siempre una respuesta exitosa
+      connectivityModel,
+    ); // Simula siempre una respuesta exitosa
   }
 }

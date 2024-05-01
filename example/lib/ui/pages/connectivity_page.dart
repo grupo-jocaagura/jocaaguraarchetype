@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_connectivity.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import '../../blocs/bloc_counter.dart';

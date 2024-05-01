@@ -1,8 +1,8 @@
-# example
+# jocaagura archetype
 
-A new Flutter project.
+Un proyecto transversal para desarrollo de las aplicaciones transversales
 
-## Getting Started
+## jocaaguraApp
 
 This project is a starting point for a Flutter application.
 

@@ -45,10 +45,12 @@ void main() {
 
     test('should handle custom internet speed function if provided', () async {
       final FakeInternetProvider customProvider = FakeInternetProvider(
-        getAppTestingFunction: Right(const ConnectivityModel(
-          connectionType: ConnectionTypeEnum.wifi,
-          internetSpeed: 50.0, // Simular 50 Mbps
-        )),
+        getAppTestingFunction: Right<String, ConnectivityModel>(
+          const ConnectivityModel(
+            connectionType: ConnectionTypeEnum.wifi,
+            internetSpeed: 50.0, // Simular 50 Mbps
+          ),
+        ),
       );
 
       const ConnectivityModel connectivityModel = ConnectivityModel(
@@ -76,7 +78,9 @@ void main() {
       );
       final DateTime endTime = DateTime.now();
       expect(
-          endTime.difference(startTime) >= const Duration(seconds: 1), isTrue);
+        endTime.difference(startTime) >= const Duration(seconds: 1),
+        isTrue,
+      );
     });
   });
 }
