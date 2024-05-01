@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../jocaaguraarchetype.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
 class BlocLoading extends BlocModule {
   final BlocGeneral<String> _loadingController = BlocGeneral<String>('');

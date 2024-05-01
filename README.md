@@ -100,3 +100,31 @@ void main(){
   blocTheme.randomTheme();
 }
 ```
+## BlocLoading
+
+### Descripción
+`BlocLoading` es un componente del BLoC que gestiona los mensajes de carga dentro de la aplicación. Proporciona una manera centralizada de mostrar y actualizar mensajes de estado de carga, lo que es útil para informar a los usuarios sobre operaciones en curso.
+
+### Parámetros
+- `_loadingController`: Controlador de tipo `BlocGeneral<String>` que maneja el estado del mensaje de carga actual.
+
+```dart
+void main(){
+  BlocLoading blocLoading = BlocLoading();
+}
+```
+
+### Ejemplo de uso en lenguaje natural
+Para mostrar un mensaje de carga durante una operación que puede tardar un tiempo, como la carga de datos de red, se utiliza el método `loadingMsgWithFuture`. Este método establece el mensaje de carga antes de ejecutar la operación y lo limpia automáticamente al finalizar.
+
+```dart
+void main()async{
+  await blocLoading.loadingMsgWithFuture(
+      "Cargando datos...",
+          () async {
+        await Future.delayed(Duration(seconds: 2)); // Simulando una operación de carga de datos
+      }
+  );
+
+}
+```
