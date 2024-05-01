@@ -177,6 +177,57 @@ void main(){
 ### Aclaración sobre cálculo de gutters y columnWidth
 El cálculo de `gutters` y `columnWidth` sigue lineamientos de diseño responsivo que permiten una maquetación flexible y eficiente. Los gutters son los espacios entre columnas y el `columnWidth` es el ancho de cada columna, ambos ajustados dinámicamente para responder a diferentes tamaños de pantalla y orientaciones.
 
+## BlocNavigator
+
+### Descripción
+`BlocNavigator` es un componente que gestiona la navegación dentro de la aplicación. Utiliza un `PageManager` para controlar el stack de páginas, permitiendo operaciones como la navegación hacia atrás, el reemplazo de páginas y la gestión dinámica de rutas. Este enfoque modular facilita la manipulación de la navegación y la integración con sistemas de rutas más complejos.
+
+### Parámetros
+- `pageManager`: Instancia de `PageManager` que maneja el historial de páginas y la navegación.
+- `homePage`: Widget opcional que define la página de inicio de la aplicación.
+
+### Aclaración sobre el manejo del stack de páginas
+El `PageManager` mantiene un stack de páginas donde cada nueva página agregada se convierte en la página "activa" que se muestra en la interfaz. Aunque múltiples páginas pueden estar en el stack, solo la página en la cima del stack es visible en cualquier momento, lo que asegura que la interfaz del usuario se mantenga enfocada y clara.
+
+```dart
+void main(){
+  Widget homePage = Scaffold(body: Center(child: Text("Home Page")));
+  BlocNavigator blocNavigator = BlocNavigator(PageManager(), homePage);
+}
+```
+
+### Ejemplo de uso en lenguaje natural
+Para añadir una página al historial y navegar a ella, se utiliza el método `pushPage`. Este método es útil para añadir páginas de forma dinámica mientras el usuario navega a través de la aplicación.
+
+### Ejemplo de uso en código Dart
+```dart
+void main(){
+  Widget newPage = Scaffold(body: Center(child: Text("New Page")));
+  String routeName = "/newPage";
+  blocNavigator.pushPage(routeName, newPage);
+}
+```
+
+### Ejemplo de uso en lenguaje natural
+Para manejar el regreso a la página anterior, se utiliza el método `back`. Este es esencial para permitir a los usuarios navegar hacia atrás en su historial de navegación de forma intuitiva.
+
+### Ejemplo de uso en código Dart
+```dart
+void main(){
+blocNavigator.back();
+}
+```
+
+### Importancia de la integración con `BlocNavigator`
+Integrar `BlocNavigator` en la arquitectura de la aplicación permite una gestión centralizada y coherente de la navegación, lo que facilita la implementación de características como la navegación basada en rutas nombradas, el manejo de rutas no encontradas y la restauración de estados de navegación.
+
+### Métodos Principales
+- `pushPage(String routeName, Widget widget, [Object? arguments])`: Navega a una nueva página con argumentos opcionales.
+- `back()`: Regresa a la página anterior en el historial.
+- `setHomePage(Widget widget, [Object? arguments])`: Establece la página de inicio de la aplicación.
+
+
+
 
 
 

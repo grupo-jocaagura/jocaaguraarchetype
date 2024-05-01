@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
-import '../jocaaguraarchetype.dart';
 import '../navigator/my_app_route_delegate.dart';
+import '../navigator/page_manager.dart';
 import '../navigator/route_information_parser.dart';
 
 class BlocNavigator extends BlocModule {
