@@ -551,8 +551,53 @@ void main(){
 
 `AppManager` es fundamental para la cohesión y el funcionamiento eficiente de la aplicación, proporcionando un acceso organizado y centralizado a todos los BLoCs. 
 
+## BlocConnectivity y Proveedores de Conectividad
+
+### Descripción
+`BlocConnectivity` es un componente crucial que gestiona el estado de la conectividad de la red e Internet en la aplicación. Utiliza `ServiceConnectivity` para verificar el estado de la conexión y la velocidad de Internet a través de proveedores que pueden ser reales o simulados para pruebas.
+
+### Parámetros
+- `serviceConnectivity`: Servicio que interactúa con los proveedores de conectividad e Internet para obtener el estado actual de la red.
+
+### Ejemplo de uso en lenguaje natural
+`BlocConnectivity` se utiliza para actualizar y gestionar el estado de la conectividad. Inicializa con un estado predeterminado y se actualiza mediante métodos que verifican la conexión y la velocidad de Internet, respondiendo a cambios en tiempo real.
+### Proveedores Falsos
+Los proveedores falsos, como `FakeInternetProvider` y `FakeConnectivityProvider`, permiten simular diferentes estados de conectividad e Internet para facilitar las pruebas durante el desarrollo. Estos proveedores devuelven resultados controlados basados en parámetros de entrada configurables.
 
 
+```dart
+void main(){
+  FakeInternetProvider fakeInternetProvider = FakeInternetProvider(
+    getAppTestingFunction: Right<ConnectivityModel>(
+      ConnectivityModel(
+        connectionType: ConnectionTypeEnum.wifi,
+        internetSpeed: 50.0,
+      ),
+    ),
+  );
+  FakeConnectivityProvider fakeConnectivityProvider = FakeConnectivityProvider(
+    getAppTestingFunction: Right<ConnectivityModel>(
+      ConnectivityModel(
+        connectionType: ConnectionTypeEnum.wifi,
+        connected: true,
+      ),
+    ),
+  );
+
+  ServiceConnectivity serviceConnectivity = ServiceConnectivity(
+    connectivityProvider: FakeConnectivityProvider(),
+    internetProvider: FakeInternetProvider(),
+    debouncer: Debouncer(),
+  );
+  BlocConnectivity blocConnectivity = BlocConnectivity(serviceConnectivity);
+}
+```
+### Métodos Principales
+- `updateConnectivity()`: Verifica y actualiza el estado de la conexión de red.
+- `updateInternetSpeed()`: Verifica y actualiza la velocidad de Internet.
+- `updateConnectionStatus()`: Realiza ambas verificaciones y actualiza el estado global de conectividad.
+
+Estos métodos aseguran que la aplicación pueda responder de manera adecuada a los cambios en la conectividad, mejorando la experiencia del usuario y facilitando el desarrollo y las pruebas. ¿Hay algún detalle adicional que te gustaría que incorporáramos o alguna otra funcionalidad que necesitemos documentar?
 
 
 

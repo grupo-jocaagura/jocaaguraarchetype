@@ -30,4 +30,6 @@
   - AppConfig
   - AppManager
   - JocaaguraApp
+  - Flujos anexos
+    - Conectividad e internet
 - Corrección dart fix issues
