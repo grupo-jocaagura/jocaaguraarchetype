@@ -345,9 +345,47 @@ void main(){
 - `removeMainMenuOption(String label)`: Elimina una opción del menú del cajón principal basándose en su etiqueta.
 - `clearMainDrawer()`: Limpia todas las opciones del menú del cajón principal.
 
+## BlocSecondaryMenuDrawer
+
+### Descripción
+`BlocSecondaryMenuDrawer` es un componente que gestiona las opciones del menú secundario en un cajón de navegación para aplicaciones. Este BLoC permite la adición, eliminación y limpieza de opciones del menú, así como el control de la apertura y cierre del cajón de navegación secundario.
+
+### Parámetros
+- `_drawerMainMenu`: Controlador que mantiene una lista de modelos de opciones de menú, cada uno representando una opción en el cajón de navegación secundario.
+
+### Ejemplo de uso en lenguaje natural
+Para añadir una opción al menú del cajón secundario, se utiliza el método `addMainMenuOption`. Este método permite configurar la acción al presionar, el texto de la etiqueta, el icono asociado con cada opción del menú, y una descripción opcional.
+
+```dart
+void main(){
+  BlocSecondaryMenuDrawer blocSecondaryMenuDrawer = BlocSecondaryMenuDrawer();
+  blocSecondaryMenuDrawer.addMainMenuOption(
+      onPressed: () {
+        print("Opción secundaria seleccionada");
+      },
+      label: "Configuración",
+      iconData: Icons.settings,
+      description: "Ajustes de la aplicación"
+  );
+
+  
+}
+```
+
+### Ejemplo de uso en lenguaje natural
+Para remover una opción específica del menú del cajón secundario, se utiliza el método `removeMainMenuOption`. Esto es útil para ajustar dinámicamente las opciones disponibles basándose en cambios en la configuración de la aplicación o en los privilegios del usuario.
 
 
+```dart
+void main(){
+  blocSecondaryMenuDrawer.removeMainMenuOption("Configuración");
+}
+```
 
+### Métodos Principales
+- `addMainMenuOption({VoidCallback onPressed, String label, IconData iconData, String description})`: Añade una nueva opción al menú del cajón secundario.
+- `removeMainMenuOption(String label)`: Elimina una opción del menú del cajón secundario basándose en su etiqueta.
+- `clearMainDrawer()`: Limpia todas las opciones del menú del cajón secundario.
 
 
 

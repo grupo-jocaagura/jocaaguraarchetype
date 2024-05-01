@@ -26,4 +26,5 @@
   - BlocNavigator
   - BlocOnboarding
   - BlocMainMenuDrawer
+  - BlocSecondaryMenuDrawer
 - Corrección dart fix issues

@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
-import '../jocaaguraarchetype.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
 /// [BlocSecondaryMenuDrawer] A BLoC for managing the main menu drawer options.
 ///
