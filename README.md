@@ -305,7 +305,51 @@ void main(){
 - `showToast(String message)`: Muestra un mensaje de toast y lo limpia automáticamente después de 7 segundos.
 - `clear()`: Limpia el mensaje de notificación activo inmediatamente.
 
- 
+## BlocMainMenuDrawer
+
+### Descripción
+`BlocMainMenuDrawer` es un componente diseñado para gestionar las opciones del menú principal de un cajón de navegación en aplicaciones. Este BLoC facilita la adición, eliminación y limpieza de opciones de menú, así como el control sobre la apertura y cierre del cajón de navegación.
+
+### Parámetros
+- `_drawerMainMenu`: Controlador que mantiene una lista de modelos de opciones de menú, cada uno representando una opción en el cajón de navegación.
+
+### Ejemplo de uso en lenguaje natural
+Para añadir una opción al menú del cajón principal, se utiliza el método `addMainMenuOption`. Este método permite configurar la acción al presionar, el texto de la etiqueta y el icono asociado con cada opción del menú.
+
+
+```dart
+void main(){
+  BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
+  blocMainMenuDrawer.addMainMenuOption(
+    onPressed: () {
+      print("Opción seleccionada");
+    },
+    label: "Inicio",
+    iconData: Icons.home,
+  );
+
+}
+```
+### Ejemplo de uso en lenguaje natural
+Para remover una opción específica del menú del cajón principal, se utiliza el método `removeMainMenuOption`. Esto es útil para ajustar dinámicamente las opciones disponibles basándose en cambios en la configuración de la aplicación o en los privilegios del usuario.
+
+```dart
+void main(){
+  BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
+  blocMainMenuDrawer.removeMainMenuOption("Inicio");
+}
+```
+
+### Métodos Principales
+- `addMainMenuOption({VoidCallback onPressed, String label, IconData iconData, String description})`: Añade una nueva opción al menú del cajón principal.
+- `removeMainMenuOption(String label)`: Elimina una opción del menú del cajón principal basándose en su etiqueta.
+- `clearMainDrawer()`: Limpia todas las opciones del menú del cajón principal.
+
+
+
+
+
+
 
 
 

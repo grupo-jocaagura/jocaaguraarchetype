@@ -25,4 +25,5 @@
   - BlocResponsive
   - BlocNavigator
   - BlocOnboarding
+  - BlocMainMenuDrawer
 - Corrección dart fix issues

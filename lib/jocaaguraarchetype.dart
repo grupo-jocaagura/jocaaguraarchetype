@@ -4,7 +4,7 @@ export 'app_config.dart';
 export 'blocs/app_manager.dart';
 export 'blocs/bloc_connectivity.dart';
 export 'blocs/bloc_loading.dart';
-export 'blocs/bloc_main_menu.dart';
+export 'blocs/bloc_main_menu_drawer.dart';
 export 'blocs/bloc_navigator.dart';
 export 'blocs/bloc_onboarding.dart';
 export 'blocs/bloc_responsive.dart';
