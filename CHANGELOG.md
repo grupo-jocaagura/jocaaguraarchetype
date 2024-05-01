@@ -27,4 +27,5 @@
   - BlocOnboarding
   - BlocMainMenuDrawer
   - BlocSecondaryMenuDrawer
+  - AppConfig
 - Corrección dart fix issues

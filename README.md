@@ -387,8 +387,40 @@ void main(){
 - `removeMainMenuOption(String label)`: Elimina una opción del menú del cajón secundario basándose en su etiqueta.
 - `clearMainDrawer()`: Limpia todas las opciones del menú del cajón secundario.
 
+## AppConfig
+
+### Descripción
+`AppConfig` es una clase diseñada para encapsular la configuración inicial de todos los componentes BLoC de una aplicación. Proporciona un punto único de configuración para varios BLoCs, facilitando su manejo y acceso centralizado dentro de la aplicación.
+
+### Parámetros
+- `blocTheme`: BLoC para gestionar los temas de la aplicación.
+- `blocUserNotifications`: BLoC para manejar las notificaciones de usuario.
+- `blocLoading`: BLoC para controlar indicadores de carga.
+- `blocMainMenuDrawer`: BLoC para gestionar las opciones del menú principal.
+- `blocSecondaryMenuDrawer`: BLoC para gestionar las opciones del menú secundario.
+- `blocResponsive`: BLoC para adaptabilidad y respuesta de la interfaz de usuario.
+- `blocOnboarding`: BLoC para manejar las operaciones de inicio de la aplicación.
+- `blocNavigator`: BLoC para la navegación dentro de la aplicación.
+- `blocModuleList`: Mapa opcional de BLoCs adicionales que pueden ser configurados.
 
 
+```dart
+void main(){
+  AppConfig appConfig = AppConfig(
+    blocTheme: BlocTheme(),
+    blocUserNotifications: BlocUserNotifications(),
+    blocLoading: BlocLoading(),
+    blocMainMenuDrawer: BlocMainMenuDrawer(),
+    blocSecondaryMenuDrawer: BlocSecondaryMenuDrawer(),
+    blocResponsive: BlocResponsive(),
+    blocOnboarding: BlocOnboarding(),
+    blocNavigator: BlocNavigator(),
+  );
+}
+```
+
+### Métodos Principales
+- `blocCore()`: Retorna un objeto `BlocCore` que contiene todos los BLoCs configurados en la aplicación. Este método permite un acceso fácil y centralizado a todos los BLoCs, lo cual es útil para operaciones que requieren la interacción entre múltiples componentes BLoC.
 
 
 
