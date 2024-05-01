@@ -422,6 +422,134 @@ void main(){
 ### Métodos Principales
 - `blocCore()`: Retorna un objeto `BlocCore` que contiene todos los BLoCs configurados en la aplicación. Este método permite un acceso fácil y centralizado a todos los BLoCs, lo cual es útil para operaciones que requieren la interacción entre múltiples componentes BLoC.
 
+## JocaaguraApp
+
+### Descripción
+`JocaaguraApp` es el componente central de la aplicación, actuando como el punto de integración para todos los servicios y BLoCs configurados a través de `AppManager`. Este `StatefulWidget` gestiona el estado global de la aplicación, incluyendo el tema y la navegación, proporcionando así un entorno coherente y controlado.
+
+### Parámetros
+- `appManager`: Gestor de la aplicación que contiene todos los BLoCs y servicios necesarios para el funcionamiento de la aplicación.
+- `title`: Título opcional para la aplicación, utilizado en la barra de título del navegador en plataformas web.
+
+### Ejemplo de uso en lenguaje natural
+`JocaaguraApp` inicializa sus servicios y comienza a escuchar los cambios en los datos de tema a través de un `StreamSubscription`, actualizando el estado del widget cuando hay cambios. Esto asegura que el tema de la aplicación se mantiene actualizado en respuesta a las preferencias del usuario o a cambios en el sistema.
+
+```dart
+void main(){
+  AppManager appManager = AppManager();  // Supone la configuración previa de todos los BLoCs y servicios.
+  JocaaguraApp jocaaguraApp = JocaaguraApp(appManager: appManager, title: 'My Jocaagura App');
+// Código correspondiente a la inicialización y suscripción del tema dentro de `initState`.
+  _themeSubscription = widget.appManager.theme.themeDataStream.listen((ThemeData themeData) {
+    setState(() {});
+  });
+
+}
+```
+### Ejemplo de uso en lenguaje natural
+Al construir la interfaz de usuario, `JocaaguraApp` establece el tamaño del dispositivo a través de `appManager.responsive` para asegurar que la UI se adapta correctamente a diferentes tamaños de pantalla y orientaciones. Luego, utiliza `MaterialApp.router` para una navegación basada en rutas que es gestionada por `AppManager`.
+
+```dart
+void main(){
+  // Código correspondiente al método `build` donde se configura el MaterialApp.
+  MaterialApp.router(
+    debugShowCheckedModeBanner: false,
+    title: widget.title,
+    theme: widget.appManager.theme.themeData,
+    routerDelegate: widget.appManager.navigator.routerDelegate,
+    routeInformationParser: widget.appManager.navigator.routeInformationParser,
+  );
+
+}
+```
+### Métodos y Eventos Principales
+- `initState()`: Inicia los servicios y suscripciones necesarios para la operación de la aplicación.
+- `dispose()`: Limpia los recursos y suscripciones cuando el widget se destruye para evitar fugas de memoria.
+
+`JocaaguraApp` es fundamental para la cohesión y el funcionamiento eficiente de la aplicación, centralizando la gestión de estado y navegación.
+
+## JocaaguraApp y PageBuilder
+
+### Descripción
+`JocaaguraApp` es el componente raíz de la aplicación que integra todos los BLoCs y servicios para proporcionar un punto de partida avanzado y centralizado. Utiliza `PageBuilder` para construir una interfaz de usuario responsiva y adaptativa, respondiendo a los cambios de tamaño y configuración del dispositivo.
+
+### Parámetros de JocaaguraApp
+- `appManager`: Gestor de la aplicación que encapsula todos los BLoCs y servicios.
+- `title`: Título de la aplicación, utilizado en la barra de título en plataformas web.
+
+### Parámetros de PageBuilder
+- `page`: Widget opcional que representa la página actual que se debe mostrar en el área de trabajo.
+
+### Ejemplo de uso en lenguaje natural para JocaaguraApp
+`JocaaguraApp` se encarga de iniciar los servicios y suscribirse a los cambios en los temas a través de `StreamSubscription`, asegurando que el tema de la aplicación se actualice en respuesta a las preferencias del usuario.
+### Ejemplo de uso en lenguaje natural para PageBuilder
+`PageBuilder` escucha los cambios en el tamaño de la pantalla a través de `BlocResponsive`, y responde a los cambios de configuración del menú principal y secundario, garantizando que la interfaz de usuario se adapte correctamente a diferentes tamaños de pantalla y orientaciones.
+
+```dart
+void main(){
+  AppManager appManager = AppManager();  // Configuración previa de todos los BLoCs y servicios.
+  JocaaguraApp jocaaguraApp = JocaaguraApp(appManager: appManager, title: 'My Jocaagura App');
+// Inicialización y suscripción al tema en `initState`.
+  _themeSubscription = widget.appManager.theme.themeDataStream.listen((ThemeData themeData) {
+    setState(() {});
+  });
+// Implementación del constructor de página en PageBuilder.
+  PageBuilder pageBuilder = PageBuilder(page: Text("Content of your application"));
+
+}
+
+```
+
+### Métodos y Eventos Principales de PageBuilder
+- `initState()`: Suscribe al stream de tamaño de pantalla y a los streams de menú para actualizar la UI en respuesta a los cambios.
+- `dispose()`: Cancela todas las suscripciones activas para limpiar los recursos.
+
+`JocaaguraApp` junto con `PageBuilder` forma un sistema robusto que integra todas las funcionalidades de la aplicación, proporcionando un entorno coherente y controlado para la gestión del estado y la navegación. 
+
+## AppManager
+
+### Descripción
+`AppManager` es una clase diseñada para actuar como una fachada entre la configuración de la aplicación y los BLoCs. Proporciona un punto de acceso centralizado para todos los BLoCs configurados en `AppConfig`, simplificando la interacción con estos componentes a lo largo de la aplicación.
+
+### Parámetros
+- `appConfig`: Configuración de la aplicación que contiene las instancias de todos los BLoCs necesarios para el funcionamiento de la aplicación.
+
+### Ejemplo de uso en lenguaje natural
+`AppManager` facilita la gestión de BLoCs permitiendo que los componentes de la aplicación accedan a los BLoCs necesarios a través de propiedades claramente definidas. Esto elimina la necesidad de gestionar múltiples referencias a BLoCs dentro de los widgets y componentes, centralizando la lógica de acceso en un solo lugar.
+
+```dart
+void main(){
+  AppConfig appConfig = AppConfig(
+    blocTheme: BlocTheme(),
+    blocUserNotifications: BlocUserNotifications(),
+    blocLoading: BlocLoading(),
+    blocMainMenuDrawer: BlocMainMenuDrawer(),
+    blocSecondaryMenuDrawer: BlocSecondaryMenuDrawer(),
+    blocResponsive: BlocResponsive(),
+    blocOnboarding: BlocOnboarding(),
+    blocNavigator: BlocNavigator(),
+  );
+  AppManager appManager = AppManager(appConfig);
+// Accediendo al BLoC de tema desde cualquier parte de la aplicación utilizando AppManager.
+  ThemeData currentTheme = appManager.theme.themeData;
+// Para limpiar todos los recursos y suscripciones de BLoCs al cerrar la aplicación, se utiliza el método `dispose` de `AppManager`. Esto asegura una terminación limpia y eficiente de los servicios utilizados por la aplicación.
+  appManager.dispose();
+
+}
+```
+
+### Métodos y Propiedades Principales
+- `get blocCore`: Retorna el `BlocCore` que contiene todas las instancias de BLoCs.
+- `get responsive`: Accede al `BlocResponsive` para la gestión de la interfaz adaptativa.
+- `get loading`: Accede al `BlocLoading` para la gestión de indicadores de carga.
+- `get mainMenu`: Accede al `BlocMainMenuDrawer` para la gestión del menú principal.
+- `get secondaryMenu`: Accede al `BlocSecondaryMenuDrawer` para la gestión del menú secundario.
+- `get theme`: Accede al `BlocTheme` para la gestión de temas.
+- `get navigator`: Accede al `BlocNavigator` para la gestión de navegación.
+- `get onboarding`: Accede al `BlocOnboarding` para las operaciones de inicio.
+- `get blocUserNotifications`: Accede al `BlocUserNotifications` para la gestión de notificaciones de usuario.
+- `dispose()`: Limpia todos los BLoCs y sus recursos asociados.
+
+`AppManager` es fundamental para la cohesión y el funcionamiento eficiente de la aplicación, proporcionando un acceso organizado y centralizado a todos los BLoCs. 
 
 
 

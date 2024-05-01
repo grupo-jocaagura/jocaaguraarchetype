@@ -28,4 +28,6 @@
   - BlocMainMenuDrawer
   - BlocSecondaryMenuDrawer
   - AppConfig
+  - AppManager
+  - JocaaguraApp
 - Corrección dart fix issues
