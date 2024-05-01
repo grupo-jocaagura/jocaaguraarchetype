@@ -24,4 +24,5 @@
   - BlocLoading
   - BlocResponsive
   - BlocNavigator
+  - BlocOnboarding
 - Corrección dart fix issues

@@ -226,6 +226,57 @@ Integrar `BlocNavigator` en la arquitectura de la aplicación permite una gesti�
 - `back()`: Regresa a la página anterior en el historial.
 - `setHomePage(Widget widget, [Object? arguments])`: Establece la página de inicio de la aplicación.
 
+## BlocOnboarding
+
+### Descripción
+`BlocOnboarding` es un componente diseñado para manejar secuencias de operaciones de inicio, como la carga inicial de datos o configuraciones necesarias antes de que el usuario empiece a interactuar con la aplicación. Este BLoC permite programar una serie de funciones que se ejecutarán de manera secuencial, ofreciendo retroalimentación en tiempo real sobre el progreso.
+
+### Parámetros
+- `_blocOnboardingList`: Lista de funciones que se ejecutarán durante el proceso de onboarding.
+- `delayInSeconds`: Retardo inicial antes de comenzar la ejecución de las funciones de onboarding.
+
+```dart
+void main(){
+  List<FutureOr<void> Function()> onboardingFunctions = [
+        () async => print("Cargando configuraciones..."),
+        () async => print("Cargando datos del usuario..."),
+  ];
+  BlocOnboarding blocOnboarding = BlocOnboarding(onboardingFunctions, delayInSeconds: 2);
+
+}
+```
+
+### Ejemplo de uso en lenguaje natural
+Para iniciar el proceso de onboarding, se configura el `BlocOnboarding` con una lista de funciones y un retardo inicial. Cada función puede realizar tareas como cargar configuraciones, preparar el entorno del usuario, entre otros. La ejecución se maneja automáticamente y proporciona retroalimentación sobre el número de tareas restantes.
+
+```dart
+void main(){
+  // Suponiendo que el BlocOnboarding ya ha sido inicializado como mostrado anteriormente.
+  blocOnboarding.execute(Duration(seconds: 1));
+}
+```
+
+### Ejemplo de uso en lenguaje natural
+Para agregar nuevas funciones al proceso de onboarding después de su inicialización, se puede utilizar el método `addFunction`. Esto es útil para modificar dinámicamente el proceso de onboarding basado en condiciones que pueden cambiar en tiempo de ejecución.
+
+```dart
+void main(){
+  FutureOr<void> additionalFunction() async {
+    print("Cargando recursos adicionales...");
+  }
+  int newPosition = blocOnboarding.addFunction(additionalFunction);
+}
+```
+
+### Métodos Principales
+- `execute(Duration duration)`: Inicia la ejecución del proceso de onboarding después de un retardo especificado.
+- `addFunction(FutureOr<void> Function() function)`: Añade una nueva función al proceso de onboarding y retorna la nueva longitud de la lista de funciones.
+
+
+
+
+
+
 
 
 
