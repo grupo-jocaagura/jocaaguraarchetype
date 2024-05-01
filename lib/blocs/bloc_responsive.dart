@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
+import '../consts/app_constants.dart';
 import '../consts/enum_screen_size.dart';
-import '../jocaaguraarchetype.dart';
 
 class BlocResponsive extends BlocModule {
   static String name = 'responsiveBloc';

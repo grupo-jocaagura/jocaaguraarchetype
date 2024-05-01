@@ -12,6 +12,7 @@ export 'blocs/bloc_secondary_menu.dart';
 export 'blocs/bloc_session.dart';
 export 'blocs/bloc_theme.dart';
 export 'blocs/bloc_user_notifications.dart';
+export 'consts/app_constants.dart';
 export 'fake_providers/fake_connectivity_provider.dart';
 export 'fake_providers/fake_internet_provider.dart';
 export 'fake_providers/fake_session_provider.dart';
@@ -34,8 +35,6 @@ export 'ui/widgets/responsive_1x2_widget.dart';
 export 'ui/widgets/responsive_1x3_widget.dart';
 export 'ui/widgets/responsive_generator_widget.dart';
 export 'ui/widgets/responsive_size_widget.dart';
-
-const double kAppBarHeight = 60.0;
 
 class JocaaguraArchetype {
   /// Returns [value] plus 1.

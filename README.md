@@ -128,3 +128,62 @@ void main()async{
 
 }
 ```
+## BlocResponsive
+
+### Descripción
+`BlocResponsive` es un componente crucial para la gestión de la interfaz de usuario adaptativa en una aplicación. Este BLoC facilita el manejo de tamaños de pantalla y visibilidad de componentes, permitiendo que la aplicación se ajuste de manera óptima a diferentes resoluciones y dispositivos.
+
+### Importancia de `widthByColumns` y `getDeviceType`
+`widthByColumns` es esencial para calcular el ancho basado en un número específico de columnas de la cuadrícula, ajustándose automáticamente a cambios de tamaño de pantalla para una mayor flexibilidad en el diseño. Por otro lado, `getDeviceType` simplifica la adaptación al evaluar solo el ancho de la pantalla para determinar el tipo de dispositivo, lo cual es crucial para la visualización de menús principal y secundario de manera adecuada.
+
+### Métodos Principales
+- `setSizeFromContext(BuildContext context)`: Ajusta el tamaño de la pantalla basado en el contexto actual.
+- `setSizeForTesting(Size size)`: Define un tamaño de pantalla para pruebas.
+- `showAppbar(bool val)`: Modifica la visibilidad de la barra de aplicaciones.
+
+```dart
+void main(){
+  BlocResponsive blocResponsive = BlocResponsive();
+
+}
+```
+
+### Ejemplo de uso en lenguaje natural
+Para actualizar el tamaño de la pantalla cuando el dispositivo cambia su orientación o tamaño, se puede usar el método `setSizeFromContext`.
+
+```dart
+void main(){
+  BuildContext context; // Contexto actual de la aplicación
+  blocResponsive.setSizeFromContext(context);
+}
+```
+
+### Ejemplo de uso en lenguaje natural
+Para determinar el espacio que debe ocupar un widget basado en la cantidad de columnas y ajustarse dinámicamente con los cambios de tamaño, se utiliza `widthByColumns` en combinación con `AspectRatio`, lo que mejora la responsividad y la experiencia de usuario.
+
+### Ejemplo de uso en código Dart
+
+```dart
+void main(){
+  Widget responsiveWidget = AspectRatio(
+    aspectRatio: 16 / 9,
+    child: Container(
+      width: blocResponsive.widthByColumns(4), // Asume que el widget debe ocupar 4 columnas
+      decoration: BoxDecoration(color: Colors.blue),
+    ),
+  );
+}
+```
+### Aclaración sobre cálculo de gutters y columnWidth
+El cálculo de `gutters` y `columnWidth` sigue lineamientos de diseño responsivo que permiten una maquetación flexible y eficiente. Los gutters son los espacios entre columnas y el `columnWidth` es el ancho de cada columna, ambos ajustados dinámicamente para responder a diferentes tamaños de pantalla y orientaciones.
+
+
+
+
+
+
+```dart
+void main(){
+  
+}
+```

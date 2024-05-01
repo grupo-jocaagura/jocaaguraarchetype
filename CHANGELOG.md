@@ -17,3 +17,10 @@
 - Bloc Connectivity
   - ConnectivityProvider 
   - InternetProvider
+
+## 1.2.1 (fix): 1-error-al-actualizar-el-screensize-usando-el-jocaaguraapp-en-windows
+- Actualización de la documentacion
+  - BlocTheme
+  - BlocLoading
+  - BlocResponsive
+- Corrección dart fix issues
