@@ -32,4 +32,5 @@
   - JocaaguraApp
   - Flujos anexos
     - Conectividad e internet
+    - Sesión de usuario
 - Corrección dart fix issues

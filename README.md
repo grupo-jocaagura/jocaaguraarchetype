@@ -2,6 +2,114 @@
 
 Este paquete es diseñado para asegurar que las funcionalidades transversales de las aplicaciones desarrolladas por Jocaagura estén resueltas al inicio de cada proyecto. Esto proporciona una base uniforme y robusta para los equipos de desarrollo, facilitando la integración y el escalado de nuevas características y funcionalidades.
 
+# Índice de Documentación
+
+* [JocaaguraArchetype](#jocaaguraarchetype)
+* [Índice de Documentación](#índice-de-documentación)
+  * [LabColor](#labcolor)
+    * [Descripción](#descripción)
+    * [Parámetros](#parámetros)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural)
+    * [Ejemplo de uso en código Dart](#ejemplo-de-uso-en-código-dart)
+  * [ProviderTheme](#providertheme)
+    * [Descripción](#descripción-1)
+    * [Parámetros](#parámetros-1)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-1)
+    * [Ejemplo de uso en código Dart](#ejemplo-de-uso-en-código-dart-1)
+  * [ServiceTheme](#servicetheme)
+    * [Descripción](#descripción-2)
+    * [Parámetros](#parámetros-2)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-2)
+    * [Ejemplo de uso en código Dart](#ejemplo-de-uso-en-código-dart-2)
+  * [BlocTheme](#bloctheme)
+    * [Descripción](#descripción-3)
+    * [Parámetros](#parámetros-3)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-3)
+    * [Ejemplo de uso en código Dart](#ejemplo-de-uso-en-código-dart-3)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-4)
+    * [Ejemplo de uso en código Dart](#ejemplo-de-uso-en-código-dart-4)
+  * [BlocLoading](#blocloading)
+    * [Descripción](#descripción-4)
+    * [Parámetros](#parámetros-4)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-5)
+  * [BlocResponsive](#blocresponsive)
+    * [Descripción](#descripción-5)
+    * [Importancia de `widthByColumns` y `getDeviceType`](#importancia-de-widthbycolumns-y-getdevicetype)
+    * [Métodos Principales](#métodos-principales)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-6)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-7)
+    * [Ejemplo de uso en código Dart](#ejemplo-de-uso-en-código-dart-5)
+    * [Aclaración sobre cálculo de gutters y columnWidth](#aclaración-sobre-cálculo-de-gutters-y-columnwidth)
+  * [BlocNavigator](#blocnavigator)
+    * [Descripción](#descripción-6)
+    * [Parámetros](#parámetros-5)
+    * [Aclaración sobre el manejo del stack de páginas](#aclaración-sobre-el-manejo-del-stack-de-páginas)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-8)
+    * [Ejemplo de uso en código Dart](#ejemplo-de-uso-en-código-dart-6)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-9)
+    * [Ejemplo de uso en código Dart](#ejemplo-de-uso-en-código-dart-7)
+    * [Importancia de la integración con `BlocNavigator`](#importancia-de-la-integración-con-blocnavigator)
+    * [Métodos Principales](#métodos-principales-1)
+  * [BlocOnboarding](#bloconboarding)
+    * [Descripción](#descripción-7)
+    * [Parámetros](#parámetros-6)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-10)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-11)
+  * [BlocUserNotifications](#blocusernotifications)
+    * [Métodos Principales](#métodos-principales-2)
+    * [Descripción](#descripción-8)
+    * [Parámetros](#parámetros-7)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-12)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-13)
+    * [Métodos Principales](#métodos-principales-3)
+  * [BlocMainMenuDrawer](#blocmainmenudrawer)
+    * [Descripción](#descripción-9)
+    * [Parámetros](#parámetros-8)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-14)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-15)
+    * [Métodos Principales](#métodos-principales-4)
+  * [BlocSecondaryMenuDrawer](#blocsecondarymenudrawer)
+    * [Descripción](#descripción-10)
+    * [Parámetros](#parámetros-9)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-16)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-17)
+    * [Métodos Principales](#métodos-principales-5)
+  * [AppConfig](#appconfig)
+    * [Descripción](#descripción-11)
+    * [Parámetros](#parámetros-10)
+    * [Métodos Principales](#métodos-principales-6)
+  * [JocaaguraApp](#jocaaguraapp)
+    * [Descripción](#descripción-12)
+    * [Parámetros](#parámetros-11)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-18)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-19)
+    * [Métodos y Eventos Principales](#métodos-y-eventos-principales)
+  * [JocaaguraApp y PageBuilder](#jocaaguraapp-y-pagebuilder)
+    * [Descripción](#descripción-13)
+    * [Parámetros de JocaaguraApp](#parámetros-de-jocaaguraapp)
+    * [Parámetros de PageBuilder](#parámetros-de-pagebuilder)
+    * [Ejemplo de uso en lenguaje natural para JocaaguraApp](#ejemplo-de-uso-en-lenguaje-natural-para-jocaaguraapp)
+    * [Ejemplo de uso en lenguaje natural para PageBuilder](#ejemplo-de-uso-en-lenguaje-natural-para-pagebuilder)
+    * [Métodos y Eventos Principales de PageBuilder](#métodos-y-eventos-principales-de-pagebuilder)
+  * [AppManager](#appmanager)
+    * [Descripción](#descripción-14)
+    * [Parámetros](#parámetros-12)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-20)
+    * [Métodos y Propiedades Principales](#métodos-y-propiedades-principales)
+  * [BlocConnectivity y Proveedores de Conectividad](#blocconnectivity-y-proveedores-de-conectividad)
+    * [Descripción](#descripción-15)
+    * [Parámetros](#parámetros-13)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-21)
+    * [Proveedores Falsos](#proveedores-falsos)
+    * [Métodos Principales](#métodos-principales-7)
+  * [BlocSession y Servicios de Sesión](#blocsession-y-servicios-de-sesión)
+    * [Descripción](#descripción-16)
+    * [Parámetros](#parámetros-14)
+    * [Funcionalidades](#funcionalidades)
+    * [Ejemplo de uso en lenguaje natural](#ejemplo-de-uso-en-lenguaje-natural-22)
+    * [Ejemplo de uso en código Dart](#ejemplo-de-uso-en-código-dart-8)
+    * [Métodos Principales](#métodos-principales-8)
+
 ## LabColor
 
 ### Descripción
@@ -597,14 +705,52 @@ void main(){
 - `updateInternetSpeed()`: Verifica y actualiza la velocidad de Internet.
 - `updateConnectionStatus()`: Realiza ambas verificaciones y actualiza el estado global de conectividad.
 
-Estos métodos aseguran que la aplicación pueda responder de manera adecuada a los cambios en la conectividad, mejorando la experiencia del usuario y facilitando el desarrollo y las pruebas. ¿Hay algún detalle adicional que te gustaría que incorporáramos o alguna otra funcionalidad que necesitemos documentar?
+Estos métodos aseguran que la aplicación pueda responder de manera adecuada a los cambios en la conectividad, mejorando la experiencia del usuario y facilitando el desarrollo y las pruebas. 
 
+## BlocSession y Servicios de Sesión
 
+### Descripción
+`BlocSession` es un componente clave para la gestión de sesiones de usuario en la aplicación. Se encarga de iniciar sesión, cerrar sesión, registrar usuarios, recuperar contraseñas y mantener el estado de la sesión actual a través de `ServiceSession`.
+
+### Parámetros
+- `_serviceSession`: Servicio que utiliza un proveedor de sesión para interactuar con la lógica de autenticación y estado de sesión.
+
+### Funcionalidades
+- Manejo de autenticación y sesión del usuario.
+- Actualización del estado de sesión basado en interacciones del usuario.
+
+### Ejemplo de uso en lenguaje natural
+`BlocSession` permite realizar operaciones de sesión como iniciar sesión, cerrar sesión, y recuperar la contraseña, actualizando el estado de la sesión en respuesta a estas acciones.
+
+### Ejemplo de uso en código Dart
 
 
 
 ```dart
-void main(){
-  
+void main()async{
+  ServiceSession serviceSession = ServiceSession(ProviderSession()); // Asumiendo que ProviderSession está adecuadamente implementado.
+  BlocSession blocSession = BlocSession(serviceSession);
+  UserModel user = UserModel(id: "1", displayName: "John Doe", email: "johndoe@example.com", jwt: {});
+  String password = "password123";
+
+// Iniciar sesión del usuario
+  await blocSession.logInUserAndPassword(user, password);
+
+// Cerrar sesión del usuario
+  await blocSession.logOutUser(user);
+
+// Recuperar contraseña del usuario
+  await blocSession.recoverPassword(user);
 }
 ```
+
+### Métodos Principales
+- `logInUserAndPassword(UserModel user, String password)`: Inicia sesión del usuario con email y contraseña.
+- `logOutUser(UserModel user)`: Cierra la sesión del usuario.
+- `signInUserAndPassword(UserModel user, String password)`: Registra al usuario con email y contraseña.
+- `recoverPassword(UserModel user)`: Inicia el proceso de recuperación de contraseña.
+- `logInSilently(UserModel user)`: Inicia sesión automáticamente si es posible.
+
+Estas funcionalidades hacen de `BlocSession` un componente esencial para gestionar la autenticación y el estado de la sesión en la aplicación.
+
+
