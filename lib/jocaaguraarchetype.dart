@@ -1,5 +1,3 @@
-export 'package:jocaagura_domain/jocaagura_domain.dart';
-
 export 'app_config.dart';
 export 'blocs/app_manager.dart';
 export 'blocs/bloc_connectivity.dart';

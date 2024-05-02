@@ -1,3 +1,5 @@
+import 'package:jocaagura_domain/jocaagura_domain.dart';
+
 import 'jocaaguraarchetype.dart';
 
 class AppConfig {
