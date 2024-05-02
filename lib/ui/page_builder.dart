@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
 import '../jocaaguraarchetype.dart';
 import 'pages/loading_page.dart';

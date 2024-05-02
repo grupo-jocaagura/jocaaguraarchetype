@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../jocaaguraarchetype.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
 class BlocOnboarding extends BlocModule {
   BlocOnboarding(this._blocOnboardingList, {int delayInSeconds = 1}) {

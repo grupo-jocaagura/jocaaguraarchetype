@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_connectivity.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 import 'package:jocaaguraarchetype/services/service_connectivity.dart';
 

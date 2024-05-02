@@ -1,4 +1,4 @@
-import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
 class BlocCounter extends BlocModule {
   static const String name = 'blocCounter';

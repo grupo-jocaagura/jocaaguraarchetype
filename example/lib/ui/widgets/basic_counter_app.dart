@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/consts/enum_screen_size.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 import 'package:jocaaguraarchetype/ui/widgets/my_app_button_widget.dart';

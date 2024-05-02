@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../jocaaguraarchetype.dart';
+import '../blocs/app_manager.dart';
+import '../providers/app_manager_provider.dart';
 
 class JocaaguraApp extends StatefulWidget {
   const JocaaguraApp({

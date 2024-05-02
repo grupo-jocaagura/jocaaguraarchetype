@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
@@ -38,11 +39,12 @@ void main() {
 
     test('should handle custom connectivity function if provided', () async {
       final FakeConnectivityProvider customProvider = FakeConnectivityProvider(
-        getAppTestingFunction:
-            Right<String, ConnectivityModel>(const ConnectivityModel(
-          connectionType: ConnectionTypeEnum.mobile,
-          internetSpeed: 100.0,
-        )),
+        getAppTestingFunction: Right<String, ConnectivityModel>(
+          const ConnectivityModel(
+            connectionType: ConnectionTypeEnum.mobile,
+            internetSpeed: 100.0,
+          ),
+        ),
       );
 
       final Either<String, ConnectivityModel> result =
@@ -65,7 +67,9 @@ void main() {
       );
       final DateTime endTime = DateTime.now();
       expect(
-          endTime.difference(startTime) >= const Duration(seconds: 1), isTrue);
+        endTime.difference(startTime) >= const Duration(seconds: 1),
+        isTrue,
+      );
     });
   });
 }

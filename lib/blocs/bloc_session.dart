@@ -1,4 +1,6 @@
-import '../jocaaguraarchetype.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
+
+import '../services/service_session.dart';
 
 class BlocSession extends BlocModule {
   BlocSession(this._serviceSession);

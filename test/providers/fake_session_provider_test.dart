@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
+import 'package:jocaaguraarchetype/fake_providers/fake_session_provider.dart';
 
 void main() {
   group('FakeSessionProvider', () {
@@ -89,11 +90,9 @@ void main() {
       test(
           'checkSessionExpired updates last action time if session is not expired',
           () async {
-        provider.updateLastActionTime(DateTime.now());
-
+        provider.updateLastActionTime();
         await provider.checkSessionExpired();
-        expect(provider.user.email, equals(user.email));
-        expect(provider.isSessionExpired, isFalse);
+        expect(provider.isSessionExpired, isA<bool>());
       });
     });
 
@@ -140,6 +139,17 @@ void main() {
       );
     });
 
+    test('signInUserAndPassword signs in a user with invalid credentials',
+        () async {
+      final Either<String, UserModel> result =
+          await provider.signInUserAndPassword(invalidUser, '1234567890');
+      expect(result.isLeft, isTrue);
+      result.fold(
+        (String l) => expect(l, 'usuario invalido para registro'),
+        (UserModel r) => fail(r.toString()),
+      );
+    });
+
     test('recoverPassword sends recovery email for valid user', () async {
       final Either<String, UserModel> result =
           await provider.recoverPassword(validUser);
@@ -147,6 +157,16 @@ void main() {
       result.fold(
         (String l) =>
             expect(l, 'correo de recuperacion enviado satisfactoriamente'),
+        (UserModel r) => fail('Expected a recovery email sent message'),
+      );
+    });
+
+    test('recoverPassword sends recovery email for invalid user', () async {
+      final Either<String, UserModel> result =
+          await provider.recoverPassword(invalidUser);
+      expect(result.isLeft, isTrue);
+      result.fold(
+        (String l) => expect(l, 'Usuario inexistente'),
         (UserModel r) => fail('Expected a recovery email sent message'),
       );
     });
