@@ -17,7 +17,7 @@ class BlocNavigator extends BlocModule {
   }
   static String name = 'blocNavigator';
   final PageManager pageManager;
-  bool get showBackButton => historyPageLength > 0;
+  bool get showBackButton => historyPageLength > 1;
 
   late final MyAppRouterDelegate routerDelegate;
   late final MyAppRouteInformationParser routeInformationParser;

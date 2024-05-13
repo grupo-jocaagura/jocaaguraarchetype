@@ -57,6 +57,7 @@ void main() {
         pageManager.historyPagesCount,
         greaterThanOrEqualTo(1),
       );
+      expect(blocNavigator.showBackButton, false);
     });
     test(
         'pushAndReplacement should call pageManager.pushAndReplacement with correct arguments',

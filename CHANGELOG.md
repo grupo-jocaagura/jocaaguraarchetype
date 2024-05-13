@@ -5,10 +5,11 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] - 2024-05-01
-### Added
-- Ninguna.
+## [1.3.1] - 2024-05-13
+### fixed
+- se arregla el condicional para que muestre el boton cuando sea mayor a 1
 
+## [1.3.0] - 2024-05-01
 ### Changed
 - Eliminación del export de `jocaagura_domain` desde la raíz del paquete para limpiar la estructura de importación.
 - Eliminación de la invocación interna del paquete `jocaagura_archetype` para evitar referencias circulares y mejorar la modularidad.
