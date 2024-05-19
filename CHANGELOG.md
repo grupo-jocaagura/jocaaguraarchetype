@@ -5,7 +5,20 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.1] - 2024-05-13
+## [1.4.0] - 2024-05-19
+### Added
+- Implementado un `Debouncer` en `BlocUserNotifications` para manejar cómo y cuánto se muestra el toast en pantalla de forma uniforme.
+- Agregamos `ShowToastPage` en el example para mostrar el cambio en pantalla
+
+### Changed
+- Actualizado el `showToast` para usar el `Debouncer`, asegurando que el mensaje se actualiza adecuadamente y se mantiene en el tiempo con el tiempo establecido para la duración.
+- Actualizado el `IndexApp` para permitir el acceso o visualización del `ShowToastPage`
+
+### Fixed
+- Se ajustan los test unitarios para reflejar el nuevo alcance del `BlocUserNotifications` con el debouncer.
+- Corregida la consistencia en el uso de mayúsculas en las secciones de cambios para mantener la uniformidad del documento.
+
+- ## [1.3.1] - 2024-05-13
 ### fixed
 - se arregla el condicional para que muestre el boton cuando sea mayor a 1
 

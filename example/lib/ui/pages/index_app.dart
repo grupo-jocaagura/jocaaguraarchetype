@@ -5,6 +5,7 @@ import '../../blocs/bloc_counter.dart';
 import '../widgets/basic_counter_app.dart';
 import '../widgets/second_counter_app.dart';
 import 'connectivity_page.dart';
+import 'show_toast_page.dart';
 
 class IndexApp extends StatelessWidget {
   const IndexApp({super.key});
@@ -45,6 +46,18 @@ class IndexApp extends StatelessWidget {
                 routeName: 'ConnectivityPage',
                 title: 'Connectivity test',
                 widget: ConnectivityPage(),
+              ),
+            ),
+          ),
+          ListTile(
+            title: const Text('Go to snackbar test'),
+            subtitle: const Text('Here we go!! To see snackbar'),
+            onTap: () => basicApp(
+              appManager,
+              const PageWidget(
+                routeName: ShowToastPage.name,
+                title: 'Show toast test',
+                widget: ShowToastPage(),
               ),
             ),
           ),

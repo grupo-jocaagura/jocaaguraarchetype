@@ -56,5 +56,46 @@ void main() {
 
       expect(bloc.msg, equals(''));
     });
+
+    test('showToast should emit message and clear after 7 seconds', () async {
+      final List<String> expectedResults = <String>[
+        '', // Valor por defecto del Stream
+        'Hello, World!',
+        '', // Después de 7 segundos
+      ];
+
+      expectLater(
+        bloc.toastStream,
+        emitsInOrder(expectedResults),
+      );
+
+      bloc.showToast('Hello, World!');
+      await Future<void>.delayed(
+        const Duration(seconds: 8),
+      ); // Espera más de 7 segundos para verificar el clear
+    });
+
+    test('showToast should reset timer if called before clear', () async {
+      final List<String> expectedResults = <String>[
+        '',
+        'First Message',
+        'Second Message',
+        '', // Después de 7 segundos del segundo mensaje
+      ];
+
+      expectLater(
+        bloc.toastStream,
+        emitsInOrder(expectedResults),
+      );
+
+      bloc.showToast('First Message');
+      await Future<void>.delayed(
+        const Duration(seconds: 3),
+      ); // Espera 3 segundos
+      bloc.showToast('Second Message'); // Reinicia el temporizador
+      await Future<void>.delayed(
+        const Duration(seconds: 8),
+      ); // Espera más de 7 segundos desde el segundo mensaje
+    });
   });
 }
