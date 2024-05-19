@@ -6,6 +6,9 @@ class BlocUserNotifications extends BlocModule {
   static const String name = 'blocUserNotifications';
 
   final BlocGeneral<String> _msgController = BlocGeneral<String>('');
+  final Debouncer debouncer = Debouncer(
+    milliseconds: 7000,
+  );
 
   Stream<String> get toastStream => _msgController.stream;
   String get msg => _msgController.value;
@@ -15,13 +18,8 @@ class BlocUserNotifications extends BlocModule {
   }
 
   void showToast(String message) {
-    clear();
-    if (message.isNotEmpty) {
-      _msgController.value = message;
-      Future<void>.delayed(
-        const Duration(seconds: 7),
-      ).then((void value) => clear());
-    }
+    _msgController.value = message;
+    debouncer.call(clear);
   }
 
   @override
