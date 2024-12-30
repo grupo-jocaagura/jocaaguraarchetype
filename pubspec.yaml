@@ -3,7 +3,6 @@ description: "Un proyecto de jocaagura para el core de sus apps."
 version: 1.4.0
 homepage: https://github.com/jocaagura/jocaaguraarchetype
 repository: https://github.com/jocaagura/jocaaguraarchetype
-publish_to: none
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
