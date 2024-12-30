@@ -3,21 +3,87 @@ import 'dart:ui';
 
 import 'package:jocaagura_domain/jocaagura_domain.dart';
 
+/// A utility class for working with the CIE-Lab color space.
+///
+/// The `LabColor` class provides methods to convert colors between different
+/// color spaces, including RGB, XYZ, and Lab. It allows precise manipulation
+/// of colors for advanced applications like color grading, image processing,
+/// and color difference calculations.
+///
+/// ## Example
+///
+/// ```dart
+/// import 'package:jocaaguraarchetype/lab_color.dart';
+///
+/// void main() {
+///   // Create a LabColor instance
+///   const labColor = LabColor(53.0, 80.0, 67.0);
+///
+///   // Modify the lightness of the color
+///   final newColor = labColor.withLightness(70.0);
+///   print('New LabColor: L=${newColor.lightness}, a=${newColor.a}, b=${newColor.b}');
+///
+///   // Convert an RGB color to Lab
+///   final labValues = LabColor.colorToLab(Color.fromARGB(255, 255, 0, 0));
+///   print('Lab Values: L=${labValues[0]}, a=${labValues[1]}, b=${labValues[2]}');
+/// }
+/// ```
 class LabColor extends EntityUtil {
+  /// Creates a LabColor instance with the given [lightness], [a], and [b] values.
+  ///
+  /// The `lightness` value represents the brightness of the color,
+  /// while `a` and `b` represent the chromaticity.
   const LabColor(this.lightness, this.a, this.b);
+
+  /// The lightness component of the Lab color.
   final double lightness;
+
+  /// The `a` chromatic component of the Lab color.
   final double a;
+
+  /// The `b` chromatic component of the Lab color.
   final double b;
 
+  /// Returns a new `LabColor` instance with the updated [lightness].
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// const labColor = LabColor(53.0, 80.0, 67.0);
+  /// final newColor = labColor.withLightness(70.0);
+  /// print('New Lightness: ${newColor.lightness}'); // Output: New Lightness: 70.0
+  /// ```
   LabColor withLightness(double lightness) {
     return LabColor(lightness, a, b);
   }
 
+  /// Converts a [Color] to its Lab color representation.
+  ///
+  /// This method internally converts the RGB values to the XYZ color space,
+  /// and then to the Lab color space.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final labValues = LabColor.colorToLab(Color.fromARGB(255, 255, 0, 0));
+  /// print('Lab Values: L=${labValues[0]}, a=${labValues[1]}, b=${labValues[2]}');
+  /// ```
   static List<double> colorToLab(Color color) {
     final List<double> xyz = rgbToXyz(color.red, color.green, color.blue);
     return xyzToLab(xyz[0], xyz[1], xyz[2]);
   }
 
+  /// Converts RGB values to the XYZ color space.
+  ///
+  /// Each color channel ([r], [g], and [b]) must be provided as an integer
+  /// between 0 and 255. The resulting XYZ values are returned as a list.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final xyz = LabColor.rgbToXyz(255, 0, 0);
+  /// print('XYZ Values: X=${xyz[0]}, Y=${xyz[1]}, Z=${xyz[2]}');
+  /// ```
   static List<double> rgbToXyz(int r, int g, int b) {
     final double normalizedR = r / 255;
     final double normalizedG = g / 255;
@@ -43,6 +109,17 @@ class LabColor extends EntityUtil {
     return <double>[x * 100, y * 100, z * 100];
   }
 
+  /// Converts XYZ values to the Lab color space.
+  ///
+  /// The inputs [x], [y], and [z] should be normalized XYZ values.
+  /// Returns the Lab values as a list `[L, a, b]`.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final lab = LabColor.xyzToLab(41.24, 21.26, 1.93);
+  /// print('Lab Values: L=${lab[0]}, a=${lab[1]}, b=${lab[2]}');
+  /// ```
   static List<double> xyzToLab(double x, double y, double z) {
     final double xNormalized = x / 95.047;
     final double yNormalized = y / 100.000;
@@ -65,6 +142,17 @@ class LabColor extends EntityUtil {
     return <double>[l, a, b];
   }
 
+  /// Converts Lab values back to RGB.
+  ///
+  /// The inputs [l], [a], and [b1] represent the Lab values. Returns the RGB
+  /// values as a list `[R, G, B]`.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final rgb = LabColor.labToColor(53.0, 80.0, 67.0);
+  /// print('RGB Values: R=${rgb[0]}, G=${rgb[1]}, B=${rgb[2]}');
+  /// ```
   static List<int> labToColor(double l, double a, double b1) {
     final double y3 = (l + 16) / 116;
     final double x3 = a / 500 + y3;

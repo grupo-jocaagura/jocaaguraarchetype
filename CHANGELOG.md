@@ -1,51 +1,59 @@
 # Changelog
 
-Todos los cambios notables en este proyecto serán documentados en este archivo.
+All notable changes to this project will be documented in this file.
 
-El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.4.1] - 2024-12-30
+### Updated
+- Changelog Translation: The changelog has been translated into English for publication on pub.dev.
+- Pubspec.yaml: Adjusted to align with the latest version of the jocaagura_domain package, ensuring compatibility and consistency.
+### Added
+- Dartdoc Documentation: Comprehensive documentation has been added for all classes using the Dartdoc format, providing detailed explanations and examples for developers.
+### Improved
+- Test Coverage: Expanded the unit test coverage across the package to enhance reliability and ensure higher quality of the codebase.
 
 ## [1.4.0] - 2024-05-19
 ### Added
-- Implementado un `Debouncer` en `BlocUserNotifications` para manejar cómo y cuánto se muestra el toast en pantalla de forma uniforme.
-- Agregamos `ShowToastPage` en el example para mostrar el cambio en pantalla
+- Implemented a `Debouncer` in `BlocUserNotifications` to manage how and when the toast messages are displayed uniformly.
+- Added `ShowToastPage` in the example to demonstrate the changes on-screen.
 
 ### Changed
-- Actualizado el `showToast` para usar el `Debouncer`, asegurando que el mensaje se actualiza adecuadamente y se mantiene en el tiempo con el tiempo establecido para la duración.
-- Actualizado el `IndexApp` para permitir el acceso o visualización del `ShowToastPage`
+- Updated `showToast` to use the `Debouncer`, ensuring the message updates properly and stays visible for the defined duration.
+- Updated `IndexApp` to allow access or visualization of the `ShowToastPage`.
 
 ### Fixed
-- Se ajustan los test unitarios para reflejar el nuevo alcance del `BlocUserNotifications` con el debouncer.
-- Corregida la consistencia en el uso de mayúsculas en las secciones de cambios para mantener la uniformidad del documento.
+- Adjusted unit tests to reflect the new scope of `BlocUserNotifications` with the debouncer.
+- Corrected capitalization consistency in change sections to maintain uniformity in the document.
 
-- ## [1.3.1] - 2024-05-13
-### fixed
-- se arregla el condicional para que muestre el boton cuando sea mayor a 1
+## [1.3.1] - 2024-05-13
+### Fixed
+- Fixed the conditional logic to display the button only when the value is greater than 1.
 
 ## [1.3.0] - 2024-05-01
 ### Changed
-- Eliminación del export de `jocaagura_domain` desde la raíz del paquete para limpiar la estructura de importación.
-- Eliminación de la invocación interna del paquete `jocaagura_archetype` para evitar referencias circulares y mejorar la modularidad.
+- Removed the export of `jocaagura_domain` from the root of the package to clean up the import structure.
+- Removed internal invocation of the `jocaagura_archetype` package to avoid circular references and improve modularity.
 
 ### Fixed
-- Aumento de la cobertura de tests en `FakeProvider` para asegurar una mejor validación y fiabilidad de las funcionalidades simuladas.
+- Increased test coverage in `FakeProvider` to ensure better validation and reliability of simulated functionalities.
 
 ## [1.2.1] - 2024-04-25 (fix)
-- Actualizaciones en la documentación para reflejar los cambios y mejoras en los módulos.
-- Correcciones de varios issues menores detectados por `dart fix`.
+- Documentation updates to reflect changes and improvements in the modules.
+- Fixed various minor issues detected by `dart fix`.
 
 ## [1.2.0] - 2024-04-20
 ### Added
-- Módulo `BlocConnectivity` con `ConnectivityProvider` e `InternetProvider` para gestionar el estado de la conectividad.
+- Added `BlocConnectivity` module with `ConnectivityProvider` and `InternetProvider` to manage connectivity state.
 
 ## [1.1.0] - 2024-04-15
 ### Added
-- `bloc_session`, `service_session` y `provider_session` para el manejo de sesiones.
-- `fake_session_provider` para simular el inicio de sesiones, facilitando las pruebas y desarrollo.
+- Added `bloc_session`, `service_session`, and `provider_session` for session management.
+- Added `fake_session_provider` to simulate session initiation, facilitating testing and development.
 
 ### Fixed
-- Corrección de warnings e información en `bloc_counter` y `second_app_counter` detectados por análisis estático de código.
+- Fixed warnings and information in `bloc_counter` and `second_app_counter` detected by static code analysis.
 
 ## [0.0.1] - 2024-04-10
-- Inicio del Changelog con la versión actual de módulos.
-
+- Initial Changelog with the current version of modules.

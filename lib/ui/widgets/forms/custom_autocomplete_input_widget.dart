@@ -4,53 +4,61 @@ String? _defaultFunction(String val) {
   return null;
 }
 
-/// A custom autocomplete input widget.
+/// A customizable widget for text input with autocomplete functionality.
 ///
-/// This widget provides an input field with autocomplete suggestions.
-/// It allows the user to select from a list of suggestions based on the
-/// entered text. The suggestions are provided through the [suggestList] parameter.
+/// The `CustomAutoCompleteInputWidget` provides an input field that suggests
+/// autocomplete options as the user types. It supports custom validation, input types,
+/// and placeholder text, making it versatile for various use cases.
 ///
-/// Example usage:
+/// ## Example
+///
 /// ```dart
-/// CustomAutoCompleteInputWidget(
-///   onEditingValueFunction: (String val) {
-///     // Handle the value when editing is done
-///   },
-///   suggestList: ['Apple', 'Banana', 'Orange'],
-///   initialData: '',
-///   placeholder: 'Enter a fruit',
-///   onEditingValidateFunction: (String val) {
-///     // Perform validation and return an error message if invalid
-///     // Return null if the value is valid
-///   },
-///   icondata: Icons.fruit_basket,
-///   textInputType: TextInputType.text,
-/// )
+/// import 'package:jocaaguraarchetype/custom_autocomplete_input_widget.dart';
+/// import 'package:flutter/material.dart';
+///
+/// void main() {
+///   runApp(MyApp());
+/// }
+///
+/// class MyApp extends StatelessWidget {
+///   @override
+///   Widget build(BuildContext context) {
+///     return MaterialApp(
+///       home: Scaffold(
+///         appBar: AppBar(title: Text('Custom Autocomplete Input')),
+///         body: Padding(
+///           padding: const EdgeInsets.all(16.0),
+///           child: CustomAutoCompleteInputWidget(
+///             suggestList: ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry'],
+///             placeholder: 'Type a fruit name',
+///             onEditingValueFunction: (value) {
+///               print('Input Value: $value');
+///             },
+///             onEditingValidateFunction: (value) {
+///               if (value.isEmpty) return 'This field cannot be empty';
+///               if (!['apple', 'banana', 'cherry', 'date', 'elderberry']
+///                   .contains(value.toLowerCase())) {
+///                 return 'Invalid fruit name';
+///               }
+///               return null;
+///             },
+///           ),
+///         ),
+///       ),
+///     );
+///   }
+/// }
 /// ```
 class CustomAutoCompleteInputWidget extends StatefulWidget {
-  /// Creates a [CustomAutoCompleteInputWidget].
+  /// Creates a `CustomAutoCompleteInputWidget`.
   ///
-  /// The [onEditingValueFunction] parameter is required and specifies the function
-  /// to be called when editing is complete.
-  ///
-  /// The [suggestList] parameter is optional and provides a list of suggestions
-  /// for autocomplete. If not provided, no autocomplete suggestions will be shown.
-  ///
-  /// The [initialData] parameter specifies the initial value for the input field.
-  ///
-  /// The [placeholder] parameter specifies the placeholder text to be displayed
-  /// when the input field is empty.
-  ///
-  /// The [onEditingValidateFunction] parameter is optional and specifies a function
-  /// to perform validation on the input value. It takes the input value as a parameter
-  /// and should return an error message as a string if the value is invalid, or null
-  /// if the value is valid.
-  ///
-  /// The [icondata] parameter is optional and specifies the icon to be displayed
-  /// as a prefix in the input field.
-  ///
-  /// The [textInputType] parameter specifies the type of keyboard input to be
-  /// displayed for the input field.
+  /// - [onEditingValueFunction]: Function to call when editing is complete.
+  /// - [suggestList]: List of suggestions for autocomplete.
+  /// - [initialData]: Initial value for the input field.
+  /// - [placeholder]: Placeholder text for the input field.
+  /// - [onEditingValidateFunction]: Function for validating the input.
+  /// - [icondata]: Icon to display as a prefix in the input field.
+  /// - [textInputType]: Keyboard type for the input field.
   const CustomAutoCompleteInputWidget({
     required this.onEditingValueFunction,
     super.key,
@@ -63,28 +71,30 @@ class CustomAutoCompleteInputWidget extends StatefulWidget {
     this.textInputType = TextInputType.text,
   });
 
-  /// The list of suggestions for autocomplete.
+  /// List of suggestions for the autocomplete feature.
   final List<String>? suggestList;
 
-  /// The initial value for the input field.
+  /// Initial value for the input field.
   final String initialData;
 
-  /// The placeholder text to be displayed when the input field is empty.
+  /// Placeholder text displayed when the input field is empty.
   final String placeholder;
 
-  /// The label text to be displayed above the input field.
+  /// Label text displayed above the input field.
   final String label;
 
-  /// The function to be called when editing is complete.
+  /// Function called when editing is complete.
   final void Function(String val) onEditingValueFunction;
 
-  /// The function to perform validation on the input value.
+  /// Function for validating the input value.
+  ///
+  /// Should return an error message if invalid, or `null` if valid.
   final String? Function(String val) onEditingValidateFunction;
 
-  /// The icon to be displayed as a prefix in the input field.
+  /// Icon displayed as a prefix in the input field.
   final IconData? icondata;
 
-  /// The type of keyboard input to be displayed for the input field.
+  /// Keyboard type for the input field.
   final TextInputType textInputType;
 
   @override
@@ -92,6 +102,7 @@ class CustomAutoCompleteInputWidget extends StatefulWidget {
       CustomAutoCompleteInputWidgetState();
 }
 
+/// State class for `CustomAutoCompleteInputWidget`.
 class CustomAutoCompleteInputWidgetState
     extends State<CustomAutoCompleteInputWidget> {
   late TextEditingController _controller;
@@ -107,6 +118,7 @@ class CustomAutoCompleteInputWidgetState
     _onValidate(_selectedValue);
   }
 
+  /// Validates the input value and updates the error text if necessary.
   void _onValidate(String val) {
     _errorText = widget.onEditingValidateFunction(val);
     if (_errorText == null) {

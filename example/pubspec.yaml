@@ -9,13 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
-
-  jocaagura_domain:
-    git:
-      url: https://github.com/jocaagura/jocaagura_domain
-      ref: master
-
+  jocaagura_domain: ^1.15.2
   jocaaguraarchetype:
     path: ../
 

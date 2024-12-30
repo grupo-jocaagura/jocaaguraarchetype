@@ -7,7 +7,37 @@ import '../ui/pages/page_404_widget.dart';
 
 const String _k404Name = '/404';
 
+/// A class for managing application pages and navigation.
+///
+/// The `PageManager` class handles navigation state, page history, and routing.
+/// It supports deep linking, dynamic page management, and route validation.
+///
+/// ## Example
+///
+/// ```dart
+/// import 'package:jocaaguraarchetype/page_manager.dart';
+/// import 'package:flutter/material.dart';
+///
+/// void main() {
+///   final pageManager = PageManager();
+///
+///   // Set the home page
+///   pageManager.setHomePage(Text('Welcome Home'));
+///
+///   // Add a new page
+///   pageManager.push('/about', Text('About Page'));
+///
+///   // Remove a page from the history
+///   pageManager.removePageFromRoute('/about');
+///
+///   // Navigate to a 404 page
+///   pageManager.goTo404Page();
+/// }
+/// ```
 class PageManager extends ChangeNotifier {
+  /// Creates an instance of `PageManager` with optional [routeInformation].
+  ///
+  /// Initializes the home page and 404 page with default widgets.
   PageManager([this.routeInformation]) {
     setHomePage(
       const Text('Home no definido'),
@@ -33,17 +63,31 @@ class PageManager extends ChangeNotifier {
       currentPageManager.pushFromRoutesettings(uri.path, page);
     }
   }
-  // Este page manager deberia ser unico en la aplicacion ???
+
+  /// The 404 error page widget.
   late Widget _page404Widget;
+
+  /// The onboarding page widget.
   late Widget _onBoardingPage;
 
+  /// Gets the current 404 page widget.
   Widget get page404Widget => _page404Widget;
+
+  /// Gets the onboarding page widget.
   Widget get onBoardingPage => _onBoardingPage;
 
+  /// Notifies listeners of state updates.
   void update() {
     notifyListeners();
   }
 
+  /// Removes a page from the route history by [route].
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// pageManager.removePageFromRoute('/about');
+  /// ```
   void removePageFromRoute(String route) {
     _removePageFromRoute(route);
     notifyListeners();
@@ -64,6 +108,13 @@ class PageManager extends ChangeNotifier {
     _pages.addAll(tmpPages);
   }
 
+  /// Sets the home page with the provided [widget] and optional [arguments].
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// pageManager.setHomePage(Text('Welcome Home'));
+  /// ```
   String setPageTitle(String title, [int? color]) {
     title = title.replaceAll('/', ' ').trim();
     if (kIsWeb) {
@@ -137,6 +188,13 @@ class PageManager extends ChangeNotifier {
     _onBoardingPage = widget;
   }
 
+  /// Sets the 404 page with the provided [widget] and optional [arguments].
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// pageManager.set404Page(Text('Page Not Found'));
+  /// ```
   void set404Page(Widget widget, [Object? arguments]) {
     _directoryPagesMap[_k404Name] = MaterialPage<dynamic>(
       name: _k404Name,
@@ -171,6 +229,15 @@ class PageManager extends ChangeNotifier {
     return routeName;
   }
 
+  /// Pushes a new page onto the navigation stack.
+  ///
+  /// The [routeName], [widget], and optional [arguments] define the page to add.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// pageManager.push('/profile', Text('Profile Page'));
+  /// ```
   void push(String routeName, Widget widget, [Object? arguments]) {
     routeName = validateRouteName(routeName);
     final MaterialPage<dynamic> page = MaterialPage<dynamic>(
@@ -186,6 +253,13 @@ class PageManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Pushes a new page and replaces the current page.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// pageManager.pushAndReplacement('/dashboard', Text('Dashboard'));
+  /// ```
   void pushAndReplacement(
     String routeName,
     Widget widget, [
@@ -232,6 +306,13 @@ class PageManager extends ChangeNotifier {
     back();
   }
 
+  /// Navigates back to the previous page in the stack.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// pageManager.back();
+  /// ```
   void back() {
     if (_pages.length > 1) {
       _pages.removeLast();
@@ -283,10 +364,25 @@ class PageManager extends ChangeNotifier {
     return page;
   }
 
+  /// Navigates to the 404 error page.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// pageManager.goTo404Page();
+  /// ```
   void goTo404Page([Object? arguments]) {
     pushFromRoutesettings(_k404Name, get404PageFromDirectory(arguments));
   }
 
+  /// Retrieves the current route information as `RouteInformation`.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final routeInfo = pageManager.getCurrentUrl();
+  /// print(routeInfo?.location);
+  /// ```
   RouteInformation? getCurrentUrl() {
     final Uri uri = Uri(
       path: currentPage.name,

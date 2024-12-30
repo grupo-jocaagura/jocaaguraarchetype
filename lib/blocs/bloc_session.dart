@@ -58,7 +58,7 @@ class BlocSession extends BlocModule {
   }
 
   void removeFunctionToSessionChanges(String key) {
-    _blocSession.deleteFunctionToProcessTValueOnStream(key.toLowerCase());
+    _blocSession.deleteFunctionToProcessTValueOnStream(key);
   }
 
   @override

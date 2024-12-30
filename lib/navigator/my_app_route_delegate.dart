@@ -23,7 +23,7 @@ class MyAppRouterDelegate extends RouterDelegate<PageManager>
     return Navigator(
       key: navigatorKey,
       pages: myPageManager.pages,
-      onPopPage: myPageManager.didPop,
+      onDidRemovePage: (Page<Object?> page) => myPageManager.didPop,
     );
     // return const _MyNavigator();
   }
@@ -35,7 +35,6 @@ class MyAppRouterDelegate extends RouterDelegate<PageManager>
 
   @override
   Future<bool> popRoute() {
-    //print('Atras desde el dispositivo');
     myPageManager.back();
     return Future<bool>.value(true);
   }

@@ -8,7 +8,7 @@ import 'bloc_main_menu_drawer.dart';
 import 'bloc_navigator.dart';
 import 'bloc_onboarding.dart';
 import 'bloc_responsive.dart';
-import 'bloc_secondary_menu.dart';
+import 'bloc_secondary_menu_drawer.dart';
 import 'bloc_theme.dart';
 import 'bloc_user_notifications.dart';
 

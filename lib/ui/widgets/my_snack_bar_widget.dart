@@ -40,7 +40,7 @@ class MySnackBarWidget extends StatelessWidget {
             child: Text(
               msg,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.background,
+                    color: Theme.of(context).colorScheme.surface,
                     fontWeight: FontWeight.bold,
                   ),
               overflow: TextOverflow.ellipsis,

@@ -63,14 +63,15 @@ class _MyHomePageState extends State<MyHomePage> {
             InkWell(
               onTap: changeTheme,
               child: StreamBuilder<int>(
-                  stream: blocCounter.counterStream,
-                  builder:
-                      (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                    return Text(
-                      '${blocCounter.value}',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    );
-                  },),
+                stream: blocCounter.counterStream,
+                builder:
+                    (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                  return Text(
+                    '${blocCounter.value}',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  );
+                },
+              ),
             ),
           ],
         ),

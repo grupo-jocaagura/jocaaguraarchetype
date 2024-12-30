@@ -3,7 +3,7 @@ import 'package:jocaaguraarchetype/blocs/bloc_main_menu_drawer.dart';
 import 'package:jocaaguraarchetype/blocs/bloc_navigator.dart';
 import 'package:jocaaguraarchetype/blocs/bloc_onboarding.dart';
 import 'package:jocaaguraarchetype/blocs/bloc_responsive.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_secondary_menu.dart';
+import 'package:jocaaguraarchetype/blocs/bloc_secondary_menu_drawer.dart';
 import 'package:jocaaguraarchetype/blocs/bloc_theme.dart';
 import 'package:jocaaguraarchetype/blocs/bloc_user_notifications.dart';
 

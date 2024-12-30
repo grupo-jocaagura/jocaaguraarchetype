@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class OneXTwoWidget extends StatelessWidget {
   const OneXTwoWidget({
-    required this.child, this.width = 200,
+    required this.child,
+    this.width = 200,
     super.key,
   });
 

@@ -54,7 +54,7 @@ class ShowToastPage extends StatelessWidget {
                   return const SizedBox.shrink();
                 },
               ),
-            )
+            ),
           ],
         ),
       ),

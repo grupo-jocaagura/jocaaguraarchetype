@@ -3,51 +3,51 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:jocaagura_domain/jocaagura_domain.dart';
 
-/// A BLoC (Business Logic Component) for managing the main menu drawer.
+/// A BLoC (Business Logic Component) for managing the secondary menu drawer.
 ///
-/// The `BlocMainMenuDrawer` class handles the state of the main menu drawer,
+/// The `BlocSecondaryMenuDrawer` class handles the state of the secondary menu drawer,
 /// allowing options to be dynamically added, removed, or cleared. It provides
 /// reactive streams to notify changes to the menu options.
 ///
 /// ## Example
 ///
 /// ```dart
-/// import 'package:jocaaguraarchetype/bloc_main_menu_drawer.dart';
+/// import 'package:jocaaguraarchetype/bloc_secondary_menu_drawer.dart';
 /// import 'package:flutter/material.dart';
 ///
 /// void main() {
-///   final blocMainMenuDrawer = BlocMainMenuDrawer();
+///   final blocSecondaryMenuDrawer = BlocSecondaryMenuDrawer();
 ///
-///   // Listen to changes in the main menu options
-///   blocMainMenuDrawer.listDrawerOptionSizeStream.listen((options) {
-///     print('Main menu options updated: ${options.length}');
+///   // Listen to changes in the secondary menu options
+///   blocSecondaryMenuDrawer.listDrawerOptionSizeStream.listen((options) {
+///     print('Secondary menu options updated: ${options.length}');
 ///   });
 ///
 ///   // Add a new menu option
-///   blocMainMenuDrawer.addMainMenuOption(
-///     onPressed: () => print('Home pressed'),
-///     label: 'Home',
-///     iconData: Icons.home,
+///   blocSecondaryMenuDrawer.addMainMenuOption(
+///     onPressed: () => print('Settings pressed'),
+///     label: 'Settings',
+///     iconData: Icons.settings,
 ///   );
 ///
 ///   // Remove a menu option
-///   blocMainMenuDrawer.removeMainMenuOption('Home');
+///   blocSecondaryMenuDrawer.removeMainMenuOption('Settings');
 /// }
 /// ```
-class BlocMainMenuDrawer extends BlocModule {
-  /// Creates an instance of `BlocMainMenuDrawer`.
+class BlocSecondaryMenuDrawer extends BlocModule {
+  /// Creates an instance of `BlocSecondaryMenuDrawer`.
   ///
-  /// This initializes an empty list of main menu options.
-  BlocMainMenuDrawer();
+  /// This initializes an empty list of secondary menu options.
+  BlocSecondaryMenuDrawer();
 
   /// The name identifier for the BLoC, used for tracking or debugging.
-  static const String name = 'drawerMainMenuBloc';
+  static const String name = 'secondaryMenuBloc';
 
-  /// Internal controller for managing the main menu options.
+  /// Internal controller for managing the secondary menu options.
   final BlocGeneral<List<ModelMainMenuModel>> _drawerMainMenu =
       BlocGeneral<List<ModelMainMenuModel>>(<ModelMainMenuModel>[]);
 
-  /// A stream of main menu options.
+  /// A stream of secondary menu options.
   ///
   /// This stream emits changes to the list of menu options, which can be
   /// used to update the UI dynamically.
@@ -55,32 +55,32 @@ class BlocMainMenuDrawer extends BlocModule {
   /// ## Example
   ///
   /// ```dart
-  /// blocMainMenuDrawer.listDrawerOptionSizeStream.listen((options) {
+  /// blocSecondaryMenuDrawer.listDrawerOptionSizeStream.listen((options) {
   ///   print('Menu options updated: ${options.length}');
   /// });
   /// ```
   Stream<List<ModelMainMenuModel>> get listDrawerOptionSizeStream =>
       _drawerMainMenu.stream;
 
-  /// The current list of main menu options.
+  /// The current list of secondary menu options.
   ///
   /// Returns the latest list of menu options.
   List<ModelMainMenuModel> get listMenuOptions => _drawerMainMenu.value;
 
-  /// Clears all main menu options.
+  /// Clears all secondary menu options.
   ///
   /// Resets the menu options to an empty list.
   ///
   /// ## Example
   ///
   /// ```dart
-  /// blocMainMenuDrawer.clearMainDrawer();
+  /// blocSecondaryMenuDrawer.clearMainDrawer();
   /// ```
   void clearMainDrawer() {
     _drawerMainMenu.value = <ModelMainMenuModel>[];
   }
 
-  /// Adds a new option to the main menu drawer.
+  /// Adds a new option to the secondary menu drawer.
   ///
   /// The [onPressed] callback is executed when the option is selected.
   /// The [label] and [iconData] define the option's display text and icon.
@@ -92,10 +92,10 @@ class BlocMainMenuDrawer extends BlocModule {
   /// ## Example
   ///
   /// ```dart
-  /// blocMainMenuDrawer.addMainMenuOption(
-  ///   onPressed: () => print('Home pressed'),
-  ///   label: 'Home',
-  ///   iconData: Icons.home,
+  /// blocSecondaryMenuDrawer.addMainMenuOption(
+  ///   onPressed: () => print('Settings pressed'),
+  ///   label: 'Settings',
+  ///   iconData: Icons.settings,
   /// );
   /// ```
   void addMainMenuOption({
@@ -117,14 +117,14 @@ class BlocMainMenuDrawer extends BlocModule {
     _drawerMainMenu.value = existingOptions;
   }
 
-  /// Removes an option from the main menu drawer by its [label].
+  /// Removes an option from the secondary menu drawer by its [label].
   ///
   /// The [label] is case-insensitive.
   ///
   /// ## Example
   ///
   /// ```dart
-  /// blocMainMenuDrawer.removeMainMenuOption('Home');
+  /// blocSecondaryMenuDrawer.removeMainMenuOption('Settings');
   /// ```
   void removeMainMenuOption(String label) {
     final List<ModelMainMenuModel> existingOptions =
@@ -136,11 +136,6 @@ class BlocMainMenuDrawer extends BlocModule {
     _drawerMainMenu.value = existingOptions;
   }
 
-  /// Checks if the main menu drawer is closed.
-  ///
-  /// Returns `true` if the internal stream controller is closed.
-  bool get isClosed => _drawerMainMenu.isClosed;
-
   /// Releases resources held by the BLoC.
   ///
   /// This method must be called when the BLoC is no longer needed to prevent
@@ -149,10 +144,10 @@ class BlocMainMenuDrawer extends BlocModule {
   /// ## Example
   ///
   /// ```dart
-  /// blocMainMenuDrawer.dispose();
+  /// blocSecondaryMenuDrawer.dispose();
   /// ```
   @override
-  void dispose() {
+  FutureOr<void> dispose() {
     _drawerMainMenu.dispose();
   }
 }

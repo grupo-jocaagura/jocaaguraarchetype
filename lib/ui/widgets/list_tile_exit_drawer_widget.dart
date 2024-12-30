@@ -19,7 +19,7 @@ class ListTileExitDrawerWidget extends StatelessWidget {
         Icons.close,
       ),
       subtitle: const Text(
-        'Cerrar menu lateral',
+        'Cerrar menú lateral',
       ),
     );
   }

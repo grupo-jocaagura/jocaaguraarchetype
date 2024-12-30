@@ -4,20 +4,77 @@ import 'package:jocaagura_domain/jocaagura_domain.dart';
 
 import '../providers/provider_session.dart';
 
+/// A fake implementation of `ProviderSession` for testing session management.
+///
+/// The `FakeSessionProvider` class simulates session-related functionality such
+/// as user login, logout, password recovery, and silent login. It is designed
+/// to test session logic without relying on real authentication systems.
+///
+/// ## Example
+///
+/// ```dart
+/// import 'package:jocaaguraarchetype/fake_session_provider.dart';
+///
+/// void main() async {
+///   final fakeSessionProvider = FakeSessionProvider();
+///   final user = UserModel(email: 'test@example.com');
+///
+///   // Simulate user login
+///   final loginResult = await fakeSessionProvider.logInUserAndPassword(
+///     user,
+///     '1234567890',
+///   );
+///
+///   loginResult.fold(
+///     (error) => print('Login Error: $error'),
+///     (loggedInUser) => print('User Logged In: ${loggedInUser.email}'),
+///   );
+///
+///   // Check session expiration
+///   final sessionResult = await fakeSessionProvider.checkSessionExpired();
+///   sessionResult.fold(
+///     (error) => print('Session Error: $error'),
+///     (activeUser) => print('Session Active for: ${activeUser.email}'),
+///   );
+/// }
+/// ```
 class FakeSessionProvider extends ProviderSession {
+  /// Creates an instance of `FakeSessionProvider`.
+  ///
+  /// Initializes the last action time to the current time.
   FakeSessionProvider() : _lastActionTime = DateTime.now();
+
+  /// Tracks the last action time for session expiration logic.
   DateTime _lastActionTime;
 
+  /// Updates the last action time to the current time or a [testDateTime].
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// fakeSessionProvider.updateLastActionTime();
+  /// ```
   void updateLastActionTime([DateTime? testDateTime]) {
     _lastActionTime = testDateTime ?? DateTime.now();
   }
 
-  // Método para verificar si la sesión debería ser considerada como expirada
+  /// Checks if the session is expired.
+  ///
+  /// A session is considered expired if the time since the last action
+  /// exceeds a random interval between 5 and 20 minutes.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final isExpired = fakeSessionProvider.isSessionExpired;
+  /// print('Session Expired: $isExpired');
+  /// ```
   bool get isSessionExpired {
     return DateTime.now().difference(_lastActionTime).inMinutes >=
         Random().nextInt(10).clamp(5, 20);
   }
 
+  /// The current user in the session.
   UserModel _user = defaultUserModel;
 
   @override
@@ -30,6 +87,17 @@ class FakeSessionProvider extends ProviderSession {
     return _user;
   }
 
+  /// Checks if the session is expired and updates the session accordingly.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final result = await fakeSessionProvider.checkSessionExpired();
+  /// result.fold(
+  ///   (error) => print('Session Error: $error'),
+  ///   (user) => print('Active User: ${user.email}'),
+  /// );
+  /// ```
   Future<Either<String, UserModel>> checkSessionExpired() async {
     if (isSessionExpired == false) {
       logOutUser(user);
@@ -41,6 +109,18 @@ class FakeSessionProvider extends ProviderSession {
     );
   }
 
+  /// Simulates user login with email and password.
+  ///
+  /// Returns a valid `UserModel` on success or an error message on failure.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final result = await fakeSessionProvider.logInUserAndPassword(
+  ///   user,
+  ///   '1234567890',
+  /// );
+  /// ```
   @override
   Future<Either<String, UserModel>> logInUserAndPassword(
     UserModel user,
@@ -56,11 +136,18 @@ class FakeSessionProvider extends ProviderSession {
         jwt: <String, dynamic>{
           'token': 'valid_jwt_token',
         },
-      ); // Simular un JWT válido
+      );
       return Right<String, UserModel>(_user);
     }
   }
 
+  /// Simulates logging out the user.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final result = await fakeSessionProvider.logOutUser(user);
+  /// ```
   @override
   Future<Either<String, UserModel>> logOutUser(UserModel user) async {
     await _randomDelay();
@@ -68,6 +155,16 @@ class FakeSessionProvider extends ProviderSession {
     return Right<String, UserModel>(_user);
   }
 
+  /// Simulates user registration with email and password.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final result = await fakeSessionProvider.signInUserAndPassword(
+  ///   user,
+  ///   'password',
+  /// );
+  /// ```
   @override
   Future<Either<String, UserModel>> signInUserAndPassword(
     UserModel user,
@@ -77,12 +174,18 @@ class FakeSessionProvider extends ProviderSession {
     if (user.email.contains('invalid')) {
       return Left<String, UserModel>('usuario invalido para registro');
     } else {
-      // Simular un registro exitoso y asignar un JWT válido
       _user = user.copyWith(jwt: <String, dynamic>{'token': 'valid_jwt_token'});
       return Right<String, UserModel>(_user);
     }
   }
 
+  /// Simulates password recovery.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final result = await fakeSessionProvider.recoverPassword(user);
+  /// ```
   @override
   Future<Either<String, UserModel>> recoverPassword(UserModel user) async {
     await _randomDelay();
@@ -95,23 +198,36 @@ class FakeSessionProvider extends ProviderSession {
     }
   }
 
+  /// Simulates silent login for the user.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final result = await fakeSessionProvider.logInSilently(user);
+  /// ```
   @override
   Future<Either<String, UserModel>> logInSilently(UserModel user) async {
     await _randomDelay();
-    // Simular un inicio de sesión silencioso
     final bool success = Random().nextBool();
     if (success) {
       _user = user.copyWith(
         jwt: <String, dynamic>{
           'token': 'valid_jwt_token',
         },
-      ); // Simular un JWT válido
+      );
       return Right<String, UserModel>(_user);
     } else {
       return Left<String, UserModel>('Inicio de sesión silencioso fallido');
     }
   }
 
+  /// Validates a JWT token.
+  ///
+  /// ## Example
+  ///
+  /// ```dart
+  /// final isValid = fakeSessionProvider.validateJwt(jwt);
+  /// ```
   bool validateJwt(Map<String, dynamic> jwt) {
     return jwt.isNotEmpty &&
         jwt.containsKey('token') &&
@@ -119,8 +235,8 @@ class FakeSessionProvider extends ProviderSession {
         !jwt['token'].toString().contains('invalid');
   }
 
+  /// Simulates a random delay to mimic network latency.
   Future<void> _randomDelay() async {
-    // Simular una latencia de red con un retardo aleatorio
     await Future<void>.delayed(Duration(seconds: Random().nextInt(10) + 1));
   }
 

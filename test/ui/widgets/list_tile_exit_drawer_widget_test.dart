@@ -18,7 +18,7 @@ void main() {
       expect(find.byType(ListTile), findsOneWidget);
       expect(find.byIcon(Icons.close), findsOneWidget);
       expect(find.text('Salir'), findsOneWidget);
-      expect(find.text('Cerrar menu lateral'), findsOneWidget);
+      expect(find.text('Cerrar menú lateral'), findsOneWidget);
     });
 
     testWidgets('opens end drawer when tapped', (WidgetTester tester) async {
