@@ -4,6 +4,9 @@ This package is designed to ensure that the cross-functional features of applica
 ![Coverage](https://img.shields.io/badge/coverage-86%25-brightgreen)
 ![Author](https://img.shields.io/badge/Author-@albertjjimenezp-brightgreen) 🐱‍👤
 
+## Important
+- Waiting for flutter to fix deprecated value, red, green and blue in Color class.
+
 ## Documentation Index
 
 - [JocaaguraArchetype](#jocaaguraarchetype)

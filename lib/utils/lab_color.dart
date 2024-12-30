@@ -69,7 +69,11 @@ class LabColor extends EntityUtil {
   /// print('Lab Values: L=${labValues[0]}, a=${labValues[1]}, b=${labValues[2]}');
   /// ```
   static List<double> colorToLab(Color color) {
-    final List<double> xyz = rgbToXyz(color.red, color.green, color.blue);
+    final List<double> xyz = rgbToXyz(
+      (color.r * 255).round(),
+      (color.g * 255).round(),
+      (color.b * 255).round(),
+    );
     return xyzToLab(xyz[0], xyz[1], xyz[2]);
   }
 
