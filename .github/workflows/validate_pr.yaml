@@ -21,8 +21,13 @@ jobs:
         with:
           flutter-version: '3.27.1'
 
-      - name: Install Dependencies
-        run: flutter pub get
+      - name: Validate Changelog Update
+        run: |
+          if ! git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -q CHANGELOG.md; then
+            echo "❌ CHANGELOG.md must be updated in this PR."
+            exit 1
+          fi
+
 
       - name: Analyze Code
         run: flutter analyze
@@ -30,15 +35,11 @@ jobs:
       - name: Check Formatting
         run: dart format --set-exit-if-changed .
 
+      - name: Install Dependencies
+        run: flutter pub get
+
       - name: Run Tests
         run: flutter test
-
-      - name: Validate Changelog Update
-        run: |
-          if ! git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -q CHANGELOG.md; then
-            echo "❌ CHANGELOG.md must be updated in this PR."
-            exit 1
-          fi
 
       - name: Clean Up Old References
         run: |
