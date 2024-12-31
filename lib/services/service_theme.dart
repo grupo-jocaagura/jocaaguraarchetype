@@ -75,7 +75,7 @@ class ServiceTheme extends EntityService {
     final int closestB = findClosestValue(b);
 
     return MaterialColor(
-      (255 << 24) | (r << 16) | (g << 8) | b,
+      LabColor.colorValue(r, g, b),
       <int, Color>{
         50: Color.fromRGBO(closestR, closestG, closestB, 0.1),
         100: Color.fromRGBO(closestR, closestG, closestB, 0.2),

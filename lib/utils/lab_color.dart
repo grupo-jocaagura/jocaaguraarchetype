@@ -189,4 +189,19 @@ class LabColor extends EntityUtil {
 
     return <int>[r, g, b];
   }
+
+  static int colorValue(int r, int g, int b) {
+    assert(r >= 0 && r <= 255);
+    assert(g >= 0 && g <= 255);
+    assert(b >= 0 && b <= 255);
+    return (255 << 24) | (r << 16) | (g << 8) | b;
+  }
+
+  static int colorValueFromColor(Color color) {
+    final int r = (color.r * 255).round();
+    final int g = (color.g * 255).round();
+    final int b = (color.b * 255).round();
+
+    return (255 << 24) | (r << 16) | (g << 8) | b;
+  }
 }
