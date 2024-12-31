@@ -37,6 +37,10 @@ jobs:
             echo "❌ CHANGELOG.md must be updated in this PR."
             exit 1
           fi
+      - name: Clean Up Old References
+        run: |
+          git remote prune origin
+          git fetch --all
 
       - name: Increment Version Based on Label
         env:
