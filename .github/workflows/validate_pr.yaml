@@ -5,6 +5,9 @@ on:
     branches:
       - develop
 
+permissions:
+  contents: write
+
 jobs:
   validate_and_update:
     name: Validate PR and Update Version
@@ -81,7 +84,6 @@ jobs:
           git add pubspec.yaml
           git commit -m "Bump version to $UPDATED_VERSION"
 
-          # Configurar y realizar el push
           git config --global init.defaultBranch main
           git checkout -b "${{ github.head_ref }}"
           git push --set-upstream origin "${{ github.head_ref }}"
