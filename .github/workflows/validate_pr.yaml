@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -33,10 +35,11 @@ jobs:
 
       - name: Validate Changelog Update
         run: |
-          if ! git diff --name-only origin/${{ github.base_ref }}..${{ github.head_ref }} | grep -q CHANGELOG.md; then
+          if ! git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -q CHANGELOG.md; then
             echo "❌ CHANGELOG.md must be updated in this PR."
             exit 1
           fi
+
       - name: Clean Up Old References
         run: |
           git remote prune origin
