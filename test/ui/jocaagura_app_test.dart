@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:jocaaguraarchetype/utils/lab_color.dart';
 
 final JocaaguraArchetype jocaaguraArchetype = JocaaguraArchetype();
 
@@ -46,6 +47,7 @@ class TestPageForJocaaguraAppTest extends StatelessWidget {
   const TestPageForJocaaguraAppTest({
     super.key,
   });
+
   static const ValueKey<String> valueKey = ValueKey<String>('testThemeKey');
 
   @override
@@ -80,10 +82,11 @@ void main() {
       );
       await tester.pumpWidget(JocaaguraApp(appManager: appManager));
       await tester.pumpAndSettle();
-      final int testThemeValue = appManager.theme.themeData.primaryColor.value;
+      final int testThemeValue =
+          LabColor.colorValueFromColor(appManager.theme.themeData.primaryColor);
       appManager.theme.randomTheme();
       final int testThemeValueResult =
-          appManager.theme.themeData.primaryColor.value;
+          LabColor.colorValueFromColor(appManager.theme.themeData.primaryColor);
       expect(testThemeValue != testThemeValueResult, true);
     });
 

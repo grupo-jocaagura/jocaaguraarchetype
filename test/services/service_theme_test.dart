@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/services/service_theme.dart';
+import 'package:jocaaguraarchetype/utils/lab_color.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 void main() {
@@ -10,7 +11,7 @@ void main() {
           const ServiceTheme().materialColorFromRGB(255, 0, 0);
 
       expect(materialColor, isA<MaterialColor>());
-      expect(materialColor.value, 4294901760);
+      expect(LabColor.colorValueFromColor(materialColor), 4294901760);
     });
 
     test('getDarker should return a darker color', () {
