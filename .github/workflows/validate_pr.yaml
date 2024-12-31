@@ -53,10 +53,13 @@ jobs:
           CURRENT_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
           echo "Current version: $CURRENT_VERSION"
 
-          LABELS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+          LABELS_RESPONSE=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
-            "${{ github.event.pull_request.url }}/labels" | jq -r '.[].name')
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels")
 
+          echo "API Response: $LABELS_RESPONSE"
+
+          LABELS=$(echo "$LABELS_RESPONSE" | jq -r '.[].name')
           echo "Labels found: $LABELS"
 
           if echo "$LABELS" | grep -q "major"; then
