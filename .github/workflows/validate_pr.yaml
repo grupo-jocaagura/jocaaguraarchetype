@@ -80,4 +80,8 @@ jobs:
           git config user.email "actions@github.com"
           git add pubspec.yaml
           git commit -m "Bump version to $UPDATED_VERSION"
-          git push origin ${{ github.head_ref }}
+
+          # Configurar y realizar el push
+          git config --global init.defaultBranch main
+          git checkout -b "${{ github.head_ref }}"
+          git push --set-upstream origin "${{ github.head_ref }}"
