@@ -53,15 +53,15 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/commit_signing_key
           chmod 600 ~/.ssh/commit_signing_key
-          eval $(ssh-agent)
+          eval $(ssh-agent -s)
           ssh-add ~/.ssh/commit_signing_key
-          git config --global user.signingkey ~/.ssh/commit_signing_key
+          git config --global user.signingkey "~/.ssh/commit_signing_key.pub"
           git config --global commit.gpgsign true
           git config --global gpg.format ssh
 
       - name: Test SSH Key Signing
         run: |
-          echo "Test commit signing" | git hash-object --stdin --literally --no-filter | ssh-keygen -Y sign -f ~/.ssh/commit_signing_key -n git
+          ssh-keygen -Y sign -f ~/.ssh/commit_signing_key -n git -m PEM <<< "Test commit signing"
 
       - name: Increment Version Based on Label
         env:
