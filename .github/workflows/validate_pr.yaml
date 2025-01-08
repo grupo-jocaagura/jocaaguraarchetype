@@ -59,7 +59,7 @@ jobs:
 
       - name: Test GPG Signature
         run: |
-          echo "Test commit signing" | gpg --clearsign
+          echo "Test commit signing" | gpg --clearsign --batch --pinentry-mode loopback
 
       - name: Increment Version Based on Label
         env:
