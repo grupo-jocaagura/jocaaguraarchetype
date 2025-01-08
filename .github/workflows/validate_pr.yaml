@@ -31,7 +31,6 @@ jobs:
             exit 1
           fi
 
-
       - name: Analyze Code
         run: flutter analyze
 
@@ -48,6 +47,13 @@ jobs:
         run: |
           git remote prune origin
           git fetch --all
+
+      - name: Import GPG Key
+        run: |
+          echo "${{ secrets.JOCAAGURAARCHETYPE_GITHUBBOT_SIGN }}" | gpg --import
+          KEY_ID=$(gpg --list-keys --with-colons | grep pub | cut -d':' -f5)
+          git config --global user.signingkey "$KEY_ID"
+          git config --global commit.gpgsign true
 
       - name: Increment Version Based on Label
         env:
@@ -82,7 +88,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add pubspec.yaml
-          git commit -m "Bump version to $UPDATED_VERSION"
+          git commit -S -m "Bump version to $UPDATED_VERSION" # El flag -S asegura la firma del commit
 
           git config --global init.defaultBranch main
           git checkout -b "${{ github.head_ref }}"
