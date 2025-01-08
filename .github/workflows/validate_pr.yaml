@@ -43,25 +43,15 @@ jobs:
       - name: Run Tests
         run: flutter test
 
-      - name: Clean Up Old References
+      - name: Configure SSH Signing Key
         run: |
-          git remote prune origin
-          git fetch --all
-
-      - name: Import GPG Key
-        run: |
-          echo "${{ secrets.JOCAAGURAARCHETYPE_GITHUBBOT_SIGN }}" | gpg --batch --import
-          KEY_ID=$(gpg --list-keys --with-colons | grep pub | cut -d':' -f5)
-          echo "Using GPG Key ID: $KEY_ID"
-          echo -e "5\ny\n" | gpg --batch --yes --pinentry-mode loopback --passphrase "" --command-fd 0 --edit-key "$KEY_ID" trust quit
-          git config --global user.signingkey "$KEY_ID"
+          echo "${{ secrets.COMMIT_SIGNING_KEY }}" > ~/.ssh/commit_signing_key
+          chmod 600 ~/.ssh/commit_signing_key
+          eval $(ssh-agent)
+          ssh-add ~/.ssh/commit_signing_key
+          git config --global user.signingkey ~/.ssh/commit_signing_key
           git config --global commit.gpgsign true
-
-      - name: Test GPG Signature
-        run: |
-          echo "Test commit signing" | gpg --clearsign --batch --pinentry-mode loopback --yes --default-key "$KEY_ID"
-        env:
-          KEY_ID: ${{ secrets.GPG_KEY_ID }}
+          git config --global gpg.format ssh
 
       - name: Increment Version Based on Label
         env:
