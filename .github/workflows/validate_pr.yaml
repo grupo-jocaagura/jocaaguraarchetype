@@ -59,7 +59,9 @@ jobs:
 
       - name: Test GPG Signature
         run: |
-          echo "Test commit signing" | gpg --clearsign --batch --pinentry-mode loopback
+          echo "Test commit signing" | gpg --clearsign --batch --pinentry-mode loopback --yes --default-key "$KEY_ID"
+        env:
+          KEY_ID: ${{ secrets.GPG_KEY_ID }}
 
       - name: Increment Version Based on Label
         env:
