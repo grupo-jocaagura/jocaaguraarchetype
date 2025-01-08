@@ -31,7 +31,6 @@ jobs:
             exit 1
           fi
 
-
       - name: Analyze Code
         run: flutter analyze
 
@@ -48,6 +47,25 @@ jobs:
         run: |
           git remote prune origin
           git fetch --all
+
+      - name: Configure SSH Signing Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/commit_signing_key
+          chmod 600 ~/.ssh/commit_signing_key
+          eval $(ssh-agent -s)
+          ssh-add ~/.ssh/commit_signing_key
+          git config --global user.signingkey "~/.ssh/commit_signing_key"
+          git config --global commit.gpgsign true
+          git config --global gpg.format ssh
+
+      - name: Generate Public Key from Private Key
+        run: |
+          ssh-keygen -y -f ~/.ssh/commit_signing_key > ~/.ssh/commit_signing_key.pub
+
+      - name: Test SSH Key Signing
+        run: |
+          echo "Test commit signing" | ssh-keygen -Y sign -f ~/.ssh/commit_signing_key.pub -n git
 
       - name: Increment Version Based on Label
         env:
@@ -82,7 +100,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add pubspec.yaml
-          git commit -m "Bump version to $UPDATED_VERSION"
+          git commit -S -m "Bump version to $UPDATED_VERSION"
 
           git config --global init.defaultBranch main
           git checkout -b "${{ github.head_ref }}"
