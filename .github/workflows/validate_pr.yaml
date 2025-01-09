@@ -55,23 +55,19 @@ jobs:
           chmod 600 ~/.ssh/commit_signing_key
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/commit_signing_key
-          git config --global user.signingkey "~/.ssh/commit_signing_key.pub"
+          ssh-keygen -y -f ~/.ssh/commit_signing_key > ~/.ssh/commit_signing_key.pub
+          git config --global user.signingkey ~/.ssh/commit_signing_key
           git config --global commit.gpgsign true
           git config --global gpg.format ssh
-          echo "SSH Key configured:"
-          ssh-add -l
-
-      - name: Generate Public Key from Private Key
-        run: |
-          ssh-keygen -y -f ~/.ssh/commit_signing_key > ~/.ssh/commit_signing_key.pub
-          echo "Generated Public Key from Private Key:" 
+          echo "SSH Key configured and public key generated:"
           cat ~/.ssh/commit_signing_key.pub
 
-      - name: Verify SSH Signature
+      - name: Test SSH Key Signing
         run: |
-          echo "Test signing" | ssh-keygen -Y sign -f ~/.ssh/commit_signing_key -n git
-          ssh-keygen -Y verify -f ~/.ssh/commit_signing_key.pub -I actions@github.com -n git -s signature_file
-          echo "Signature verified successfully"
+          echo "Test signing" > test_signing_file
+          ssh-keygen -Y sign -f ~/.ssh/commit_signing_key -n git -q < test_signing_file > signature_file
+          ssh-keygen -Y verify -f ~/.ssh/commit_signing_key.pub -I actions@github.com -n git -s signature_file -q
+          echo "SSH Key Signing Verified"
 
       - name: Increment Version Based on Label
         env:
