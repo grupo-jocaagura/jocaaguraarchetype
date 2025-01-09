@@ -62,6 +62,8 @@ jobs:
       - name: Generate Public Key from Private Key
         run: |
           ssh-keygen -y -f ~/.ssh/commit_signing_key > ~/.ssh/commit_signing_key.pub
+          echo "Generated Public Key from Private Key:" 
+          cat ~/.ssh/commit_signing_key.pub
 
       - name: Increment Version Based on Label
         env:
@@ -74,7 +76,10 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels")
 
+          echo "Labels Response: $LABELS_RESPONSE"
+
           LABELS=$(echo "$LABELS_RESPONSE" | jq -r '.[].name')
+          echo "Labels found: $LABELS"
 
           if echo "$LABELS" | grep -q "major"; then
             UPDATED_VERSION=$(echo $CURRENT_VERSION | awk -F. '{$1+=1; $2=0; $3=0}1' OFS=".")
@@ -87,6 +92,7 @@ jobs:
             exit 1
           fi
 
+          echo "Updated version: $UPDATED_VERSION"
           sed -i "s/^version:.*/version: $UPDATED_VERSION/" pubspec.yaml
 
           git config user.name "github-actions"
