@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Updated
 
 - Updated `validate_pr.yaml` to enforce GitHub bot signatures for new protection rules in PR merging.
+- Updated SSH sign for reviewer bot
 
 ### Added
 
