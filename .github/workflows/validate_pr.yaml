@@ -59,13 +59,17 @@ jobs:
           git config --global user.signingkey ~/.ssh/commit_signing_key
           git config --global commit.gpgsign true
           git config --global gpg.format ssh
-          echo "SSH Key configured and public key generated:"
+          echo "Private Key Content:"
+          cat ~/.ssh/commit_signing_key
+          echo "Public Key Content:"
           cat ~/.ssh/commit_signing_key.pub
 
       - name: Test SSH Key Signing
         run: |
           echo "Test signing" > test_signing_file
           ssh-keygen -Y sign -f ~/.ssh/commit_signing_key -n git -q < test_signing_file > signature_file
+          echo "Generated Signature:"
+          cat signature_file
           ssh-keygen -Y verify -f ~/.ssh/commit_signing_key.pub -I actions@github.com -n git -s signature_file -q
           echo "SSH Key Signing Verified"
 
