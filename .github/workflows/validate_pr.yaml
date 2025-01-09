@@ -31,7 +31,6 @@ jobs:
             exit 1
           fi
 
-
       - name: Analyze Code
         run: flutter analyze
 
@@ -49,6 +48,20 @@ jobs:
           git remote prune origin
           git fetch --all
 
+      - name: Configure SSH Signing Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/commit_signing_key
+          chmod 600 ~/.ssh/commit_signing_key
+          eval $(ssh-agent -s)
+          ssh-add ~/.ssh/commit_signing_key
+          ssh-keygen -y -f ~/.ssh/commit_signing_key > ~/.ssh/commit_signing_key.pub
+          git config --global user.name "sirfakelion"
+          git config --global user.email "sirfakelion@gmail.com"
+          git config --global user.signingkey ~/.ssh/commit_signing_key
+          git config --global commit.gpgsign true
+          git config --global gpg.format ssh
+
       - name: Increment Version Based on Label
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -60,10 +73,7 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels")
 
-          echo "API Response: $LABELS_RESPONSE"
-
           LABELS=$(echo "$LABELS_RESPONSE" | jq -r '.[].name')
-          echo "Labels found: $LABELS"
 
           if echo "$LABELS" | grep -q "major"; then
             UPDATED_VERSION=$(echo $CURRENT_VERSION | awk -F. '{$1+=1; $2=0; $3=0}1' OFS=".")
@@ -76,14 +86,12 @@ jobs:
             exit 1
           fi
 
-          echo "Updated version: $UPDATED_VERSION"
           sed -i "s/^version:.*/version: $UPDATED_VERSION/" pubspec.yaml
 
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config user.name "sirfakelion"
+          git config user.email "sirfakelion@gmail.com"
           git add pubspec.yaml
-          git commit -m "Bump version to $UPDATED_VERSION"
-
+          git commit -S -m "Bump version to $UPDATED_VERSION"
           git config --global init.defaultBranch main
           git checkout -b "${{ github.head_ref }}"
           git push --set-upstream origin "${{ github.head_ref }}"
