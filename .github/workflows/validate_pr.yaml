@@ -55,23 +55,13 @@ jobs:
           chmod 600 ~/.ssh/commit_signing_key
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/commit_signing_key
-          ssh-keygen -y -f ~/.ssh/commit_signing_key > ~/.ssh/commit_signing_key.pub
-          git config --global user.signingkey ~/.ssh/commit_signing_key
+          git config --global user.signingkey "~/.ssh/commit_signing_key"
           git config --global commit.gpgsign true
           git config --global gpg.format ssh
-          echo "Private Key Content:"
-          cat ~/.ssh/commit_signing_key
-          echo "Public Key Content:"
-          cat ~/.ssh/commit_signing_key.pub
 
-      - name: Test SSH Key Signing
+      - name: Generate Public Key from Private Key
         run: |
-          echo "Test signing" > test_signing_file
-          ssh-keygen -Y sign -f ~/.ssh/commit_signing_key -n git -q < test_signing_file > signature_file
-          echo "Generated Signature:"
-          cat signature_file
-          ssh-keygen -Y verify -f ~/.ssh/commit_signing_key.pub -I actions@github.com -n git -s signature_file -q
-          echo "SSH Key Signing Verified"
+          ssh-keygen -y -f ~/.ssh/commit_signing_key > ~/.ssh/commit_signing_key.pub
 
       - name: Increment Version Based on Label
         env:
@@ -84,10 +74,7 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels")
 
-          echo "Labels Response: $LABELS_RESPONSE"
-
           LABELS=$(echo "$LABELS_RESPONSE" | jq -r '.[].name')
-          echo "Labels found: $LABELS"
 
           if echo "$LABELS" | grep -q "major"; then
             UPDATED_VERSION=$(echo $CURRENT_VERSION | awk -F. '{$1+=1; $2=0; $3=0}1' OFS=".")
@@ -100,7 +87,6 @@ jobs:
             exit 1
           fi
 
-          echo "Updated version: $UPDATED_VERSION"
           sed -i "s/^version:.*/version: $UPDATED_VERSION/" pubspec.yaml
 
           git config user.name "github-actions"
