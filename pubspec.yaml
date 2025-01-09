@@ -1,6 +1,6 @@
 name: jocaaguraarchetype
 description: "A foundational project by Jocaagura that serves as the core framework for its applications. This package provides essential features and utilities to streamline the development of robust and scalable apps, ensuring consistency and efficiency across all Jocaagura projects."
-version: 1.4.7
+version: 1.4.8
 homepage: https://github.com/jocaagura/jocaaguraarchetype
 repository: https://github.com/jocaagura/jocaaguraarchetype
 
