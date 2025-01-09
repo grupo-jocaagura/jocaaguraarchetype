@@ -55,13 +55,12 @@ jobs:
           chmod 600 ~/.ssh/commit_signing_key
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/commit_signing_key
-          git config --global user.signingkey "~/.ssh/commit_signing_key"
+          ssh-keygen -y -f ~/.ssh/commit_signing_key > ~/.ssh/commit_signing_key.pub
+          git config --global user.name "sirfakelion"
+          git config --global user.email "sirfakelion@gmail.com"
+          git config --global user.signingkey ~/.ssh/commit_signing_key
           git config --global commit.gpgsign true
           git config --global gpg.format ssh
-
-      - name: Generate Public Key from Private Key
-        run: |
-          ssh-keygen -y -f ~/.ssh/commit_signing_key > ~/.ssh/commit_signing_key.pub
 
       - name: Increment Version Based on Label
         env:
@@ -89,8 +88,8 @@ jobs:
 
           sed -i "s/^version:.*/version: $UPDATED_VERSION/" pubspec.yaml
 
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config user.name "sirfakelion"
+          git config user.email "sirfakelion@gmail.com"
           git add pubspec.yaml
           git commit -S -m "Bump version to $UPDATED_VERSION"
           git config --global init.defaultBranch main
