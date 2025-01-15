@@ -69,7 +69,11 @@ class LabColor extends EntityUtil {
   /// print('Lab Values: L=${labValues[0]}, a=${labValues[1]}, b=${labValues[2]}');
   /// ```
   static List<double> colorToLab(Color color) {
-    final List<double> xyz = rgbToXyz(color.red, color.green, color.blue);
+    final List<double> xyz = rgbToXyz(
+      (color.r * 255).round(),
+      (color.g * 255).round(),
+      (color.b * 255).round(),
+    );
     return xyzToLab(xyz[0], xyz[1], xyz[2]);
   }
 
@@ -184,5 +188,20 @@ class LabColor extends EntityUtil {
         : ((1.055 * pow(bLinear, 1 / 2.4).toDouble() - 0.055) * 255).round();
 
     return <int>[r, g, b];
+  }
+
+  static int colorValue(int r, int g, int b) {
+    assert(r >= 0 && r <= 255);
+    assert(g >= 0 && g <= 255);
+    assert(b >= 0 && b <= 255);
+    return (255 << 24) | (r << 16) | (g << 8) | b;
+  }
+
+  static int colorValueFromColor(Color color) {
+    final int r = (color.r * 255).round();
+    final int g = (color.g * 255).round();
+    final int b = (color.b * 255).round();
+
+    return (255 << 24) | (r << 16) | (g << 8) | b;
   }
 }

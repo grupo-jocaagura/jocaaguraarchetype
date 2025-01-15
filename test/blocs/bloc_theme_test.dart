@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/blocs/bloc_theme.dart';
+import 'package:jocaaguraarchetype/utils/lab_color.dart';
 
 import '../mocks/provider_theme_mock.dart';
 
@@ -38,13 +39,14 @@ void main() {
       true,
     );
     expect(
-      themeData2.primaryColor.value != blocTheme.themeData.primaryColor.value,
+      LabColor.colorValueFromColor(themeData2.primaryColor) !=
+          LabColor.colorValueFromColor(blocTheme.themeData.primaryColor),
       true,
     );
     blocTheme.customThemeFromColor(themeData3.primaryColor);
     expect(
-      blocTheme.themeData.primaryColor.value,
-      equals(themeData3.primaryColor.value),
+      LabColor.colorValueFromColor(blocTheme.themeData.primaryColor),
+      equals(LabColor.colorValueFromColor(themeData3.primaryColor)),
     );
 
     // Prueba que el getter themeDataStream devuelve el Stream de ThemeData
@@ -71,9 +73,9 @@ void main() {
     final ThemeData tmp = blocTheme.themeData
         .copyWith(colorScheme: ColorScheme.fromSeed(seedColor: color));
     expect(
-      blocTheme.themeData.primaryColor.value,
+      LabColor.colorValueFromColor(blocTheme.themeData.primaryColor),
       equals(
-        tmp.primaryColor.value,
+        LabColor.colorValueFromColor(tmp.primaryColor),
       ),
     );
 

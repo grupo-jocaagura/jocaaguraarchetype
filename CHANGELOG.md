@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.5] - 2024-01-15
+
+### Added
+- Integrated `validate_pr` configuration to include the `master` branch, ensuring compliance with PR validation rules.
+- Added `publish.yml` to the `.github/workflows` directory, enabling automatic publishing to `pub.dev` upon merging into `master`.
+
+### Updated
+- Extracted bot credentials (`name` and `email`) into GitHub Secrets (`secrets.BOT_NAME` and `secrets.BOT_EMAIL`) to enhance security and prevent exposure.
+
+
+## [1.4.4] - 2024-01-10
+
+### Updated
+- Updated `codeql.yaml` to enforce GitHub for making Code quality analysis.
+### Added
+- Improved workflow traceability with Code Quality analysis support using CodeQl from github.
+
+## [1.4.3] - 2024-01-08
+
+### Updated
+- Updated `validate_pr.yaml` to enforce GitHub bot signatures for new protection rules in PR merging.
+### Added
+- Improved workflow traceability with snapshot support for key date-specific workflows.
+
+## [1.4.2] - 2024-12-30
+### Updated
+- Changed deprecated values into 
+
+
 ## [1.4.1] - 2024-12-30
 ### Updated
 - Changelog Translation: The changelog has been translated into English for publication on pub.dev.
