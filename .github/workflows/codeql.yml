@@ -21,16 +21,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'python', 'java', 'ruby', 'go', 'csharp', 'swift', 'dart' ]
+        language: ${{ fromJson(secrets.CODEQL_LANGUAGES) }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
