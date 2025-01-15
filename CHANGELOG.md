@@ -5,7 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.5] - 2024-01-15
+## [1.5.0] - 2025-01-16
+
+### Added
+- CI/CD configuration for the `develop` branch.
+- Integration of CodeQL for code quality analysis.
+- Automation of commit signing using a bot.
+- Fixed dates in the changelog.
+
+## [1.4.5] - 2025-01-15
 
 ### Added
 - Integrated `validate_pr` configuration to include the `master` branch, ensuring compliance with PR validation rules.
@@ -15,14 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extracted bot credentials (`name` and `email`) into GitHub Secrets (`secrets.BOT_NAME` and `secrets.BOT_EMAIL`) to enhance security and prevent exposure.
 
 
-## [1.4.4] - 2024-01-10
+## [1.4.4] - 2025-01-10
 
 ### Updated
 - Updated `codeql.yaml` to enforce GitHub for making Code quality analysis.
 ### Added
 - Improved workflow traceability with Code Quality analysis support using CodeQl from github.
 
-## [1.4.3] - 2024-01-08
+## [1.4.3] - 2025-01-08
 
 ### Updated
 - Updated `validate_pr.yaml` to enforce GitHub bot signatures for new protection rules in PR merging.
