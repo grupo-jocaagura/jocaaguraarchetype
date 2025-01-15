@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - develop
+      - master
 
 permissions:
   contents: write
@@ -56,8 +57,8 @@ jobs:
           eval $(ssh-agent -s)
           ssh-add ~/.ssh/commit_signing_key
           ssh-keygen -y -f ~/.ssh/commit_signing_key > ~/.ssh/commit_signing_key.pub
-          git config --global user.name "sirfakelion"
-          git config --global user.email "sirfakelion@gmail.com"
+          git config --global user.name "${{ secrets.BOT_NAME }}"
+          git config --global user.email "${{ secrets.BOT_EMAIL }}"
           git config --global user.signingkey ~/.ssh/commit_signing_key
           git config --global commit.gpgsign true
           git config --global gpg.format ssh
