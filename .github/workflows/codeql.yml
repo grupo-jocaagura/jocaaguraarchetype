@@ -18,19 +18,27 @@ jobs:
       contents: read
       security-events: write
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ${{ fromJson(secrets.CODEQL_LANGUAGES) }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Debug Secrets
+        run: |
+          echo "CODEQL_LANGUAGES: ${{ secrets.CODEQL_LANGUAGES }}"
+
+      - name: Convert CODEQL_LANGUAGES to Matrix
+        id: convert_languages
+        run: |
+          echo "LANGUAGES=$(echo ${{ secrets.CODEQL_LANGUAGES }} | tr ',' '\n')" >> $GITHUB_ENV
+
+      - name: Debug Matrix Preparation
+        run: |
+          echo "Languages prepared: $LANGUAGES"
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ matrix.language }}
+          languages: ${{ env.LANGUAGES }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
