@@ -29,7 +29,12 @@ jobs:
       - name: Convert CODEQL_LANGUAGES to Matrix
         id: convert_languages
         run: |
-          echo "LANGUAGES=$(echo ${{ secrets.CODEQL_LANGUAGES }} | tr ',' '\n')" >> $GITHUB_ENV
+          echo "LANGUAGES=$(echo ${{ secrets.CODEQL_LANGUAGES }} | tr -d ' ' | tr ',' '\n')" >> $GITHUB_ENV
+
+      - name: Debug Adjusted LANGUAGES
+        run: |
+          echo "Adjusted LANGUAGES:"
+          echo "$LANGUAGES"
 
       - name: Debug Matrix Preparation
         run: |
