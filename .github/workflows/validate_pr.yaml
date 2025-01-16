@@ -96,12 +96,3 @@ jobs:
           git config --global init.defaultBranch main
           git checkout -b "${{ github.head_ref }}"
           git push --set-upstream origin "${{ github.head_ref }}"
-
-      - name: Debug Git Config
-        run: |
-          git config --global --get user.name
-          git config --global --get user.email
-          git config --global --get commit.gpgsign
-          git config --global --get gpg.format
-          ssh-add -L
-
