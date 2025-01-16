@@ -89,8 +89,8 @@ jobs:
 
           sed -i "s/^version:.*/version: $UPDATED_VERSION/" pubspec.yaml
 
-          git config user.name "sirfakelion"
-          git config user.email "sirfakelion@gmail.com"
+          git config user.name "${{ secrets.BOT_NAME }}"
+          git config user.email "${{ secrets.BOT_EMAIL }}"
           git add pubspec.yaml
           git commit -S -m "Bump version to $UPDATED_VERSION"
           git config --global init.defaultBranch main
