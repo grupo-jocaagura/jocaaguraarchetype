@@ -89,10 +89,19 @@ jobs:
 
           sed -i "s/^version:.*/version: $UPDATED_VERSION/" pubspec.yaml
 
-          git config user.name "sirfakelion"
-          git config user.email "sirfakelion@gmail.com"
+          git config user.name "${{ secrets.BOT_NAME }}"
+          git config user.email "${{ secrets.BOT_EMAIL }}"
           git add pubspec.yaml
           git commit -S -m "Bump version to $UPDATED_VERSION"
           git config --global init.defaultBranch main
           git checkout -b "${{ github.head_ref }}"
           git push --set-upstream origin "${{ github.head_ref }}"
+
+      - name: Debug Git Config
+        run: |
+          git config --global --get user.name
+          git config --global --get user.email
+          git config --global --get commit.gpgsign
+          git config --global --get gpg.format
+          ssh-add -L
+
