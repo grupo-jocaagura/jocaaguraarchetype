@@ -21,11 +21,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ${{ fromJson(secrets.CODEQL_LANGUAGES) }}
+        language: ${{ secrets.CODEQL_LANGUAGES }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Debug Secrets
+        run: |
+          echo "CODEQL_LANGUAGES: ${{ secrets.CODEQL_LANGUAGES }}"
+
+      - name: Debug Matrix
+        run: |
+          echo "Matrix language: ${{ matrix.language }}"
+
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
