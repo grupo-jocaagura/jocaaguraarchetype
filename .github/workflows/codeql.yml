@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ${{ fromJson(secrets.CODEQL_LANGUAGES) }}
+        language: [javascript, java, kotlin, swift]
 
     steps:
       - name: Checkout repository
