@@ -18,32 +18,23 @@ jobs:
       contents: read
       security-events: write
 
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript, python, java, ruby, go, csharp] # Lenguajes quemados
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Debug Secrets
+      - name: Debug Matrix
         run: |
-          echo "CODEQL_LANGUAGES: ${{ secrets.CODEQL_LANGUAGES }}"
-
-      - name: Convert CODEQL_LANGUAGES to Matrix
-        id: convert_languages
-        run: |
-          echo "LANGUAGES=$(echo ${{ secrets.CODEQL_LANGUAGES }} | tr -d ' ' | tr ',' '\n')" >> $GITHUB_ENV
-
-      - name: Debug Adjusted LANGUAGES
-        run: |
-          echo "Adjusted LANGUAGES:"
-          echo "$LANGUAGES"
-
-      - name: Debug Matrix Preparation
-        run: |
-          echo "Languages prepared: $LANGUAGES"
+          echo "Processing language: ${{ matrix.language }}"
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ env.LANGUAGES }}
+          languages: ${{ matrix.language }}
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
