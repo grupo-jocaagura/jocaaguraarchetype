@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2024-01-16
+
+### Updated
+- Updated `codeql.yml` to version 3 due to the deprecation of version 2 announced by GitHub, ensuring proper execution of the scheduled code analysis cron jobs.
+
+### Added
+- Extracted the list of languages used by the CodeQL workflow into a GitHub secret (`secrets.CODEQL_LANGUAGES`) for a more dynamic and efficient configuration.
+
 ## [1.5.0] - 2025-01-16
 
 ### Added
@@ -13,7 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automation of commit signing using a bot.
 - Fixed dates in the changelog.
 
-## [1.4.5] - 2025-01-15
+
+## [1.4.5] - 2024-01-15
 
 ### Added
 - Integrated `validate_pr` configuration to include the `master` branch, ensuring compliance with PR validation rules.
