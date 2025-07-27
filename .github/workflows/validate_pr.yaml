@@ -1,23 +1,30 @@
-name: Validate and Update Version on PR
+name: Validate PR and Update Version
 
 on:
   pull_request:
     branches:
       - develop
-      - master
 
 permissions:
   contents: write
 
 jobs:
   validate_and_update:
-    name: Validate PR and Update Version
+    name: Validate PR to develop
     runs-on: ubuntu-latest
 
     steps:
+      - name: Ensure PR targets develop branch
+        run: |
+          if [[ "${{ github.base_ref }}" != "develop" ]]; then
+            echo "❌ This PR must be based on 'develop'. Current base: ${{ github.base_ref }}"
+            exit 1
+          fi
+
       - name: Checkout Code
         uses: actions/checkout@v3
         with:
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
 
       - name: Set up Flutter
@@ -44,10 +51,8 @@ jobs:
       - name: Run Tests
         run: flutter test
 
-      - name: Clean Up Old References
-        run: |
-          git remote prune origin
-          git fetch --all
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Configure SSH Signing Key
         run: |
@@ -87,12 +92,13 @@ jobs:
             exit 1
           fi
 
+          echo "Updated version: $UPDATED_VERSION"
           sed -i "s/^version:.*/version: $UPDATED_VERSION/" pubspec.yaml
 
           git config user.name "${{ secrets.BOT_NAME }}"
           git config user.email "${{ secrets.BOT_EMAIL }}"
+
           git add pubspec.yaml
           git commit -S -m "Bump version to $UPDATED_VERSION"
-          git config --global init.defaultBranch main
-          git checkout -b "${{ github.head_ref }}"
-          git push --set-upstream origin "${{ github.head_ref }}"
+
+          git push

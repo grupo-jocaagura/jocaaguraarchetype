@@ -14,7 +14,7 @@ import '../providers/provider_internet.dart';
 /// ## Example
 ///
 /// ```dart
-/// import 'package:jocaaguraarchetype/service_connectivity.dart';
+/// import 'package:jocaaguraarchetype/service_connectivity_plus.dart';
 /// import 'package:jocaaguraarchetype/provider_connectivity.dart';
 /// import 'package:jocaaguraarchetype/provider_internet.dart';
 /// import 'package:dartz/dartz.dart';
@@ -63,13 +63,13 @@ import '../providers/provider_internet.dart';
 ///   );
 /// }
 /// ```
-class ServiceConnectivity {
+class ServiceConnectivityPlus {
   /// Creates an instance of `ServiceConnectivity`.
   ///
   /// Requires a [connectivityProvider] to check connectivity status,
   /// an [internetProvider] to measure internet speed, and a [debouncer]
   /// to throttle repeated checks.
-  const ServiceConnectivity(
+  const ServiceConnectivityPlus(
     this.connectivityProvider,
     this.internetProvider, {
     required this.debouncer,

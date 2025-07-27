@@ -4,7 +4,41 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-## 1.5.2 - 2025-01-16
+## [2.0.0] - 2025-07-27
+
+### ⚠️ Breaking Changes
+
+- Se removió la implementación interna de `ServiceSession` y `ServiceConnectivity`.
+- Se introdujo `service_session_plus.dart`, que ahora debe ser implementado desde la app o inyectado desde `jocaagura_domain`.
+- `bloc_session.dart` y `bloc_connectivity.dart` fueron actualizados para depender de las nuevas abstracciones definidas en `jocaagura_domain`.
+- El paquete deja de funcionar de forma independiente. Ahora **requiere tener configurado `jocaagura_domain`** para su correcto funcionamiento.
+
+### 💡 Razonamiento del cambio
+
+Este cambio mayor responde a una estrategia de consolidación de herramientas transversales dentro del paquete [`jocaagura_domain`](https://pub.dev/packages/jocaagura_domain). Centralizar los servicios compartidos y sus contratos:
+
+- Simplifica el mantenimiento y evolución de la arquitectura.
+- Evita colisiones con paquetes externos o implementaciones personalizadas.
+- Permite que cada app tenga control sobre la forma en que maneja sesiones, conectividad y navegación.
+
+### 📌 Migración necesaria
+
+1. Agrega `jocaagura_domain` como dependencia en tu `pubspec.yaml`.
+2. Implementa tu propia versión de `ServiceSession` y `ServiceConnectivity` acorde a tus necesidades.
+3. Asegúrate de configurar correctamente los blocs desde `AppManager`, inyectando las implementaciones deseadas.
+
+### 📁 Otros cambios
+
+- Se reorganizó el código para reflejar mejor la separación entre `blocs`, `services`, `ui` y `utils`.
+- Mejora de documentación interna para los nuevos servicios.
+
+---
+
+> ⚠️ Este paquete podría ser deprecado en el futuro. Se recomienda utilizar directamente `jocaagura_domain` como punto de entrada para la configuración de servicios compartidos y lógica transversal.
+
+
+
+## [1.5.2] - 2025-01-16
 
 ### Improved
 - Enhanced the `publish.yml` workflow to accommodate the Google environment and GitHub Actions, ensuring seamless package publishing.

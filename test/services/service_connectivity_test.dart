@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaagura_domain/jocaagura_domain.dart';
-import 'package:jocaaguraarchetype/services/service_connectivity.dart';
+import 'package:jocaaguraarchetype/services/service_connectivity_plus.dart';
 
 import '../mocks/mock_connectivity_provider.dart';
 import '../mocks/mock_internet_provider.dart';
@@ -9,7 +9,7 @@ void main() {
   group('ServiceConnectivity Tests', () {
     late MockConnectivityProvider mockConnectivityProvider;
     late MockInternetProvider mockInternetProvider;
-    late ServiceConnectivity serviceConnectivity;
+    late ServiceConnectivityPlus serviceConnectivity;
     late Debouncer debouncer;
 
     setUp(() {
@@ -18,7 +18,7 @@ void main() {
       debouncer = Debouncer(
         milliseconds: 1000,
       ); // Utiliza un debouncer con 1 segundo de delay para pruebas
-      serviceConnectivity = ServiceConnectivity(
+      serviceConnectivity = ServiceConnectivityPlus(
         mockConnectivityProvider,
         mockInternetProvider,
         debouncer: debouncer,

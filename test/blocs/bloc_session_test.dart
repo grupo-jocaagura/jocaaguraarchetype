@@ -5,13 +5,13 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart'; // Importa tus clas
 void main() {
   group('BlocSession', () {
     late FakeSessionProvider fakeProvider;
-    late ServiceSession service;
+    late ServiceSessionPlus service;
     late BlocSession bloc;
     late UserModel validUser;
 
     setUp(() {
       fakeProvider = FakeSessionProvider();
-      service = ServiceSession(fakeProvider);
+      service = ServiceSessionPlus(fakeProvider);
       bloc = BlocSession(service);
       validUser = const UserModel(
         id: '1',
@@ -58,13 +58,13 @@ void main() {
 
   group('BlocSession with Stream Functions', () {
     late FakeSessionProvider fakeProvider;
-    late ServiceSession service;
+    late ServiceSessionPlus service;
     late BlocSession bloc;
     late UserModel validUser;
 
     setUp(() {
       fakeProvider = FakeSessionProvider();
-      service = ServiceSession(fakeProvider);
+      service = ServiceSessionPlus(fakeProvider);
       bloc = BlocSession(service);
       validUser = const UserModel(
         id: '1',
@@ -121,13 +121,13 @@ void main() {
 
   group('BlocSession Stream Tests', () {
     late FakeSessionProvider fakeProvider;
-    late ServiceSession service;
+    late ServiceSessionPlus service;
     late BlocSession bloc;
     late UserModel validUser;
 
     setUp(() {
       fakeProvider = FakeSessionProvider();
-      service = ServiceSession(fakeProvider);
+      service = ServiceSessionPlus(fakeProvider);
       bloc = BlocSession(service);
       validUser = const UserModel(
         id: '1',
