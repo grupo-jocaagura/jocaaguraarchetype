@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-import 'package:jocaaguraarchetype/services/service_connectivity.dart';
+import 'package:jocaaguraarchetype/services/service_connectivity_plus.dart';
 
 import 'blocs/bloc_counter.dart';
 import 'ui/pages/my_home_page.dart';
@@ -15,7 +15,7 @@ final BlocTheme blocTheme = BlocTheme(
   ),
 );
 final BlocConnectivity blocConnectivity = BlocConnectivity(
-  ServiceConnectivity(
+  ServiceConnectivityPlus(
     const FakeConnectivityProvider(),
     const FakeInternetProvider(),
     debouncer: Debouncer(milliseconds: 1000),

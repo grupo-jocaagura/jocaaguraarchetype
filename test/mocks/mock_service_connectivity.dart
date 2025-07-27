@@ -1,7 +1,7 @@
 import 'package:jocaagura_domain/jocaagura_domain.dart';
-import 'package:jocaaguraarchetype/services/service_connectivity.dart';
+import 'package:jocaaguraarchetype/services/service_connectivity_plus.dart';
 
-class MockServiceConnectivity extends ServiceConnectivity {
+class MockServiceConnectivity extends ServiceConnectivityPlus {
   MockServiceConnectivity(
     super.connectivityProvider,
     super.internetProvider, {

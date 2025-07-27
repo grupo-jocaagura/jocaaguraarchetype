@@ -11,7 +11,7 @@ import '../providers/provider_session.dart';
 /// ## Example
 ///
 /// ```dart
-/// import 'package:jocaaguraarchetype/service_session.dart';
+/// import 'package:jocaaguraarchetype/service_session_plus.dart';
 /// import 'package:jocaaguraarchetype/provider_session.dart';
 /// import 'package:dartz/dartz.dart';
 ///
@@ -29,11 +29,11 @@ import '../providers/provider_session.dart';
 ///   );
 /// }
 /// ```
-class ServiceSession {
+class ServiceSessionPlus {
   /// Creates an instance of `ServiceSession`.
   ///
   /// The [ProviderSession] instance is injected to delegate session-related operations.
-  const ServiceSession(this._providerSession);
+  const ServiceSessionPlus(this._providerSession);
 
   /// The underlying `ProviderSession` instance.
   final ProviderSession _providerSession;
