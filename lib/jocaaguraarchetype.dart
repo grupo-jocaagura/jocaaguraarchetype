@@ -18,7 +18,7 @@ export 'navigator/page_manager.dart';
 export 'providers/app_manager_provider.dart';
 export 'providers/provider_session.dart';
 export 'providers/provider_theme.dart';
-export 'services/service_session.dart';
+export 'services/service_session_plus.dart';
 export 'services/service_theme.dart';
 export 'ui/jocaagura_app.dart';
 export 'ui/pages/my_demo_home_page.dart';

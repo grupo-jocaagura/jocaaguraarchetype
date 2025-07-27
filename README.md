@@ -1,4 +1,21 @@
 # JocaaguraArchetype
+> 👋 ¡Hola! Antes de que sigas, te contamos que estamos migrando las responsabilidades principales de este paquete a [`jocaagura_domain`](https://pub.dev/packages/jocaagura_domain).  
+> Este arquetipo seguirá disponible por ahora, pero puede ser deprecado más adelante.  
+> Te invitamos a construir directamente desde `jocaagura_domain`, donde ahora están los blocs, contratos y herramientas compartidas.
+
+
+> 👋 Hey there! Just a heads-up — most of the functionality from this archetype has been moved to [`jocaagura_domain`](https://pub.dev/packages/jocaagura_domain).  
+> This package may be deprecated in the near future.  
+> For a cleaner setup and fewer dependencies, we recommend building directly with `jocaagura_domain`, which now includes the base blocs, services, and UI contracts.
+
+> ⚠️ **Important Notice:**  
+> This package is no longer maintained as a standalone solution.  
+> We strongly recommend migrating to [`jocaagura_domain`](https://pub.dev/packages/jocaagura_domain),  
+> which now includes all shared infrastructure contracts and cross-cutting logic.
+>
+> Centralizing the effort in `jocaagura_domain` helps reduce duplication, simplifies maintenance, and avoids future package conflicts.
+
+
 
 This package is designed to ensure that the cross-functional features of applications developed by Jocaagura are addressed at the start of each project. It provides a uniform and robust foundation for development teams, facilitating the integration and scaling of new features and functionalities.
 ![Coverage](https://img.shields.io/badge/coverage-86%25-brightgreen)

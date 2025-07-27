@@ -1,0 +1,54 @@
+name: Validate Merge to master from develop
+
+on:
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  validate_master_pr:
+    name: Validate PR to master
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ensure PR source is develop
+        run: |
+          if [[ "${{ github.head_ref }}" != "develop" ]]; then
+            echo "❌ Only pull requests from 'develop' to 'master' are allowed."
+            exit 1
+          fi
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+
+      - name: Validate Changelog and Version Match
+        run: |
+          VERSION_CHANGELOG=$(grep -oP '^## \[\K[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md | head -1)
+          VERSION_PUBSPEC=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+
+          echo "🔍 Changelog version: $VERSION_CHANGELOG"
+          echo "🔍 pubspec.yaml version: $VERSION_PUBSPEC"
+
+          if [[ "$VERSION_CHANGELOG" != "$VERSION_PUBSPEC" ]]; then
+            echo "❌ Version mismatch: CHANGELOG.md has $VERSION_CHANGELOG but pubspec.yaml has $VERSION_PUBSPEC"
+            exit 1
+          fi
+
+      - name: Analyze Code
+        run: flutter analyze
+
+      - name: Run Tests
+        run: flutter test
+
+      - name: Validate Format
+        run: dart format --set-exit-if-changed .

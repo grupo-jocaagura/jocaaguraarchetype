@@ -5,13 +5,13 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 void main() {
   group('ServiceSession', () {
     late FakeSessionProvider fakeProvider;
-    late ServiceSession service;
+    late ServiceSessionPlus service;
     late UserModel validUser;
     late UserModel invalidUser;
 
     setUp(() {
       fakeProvider = FakeSessionProvider();
-      service = ServiceSession(fakeProvider);
+      service = ServiceSessionPlus(fakeProvider);
       validUser = const UserModel(
         id: '1',
         displayName: 'John Doe',

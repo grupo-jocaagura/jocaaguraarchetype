@@ -1,11 +1,11 @@
 import 'package:jocaagura_domain/jocaagura_domain.dart';
 
-import '../services/service_session.dart';
+import '../services/service_session_plus.dart';
 
 class BlocSession extends BlocModule {
   BlocSession(this._serviceSession);
   static const String name = 'blocSession';
-  final ServiceSession _serviceSession;
+  final ServiceSessionPlus _serviceSession;
   final BlocGeneral<Either<String, UserModel>> _blocSession =
       BlocGeneral<Either<String, UserModel>>(Left<String, UserModel>(''));
 

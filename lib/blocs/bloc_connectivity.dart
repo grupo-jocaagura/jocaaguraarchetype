@@ -1,6 +1,6 @@
 import 'package:jocaagura_domain/jocaagura_domain.dart';
 
-import '../services/service_connectivity.dart';
+import '../services/service_connectivity_plus.dart';
 
 /// A BLoC (Business Logic Component) for managing connectivity state.
 ///
@@ -13,7 +13,7 @@ import '../services/service_connectivity.dart';
 ///
 /// ```dart
 /// import 'package:jocaaguraarchetype/bloc_connectivity.dart';
-/// import 'package:jocaaguraarchetype/service_connectivity.dart';
+/// import 'package:jocaaguraarchetype/service_connectivity_plus.dart';
 /// import 'package:dartz/dartz.dart';
 ///
 /// void main() async {
@@ -52,7 +52,7 @@ class BlocConnectivity extends BlocModule {
   static const String name = 'blocConnectivity';
 
   /// The service for managing connectivity and internet speed.
-  final ServiceConnectivity serviceConnectivity;
+  final ServiceConnectivityPlus serviceConnectivity;
 
   /// Internal controller for managing connectivity state.
   final BlocGeneral<Either<String, ConnectivityModel>> _connectivityBloc =
