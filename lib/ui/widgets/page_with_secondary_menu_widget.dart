@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jocaagura_domain/jocaagura_domain.dart';
 
-import '../../consts/enum_screen_size.dart';
 import 'movil_secondary_menu_widget.dart';
 import 'secondary_option_widget.dart';
 
@@ -78,7 +77,7 @@ class PageWidthSecondaryMenuWidget extends StatelessWidget {
     if (listOfModelMainMenu.isEmpty) {
       return page;
     }
-    if (screenSizeEnum == ScreenSizeEnum.movil ||
+    if (screenSizeEnum == ScreenSizeEnum.mobile ||
         screenSizeEnum == ScreenSizeEnum.tablet) {
       final double menuItemWidth = secondaryMenuWidth * 0.8;
       return SizedBox(

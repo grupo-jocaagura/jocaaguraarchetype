@@ -17,25 +17,7 @@ final BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
 final BlocSecondaryMenuDrawer blocSecondaryMenuDrawer =
     BlocSecondaryMenuDrawer();
 final BlocResponsive blocResponsive = BlocResponsive();
-final BlocOnboarding blocOnboarding = BlocOnboarding(
-  <Future<void> Function()>[
-    // reemplazar por las funciones iniciales de configuración
-    () async {
-      blocNavigator.addPagesForDynamicLinksDirectory(<String, Widget>{
-        MyDemoHomePage.name: const MyDemoHomePage(title: 'Prueba'),
-      });
-    },
-    jocaaguraArchetype.testMe,
-    jocaaguraArchetype.testMe,
-    jocaaguraArchetype.testMe,
-    jocaaguraArchetype.testMe,
-    () async {
-      blocNavigator.setHomePageAndUpdate(
-        const TestPageForJocaaguraAppTest(),
-      );
-    },
-  ],
-);
+final BlocOnboarding blocOnboarding = BlocOnboarding();
 final BlocNavigator blocNavigator = BlocNavigator(
   PageManager(),
   OnBoardingPage(

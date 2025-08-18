@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
 
 import '../jocaaguraarchetype.dart';
 import 'pages/loading_page.dart';
@@ -166,7 +165,7 @@ class _PageBuilderState extends State<PageBuilder> {
               WorkAreaWidget(
                 columnsNumber: appManager.responsive.columnsNumber,
                 drawerWidth: appManager.responsive.drawerWidth,
-                screenSizeEnum: appManager.responsive.getDeviceType,
+                screenSizeEnum: appManager.responsive.deviceType,
                 columnWidth: appManager.responsive.columnWidth,
                 gutterWidth: appManager.responsive.gutterWidth,
                 listMenuOptions: appManager.mainMenu.listMenuOptions,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../blocs/bloc_onboarding.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
 
 class OnBoardingPage extends StatelessWidget {
   const OnBoardingPage({required this.blocOnboarding, super.key});
@@ -14,11 +13,14 @@ class OnBoardingPage extends StatelessWidget {
         children: <Widget>[
           SizedBox(
             width: double.infinity,
-            child: StreamBuilder<String>(
-              stream: blocOnboarding.msgStream,
-              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+            child: StreamBuilder<OnboardingState>(
+              stream: blocOnboarding.stateStream,
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<OnboardingState> snapshot,
+              ) {
                 return Text(
-                  blocOnboarding.msg,
+                  blocOnboarding.currentStep?.title ?? 'Loading...',
                   textAlign: TextAlign.center,
                 );
               },

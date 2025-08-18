@@ -1,5 +1,3 @@
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
 import 'jocaaguraarchetype.dart';
 
 /// A configuration class for managing application-wide BLoC instances.

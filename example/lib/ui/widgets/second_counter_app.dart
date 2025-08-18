@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-import 'package:jocaaguraarchetype/consts/enum_screen_size.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 import 'package:jocaaguraarchetype/ui/widgets/my_app_button_widget.dart';
 
@@ -22,7 +20,7 @@ class SecondCounterApp extends StatelessWidget {
 
     final Size size = MediaQuery.of(context).size;
     final AppBar appBar = AppBar(
-      title: Text('II ${appManager.responsive.getDeviceType} - $size'),
+      title: Text('II ${appManager.responsive.deviceType} - $size'),
       leading: appManager.navigator.showBackButton
           ? IconButton(
               icon: const Icon(Icons.arrow_back_ios),
@@ -153,7 +151,7 @@ class SecondCounterApp extends StatelessWidget {
               )
             : null,
         appBar: AppBar(
-          title: Text('${appManager.responsive.getDeviceType} - $size'),
+          title: Text('${appManager.responsive.deviceType} - $size'),
           leading: appManager.navigator.showBackButton
               ? IconButton(
                   icon: const Icon(Icons.arrow_back_ios),
@@ -249,7 +247,7 @@ class SecondCounterApp extends StatelessWidget {
               )
             : null,
         appBar: AppBar(
-          title: Text('${appManager.responsive.getDeviceType} - $size'),
+          title: Text('${appManager.responsive.deviceType} - $size'),
           leading: appManager.navigator.showBackButton
               ? IconButton(
                   icon: const Icon(Icons.arrow_back_ios),
@@ -387,7 +385,7 @@ class SecondCounterApp extends StatelessWidget {
             ),
           ),
         ),
-        screenSizeEnum: appManager.responsive.getDeviceType,
+        screenSizeEnum: appManager.responsive.deviceType,
         listOfModelMainMenu: appManager.secondaryMenu.listMenuOptions,
         secondaryMenuWidth: 80.0,
       ),

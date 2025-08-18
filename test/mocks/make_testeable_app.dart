@@ -18,9 +18,7 @@ Widget makeTesteablePage({
   final BlocSecondaryMenuDrawer blocSecondaryMenuDrawer =
       BlocSecondaryMenuDrawer();
   final BlocResponsive blocResponsive = BlocResponsive();
-  final BlocOnboarding blocOnboarding = BlocOnboarding(
-    <Future<void> Function()>[],
-  );
+  final BlocOnboarding blocOnboarding = BlocOnboarding();
 
   final BlocNavigator blocNavigator = BlocNavigator(
     PageManager(),

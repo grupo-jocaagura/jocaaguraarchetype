@@ -19,7 +19,7 @@ void main() {
         blocMainMenuDrawer: MockBlocMainMenuDrawer(),
         blocSecondaryMenuDrawer: MockBlocSecondaryMenuDrawer(),
         blocResponsive: MockBlocResponsive(),
-        blocOnboarding: MockBlocOnboarding(<Future<void> Function()>[]),
+        blocOnboarding: MockBlocOnboarding(),
         blocNavigator: MockBlocNavigator(MockPageManager()),
       );
       appManager = AppManager(appConfig);

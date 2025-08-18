@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import 'pagemanager_mock.dart';
@@ -16,7 +13,7 @@ final AppConfig mockAppConfig = AppConfig(
   blocMainMenuDrawer: MockBlocMainMenuDrawer(),
   blocSecondaryMenuDrawer: MockBlocSecondaryMenuDrawer(),
   blocResponsive: MockBlocResponsive(),
-  blocOnboarding: MockBlocOnboarding(<FutureOr<void> Function()>[]),
+  blocOnboarding: MockBlocOnboarding(),
   blocNavigator: MockBlocNavigator(MockPageManager()),
 );
 
@@ -42,8 +39,7 @@ class MockAppManager extends AppManager {
   BlocNavigator get navigator => MockBlocNavigator(MockPageManager());
 
   @override
-  BlocOnboarding get onboarding =>
-      MockBlocOnboarding(<FutureOr<void> Function()>[]);
+  BlocOnboarding get onboarding => MockBlocOnboarding();
 }
 
 class MockBlocResponsive extends BlocResponsive {
@@ -78,7 +74,7 @@ class MockBlocNavigator extends BlocNavigator {
 }
 
 class MockBlocOnboarding extends BlocOnboarding {
-  MockBlocOnboarding(super.blocOnboardingList);
+  MockBlocOnboarding();
 
   bool get isOnboardingCompleted => true;
 

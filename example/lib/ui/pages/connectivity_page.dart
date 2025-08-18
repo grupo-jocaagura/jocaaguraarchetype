@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import '../../blocs/bloc_counter.dart';
@@ -9,8 +8,8 @@ class ConnectivityPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppManager appManager = context.appManager;
-    final BlocConnectivity connectivity = appManager.blocCore
-        .getBlocModule<BlocConnectivity>(BlocConnectivity.name);
+    final BlocConnectivity connectivity =
+        appManager.blocCore.getBlocModule<BlocConnectivity>('BlocConnectivity');
 
     final BlocCounter counter =
         appManager.blocCore.getBlocModule<BlocCounter>(BlocCounter.name);
@@ -40,8 +39,8 @@ class ConnectivityPage extends StatelessWidget {
           SizedBox(
             width: double.maxFinite,
             height: appManager.responsive.widthByColumns(2),
-            child: StreamBuilder<Either<String, ConnectivityModel>>(
-              stream: connectivity.connectivityStatusStream,
+            child: StreamBuilder<Either<ErrorItem, ConnectivityModel>>(
+              stream: connectivity.stream,
               builder: (
                 __,
                 _,
@@ -53,8 +52,8 @@ class ConnectivityPage extends StatelessWidget {
                     children: <Widget>[
                       Text(counter.value.toString()),
                       Text(
-                        connectivity.connectivityStatus.when(
-                          (String p0) => p0,
+                        connectivity.value.when(
+                          (ErrorItem p0) => p0.toString(),
                           (ConnectivityModel p0) => p0.toString(),
                         ),
                       ),
@@ -62,7 +61,7 @@ class ConnectivityPage extends StatelessWidget {
                         height: 10.0,
                       ),
                       TextButton(
-                        onPressed: connectivity.updateConnectionStatus,
+                        onPressed: connectivity.refreshSpeed,
                         child: const Text('Update connectivity status'),
                       ),
                     ],

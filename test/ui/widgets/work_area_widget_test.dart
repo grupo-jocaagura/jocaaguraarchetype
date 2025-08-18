@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaagura_domain/jocaagura_domain.dart';
-import 'package:jocaaguraarchetype/consts/enum_screen_size.dart';
 import 'package:jocaaguraarchetype/ui/widgets/columns_blueprint_widget.dart';
 import 'package:jocaaguraarchetype/ui/widgets/main_menu_widget.dart';
 import 'package:jocaaguraarchetype/ui/widgets/work_area_widget.dart';
@@ -12,7 +11,7 @@ void main() {
     testWidgets('should render ColumnsBluePrintWidget for mobile screens',
         (WidgetTester tester) async {
       // Arrange
-      const ScreenSizeEnum screenSizeEnum = ScreenSizeEnum.movil;
+      const ScreenSizeEnum screenSizeEnum = ScreenSizeEnum.mobile;
       const WorkAreaWidget widget = WorkAreaWidget(
         screenSizeEnum: screenSizeEnum,
         columnsNumber: 2,

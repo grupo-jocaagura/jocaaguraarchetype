@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-import 'package:jocaaguraarchetype/services/service_connectivity_plus.dart';
 
 import 'blocs/bloc_counter.dart';
-import 'ui/pages/my_home_page.dart';
 
 final JocaaguraArchetype jocaaguraArchetype = JocaaguraArchetype();
 
@@ -14,38 +11,15 @@ final BlocTheme blocTheme = BlocTheme(
     ServiceTheme(),
   ),
 );
-final BlocConnectivity blocConnectivity = BlocConnectivity(
-  ServiceConnectivityPlus(
-    const FakeConnectivityProvider(),
-    const FakeInternetProvider(),
-    debouncer: Debouncer(milliseconds: 1000),
-  ),
-);
+
 final BlocUserNotifications blocUserNotifications = BlocUserNotifications();
 final BlocLoading blocLoading = BlocLoading();
 final BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
 final BlocSecondaryMenuDrawer blocSecondaryMenuDrawer =
     BlocSecondaryMenuDrawer();
 final BlocResponsive blocResponsive = BlocResponsive();
-final BlocOnboarding blocOnboarding = BlocOnboarding(
-  <Future<void> Function()>[
-    // reemplazar por las funciones iniciales de configuración
-    () async {
-      blocNavigator.addPagesForDynamicLinksDirectory(<String, Widget>{
-        MyDemoHomePage.name: const MyDemoHomePage(title: 'Prueba'),
-      });
-    },
-    jocaaguraArchetype.testMe,
-    jocaaguraArchetype.testMe,
-    jocaaguraArchetype.testMe,
-    jocaaguraArchetype.testMe,
-    () async {
-      blocNavigator.setHomePageAndUpdate(
-        const MyHomePage(),
-      );
-    },
-  ],
-);
+final BlocOnboarding blocOnboarding = BlocOnboarding();
+
 final BlocNavigator blocNavigator = BlocNavigator(
   PageManager(),
   OnBoardingPage(
@@ -65,7 +39,7 @@ final AppManager appManager = AppManager(
     blocNavigator: blocNavigator,
     blocModuleList: <String, BlocModule>{
       BlocCounter.name: BlocCounter(),
-      BlocConnectivity.name: blocConnectivity,
+      // todo: add blocConnectivity
     },
   ),
 );

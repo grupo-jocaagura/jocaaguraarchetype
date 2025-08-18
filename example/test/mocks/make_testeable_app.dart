@@ -1,6 +1,5 @@
 import 'package:example/blocs/bloc_counter.dart';
 import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 late AppManager jAppManager;
@@ -20,9 +19,7 @@ Widget makeTesteablePage({
   final BlocSecondaryMenuDrawer blocSecondaryMenuDrawer =
       BlocSecondaryMenuDrawer();
   final BlocResponsive blocResponsive = BlocResponsive();
-  final BlocOnboarding blocOnboarding = BlocOnboarding(
-    <Future<void> Function()>[],
-  );
+  final BlocOnboarding blocOnboarding = BlocOnboarding();
 
   final BlocNavigator blocNavigator = BlocNavigator(
     PageManager(),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaagura_domain/jocaagura_domain.dart';
-import 'package:jocaaguraarchetype/consts/enum_screen_size.dart';
 import 'package:jocaaguraarchetype/ui/widgets/movil_secondary_menu_widget.dart';
 import 'package:jocaaguraarchetype/ui/widgets/page_with_secondary_menu_widget.dart';
 
@@ -45,7 +44,7 @@ void main() {
     // Verificar que el widget se renderice correctamente según la lógica del widget
     if (listOfModelMainMenu.isEmpty) {
       expect(find.byType(Container), findsOneWidget);
-    } else if (screenSizeEnum == ScreenSizeEnum.movil ||
+    } else if (screenSizeEnum == ScreenSizeEnum.mobile ||
         screenSizeEnum == ScreenSizeEnum.tablet) {
       expect(find.byType(SizedBox), findsAtLeastNWidgets(1));
       expect(find.byType(Stack), findsAtLeastNWidgets(1));

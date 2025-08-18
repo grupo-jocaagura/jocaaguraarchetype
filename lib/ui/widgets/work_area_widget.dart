@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jocaagura_domain/jocaagura_domain.dart';
 
-import '../../consts/enum_screen_size.dart';
 import 'columns_blueprint_widget.dart';
 import 'main_menu_widget.dart';
 import 'page_with_secondary_menu_widget.dart';

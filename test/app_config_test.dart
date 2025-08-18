@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import 'mocks/mock_blocs.dart';
@@ -18,7 +15,7 @@ void main() {
         blocMainMenuDrawer: MockBlocMainMenuDrawer(),
         blocSecondaryMenuDrawer: MockBlocSecondaryMenuDrawer(),
         blocResponsive: MockBlocResponsive(),
-        blocOnboarding: MockBlocOnboarding(<FutureOr<void> Function()>[]),
+        blocOnboarding: MockBlocOnboarding(),
         blocNavigator: MockBlocNavigator(MockPageManager()),
       );
 
