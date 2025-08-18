@@ -12,7 +12,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ## Example
 ///
 /// ```dart
-/// import 'package:jocaaguraarchetype/work_area_widget.dart';
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// import 'package:flutter/material.dart';
 ///
 /// void main() {

@@ -10,7 +10,7 @@ const String _k404Name = '/404';
 /// ## Example
 ///
 /// ```dart
-/// import 'package:jocaaguraarchetype/page_manager.dart';
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// import 'package:flutter/material.dart';
 ///
 /// void main() {

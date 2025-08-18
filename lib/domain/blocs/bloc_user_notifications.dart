@@ -9,7 +9,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ## Example
 ///
 /// ```dart
-/// import 'package:jocaaguraarchetype/bloc_user_notifications.dart';
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// void main() {
 ///   final blocUserNotifications = BlocUserNotifications();

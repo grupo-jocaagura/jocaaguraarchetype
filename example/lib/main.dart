@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import 'blocs/bloc_counter.dart';
-
-final JocaaguraArchetype jocaaguraArchetype = JocaaguraArchetype();
+import 'ui/pages/index_app.dart';
+import 'ui/pages/onboarding_demo_bootstrap.dart';
 
 /// Zona de configuración inicial
 final BlocTheme blocTheme = BlocTheme(
@@ -22,8 +22,9 @@ final BlocOnboarding blocOnboarding = BlocOnboarding();
 
 final BlocNavigator blocNavigator = BlocNavigator(
   PageManager(),
-  OnBoardingPage(
+  OnboardingDemoBootstrap(
     blocOnboarding: blocOnboarding,
+    child: const IndexApp(),
   ),
 );
 

@@ -10,7 +10,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ## Example
 ///
 /// ```dart
-/// import 'package:jocaaguraarchetype/custom_page.dart';
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// import 'package:flutter/material.dart';
 ///
 /// void main() {

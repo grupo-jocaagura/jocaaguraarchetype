@@ -10,7 +10,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// ```dart
 /// import 'package:flutter/material.dart';
-/// import 'package:jocaaguraarchetype/app_manager_provider.dart';
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// void main() {
 ///   runApp(MyApp());

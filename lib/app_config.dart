@@ -9,7 +9,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ## Example
 ///
 /// ```dart
-/// import 'package:jocaaguraarchetype/app_config.dart';
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// void main() {
 ///   final appConfig = AppConfig(

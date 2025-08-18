@@ -11,7 +11,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// ```dart
 /// import 'package:flutter/material.dart';
-/// import 'package:jocaaguraarchetype/my_app_route_information_parser.dart';
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// void main() {
 ///   final pageManager = PageManager(); // Assume PageManager is implemented

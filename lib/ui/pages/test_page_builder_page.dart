@@ -9,7 +9,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ## Example
 ///
 /// ```dart
-/// import 'package:jocaaguraarchetype/test_page_builder_page.dart';
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// void main() {
 ///   runApp(MaterialApp(

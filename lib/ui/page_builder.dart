@@ -17,7 +17,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ## Example
 ///
 /// ```dart
-/// import 'package:jocaaguraarchetype/page_builder.dart';
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// import 'package:flutter/material.dart';
 ///
 /// void main() {

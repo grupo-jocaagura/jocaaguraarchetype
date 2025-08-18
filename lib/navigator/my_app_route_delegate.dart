@@ -19,7 +19,6 @@ class MyAppRouterDelegate extends RouterDelegate<PageManager>
     return Navigator(
       key: navigatorKey,
       pages: myPageManager.pages,
-      onDidRemovePage: (Page<Object?> page) => myPageManager.didPop,
     );
     // return const _MyNavigator();
   }

@@ -13,7 +13,7 @@ String? _defaultFunction(String val) {
 /// ## Example
 ///
 /// ```dart
-/// import 'package:jocaaguraarchetype/custom_autocomplete_input_widget.dart';
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// import 'package:flutter/material.dart';
 ///
 /// void main() {

@@ -8,7 +8,7 @@
 ///
 /// Example:
 /// ```dart
-/// import 'package:jocaaguraarchetype/no_domain.dart';
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// // Now domain symbols are available here:
 /// final BlocConnectivity bloc = BlocConnectivity();

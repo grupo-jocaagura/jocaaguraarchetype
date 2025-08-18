@@ -6,7 +6,8 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
+
+import 'jocaaguraarchetype_domain.dart';
 
 export 'jocaaguraarchetype_domain.dart';
 
