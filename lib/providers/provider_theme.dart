@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
-import '../services/service_theme.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A provider class for accessing theme-related functionalities.
 ///

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A custom implementation of `MaterialPage` for managing page-specific
 /// properties and callbacks.

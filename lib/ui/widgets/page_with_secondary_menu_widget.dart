@@ -1,8 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
-import 'movil_secondary_menu_widget.dart';
-import 'secondary_option_widget.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A widget that displays a page with a secondary menu, adapting to the screen size.
 ///
@@ -92,7 +88,7 @@ class PageWidthSecondaryMenuWidget extends StatelessWidget {
                 width: MediaQuery.of(context).size.width,
                 height: menuItemWidth,
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: MovilSecondaryMenuWidget(
+                child: MobileSecondaryMenuWidget(
                   listOfModelMainMenu: listOfModelMainMenu,
                   menuItemWidth: menuItemWidth,
                 ),

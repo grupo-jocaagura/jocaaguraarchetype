@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jocaaguraarchetype/services/service_theme.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 class ServiceThemeMock extends ServiceTheme {

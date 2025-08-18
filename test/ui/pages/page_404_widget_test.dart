@@ -1,23 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/navigator/page_manager.dart';
-import 'package:jocaaguraarchetype/ui/pages/page_404_widget.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 class MockPageManager extends PageManager {
   bool backCalled = false;
-  int _historyPagesCount = 0;
+  @override
+  int historyPagesCount = 0;
 
   @override
   void back() {
     backCalled = true;
-  }
-
-  @override
-  int get historyPagesCount => _historyPagesCount;
-
-  set historyPagesCount(int value) {
-    _historyPagesCount = value;
   }
 
   void setCurrentUrl(RouteInformation routeInformation) {}

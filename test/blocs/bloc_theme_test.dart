@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_theme.dart';
-import 'package:jocaaguraarchetype/utils/lab_color.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import '../mocks/provider_theme_mock.dart';
 

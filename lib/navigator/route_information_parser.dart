@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-
-import 'page_manager.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A custom `RouteInformationParser` for handling route information in a Navigator.
 ///

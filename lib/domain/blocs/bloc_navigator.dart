@@ -1,11 +1,4 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
-import '../navigator/my_app_route_delegate.dart';
-import '../navigator/page_manager.dart';
-import '../navigator/route_information_parser.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A BLoC (Business Logic Component) for managing navigation and routing.
 ///

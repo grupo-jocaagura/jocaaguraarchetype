@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_user_notifications.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 void main() {

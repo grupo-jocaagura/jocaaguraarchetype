@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class MySnackBarWidget extends StatelessWidget {
   const MySnackBarWidget({

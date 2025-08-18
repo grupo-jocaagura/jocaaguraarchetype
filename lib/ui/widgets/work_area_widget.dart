@@ -1,9 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
-import 'columns_blueprint_widget.dart';
-import 'main_menu_widget.dart';
-import 'page_with_secondary_menu_widget.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A widget for constructing a responsive work area with menus and a configurable layout.
 ///

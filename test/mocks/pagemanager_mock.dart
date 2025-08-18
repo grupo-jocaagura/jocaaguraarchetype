@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jocaaguraarchetype/navigator/page_manager.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 class MockPageManager extends PageManager {

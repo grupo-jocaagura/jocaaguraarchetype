@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/utils/lab_color.dart';
-// revisado 10/03/2024 author: @albertjjimenezp
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
   group('Initial tests', () {

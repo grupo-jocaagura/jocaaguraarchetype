@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-
-import '../../navigator/page_manager.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class Page404Widget extends StatelessWidget {
   const Page404Widget({required this.pageManager, super.key});

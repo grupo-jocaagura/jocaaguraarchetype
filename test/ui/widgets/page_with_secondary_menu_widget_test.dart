@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-import 'package:jocaaguraarchetype/ui/widgets/movil_secondary_menu_widget.dart';
-import 'package:jocaaguraarchetype/ui/widgets/page_with_secondary_menu_widget.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 void testMe() {}
@@ -48,7 +46,7 @@ void main() {
         screenSizeEnum == ScreenSizeEnum.tablet) {
       expect(find.byType(SizedBox), findsAtLeastNWidgets(1));
       expect(find.byType(Stack), findsAtLeastNWidgets(1));
-      expect(find.byType(MovilSecondaryMenuWidget), findsOneWidget);
+      expect(find.byType(MobileSecondaryMenuWidget), findsOneWidget);
     } else {
       expect(find.byType(SingleChildScrollView), findsOneWidget);
       expect(find.byType(Row), findsOneWidget);

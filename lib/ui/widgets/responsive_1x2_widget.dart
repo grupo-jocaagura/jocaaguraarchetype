@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A widget that ensures its child has a 1:2 aspect ratio (rectangle).
 ///

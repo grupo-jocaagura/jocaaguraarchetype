@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-import 'package:jocaaguraarchetype/ui/widgets/main_menu_option_widget.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 void main() {

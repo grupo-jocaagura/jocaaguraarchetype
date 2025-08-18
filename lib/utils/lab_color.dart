@@ -1,7 +1,4 @@
-import 'dart:math';
-import 'dart:ui';
-
-import 'package:jocaagura_domain/jocaagura_domain.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A utility class for working with the CIE-Lab color space.
 ///

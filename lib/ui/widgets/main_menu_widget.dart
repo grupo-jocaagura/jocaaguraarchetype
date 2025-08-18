@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
-import 'main_menu_option_widget.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class MainMenuWidget extends StatelessWidget {
   const MainMenuWidget({

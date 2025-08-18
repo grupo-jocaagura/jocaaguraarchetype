@@ -1,9 +1,4 @@
-import 'dart:math';
-
-import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
-import '../utils/lab_color.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A service class for managing theme-related functionalities.
 ///

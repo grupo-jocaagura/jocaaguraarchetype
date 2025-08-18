@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A widget that represents an option in a secondary menu.
 ///

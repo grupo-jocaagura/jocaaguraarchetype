@@ -1,4 +1,4 @@
-import 'package:jocaaguraarchetype/providers/provider_theme.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import 'service_theme_mock.dart';
 

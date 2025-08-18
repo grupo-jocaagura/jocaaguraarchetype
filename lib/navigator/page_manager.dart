@@ -1,9 +1,4 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
-import '../ui/pages/page_404_widget.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 const String _k404Name = '/404';
 

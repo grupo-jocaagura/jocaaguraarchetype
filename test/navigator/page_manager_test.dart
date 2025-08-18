@@ -1,9 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/navigator/page_manager.dart';
-import 'package:jocaaguraarchetype/ui/pages/page_404_widget.dart';
-import 'package:jocaaguraarchetype/utils/lab_color.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 // Simulación de SystemChrome para realizar pruebas

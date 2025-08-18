@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-import 'package:jocaaguraarchetype/ui/widgets/movil_secondary_menu_widget.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 void testMe() {}
@@ -28,7 +27,7 @@ void main() {
       const MaterialApp(
         home: Material(
           child: Scaffold(
-            body: MovilSecondaryMenuWidget(
+            body: MobileSecondaryMenuWidget(
               listOfModelMainMenu: listOfModelMainMenu,
               menuItemWidth: menuItemWidth,
             ),

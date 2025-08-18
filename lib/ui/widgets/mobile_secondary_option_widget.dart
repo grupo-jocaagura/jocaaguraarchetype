@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-import '../../jocaaguraarchetype.dart';
-
-class MovilSecondaryOptionWidget extends StatelessWidget {
-  const MovilSecondaryOptionWidget({
+class MobileSecondaryOptionWidget extends StatelessWidget {
+  const MobileSecondaryOptionWidget({
     required this.onPressed,
     required this.label,
     required this.icondata,

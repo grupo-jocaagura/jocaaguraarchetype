@@ -1,10 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
-import '../../blocs/app_manager.dart';
-import '../../providers/app_manager_provider.dart';
-import '../widgets/drawer_option_widget.dart';
-import 'test_page_builder_page.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class MyDemoHomePage extends StatefulWidget {
   const MyDemoHomePage({

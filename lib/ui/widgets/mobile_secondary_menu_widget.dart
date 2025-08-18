@@ -1,10 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-import 'movil_secondary_option_widget.dart';
-
-class MovilSecondaryMenuWidget extends StatelessWidget {
-  const MovilSecondaryMenuWidget({
+class MobileSecondaryMenuWidget extends StatelessWidget {
+  const MobileSecondaryMenuWidget({
     required this.listOfModelMainMenu,
     required this.menuItemWidth,
     super.key,
@@ -21,7 +18,7 @@ class MovilSecondaryMenuWidget extends StatelessWidget {
     );
     for (final ModelMainMenuModel option in listOfModelMainMenu) {
       children.add(
-        MovilSecondaryOptionWidget(
+        MobileSecondaryOptionWidget(
           width: tmp,
           icondata: option.iconData,
           onPressed: option.onPressed,

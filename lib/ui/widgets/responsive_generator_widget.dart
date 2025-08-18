@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A widget that dynamically chooses its child based on the layout's aspect ratio.
 ///

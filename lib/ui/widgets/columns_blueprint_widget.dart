@@ -1,8 +1,4 @@
-import 'package:flutter/material.dart';
-
-import 'column_blueprint_widget.dart';
-import 'gutter_blueprint_widget.dart';
-import 'margin_blueprint_widget.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A simple widget for creating a fixed-size container with a blueprint style.
 ///

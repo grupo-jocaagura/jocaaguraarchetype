@@ -1,6 +1,4 @@
-import 'dart:async';
-
-import 'package:jocaagura_domain/jocaagura_domain.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A BLoC (Business Logic Component) for managing user notifications.
 ///

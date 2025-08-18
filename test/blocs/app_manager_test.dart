@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/app_config.dart';
-import 'package:jocaaguraarchetype/blocs/app_manager.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import '../mocks/mock_blocs.dart';
 import '../mocks/pagemanager_mock.dart';

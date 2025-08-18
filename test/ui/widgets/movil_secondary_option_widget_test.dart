@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/ui/widgets/movil_secondary_option_widget.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 void main() {
@@ -17,7 +17,7 @@ void main() {
       MaterialApp(
         home: Material(
           child: Scaffold(
-            body: MovilSecondaryOptionWidget(
+            body: MobileSecondaryOptionWidget(
               onPressed: onPressed,
               label: label,
               description: description,

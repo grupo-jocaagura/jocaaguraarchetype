@@ -1,13 +1,4 @@
-import 'dart:async';
-
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
-import '../app_config.dart';
-import 'bloc_main_menu_drawer.dart';
-import 'bloc_navigator.dart';
-import 'bloc_secondary_menu_drawer.dart';
-import 'bloc_theme.dart';
-import 'bloc_user_notifications.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class AppManager {
   const AppManager(this.appConfig);

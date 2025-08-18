@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/navigator/my_app_route_delegate.dart';
-import 'package:jocaaguraarchetype/navigator/page_manager.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import '../mocks/mock_build_context.dart';
 

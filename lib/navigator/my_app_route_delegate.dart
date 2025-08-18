@@ -1,8 +1,4 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-
-import 'page_manager.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class MyAppRouterDelegate extends RouterDelegate<PageManager>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<PageManager> {

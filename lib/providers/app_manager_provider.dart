@@ -1,6 +1,4 @@
-import 'package:flutter/widgets.dart';
-
-import '../blocs/app_manager.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// An `InheritedWidget` that provides access to the `AppManager` instance.
 ///

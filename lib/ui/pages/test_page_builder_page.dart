@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-
-import '../page_builder.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A simple wrapper for the `PageBuilder` widget.
 ///

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class ListTileExitDrawerWidget extends StatelessWidget {
   const ListTileExitDrawerWidget({

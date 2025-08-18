@@ -1,9 +1,4 @@
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_main_menu_drawer.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_navigator.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_secondary_menu_drawer.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_theme.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_user_notifications.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class MockBlocTheme extends BlocTheme {
   MockBlocTheme(super.providerTheme);

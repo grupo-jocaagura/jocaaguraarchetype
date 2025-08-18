@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/ui/widgets/column_blueprint_widget.dart';
-import 'package:jocaaguraarchetype/ui/widgets/columns_blueprint_widget.dart';
-import 'package:jocaaguraarchetype/ui/widgets/gutter_blueprint_widget.dart';
-import 'package:jocaaguraarchetype/ui/widgets/margin_blueprint_widget.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 void main() {

@@ -1,12 +1,4 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-
-import '../jocaaguraarchetype.dart';
-import 'pages/loading_page.dart';
-import 'widgets/drawer_option_widget.dart';
-import 'widgets/my_snack_bar_widget.dart';
-import 'widgets/work_area_widget.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A versatile page builder widget that integrates navigation, menus, and responsive layouts.
 ///

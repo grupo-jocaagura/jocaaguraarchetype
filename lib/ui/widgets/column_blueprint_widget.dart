@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A simple widget for creating a fixed-size container with a blueprint style.
 ///

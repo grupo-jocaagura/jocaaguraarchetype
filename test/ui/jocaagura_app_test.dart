@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-import 'package:jocaaguraarchetype/utils/lab_color.dart';
 
 final JocaaguraArchetype jocaaguraArchetype = JocaaguraArchetype();
 

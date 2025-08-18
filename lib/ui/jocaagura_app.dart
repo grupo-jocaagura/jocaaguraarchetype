@@ -1,9 +1,4 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-
-import '../blocs/app_manager.dart';
-import '../providers/app_manager_provider.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// The entry point for a Jocaagura-based application.
 ///

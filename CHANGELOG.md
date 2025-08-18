@@ -4,11 +4,29 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-## [2.0.2] - 2025-08-27
+## [3.0.0] - 2025-08-18
+### ⚠️ Breaking Changes
+- Se eliminó la dependencia de `jocaagura_domain` y se ha vuelto a implementar la lógica de negocio dentro del paquete.
+- Se ha eliminado el `BlocSession` y `BlocConnectivity`, ya que ahora se manejan directamente desde `AppManager`.
+- Se ha eliminado el `ServiceSession` y `ServiceConnectivity`, ya que ahora se manejan directamente desde `AppManager`.
+- Se ha eliminado el `ServiceSessionPlus`, ya que ahora se maneja directamente desde `AppManager`.
+- Se ha eliminado el `ServiceConnectivityPlus`, ya que ahora se maneja directamente desde `AppManager`.
+- Se ha eliminado el `FakeSessionProvider`, ya que ahora se maneja directamente desde `AppManager`.
+- Se ha eliminado el `FakeConnectivityProvider`, ya que ahora se maneja directamente desde `AppManager`.
+- Se ha eliminado el `FakeProvider`, ya que ahora se maneja directamente desde `AppManager`.
+- Se ha eliminado el `BlocUserNotifications`, ya que ahora se maneja directamente desde `AppManager`.
+- Se ha eliminado el `BlocCounter`, ya que ahora se maneja directamente desde `AppManager`.
+- Se ha eliminado el `BlocCounterPlus`, ya que ahora se maneja directamente desde `AppManager`.
+- Se ha eliminado el `BlocCounterProvider`, ya que ahora se maneja directamente desde `AppManager`.
+- Se ha eliminado el `BlocCounterPlusProvider`, ya que ahora se maneja directamente desde `AppManager`.
+- Ahora la libreria se puede utilizar como jocaaguraarchetype.
+- Se expone la sublibreria `jocaaguraarchetiped_domain` para facilitar la integración con jocaagura_domain.
+- Ahora los archivos cumplen con el formato part of `jocaaguraarchetype` para una mejor organización y claridad.
+## [2.0.2] - 2025-07-27
 
 ### 🔒 Resolved master conflicts
 
-## [2.0.1] - 2025-08-27
+## [2.0.1] - 2025-07-27
 
 ### 🔒 Congelación de `pubspec.yaml`
 
