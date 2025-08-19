@@ -74,8 +74,8 @@ class _PageBuilderState extends State<PageBuilder> {
     });
 
     // Listen to primary menu updates
-    streamSubscription = context.appManager.mainMenu.listDrawerOptionSizeStream
-        .listen((void event) {
+    streamSubscription =
+        context.appManager.mainMenu.listMenuOptionsStream.listen((void event) {
       setState(() {});
     });
   }

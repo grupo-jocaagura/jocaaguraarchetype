@@ -26,6 +26,12 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// }
 /// ```
 class BlocUserNotifications extends BlocModule {
+  BlocUserNotifications({Duration? autoClose})
+      : debouncer = Debouncer(
+          milliseconds:
+              (autoClose ?? const Duration(seconds: 7)).inMilliseconds,
+        );
+
   /// The name identifier for the BLoC, used for tracking or debugging.
   static const String name = 'blocUserNotifications';
 
@@ -33,9 +39,7 @@ class BlocUserNotifications extends BlocModule {
   final BlocGeneral<String> _msgController = BlocGeneral<String>('');
 
   /// A debouncer to clear messages after a set duration.
-  final Debouncer debouncer = Debouncer(
-    milliseconds: 7000,
-  );
+  final Debouncer debouncer;
 
   /// A stream of notification messages.
   ///

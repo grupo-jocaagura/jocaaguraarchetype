@@ -24,7 +24,7 @@ void main() {
       const String label = 'Option 1';
       const IconData iconData = Icons.home;
 
-      bloc.addMainMenuOption(
+      bloc.addSecondaryMenuOption(
         onPressed: onPressed,
         label: label,
         iconData: iconData,
@@ -44,18 +44,18 @@ void main() {
       const String label2 = 'Option 2';
       const IconData iconData2 = Icons.settings;
 
-      bloc.addMainMenuOption(
+      bloc.addSecondaryMenuOption(
         onPressed: onPressed1,
         label: label1,
         iconData: iconData1,
       );
-      bloc.addMainMenuOption(
+      bloc.addSecondaryMenuOption(
         onPressed: onPressed2,
         label: label2,
         iconData: iconData2,
       );
 
-      bloc.removeMainMenuOption(label1);
+      bloc.removeSecondaryMenuOption(label1);
 
       expect(bloc.listMenuOptions.length, 1);
       expect(bloc.listMenuOptions[0].label, label2);
@@ -69,13 +69,13 @@ void main() {
       const String label = 'Option 1';
       const IconData iconData = Icons.home;
 
-      bloc.addMainMenuOption(
+      bloc.addSecondaryMenuOption(
         onPressed: onPressed,
         label: label,
         iconData: iconData,
       );
 
-      bloc.clearMainDrawer();
+      bloc.clearSecondaryDrawer();
 
       expect(bloc.listMenuOptions.isEmpty, true);
     });
@@ -85,7 +85,7 @@ void main() {
       const String label = 'Option 1';
       const IconData iconData = Icons.home;
 
-      bloc.addMainMenuOption(
+      bloc.addSecondaryMenuOption(
         onPressed: onPressed,
         label: label,
         iconData: iconData,

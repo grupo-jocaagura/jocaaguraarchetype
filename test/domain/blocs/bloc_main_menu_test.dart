@@ -127,7 +127,7 @@ void main() {
       );
 
       expectLater(
-        blocMainMenuDrawer.listDrawerOptionSizeStream,
+        blocMainMenuDrawer.listMenuOptionsStream,
         emits(
           <ModelMainMenuModel>[
             ModelMainMenuModel(

@@ -26,11 +26,11 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
       _counter++;
       context.appManager.mainMenu.addMainMenuOption(
         onPressed: () {
-          context.appManager.secondaryMenu.addMainMenuOption(
+          context.appManager.secondaryMenu.addSecondaryMenuOption(
             onPressed: () {
               context.appManager.mainMenu.removeMainMenuOption('Eliminame');
               context.appManager.secondaryMenu
-                  .removeMainMenuOption('Eliminame');
+                  .removeSecondaryMenuOption('Eliminame');
             },
             label: 'Eliminame',
             iconData: Icons.remove,
@@ -48,7 +48,7 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
         iconData: Icons.remove,
       );
 
-      context.appManager.secondaryMenu.addMainMenuOption(
+      context.appManager.secondaryMenu.addSecondaryMenuOption(
         onPressed: () {
           context.appManager.loading.loadingMsg = '';
           context.appManager.mainMenu.removeMainMenuOption('loading');
@@ -58,7 +58,7 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
         iconData: Icons.remove,
       );
 
-      context.appManager.secondaryMenu.addMainMenuOption(
+      context.appManager.secondaryMenu.addSecondaryMenuOption(
         onPressed: () async {
           final AppManager appManager = context.appManager;
           appManager.loading.loadingMsg = 'Cargando';

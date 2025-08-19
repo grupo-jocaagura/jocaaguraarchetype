@@ -76,15 +76,15 @@ class IndexApp extends StatelessWidget {
   ]) {
     final BlocCounter blocCounter =
         appManager.blocCore.getBlocModule<BlocCounter>(BlocCounter.name);
-    appManager.secondaryMenu.clearMainDrawer();
-    appManager.secondaryMenu.addMainMenuOption(
+    appManager.secondaryMenu.clearSecondaryDrawer();
+    appManager.secondaryMenu.addSecondaryMenuOption(
       onPressed: () {
         blocCounter.add();
       },
       label: 'Add 1',
       iconData: Icons.add,
     );
-    appManager.secondaryMenu.addMainMenuOption(
+    appManager.secondaryMenu.addSecondaryMenuOption(
       onPressed: () {
         blocCounter.decrement();
       },
@@ -94,7 +94,7 @@ class IndexApp extends StatelessWidget {
     appManager.mainMenu.addMainMenuOption(
       onPressed: () {
         blocCounter.reset();
-        appManager.secondaryMenu.clearMainDrawer();
+        appManager.secondaryMenu.clearSecondaryDrawer();
         appManager.navigator.back();
       },
       label: 'Reset and back',

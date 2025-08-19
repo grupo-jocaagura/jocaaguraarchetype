@@ -16,7 +16,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///   final blocMainMenuDrawer = BlocMainMenuDrawer();
 ///
 ///   // Listen to changes in the main menu options
-///   blocMainMenuDrawer.listDrawerOptionSizeStream.listen((options) {
+///   blocMainMenuDrawer.listMenuOptionsStream.listen((options) {
 ///     print('Main menu options updated: ${options.length}');
 ///   });
 ///
@@ -52,17 +52,18 @@ class BlocMainMenuDrawer extends BlocModule {
   /// ## Example
   ///
   /// ```dart
-  /// blocMainMenuDrawer.listDrawerOptionSizeStream.listen((options) {
+  /// blocMainMenuDrawer.listMenuOptionsStream.listen((options) {
   ///   print('Menu options updated: ${options.length}');
   /// });
   /// ```
-  Stream<List<ModelMainMenuModel>> get listDrawerOptionSizeStream =>
+  Stream<List<ModelMainMenuModel>> get listMenuOptionsStream =>
       _drawerMainMenu.stream;
 
   /// The current list of main menu options.
   ///
   /// Returns the latest list of menu options.
-  List<ModelMainMenuModel> get listMenuOptions => _drawerMainMenu.value;
+  List<ModelMainMenuModel> get listMenuOptions =>
+      List<ModelMainMenuModel>.unmodifiable(_drawerMainMenu.value);
 
   /// Clears all main menu options.
   ///
@@ -149,7 +150,12 @@ class BlocMainMenuDrawer extends BlocModule {
   /// blocMainMenuDrawer.dispose();
   /// ```
   @override
-  void dispose() {
-    _drawerMainMenu.dispose();
+  FutureOr<void> dispose() {
+    if (!_isDisposed) {
+      _isDisposed = true;
+      _drawerMainMenu.dispose();
+    }
   }
+
+  bool _isDisposed = false;
 }

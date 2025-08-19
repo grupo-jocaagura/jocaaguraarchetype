@@ -41,7 +41,7 @@ class BlocSecondaryMenuDrawer extends BlocModule {
   static const String name = 'secondaryMenuBloc';
 
   /// Internal controller for managing the secondary menu options.
-  final BlocGeneral<List<ModelMainMenuModel>> _drawerMainMenu =
+  final BlocGeneral<List<ModelMainMenuModel>> _drawerSecondaryMainMenu =
       BlocGeneral<List<ModelMainMenuModel>>(<ModelMainMenuModel>[]);
 
   /// A stream of secondary menu options.
@@ -57,12 +57,13 @@ class BlocSecondaryMenuDrawer extends BlocModule {
   /// });
   /// ```
   Stream<List<ModelMainMenuModel>> get listDrawerOptionSizeStream =>
-      _drawerMainMenu.stream;
+      _drawerSecondaryMainMenu.stream;
 
   /// The current list of secondary menu options.
   ///
   /// Returns the latest list of menu options.
-  List<ModelMainMenuModel> get listMenuOptions => _drawerMainMenu.value;
+  List<ModelMainMenuModel> get listMenuOptions =>
+      List<ModelMainMenuModel>.unmodifiable(_drawerSecondaryMainMenu.value);
 
   /// Clears all secondary menu options.
   ///
@@ -73,8 +74,8 @@ class BlocSecondaryMenuDrawer extends BlocModule {
   /// ```dart
   /// blocSecondaryMenuDrawer.clearMainDrawer();
   /// ```
-  void clearMainDrawer() {
-    _drawerMainMenu.value = <ModelMainMenuModel>[];
+  void clearSecondaryDrawer() {
+    _drawerSecondaryMainMenu.value = <ModelMainMenuModel>[];
   }
 
   /// Adds a new option to the secondary menu drawer.
@@ -95,23 +96,24 @@ class BlocSecondaryMenuDrawer extends BlocModule {
   ///   iconData: Icons.settings,
   /// );
   /// ```
-  void addMainMenuOption({
+  void addSecondaryMenuOption({
     required VoidCallback onPressed,
     required String label,
     required IconData iconData,
     String description = '',
   }) {
     final List<ModelMainMenuModel> existingOptions =
-        List<ModelMainMenuModel>.from(_drawerMainMenu.value);
+        List<ModelMainMenuModel>.from(_drawerSecondaryMainMenu.value);
     final ModelMainMenuModel optionMenu = ModelMainMenuModel(
       onPressed: onPressed,
       label: label,
       iconData: iconData,
+      description: description,
     );
     existingOptions
         .removeWhere((ModelMainMenuModel option) => option == optionMenu);
     existingOptions.add(optionMenu);
-    _drawerMainMenu.value = existingOptions;
+    _drawerSecondaryMainMenu.value = existingOptions;
   }
 
   /// Removes an option from the secondary menu drawer by its [label].
@@ -123,14 +125,14 @@ class BlocSecondaryMenuDrawer extends BlocModule {
   /// ```dart
   /// blocSecondaryMenuDrawer.removeMainMenuOption('Settings');
   /// ```
-  void removeMainMenuOption(String label) {
+  void removeSecondaryMenuOption(String label) {
     final List<ModelMainMenuModel> existingOptions =
-        List<ModelMainMenuModel>.from(_drawerMainMenu.value);
+        List<ModelMainMenuModel>.from(_drawerSecondaryMainMenu.value);
     existingOptions.removeWhere(
       (ModelMainMenuModel option) =>
           option.label.toLowerCase() == label.toLowerCase(),
     );
-    _drawerMainMenu.value = existingOptions;
+    _drawerSecondaryMainMenu.value = existingOptions;
   }
 
   /// Releases resources held by the BLoC.
@@ -145,6 +147,6 @@ class BlocSecondaryMenuDrawer extends BlocModule {
   /// ```
   @override
   FutureOr<void> dispose() {
-    _drawerMainMenu.dispose();
+    _drawerSecondaryMainMenu.dispose();
   }
 }
