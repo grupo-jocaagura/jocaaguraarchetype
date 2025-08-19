@@ -105,4 +105,6 @@ class BlocUserNotifications extends BlocModule {
   FutureOr<void> dispose() {
     _msgController.dispose();
   }
+
+  bool get isClosed => _msgController.isClosed;
 }

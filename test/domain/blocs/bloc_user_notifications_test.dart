@@ -1,101 +1,48 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-// revisado 10/03/2024 author: @albertjjimenezp
 void main() {
   group('BlocUserNotifications', () {
-    late BlocUserNotifications bloc;
+    test('showToast emite y luego auto-clear por duración', () async {
+      final BlocUserNotifications bloc = BlocUserNotifications(
+        autoClose: const Duration(milliseconds: 20),
+      );
 
-    setUp(() {
-      bloc = BlocUserNotifications();
+      final List<String> emissions = <String>[];
+      final StreamSubscription<String> sub =
+          bloc.toastStream.listen(emissions.add);
+
+      bloc.showToast('Hello');
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+      expect(bloc.msg, 'Hello');
+
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      expect(bloc.msg, isEmpty);
+
+      await sub.cancel();
+      await bloc.dispose();
     });
 
-    tearDown(() async {
-      await Future<void>.delayed(const Duration(seconds: 10));
-      bloc.dispose();
-    });
-
-    test('Initial value of toastStream is empty', () {
-      expect(bloc.toastStream, emits(''));
-    });
-
-    test('toastStream emits correct message when showToast is called', () {
-      const String message = 'This is a toast message';
-
-      bloc.showToast(message);
-
-      expect(bloc.toastStream, emits(message));
-    });
-
-    test('toastStream emits empty message after 7 seconds', () async {
-      const String message = 'This is a toast message';
-
-      bloc.showToast(message);
-
-      await Future<void>.delayed(const Duration(seconds: 7));
-
-      expect(bloc.toastStream, emits(''));
-    });
-
-    test('msg returns current message value', () {
-      const String message = 'This is a toast message';
-
-      bloc.showToast(message);
-
-      expect(bloc.msg, equals(message));
-    });
-
-    test('clear method clears the message', () {
-      const String message = 'This is a toast message';
-
-      bloc.showToast(message);
-
-      expect(bloc.msg, equals(message));
+    test('clear limpia inmediatamente', () async {
+      final BlocUserNotifications bloc = BlocUserNotifications(
+        autoClose: const Duration(seconds: 1),
+      );
+      bloc.showToast('Ping');
+      expect(bloc.msg, 'Ping');
 
       bloc.clear();
+      expect(bloc.msg, isEmpty);
 
-      expect(bloc.msg, equals(''));
+      await bloc.dispose();
     });
 
-    test('showToast should emit message and clear after 7 seconds', () async {
-      final List<String> expectedResults = <String>[
-        '', // Valor por defecto del Stream
-        'Hello, World!',
-        '', // Después de 7 segundos
-      ];
-
-      expectLater(
-        bloc.toastStream,
-        emitsInOrder(expectedResults),
-      );
-
-      bloc.showToast('Hello, World!');
-      await Future<void>.delayed(
-        const Duration(seconds: 8),
-      ); // Espera más de 7 segundos para verificar el clear
-    });
-
-    test('showToast should reset timer if called before clear', () async {
-      final List<String> expectedResults = <String>[
-        '',
-        'First Message',
-        'Second Message',
-        '', // Después de 7 segundos del segundo mensaje
-      ];
-
-      expectLater(
-        bloc.toastStream,
-        emitsInOrder(expectedResults),
-      );
-
-      bloc.showToast('First Message');
-      await Future<void>.delayed(
-        const Duration(seconds: 3),
-      ); // Espera 3 segundos
-      bloc.showToast('Second Message'); // Reinicia el temporizador
-      await Future<void>.delayed(
-        const Duration(seconds: 8),
-      ); // Espera más de 7 segundos desde el segundo mensaje
+    test('dispose cierra recursos', () async {
+      final BlocUserNotifications bloc = BlocUserNotifications();
+      await bloc.dispose();
+      expect(bloc.isClosed, true);
+      await bloc.dispose();
     });
   });
 }

@@ -1,159 +1,139 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-// revisado 10/03/2024 author: @albertjjimenezp
 void main() {
   group('BlocMainMenuDrawer', () {
-    test('clearMainDrawer should clear the listMenuOptions', () {
-      final BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
-      blocMainMenuDrawer.addMainMenuOption(
-        onPressed: () {},
-        label: 'Option 1',
-        iconData: Icons.ac_unit,
-      );
-      blocMainMenuDrawer.addMainMenuOption(
-        onPressed: () {},
-        label: 'Option 2',
-        iconData: Icons.access_alarm,
-      );
+    late BlocMainMenuDrawer bloc;
 
-      blocMainMenuDrawer.clearMainDrawer();
-
-      expect(blocMainMenuDrawer.listMenuOptions, isEmpty);
+    setUp(() {
+      bloc = BlocMainMenuDrawer();
     });
 
-    test('addMainMenuOption should add a new menu option', () {
-      final BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
-      void onPressed() {}
-      const String label = 'Option 1';
-      const IconData iconData = Icons.ac_unit;
-
-      blocMainMenuDrawer.addMainMenuOption(
-        onPressed: onPressed,
-        label: label,
-        iconData: iconData,
-      );
-
-      final List<ModelMainMenuModel> menuOptions =
-          blocMainMenuDrawer.listMenuOptions;
-      expect(menuOptions.length, 1);
-      expect(menuOptions[0].onPressed, onPressed);
-      expect(menuOptions[0].label, label);
-      expect(menuOptions[0].iconData, iconData);
+    tearDown(() {
+      bloc.dispose();
     });
 
-    test(
-        'addMainMenuOption should replace existing menu option with same label',
-        () {
-      final BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
-      bool pressed1 = false;
-      void onPressed1() {
-        pressed1 = true;
-      }
+    test('inicial: lista vacía e inmutable', () {
+      expect(bloc.listMenuOptions, isEmpty);
 
-      const String label = 'Option 1';
-      const IconData iconData1 = Icons.ac_unit;
-      const IconData iconData2 = Icons.access_alarm;
-
-      blocMainMenuDrawer.addMainMenuOption(
-        onPressed: onPressed1,
-        label: label,
-        iconData: iconData1,
-      );
-
-      blocMainMenuDrawer.addMainMenuOption(
-        onPressed: () {},
-        label: label,
-        iconData: iconData2,
-      );
-
-      final List<ModelMainMenuModel> menuOptions =
-          blocMainMenuDrawer.listMenuOptions;
-      expect(menuOptions.length, 2);
-      menuOptions[0].onPressed();
-      expect(pressed1, isTrue);
-      expect(menuOptions[0].label, label);
-      expect(menuOptions[0].iconData, iconData1);
-    });
-
-    test(
-        'removeMainMenuOption should remove the menu option with the specified label',
-        () {
-      final BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
-      bool onpressed2 = false;
-      void onPressed1() {}
-      void onPressed2() {
-        onpressed2 = true;
-      }
-
-      const String label1 = 'Option 1';
-      const String label2 = 'Option 2';
-      const IconData iconData1 = Icons.ac_unit;
-      const IconData iconData2 = Icons.access_alarm;
-
-      blocMainMenuDrawer.addMainMenuOption(
-        onPressed: onPressed1,
-        label: label1,
-        iconData: iconData1,
-      );
-
-      blocMainMenuDrawer.addMainMenuOption(
-        onPressed: onPressed2,
-        label: label2,
-        iconData: iconData2,
-      );
-
-      blocMainMenuDrawer.removeMainMenuOption(label1);
-
-      final List<ModelMainMenuModel> menuOptions =
-          blocMainMenuDrawer.listMenuOptions;
-      expect(menuOptions.length, 1);
-      menuOptions[0].onPressed();
-      expect(onpressed2, isTrue);
-      expect(menuOptions[0].label, label2);
-      expect(menuOptions[0].iconData, iconData2);
-    });
-    test('listDrawerOptionSizeStream emits initial listMenuOptions', () {
-      void onPressed() {}
-
-      const String label = 'Option 1';
-      const IconData iconData = Icons.home;
-      final BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
-      blocMainMenuDrawer.addMainMenuOption(
-        onPressed: onPressed,
-        label: label,
-        iconData: iconData,
-      );
-
-      expectLater(
-        blocMainMenuDrawer.listMenuOptionsStream,
-        emits(
-          <ModelMainMenuModel>[
-            ModelMainMenuModel(
-              label: label,
-              iconData: iconData,
-              onPressed: onPressed,
-            ),
-          ],
+      // 🔧 Invocar la funcion para que efectivamente intente mutar
+      expect(
+        () => bloc.listMenuOptions.add(
+          ModelMainMenuModel(
+            onPressed: () {},
+            label: 'X',
+            iconData: Icons.close,
+          ),
         ),
+        throwsA(isA<UnsupportedError>()), // o: throwsUnsupportedError
       );
     });
 
-    test('dispose blocMenu', () {
-      void onPressed() {}
+    test('addMainMenuOption → agrega y emite lista', () async {
+      final List<List<ModelMainMenuModel>> emissions =
+          <List<ModelMainMenuModel>>[];
+      final StreamSubscription<List<ModelMainMenuModel>> sub =
+          bloc.listMenuOptionsStream.listen(emissions.add);
 
-      const String label = 'Option 1';
-      const IconData iconData = Icons.home;
-      final BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
-      blocMainMenuDrawer.addMainMenuOption(
-        onPressed: onPressed,
-        label: label,
-        iconData: iconData,
+      bloc.addMainMenuOption(
+        onPressed: () {},
+        label: 'Home',
+        iconData: Icons.home,
+        description: 'Go home',
       );
 
-      blocMainMenuDrawer.dispose();
-      expectLater(blocMainMenuDrawer.isClosed, true);
+      // da un pequeño margen al stream
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      expect(bloc.listMenuOptions.length, 1);
+      expect(bloc.listMenuOptions.first.label, 'Home');
+      expect(emissions, isNotEmpty);
+
+      await sub.cancel();
+    });
+
+    test('upsert por label (case-insensitive) → reemplaza, no duplica',
+        () async {
+      bloc
+        ..addMainMenuOption(
+          onPressed: () {},
+          label: 'Profile',
+          iconData: Icons.person,
+        )
+        ..addMainMenuOption(
+          onPressed: () {},
+          label: 'profile',
+          iconData: Icons.person_outline,
+        );
+
+      expect(bloc.listMenuOptions.length, 1);
+      expect(bloc.listMenuOptions.first.iconData, Icons.person_outline);
+    });
+
+    test('removeMainMenuOption por label (case-insensitive)', () async {
+      bloc
+        ..addMainMenuOption(
+          onPressed: () {},
+          label: 'Settings',
+          iconData: Icons.settings,
+        )
+        ..removeMainMenuOption('settings');
+
+      expect(bloc.listMenuOptions, isEmpty);
+    });
+
+    test('clearMainDrawer → vacía lista', () {
+      bloc
+        ..addMainMenuOption(onPressed: () {}, label: 'A', iconData: Icons.abc)
+        ..addMainMenuOption(
+          onPressed: () {},
+          label: 'B',
+          iconData: Icons.back_hand,
+        );
+      expect(bloc.listMenuOptions, isNotEmpty);
+
+      bloc.clearMainDrawer();
+      expect(bloc.listMenuOptions, isEmpty);
+    });
+
+    test(
+        'retrocompat: listDrawerOptionSizeStream emite igual que listMenuOptionsStream',
+        () async {
+      final List<List<ModelMainMenuModel>> a = <List<ModelMainMenuModel>>[];
+      final List<List<ModelMainMenuModel>> b = <List<ModelMainMenuModel>>[];
+
+      final StreamSubscription<List<ModelMainMenuModel>> subA =
+          bloc.listMenuOptionsStream.listen(a.add);
+      // ignore: deprecated_member_use_from_same_package
+      final StreamSubscription<List<ModelMainMenuModel>> subB =
+          bloc.listDrawerOptionSizeStream.listen(b.add);
+
+      bloc.addMainMenuOption(
+        onPressed: () {},
+        label: 'Home',
+        iconData: Icons.home,
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+
+      // Ambos deben tener la misma última emisión
+      expect(a, isNotEmpty);
+      expect(b, isNotEmpty);
+      expect(a.last.length, b.last.length);
+      expect(
+        a.last.map((ModelMainMenuModel e) => e.label),
+        b.last.map((ModelMainMenuModel e) => e.label),
+      );
+
+      await subA.cancel();
+      await subB.cancel();
+    });
+
+    test('dispose cierra recursos', () async {
+      expect(bloc.isClosed, isFalse);
+      await bloc.dispose();
+      expect(bloc.isClosed, isTrue);
     });
   });
 }
