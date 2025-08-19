@@ -1,7 +1,7 @@
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class MockBlocTheme extends BlocTheme {
-  MockBlocTheme(super.providerTheme);
+  MockBlocTheme({required super.themeUsecases});
   static String get name => BlocTheme.name;
 }
 

@@ -26,7 +26,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ## Parameters
 /// - [appManager]: The core manager for the application's state and navigation.
 /// - [title]: The title of the application. Defaults to `'My jocaagura app'`.
-class JocaaguraApp extends StatefulWidget {
+class JocaaguraApp extends StatelessWidget {
   /// Creates a `JocaaguraApp`.
   ///
   /// - [appManager]: The core manager for the application's state and navigation.
@@ -44,43 +44,26 @@ class JocaaguraApp extends StatefulWidget {
   final String title;
 
   @override
-  State<JocaaguraApp> createState() => _JocaaguraAppState();
-}
-
-class _JocaaguraAppState extends State<JocaaguraApp> {
-  late StreamSubscription<ThemeData> _themeSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Listen for theme changes and update the UI dynamically.
-    _themeSubscription =
-        widget.appManager.theme.themeDataStream.listen((ThemeData themeData) {
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _themeSubscription.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     // Update responsive settings based on the current context.
-    widget.appManager.responsive.setSizeFromContext(context);
-
+    appManager.responsive.setSizeFromContext(context);
     return AppManagerProvider(
-      appManager: widget.appManager,
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: widget.title,
-        theme: widget.appManager.theme.themeData,
-        routerDelegate: widget.appManager.navigator.routerDelegate,
-        routeInformationParser:
-            widget.appManager.navigator.routeInformationParser,
+      appManager: appManager,
+      child: StreamBuilder<ThemeState>(
+        stream: appManager.theme.stream,
+        builder: (_, __) {
+          final ThemeState s = appManager.appConfig.blocTheme.stateOrDefault;
+
+          return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            title: title,
+            themeMode: s.mode,
+            theme: ThemeDataUtils.light(s),
+            darkTheme: ThemeDataUtils.dark(s),
+            routerDelegate: appManager.navigator.routerDelegate,
+            routeInformationParser: appManager.navigator.routeInformationParser,
+          );
+        },
       ),
     );
   }

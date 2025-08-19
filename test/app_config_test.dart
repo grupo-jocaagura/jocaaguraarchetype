@@ -3,13 +3,20 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import 'mocks/mock_blocs.dart';
 import 'mocks/pagemanager_mock.dart';
-import 'mocks/provider_theme_mock.dart';
 
 void main() {
   group('AppConfig', () {
     test('should initialize all BLoCs correctly', () {
       final AppConfig appConfig = AppConfig(
-        blocTheme: MockBlocTheme(ProviderThemeMock()),
+        blocTheme: MockBlocTheme(
+          themeUsecases: ThemeUsecases.fromRepo(
+            RepositoryThemeImpl(
+              gateway: GatewayThemeImpl(
+                themeService: const ServiceJocaaguraArchetypeTheme(),
+              ),
+            ),
+          ),
+        ),
         blocUserNotifications: MockBlocUserNotifications(),
         blocLoading: MockBlocLoading(),
         blocMainMenuDrawer: MockBlocMainMenuDrawer(),

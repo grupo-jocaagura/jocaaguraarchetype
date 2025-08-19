@@ -2,12 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import 'pagemanager_mock.dart';
-import 'provider_theme_mock.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 
 final AppConfig mockAppConfig = AppConfig(
-  blocTheme: MockBlocTheme(ProviderThemeMock()),
+  blocTheme: MockBlocTheme(
+    themeUsecases: ThemeUsecases.fromRepo(
+      RepositoryThemeImpl(
+        gateway: GatewayThemeImpl(
+          themeService: const ServiceJocaaguraArchetypeTheme(),
+        ),
+      ),
+    ),
+  ),
   blocUserNotifications: MockBlocUserNotifications(),
   blocLoading: MockBlocLoading(),
   blocMainMenuDrawer: MockBlocMainMenuDrawer(),
@@ -33,7 +40,15 @@ class MockAppManager extends AppManager {
   BlocSecondaryMenuDrawer get secondaryMenu => MockBlocSecondaryMenuDrawer();
 
   @override
-  BlocTheme get theme => MockBlocTheme(ProviderThemeMock());
+  BlocTheme get theme => MockBlocTheme(
+        themeUsecases: ThemeUsecases.fromRepo(
+          RepositoryThemeImpl(
+            gateway: GatewayThemeImpl(
+              themeService: const ServiceJocaaguraArchetypeTheme(),
+            ),
+          ),
+        ),
+      );
 
   @override
   BlocNavigator get navigator => MockBlocNavigator(MockPageManager());
@@ -62,15 +77,12 @@ class MockBlocMainMenuDrawer extends BlocMainMenuDrawer {
 
 class MockBlocSecondaryMenuDrawer extends BlocSecondaryMenuDrawer {}
 
-class MockBlocTheme extends BlocTheme {
-  MockBlocTheme(super.providerTheme);
-
-  @override
-  ThemeData get themeData => ThemeData();
-}
-
 class MockBlocNavigator extends BlocNavigator {
   MockBlocNavigator(super.pageManager);
+}
+
+class MockBlocTheme extends BlocTheme {
+  MockBlocTheme({required super.themeUsecases});
 }
 
 class MockBlocOnboarding extends BlocOnboarding {

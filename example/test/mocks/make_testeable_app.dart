@@ -9,8 +9,10 @@ Widget makeTesteablePage({
 }) {
   /// Zona de configuración inicial
   final BlocTheme blocTheme = BlocTheme(
-    const ProviderTheme(
-      ServiceTheme(),
+    themeUsecases: ThemeUsecases.fromRepo(
+      RepositoryThemeImpl(
+        gateway: GatewayThemeImpl(),
+      ),
     ),
   );
   final BlocUserNotifications blocUserNotifications = BlocUserNotifications();

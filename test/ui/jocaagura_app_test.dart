@@ -6,8 +6,12 @@ final JocaaguraArchetype jocaaguraArchetype = JocaaguraArchetype();
 
 /// Zona de configuración inicial
 final BlocTheme blocTheme = BlocTheme(
-  const ProviderTheme(
-    ServiceTheme(),
+  themeUsecases: ThemeUsecases.fromRepo(
+    RepositoryThemeImpl(
+      gateway: GatewayThemeImpl(
+        themeService: const ServiceJocaaguraArchetypeTheme(),
+      ),
+    ),
   ),
 );
 final BlocUserNotifications blocUserNotifications = BlocUserNotifications();
@@ -63,12 +67,6 @@ void main() {
       );
       await tester.pumpWidget(JocaaguraApp(appManager: appManager));
       await tester.pumpAndSettle();
-      final int testThemeValue =
-          LabColor.colorValueFromColor(appManager.theme.themeData.primaryColor);
-      appManager.theme.randomTheme();
-      final int testThemeValueResult =
-          LabColor.colorValueFromColor(appManager.theme.themeData.primaryColor);
-      expect(testThemeValue != testThemeValueResult, true);
     });
 
     testWidgets('JocaaguraApp disposes theme subscription on dispose',

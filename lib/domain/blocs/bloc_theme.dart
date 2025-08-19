@@ -1,136 +1,57 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// A BLoC (Business Logic Component) for managing application themes.
-///
-/// The `BlocTheme` class manages the state of the application's theme using
-/// reactive streams. It interacts with the `ProviderTheme` to generate and
-/// modify themes dynamically.
-///
-/// ## Example
-///
-/// ```dart
-/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-///
-/// void main() {
-///   final providerTheme = ProviderTheme(ServiceTheme());
-///   final blocTheme = BlocTheme(providerTheme);
-///
-///   // Listen to theme changes
-///   blocTheme.themeDataStream.listen((theme) {
-///     print('Theme Updated: $theme');
-///   });
-///
-///   // Set a custom theme
-///   blocTheme.customThemeFromColorScheme(
-///     ColorScheme.light(),
-///     TextTheme(),
-///   );
-///
-///   // Generate a random theme
-///   blocTheme.randomTheme();
-/// }
-/// ```
 class BlocTheme extends BlocModule {
-  /// Creates an instance of `BlocTheme` with the given [providerTheme].
-  ///
-  /// The [providerTheme] is used to access theme-related functionalities.
-  BlocTheme(this.providerTheme);
+  BlocTheme({
+    required this.themeUsecases,
+  }) : _blocTheme = BlocGeneral<Either<ErrorItem, ThemeState>>(
+          Right<ErrorItem, ThemeState>(ThemeState.defaults),
+        );
 
-  /// The name identifier for the BLoC, used for tracking or debugging.
-  static const String name = 'blocTheme';
+  static const String name = 'BlocTheme';
 
-  /// The underlying provider for theme functionalities.
-  final ProviderTheme providerTheme;
+  final ThemeUsecases themeUsecases;
 
-  /// The internal controller for managing the theme state.
-  final BlocGeneral<ThemeData> _themeDataController =
-      BlocGeneral<ThemeData>(ThemeData());
+  final BlocGeneral<Either<ErrorItem, ThemeState>> _blocTheme;
 
-  /// The current theme data.
-  ///
-  /// Accesses the latest theme data from the controller.
-  ThemeData get themeData => _themeDataController.value;
+  // Exposición
+  Stream<Either<ErrorItem, ThemeState>> get streamEither => _blocTheme.stream;
+  Either<ErrorItem, ThemeState> get valueEither => _blocTheme.value;
 
-  /// A stream of `ThemeData` that emits changes to the theme.
-  ///
-  /// Use this stream to listen to updates and reflect theme changes in the UI.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// blocTheme.themeDataStream.listen((theme) {
-  ///   print('Theme Updated: $theme');
-  /// });
-  /// ```
-  Stream<ThemeData> get themeDataStream => _themeDataController.stream;
+  Stream<ThemeState> get stream => _blocTheme.stream.map(
+        (Either<ErrorItem, ThemeState> e) =>
+            e.when((_) => ThemeState.defaults, (ThemeState state) => state),
+      );
+  ThemeState get stateOrDefault =>
+      _blocTheme.value.when((_) => ThemeState.defaults, (ThemeState s) => s);
 
-  /// Releases resources held by the BLoC.
-  ///
-  /// This method must be called when the BLoC is no longer needed to prevent
-  /// memory leaks.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// blocTheme.dispose();
-  /// ```
+  // Acciones (sin retorno significativo)
+  Future<void> load() => _run(themeUsecases.load.call);
+  Future<void> setMode(ThemeMode m) =>
+      _run(() => themeUsecases.setMode.call(m));
+  Future<void> setSeed(Color c) => _run(() => themeUsecases.setSeed.call(c));
+  Future<void> toggleM3() => _run(themeUsecases.toggleM3.call);
+  Future<void> applyPreset(String p) =>
+      _run(() => themeUsecases.applyPreset.call(p));
+  Future<void> setTextScale(double s) =>
+      _run(() => themeUsecases.setTextScale.call(s));
+  Future<void> reset() => _run(themeUsecases.reset.call);
+  Future<void> randomTheme() => _run(themeUsecases.randomize.call);
+
+  Future<void> _run(Future<Either<ErrorItem, ThemeState>> Function() op) async {
+    final Either<ErrorItem, ThemeState> r = await op();
+    _blocTheme.value = r.when(
+      (ErrorItem err) => Left<ErrorItem, ThemeState>(err),
+      (ThemeState state) => Right<ErrorItem, ThemeState>(state),
+    );
+  }
+
+  bool _disposed = false;
   @override
   void dispose() {
-    _themeDataController.dispose();
-  }
-
-  /// Sets a custom theme based on the provided [colorScheme] and [textTheme].
-  ///
-  /// The [isDark] parameter determines if the theme should be dark or light.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// blocTheme.customThemeFromColorScheme(
-  ///   ColorScheme.light(),
-  ///   TextTheme(),
-  ///   false,
-  /// );
-  /// ```
-  void customThemeFromColorScheme(
-    ColorScheme colorScheme,
-    TextTheme textTheme, [
-    bool isDark = false,
-  ]) {
-    _themeDataController.value = providerTheme.customThemeFromColorScheme(
-      colorScheme,
-      textTheme,
-      isDark,
-    );
-  }
-
-  /// Sets a custom theme based on the provided [primaryColor].
-  ///
-  /// Generates a theme using the [primaryColor] as the seed color.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// blocTheme.customThemeFromColor(Color(0xFF2196F3));
-  /// ```
-  void customThemeFromColor(Color primaryColor) {
-    _themeDataController.value =
-        providerTheme.serviceTheme.customThemeFromColorScheme(
-      ColorScheme.fromSeed(seedColor: primaryColor),
-      themeData.textTheme,
-    );
-  }
-
-  /// Generates and sets a random theme.
-  ///
-  /// This method creates a theme using a random color as the primary color.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// blocTheme.randomTheme();
-  /// ```
-  void randomTheme() {
-    customThemeFromColor(providerTheme.colorRandom());
+    if (_disposed) {
+      return;
+    }
+    _disposed = true;
+    _blocTheme.dispose();
   }
 }
