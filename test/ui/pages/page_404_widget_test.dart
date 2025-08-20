@@ -4,11 +4,11 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 class MockPageManager extends PageManager {
+  MockPageManager({required super.initial});
+
   bool backCalled = false;
-  @override
   int historyPagesCount = 0;
 
-  @override
   void back() {
     backCalled = true;
   }
@@ -19,7 +19,8 @@ class MockPageManager extends PageManager {
 void main() {
   testWidgets('Page404Widget - Back button is shown when historyPagesCount > 1',
       (WidgetTester tester) async {
-    final MockPageManager mockPageManager = MockPageManager();
+    final MockPageManager mockPageManager =
+        MockPageManager(initial: NavStackModel(const <PageModel>[]));
     mockPageManager.historyPagesCount =
         2; // Set historyPagesCount to a value > 1
 
@@ -35,7 +36,8 @@ void main() {
   testWidgets(
       'Page404Widget - Back button is not shown when historyPagesCount <= 1',
       (WidgetTester tester) async {
-    final MockPageManager mockPageManager = MockPageManager();
+    final MockPageManager mockPageManager =
+        MockPageManager(initial: NavStackModel(const <PageModel>[]));
     mockPageManager.historyPagesCount =
         1; // Set historyPagesCount to a value <= 1
 
@@ -50,7 +52,8 @@ void main() {
 
   testWidgets('Page404Widget - Back button calls pageManager.back()',
       (WidgetTester tester) async {
-    final MockPageManager mockPageManager = MockPageManager();
+    final MockPageManager mockPageManager =
+        MockPageManager(initial: NavStackModel(const <PageModel>[]));
     mockPageManager.historyPagesCount =
         2; // Set historyPagesCount to a value > 1
 

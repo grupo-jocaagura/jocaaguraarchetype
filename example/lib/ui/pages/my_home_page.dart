@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import '../../blocs/bloc_counter.dart';
-import 'index_app.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({
@@ -11,6 +10,8 @@ class MyHomePage extends StatefulWidget {
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
+  static const PageModel pageModel =
+      PageModel(name: 'home', segments: <String>['home']);
 }
 
 class _MyHomePageState extends State<MyHomePage> {
@@ -39,11 +40,10 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             InkWell(
               onTap: () {
-                final BlocNavigator navigator = context.appManager.navigator;
-                navigator.pushPageWidthTitle(
-                  'Index',
+                final PageManager navigator = context.appManager.page;
+                navigator.pushNamed(
+                  title: 'Index',
                   'index-app',
-                  const IndexApp(),
                 );
               },
               child: const Text(
@@ -52,8 +52,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             InkWell(
               onTap: () {
-                final BlocNavigator navigator = context.appManager.navigator;
-                navigator.setTitle('my demo page');
+                final PageManager navigator = context.appManager.page;
+                // navigator.setTitle('my demo page');
                 navigator.pushNamed('MyDemoHomePage');
               },
               child: const Text(

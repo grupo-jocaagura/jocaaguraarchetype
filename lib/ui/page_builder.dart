@@ -105,11 +105,11 @@ class _PageBuilderState extends State<PageBuilder> {
       );
     }
     actions.clear();
-    if (context.appManager.navigator.historyPageLength > 1) {
+    if (context.appManager.historyPageNames.length > 1) {
       actions.add(
         IconButton(
           onPressed: () {
-            context.appManager.navigator.back();
+            context.appManager.pop();
           },
           icon: const Icon(Icons.chevron_left),
         ),
@@ -148,7 +148,7 @@ class _PageBuilderState extends State<PageBuilder> {
               ? AppBar(
                   toolbarHeight: appManager.responsive.appBarHeight,
                   backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  title: Text(appManager.navigator.title),
+                  title: Text(appManager.page.currentTitle),
                   actions: actions,
                 )
               : null,

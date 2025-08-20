@@ -21,10 +21,11 @@ final BlocSecondaryMenuDrawer blocSecondaryMenuDrawer =
     BlocSecondaryMenuDrawer();
 final BlocResponsive blocResponsive = BlocResponsive();
 final BlocOnboarding blocOnboarding = BlocOnboarding();
-final BlocNavigator blocNavigator = BlocNavigator(
-  PageManager(),
-  OnBoardingPage(
-    blocOnboarding: blocOnboarding,
+final PageManager blocNavigator = PageManager(
+  initial: NavStackModel(
+    const <PageModel>[
+      PageModel(name: '/', segments: <String>['home']),
+    ],
   ),
 );
 
@@ -62,10 +63,18 @@ void main() {
           blocSecondaryMenuDrawer: blocSecondaryMenuDrawer,
           blocResponsive: blocResponsive,
           blocOnboarding: blocOnboarding,
-          blocNavigator: blocNavigator,
+          pageManager: blocNavigator,
         ),
       );
-      await tester.pumpWidget(JocaaguraApp(appManager: appManager));
+      await tester.pumpWidget(
+        JocaaguraApp(
+          appManager: appManager,
+          registry: PageRegistry(<String, PageWidgetBuilder>{
+            '/': (BuildContext context, PageModel page) =>
+                const TestPageForJocaaguraAppTest(),
+          }),
+        ),
+      );
       await tester.pumpAndSettle();
     });
 

@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import '../../blocs/bloc_counter.dart';
+import 'app_bar_back_button.dart';
 import 'basic_app_counter_widget.dart';
 import 'one_x_one_widget.dart';
 
 class BasicCounterApp extends StatelessWidget {
   const BasicCounterApp({super.key});
-
+  static const PageModel pageModel = PageModel(
+    name: 'BasicCounterApp',
+    segments: <String>['basic-counter-app'],
+  );
   @override
   Widget build(BuildContext context) {
     /// representaremos 4 Scaffolds de acuerdo a cada pantalla
@@ -42,12 +46,7 @@ class BasicCounterApp extends StatelessWidget {
             : null,
         appBar: AppBar(
           title: Text('${appManager.responsive.deviceType} - $size'),
-          leading: appManager.navigator.showBackButton
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: () => appManager.navigator.back(),
-                )
-              : null,
+          leading: LeadingBackButtonWidget(appManager: appManager),
           actions: <Widget>[
             if (appManager.mainMenu.listMenuOptions.isNotEmpty)
               Builder(
@@ -149,12 +148,7 @@ class BasicCounterApp extends StatelessWidget {
             : null,
         appBar: AppBar(
           title: Text('${appManager.responsive.deviceType} - $size'),
-          leading: appManager.navigator.showBackButton
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: () => appManager.navigator.back(),
-                )
-              : null,
+          leading: LeadingBackButtonWidget(appManager: appManager),
           actions: <Widget>[
             if (appManager.mainMenu.listMenuOptions.isNotEmpty)
               Builder(
@@ -245,12 +239,7 @@ class BasicCounterApp extends StatelessWidget {
             : null,
         appBar: AppBar(
           title: Text('${appManager.responsive.deviceType} - $size'),
-          leading: appManager.navigator.showBackButton
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: () => appManager.navigator.back(),
-                )
-              : null,
+          leading: LeadingBackButtonWidget(appManager: appManager),
           actions: <Widget>[
             if (appManager.mainMenu.listMenuOptions.isNotEmpty)
               Builder(
@@ -336,12 +325,7 @@ class BasicCounterApp extends StatelessWidget {
             : null,
         appBar: AppBar(
           title: Text('${appManager.responsive.deviceType} - $size'),
-          leading: appManager.navigator.showBackButton
-              ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: () => appManager.navigator.back(),
-                )
-              : null,
+          leading: LeadingBackButtonWidget(appManager: appManager),
           actions: <Widget>[
             if (appManager.mainMenu.listMenuOptions.isNotEmpty)
               Builder(

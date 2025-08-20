@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import '../../mocks/mock_blocs.dart';
-import '../../mocks/pagemanager_mock.dart';
 
 void main() {
   group('AppManager', () {
@@ -26,7 +25,13 @@ void main() {
         blocSecondaryMenuDrawer: MockBlocSecondaryMenuDrawer(),
         blocResponsive: MockBlocResponsive(),
         blocOnboarding: MockBlocOnboarding(),
-        blocNavigator: MockBlocNavigator(MockPageManager()),
+        pageManager: MockBlocNavigator(
+          initial: NavStackModel(
+            const <PageModel>[
+              PageModel(name: '/', segments: <String>['home']),
+            ],
+          ),
+        ),
       );
       appManager = AppManager(appConfig);
     });
@@ -42,7 +47,7 @@ void main() {
       expect(appManager.secondaryMenu, isA<MockBlocSecondaryMenuDrawer>());
       expect(appManager.responsive, isA<MockBlocResponsive>());
       expect(appManager.onboarding, isA<MockBlocOnboarding>());
-      expect(appManager.navigator, isA<MockBlocNavigator>());
+      expect(appManager.page, isA<MockBlocNavigator>());
     });
 
     test('dispose should properly dispose all BLoCs', () {

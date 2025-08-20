@@ -94,36 +94,36 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO(alberjjimenezp): extraer esto al BlocMainMenu
-    final List<Widget> listWidget = <Widget>[];
-    int index = 0;
-    for (final ModelMainMenuModel element
-        in context.appManager.mainMenu.listMenuOptions) {
-      listWidget.add(
-        DrawerOptionWidget(
-          key: ValueKey<String>('${MyDemoHomePage.maniMenuKey}$index'),
-          onPressed: element.onPressed,
-          label: element.label,
-          icondata: element.iconData,
-        ),
-      );
-      index++;
-    }
+    final AppManager app = context.appManager;
+
     return Scaffold(
-      drawer: listWidget.isNotEmpty
-          ? Drawer(
-              child: ListView(
-                children: <Widget>[
-                  const DrawerHeader(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
+      drawer: StreamBuilder<List<ModelMainMenuModel>>(
+        // 🔧 suscríbete al stream para que el drawer reaccione
+        stream: app.mainMenu.listMenuOptionsStream,
+        initialData: app.mainMenu.listMenuOptions,
+        builder: (_, AsyncSnapshot<List<ModelMainMenuModel>> snapshot) {
+          final List<ModelMainMenuModel> options =
+              snapshot.data ?? const <ModelMainMenuModel>[];
+          if (options.isEmpty) return const SizedBox.shrink();
+
+          return Drawer(
+            child: ListView(
+              children: <Widget>[
+                const DrawerHeader(
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                for (int i = 0; i < options.length; i++)
+                  DrawerOptionWidget(
+                    key: ValueKey<String>('${MyDemoHomePage.maniMenuKey}$i'),
+                    onPressed: options[i].onPressed,
+                    label: options[i].label,
+                    icondata: options[i].iconData,
                   ),
-                  ...listWidget,
-                ],
-              ),
-            )
-          : null,
+              ],
+            ),
+          );
+        },
+      ),
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
@@ -132,27 +132,25 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            MaterialButton(
+            TextButton(
               onPressed: _incrementCounter,
-              child: const Text(
-                'You have pushed the button this many times:',
-              ),
+              child: const Text('You have pushed the button this many times:'),
             ),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            MaterialButton(
+            TextButton(
               onPressed: () {
-                context.appManager.navigator.pushPageWidthTitle(
-                  'TestPage',
+                app.pushNamed(
                   TestPageBuilderPage.name,
-                  const TestPageBuilderPage(),
+                  title: 'TestPage',
+                  // segments/query/kind si los necesitas:
+                  // segments: ['test'],
+                  // query: {'ref':'home'},
                 );
               },
-              child: Text(
-                'Go to test push page ${context.appManager.navigator.historyPageNames}',
-              ),
+              child: Text('Go to test push page ${app.historyPageNames}'),
             ),
           ],
         ),

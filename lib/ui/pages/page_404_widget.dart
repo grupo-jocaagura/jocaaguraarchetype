@@ -10,15 +10,14 @@ class Page404Widget extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Error 404'),
-        leading: pageManager.historyPagesCount > 1
+        leading: pageManager.historyNames.length > 1
             ? BackButton(
-                onPressed: pageManager.back,
+                onPressed: pageManager.pop,
               )
             : null,
       ),
-      body: Center(
-        child:
-            Text('Pagina No encontrada ${pageManager.currentPage.arguments}'),
+      body: const Center(
+        child: Text('Pagina No encontrada'),
       ),
     );
   }

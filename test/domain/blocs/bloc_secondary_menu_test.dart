@@ -22,7 +22,10 @@ void main() {
       expect(
         () => bloc.listMenuOptions.add(
           ModelMainMenuModel(
-              onPressed: () {}, label: 'X', iconData: Icons.close),
+            onPressed: () {},
+            label: 'X',
+            iconData: Icons.close,
+          ),
         ),
         throwsA(isA<UnsupportedError>()),
       );

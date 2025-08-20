@@ -9,14 +9,17 @@ import 'show_toast_page.dart';
 
 class IndexApp extends StatelessWidget {
   const IndexApp({super.key});
-  static const String name = 'indexApp';
+  static const PageModel pageModel =
+      PageModel(name: 'indexApp', segments: <String>['index-app']);
+
+  static final String name = pageModel.name;
   @override
   Widget build(BuildContext context) {
     final AppManager appManager = context.appManager;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(appManager.navigator.title),
+        title: Text(appManager.page.currentTitle),
       ),
       body: ListView(
         children: <Widget>[
@@ -30,10 +33,10 @@ class IndexApp extends StatelessWidget {
             subtitle: const Text('Here we go!! To second app demo'),
             onTap: () => basicApp(
               appManager,
-              const PageWidget(
-                routeName: 'SecondCounterApp',
+              PageWidget(
+                routeName: SecondCounterApp.pageModel.name,
                 title: 'Secondary app',
-                widget: SecondCounterApp(),
+                widget: const SecondCounterApp(),
               ),
             ),
           ),
@@ -54,10 +57,10 @@ class IndexApp extends StatelessWidget {
             subtitle: const Text('Here we go!! To see snackbar'),
             onTap: () => basicApp(
               appManager,
-              const PageWidget(
-                routeName: ShowToastPage.name,
+              PageWidget(
+                routeName: ShowToastPage.pageModel.name,
                 title: 'Show toast test',
-                widget: ShowToastPage(),
+                widget: const ShowToastPage(),
               ),
             ),
           ),
@@ -69,8 +72,8 @@ class IndexApp extends StatelessWidget {
   void basicApp(
     AppManager appManager, [
     PageWidget app = const PageWidget(
-      title: 'Basic app counter 1',
-      routeName: 'BasicAppCounter',
+      title: 'BasicCounterApp',
+      routeName: 'BasicCounterApp',
       widget: BasicCounterApp(),
     ),
   ]) {
@@ -95,16 +98,15 @@ class IndexApp extends StatelessWidget {
       onPressed: () {
         blocCounter.reset();
         appManager.secondaryMenu.clearSecondaryDrawer();
-        appManager.navigator.back();
+        appManager.page.pop();
       },
       label: 'Reset and back',
       iconData: Icons.reset_tv,
     );
 
-    appManager.navigator.pushPageWidthTitle(
-      app.title,
+    appManager.page.pushNamed(
       app.routeName,
-      app.widget,
+      title: app.title,
     );
   }
 }

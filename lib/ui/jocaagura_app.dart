@@ -1,67 +1,105 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// The entry point for a Jocaagura-based application.
+/// Entry point widget for a Jocaagura-based app using the new declarative navigation.
 ///
-/// The `JocaaguraApp` is a customizable `StatefulWidget` that sets up the
-/// application's theme, navigation system, and responsive design using the
-/// provided [AppManager].
+/// It creates (once) the RouterDelegate and the RouteInformationParser from:
+/// - `PageManager` (navigation source of truth)
+/// - `PageRegistry` (name → builder)
 ///
-/// ## Features
-/// - Manages the application's theme dynamically.
-/// - Configures navigation using `MaterialApp.router`.
-/// - Integrates responsive design through the `AppManager`.
-///
-/// ## Example
-///
+/// ### Example
 /// ```dart
-/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-/// import 'package:flutter/material.dart';
+/// final appConfig = AppConfig.dev(registry: registry); // o tu flavor preferido
+/// final appManager = AppManager(appConfig);
 ///
-/// void main() {
-///   final AppManager appManager = AppManager();
-///   runApp(JocaaguraApp(appManager: appManager));
-/// }
+/// runApp(JocaaguraApp(
+///   appManager: appManager,
+///   registry: registry,
+///   title: 'My jocaagura app',
+/// ));
 /// ```
-///
-/// ## Parameters
-/// - [appManager]: The core manager for the application's state and navigation.
-/// - [title]: The title of the application. Defaults to `'My jocaagura app'`.
-class JocaaguraApp extends StatelessWidget {
-  /// Creates a `JocaaguraApp`.
-  ///
-  /// - [appManager]: The core manager for the application's state and navigation.
-  /// - [title]: The title of the application. Defaults to `'My jocaagura app'`.
+class JocaaguraApp extends StatefulWidget {
   const JocaaguraApp({
     required this.appManager,
+    required this.registry,
     this.title = 'My jocaagura app',
+    this.routerDelegate, // opcional: si quieres inyectarlo desde un flavor
+    this.routeInformationParser, // opcional: idem
     super.key,
   });
 
-  /// The core manager for the application's state and navigation.
+  /// Core app state & blocs (incluye `PageManager`).
   final AppManager appManager;
 
-  /// The title of the application.
+  /// Registry used to materialize PageModel → Widget.
+  final PageRegistry registry;
+
+  /// App title.
   final String title;
+
+  /// Optional delegate injection (useful for flavors/testing).
+  final MyAppRouterDelegate? routerDelegate;
+
+  /// Optional parser injection (useful for flavors/testing).
+  final MyRouteInformationParser? routeInformationParser;
+
+  @override
+  State<JocaaguraApp> createState() => _JocaaguraAppState();
+}
+
+class _JocaaguraAppState extends State<JocaaguraApp> {
+  late final MyAppRouterDelegate _delegate = widget.routerDelegate ??
+      MyAppRouterDelegate(
+        registry: widget.registry,
+        pageManager: widget.appManager.page,
+      );
+
+  late final MyRouteInformationParser _parser =
+      widget.routeInformationParser ?? const MyRouteInformationParser();
+
+  @override
+  void initState() {
+    super.initState();
+    final String initialLocation =
+        widget.appManager.page.stack.top.toUriString();
+    routeInformationProvider:
+    PlatformRouteInformationProvider(
+      initialRouteInformation: RouteInformation(location: initialLocation),
+    );
+    final PageModel top = widget.appManager.page.stack.top;
+    assert(
+      widget.registry.contains(top.name),
+      'No builder in PageRegistry for initial route: ${top.name}. '
+      'Known routes: ${widget.registry._builders.keys.toList()}',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Update responsive settings based on the current context.
-    appManager.responsive.setSizeFromContext(context);
-    return AppManagerProvider(
-      appManager: appManager,
-      child: StreamBuilder<ThemeState>(
-        stream: appManager.theme.stream,
-        builder: (_, __) {
-          final ThemeState s = appManager.appConfig.blocTheme.stateOrDefault;
+    final AppManager app = widget.appManager;
 
+    app.responsive.setSizeFromContext(context);
+
+    return AppManagerProvider(
+      appManager: app,
+      child: StreamBuilder<ThemeState>(
+        stream: app.theme.stream,
+        initialData: app.theme.stateOrDefault,
+        builder: (_, __) {
+          final ThemeState s = app.theme.stateOrDefault;
+          final String initialLocation =
+              widget.appManager.page.stack.top.toUriString();
           return MaterialApp.router(
             debugShowCheckedModeBanner: false,
-            title: title,
+            title: widget.title,
             themeMode: s.mode,
             theme: ThemeDataUtils.light(s),
             darkTheme: ThemeDataUtils.dark(s),
-            routerDelegate: appManager.navigator.routerDelegate,
-            routeInformationParser: appManager.navigator.routeInformationParser,
+            routerDelegate: _delegate,
+            routeInformationParser: _parser,
+            routeInformationProvider: PlatformRouteInformationProvider(
+              initialRouteInformation:
+                  RouteInformation(location: initialLocation), // "/home"
+            ),
           );
         },
       ),

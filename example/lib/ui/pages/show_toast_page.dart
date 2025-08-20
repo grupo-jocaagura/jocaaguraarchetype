@@ -7,8 +7,9 @@ class ShowToastPage extends StatelessWidget {
   const ShowToastPage({
     super.key,
   });
-
-  static const String name = 'ShowToastPage';
+  static const PageModel pageModel =
+      PageModel(name: 'ShowToastPage', segments: <String>['show-toast']);
+  static final String name = pageModel.name;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,7 @@ class ShowToastPage extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
-          onPressed: context.appManager.navigator.back,
+          onPressed: context.appManager.page.pop,
         ),
         title: const Text('Show toast test'),
       ),

@@ -23,11 +23,11 @@ Widget makeTesteablePage({
       BlocSecondaryMenuDrawer();
   final BlocResponsive blocResponsive = BlocResponsive();
   final BlocOnboarding blocOnboarding = BlocOnboarding();
+  final PageRegistry registry = PageRegistry(<String, PageWidgetBuilder>{
+    // Ruta inicial "home"
+    '/': (BuildContext context, PageModel page) => const Scaffold(),
+  });
 
-  final BlocNavigator blocNavigator = BlocNavigator(
-    PageManager(),
-    child,
-  );
   jAppManager = AppManager(
     AppConfig(
       blocTheme: blocTheme,
@@ -37,11 +37,21 @@ Widget makeTesteablePage({
       blocSecondaryMenuDrawer: blocSecondaryMenuDrawer,
       blocResponsive: blocResponsive,
       blocOnboarding: blocOnboarding,
-      blocNavigator: blocNavigator,
+      pageManager: PageManager(
+        initial: NavStackModel(
+          const <PageModel>[
+            PageModel(name: '/', segments: <String>['home']),
+          ],
+        ),
+      ),
     ),
   );
 
   return JocaaguraApp(
     appManager: jAppManager,
+    registry: registry,
+    routeInformationParser: const MyRouteInformationParser(
+      defaultRouteName: '/',
+    ),
   );
 }

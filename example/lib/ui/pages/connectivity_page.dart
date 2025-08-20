@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import '../../blocs/bloc_counter.dart';
+import '../widgets/app_bar_back_button.dart';
 
 class ConnectivityPage extends StatelessWidget {
   const ConnectivityPage({super.key});
+  static const PageModel pageModel =
+      PageModel(name: 'ConnectivityPage', segments: <String>['connectivity']);
   @override
   Widget build(BuildContext context) {
     final AppManager appManager = context.appManager;
@@ -16,12 +19,7 @@ class ConnectivityPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Connectivity test'),
-        leading: appManager.navigator.showBackButton
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios),
-                onPressed: () => appManager.navigator.back(),
-              )
-            : null,
+        leading: LeadingBackButtonWidget(appManager: appManager),
         actions: <Widget>[
           if (appManager.mainMenu.listMenuOptions.isNotEmpty)
             Builder(

@@ -15,6 +15,11 @@ class OnboardingDemoBootstrap extends StatefulWidget {
   @override
   State<OnboardingDemoBootstrap> createState() =>
       _OnboardingDemoBootstrapState();
+
+  static const PageModel pageModel = PageModel(
+    name: 'OnboardingDemoBootstrap',
+    segments: <String>['onboarding-demo-bootstrap'],
+  );
 }
 
 class _OnboardingDemoBootstrapState extends State<OnboardingDemoBootstrap> {

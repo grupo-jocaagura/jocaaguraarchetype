@@ -30,7 +30,7 @@ class MockBlocOnboarding extends BlocOnboarding {
   static String get name => BlocOnboarding.name;
 }
 
-class MockBlocNavigator extends BlocNavigator {
-  MockBlocNavigator(super.pageManager);
-  static String get name => BlocNavigator.name;
+class MockBlocNavigator extends PageManager {
+  MockBlocNavigator({required super.initial});
+  static String get name => PageManager.name;
 }

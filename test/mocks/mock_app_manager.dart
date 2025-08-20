@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-import 'pagemanager_mock.dart';
-
 // revisado 10/03/2024 author: @albertjjimenezp
 
 final AppConfig mockAppConfig = AppConfig(
@@ -21,7 +19,13 @@ final AppConfig mockAppConfig = AppConfig(
   blocSecondaryMenuDrawer: MockBlocSecondaryMenuDrawer(),
   blocResponsive: MockBlocResponsive(),
   blocOnboarding: MockBlocOnboarding(),
-  blocNavigator: MockBlocNavigator(MockPageManager()),
+  pageManager: MockBlocNavigator(
+    initial: NavStackModel(
+      const <PageModel>[
+        PageModel(name: '/', segments: <String>['home']),
+      ],
+    ),
+  ),
 );
 
 class MockAppManager extends AppManager {
@@ -50,8 +54,13 @@ class MockAppManager extends AppManager {
         ),
       );
 
-  @override
-  BlocNavigator get navigator => MockBlocNavigator(MockPageManager());
+  PageManager get navigator => MockBlocNavigator(
+        initial: NavStackModel(
+          const <PageModel>[
+            PageModel(name: '/', segments: <String>['home']),
+          ],
+        ),
+      );
 
   @override
   BlocOnboarding get onboarding => MockBlocOnboarding();
@@ -77,8 +86,8 @@ class MockBlocMainMenuDrawer extends BlocMainMenuDrawer {
 
 class MockBlocSecondaryMenuDrawer extends BlocSecondaryMenuDrawer {}
 
-class MockBlocNavigator extends BlocNavigator {
-  MockBlocNavigator(super.pageManager);
+class MockBlocNavigator extends PageManager {
+  MockBlocNavigator({required super.initial});
 }
 
 class MockBlocTheme extends BlocTheme {
