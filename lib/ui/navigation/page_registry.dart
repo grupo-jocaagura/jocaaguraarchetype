@@ -10,7 +10,7 @@ typedef PageWidgetBuilder = Widget Function(
 ///
 /// Keeps UI wiring concentrated and testable.
 class PageRegistry {
-  PageRegistry(this._builders);
+  const PageRegistry(this._builders);
 
   final Map<String, PageWidgetBuilder> _builders;
 

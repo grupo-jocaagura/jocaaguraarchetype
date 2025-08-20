@@ -34,7 +34,7 @@ class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {
     final String first = segs.first;
 
     // 👇 clave: si te pasan "/index-app", el name lógico debe ser "indexApp"
-    final String name = slugToName?.call(first) ?? _kebabToCamel(first);
+    final String name = slugToName?.call(first) ?? kebabToCamel(first);
 
     final PageModel page = PageModel.fromUri(uri, name: name);
     return NavStackModel.single(page);
@@ -46,7 +46,7 @@ class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {
   }
 
   // Utilidad simple para kebab-case → camelCase: "index-app" → "indexApp"
-  static String _kebabToCamel(String s) {
+  static String kebabToCamel(String s) {
     final List<String> parts = s.split('-');
     if (parts.isEmpty) {
       return s;

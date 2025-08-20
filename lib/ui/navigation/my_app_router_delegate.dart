@@ -39,7 +39,7 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
   Widget build(BuildContext context) {
     final List<Page<dynamic>> pages =
         pageManager.stack.pages.map(registry.toPage).toList(growable: false);
-
+    print(currentConfiguration);
     return Navigator(
       key: navigatorKey,
       pages: pages,

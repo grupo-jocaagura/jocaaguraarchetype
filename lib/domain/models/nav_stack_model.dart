@@ -147,4 +147,8 @@ class NavStackModel extends Model {
     }
     return h;
   }
+
+  @override
+  String toString() =>
+      'NavStackModel(pages: [${pages.map((PageModel pageModel) => pageModel.name).join(', ')}])';
 }

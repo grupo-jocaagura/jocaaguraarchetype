@@ -59,12 +59,6 @@ class _JocaaguraAppState extends State<JocaaguraApp> {
   @override
   void initState() {
     super.initState();
-    final String initialLocation =
-        widget.appManager.page.stack.top.toUriString();
-    routeInformationProvider:
-    PlatformRouteInformationProvider(
-      initialRouteInformation: RouteInformation(location: initialLocation),
-    );
     final PageModel top = widget.appManager.page.stack.top;
     assert(
       widget.registry.contains(top.name),
