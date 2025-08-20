@@ -1,5 +1,16 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+typedef PageEquals = bool Function(PageModel a, PageModel b);
+
+/// Compara por destino de ruta (name + segments + query + kind + requiresAuth).
+bool _routeEquals(PageModel a, PageModel b) {
+  return a.name == b.name &&
+      listEquals(a.segments, b.segments) &&
+      mapEquals(a.query, b.query) &&
+      a.kind == b.kind &&
+      a.requiresAuth == b.requiresAuth;
+}
+
 /// Immutable back stack of [PageModel] used by the RouterDelegate.
 ///
 /// Provides pure push/pop/replace operations and JSON/URI round-trips.
@@ -146,6 +157,72 @@ class NavStackModel extends Model {
       h = 0x1fffffff & (h * 31 ^ p.hashCode);
     }
     return h;
+  }
+
+  /// Push pero **evitando duplicado consecutivo** (no-op si la top es "igual").
+  /// Útil cuando quieres permitir repetidos en el stack, pero no dos iguales seguidos.
+  NavStackModel pushDistinctTop(
+    PageModel page, {
+    PageEquals equals = _routeEquals,
+  }) {
+    if (equals(top, page)) {
+      return this;
+    }
+    return push(page);
+  }
+
+  /// Garantiza que **solo exista una** instancia "igual" a [page] en el stack:
+  /// si ya existe, la remueve y agrega la nueva al top.
+  ///
+  /// Por defecto la comparación es por "ruta" (_routeEquals). Puedes pasar [equals]
+  /// para comparar solo por name (_nameEquals) u otra estrategia.
+  ///
+  /// Ejemplo:
+  /// ```dart
+  /// stack = stack.pushOnce(PageModel(name:'home', segments:['home']));
+  /// stack = stack.pushOnce(PageModel(name:'home', segments:['home'])); // no duplica
+  /// ```
+  NavStackModel pushOnce(
+    PageModel page, {
+    PageEquals equals = _routeEquals,
+  }) {
+    final List<PageModel> next = <PageModel>[];
+    for (final PageModel p in pages) {
+      if (!equals(p, page)) {
+        next.add(p);
+      }
+    }
+    next.add(page);
+    return NavStackModel(next);
+  }
+
+  /// Deduplica **el stack completo** conservando el primer encontrado
+  /// (elimina subsecuentes "iguales" según [equals]).
+  NavStackModel dedupAll({PageEquals equals = _routeEquals}) {
+    final List<PageModel> out = <PageModel>[];
+    for (final PageModel p in pages) {
+      final bool already = out.any((PageModel q) => equals(q, p));
+      if (!already) {
+        out.add(p);
+      }
+    }
+    // Asegura siempre al menos 1
+    return out.isEmpty ? this : NavStackModel(out);
+  }
+
+  /// Busca una página "igual" y la **mueve al top** (si no existe, hace push).
+  NavStackModel moveToTopOrPush(
+    PageModel page, {
+    PageEquals equals = _routeEquals,
+  }) {
+    final List<PageModel> next = <PageModel>[];
+    for (final PageModel p in pages) {
+      if (!equals(p, page)) {
+        next.add(p);
+      }
+    }
+    next.add(page);
+    return NavStackModel(next);
   }
 
   @override

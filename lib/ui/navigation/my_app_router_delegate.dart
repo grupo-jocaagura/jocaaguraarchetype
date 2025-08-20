@@ -8,12 +8,14 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
   MyAppRouterDelegate({
     required this.registry,
     required this.pageManager,
+    this.projectorMode = false,
   }) {
     _sub = pageManager.stackStream.listen((_) => notifyListeners());
   }
 
   final PageRegistry registry;
   final PageManager pageManager;
+  final bool projectorMode;
 
   StreamSubscription<NavStackModel>? _sub;
 
@@ -37,9 +39,15 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
 
   @override
   Widget build(BuildContext context) {
-    final List<Page<dynamic>> pages =
-        pageManager.stack.pages.map(registry.toPage).toList(growable: false);
-    print(currentConfiguration);
+    final NavStackModel stackNav = pageManager.stack;
+    final List<Page<dynamic>> pages = projectorMode
+        ? <Page<dynamic>>[registry.toPage(stackNav.top, position: 0)]
+        : List<Page<dynamic>>.generate(
+            stackNav.pages.length,
+            (int i) =>
+                registry.toPage(stackNav.pages[i], position: i), // 👈 index
+          );
+
     return Navigator(
       key: navigatorKey,
       pages: pages,

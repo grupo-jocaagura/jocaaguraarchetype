@@ -10,7 +10,9 @@ typedef PageWidgetBuilder = Widget Function(
 ///
 /// Keeps UI wiring concentrated and testable.
 class PageRegistry {
-  const PageRegistry(this._builders);
+  const PageRegistry(
+    this._builders,
+  );
 
   final Map<String, PageWidgetBuilder> _builders;
 
@@ -29,10 +31,15 @@ class PageRegistry {
   }
 
   /// Builds a materialized `Page` from a [PageModel] using [PageKind].
-  Page<dynamic> toPage(PageModel page) {
+  Page<dynamic> toPage(
+    PageModel page, {
+    int? position,
+  }) {
     Widget child(BuildContext ctx) => build(ctx, page);
-    final LocalKey key = ValueKey<String>('${page.name}:${page.toUriString()}');
-
+    final LocalKey key = ValueKey<String>(
+      'pg:${position ?? 0}:${page.name}:${page.segments.join('/')}:'
+      '${page.query.hashCode}:${page.kind}:${page.requiresAuth}',
+    );
     switch (page.kind) {
       case PageKind.cupertino:
         return CupertinoPage<dynamic>(
@@ -69,7 +76,9 @@ class _DefaultNotFoundPage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: InkWell(
-          onTap: () => context.appManager.page.pushNamed('/'),
+          onTap: () {
+            context.appManager.page.goHome();
+          },
           child: Text('404 — $location'),
         ),
       ),

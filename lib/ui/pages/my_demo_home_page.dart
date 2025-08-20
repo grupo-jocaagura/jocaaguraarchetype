@@ -104,7 +104,9 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
         builder: (_, AsyncSnapshot<List<ModelMainMenuModel>> snapshot) {
           final List<ModelMainMenuModel> options =
               snapshot.data ?? const <ModelMainMenuModel>[];
-          if (options.isEmpty) return const SizedBox.shrink();
+          if (options.isEmpty) {
+            return const SizedBox.shrink();
+          }
 
           return Drawer(
             child: ListView(

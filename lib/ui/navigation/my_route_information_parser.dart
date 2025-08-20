@@ -22,22 +22,26 @@ class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {
 
     // "/" → default
     if (uri.pathSegments.isEmpty) {
-      final PageModel home = PageModel(
-        name: defaultRouteName,
-        segments: <String>[defaultRouteName],
+      return NavStackModel.single(
+        PageModel(
+          name: defaultRouteName,
+          segments: const <String>[],
+        ),
       );
-      return NavStackModel.single(home);
     }
 
-    final List<String> segs =
-        uri.pathSegments.where((String s) => s.isNotEmpty).toList();
-    final String first = segs.first;
-
-    // 👇 clave: si te pasan "/index-app", el name lógico debe ser "indexApp"
-    final String name = slugToName?.call(first) ?? kebabToCamel(first);
-
-    final PageModel page = PageModel.fromUri(uri, name: name);
-    return NavStackModel.single(page);
+    final String slug = uri.pathSegments.first;
+    final String name = slugToName?.call(slug) ?? slug;
+    final List<String> segments = uri.pathSegments.skip(1).toList();
+    final Map<String, String> query = uri.queryParameters.map(
+      (String k, dynamic v) => MapEntry<String, String>(
+        k,
+        Utils.getStringFromDynamic(v),
+      ),
+    );
+    return NavStackModel.single(
+      PageModel(name: name, segments: segments, query: query),
+    );
   }
 
   @override

@@ -22,15 +22,35 @@ class PageManager extends BlocModule {
   bool get isClosed => _stack.isClosed;
 
   void setStack(NavStackModel next) {
-    if (identical(next, _stack.value) || next == _stack.value) {
+    final NavStackModel sanitized = _dedupConsecutive(next);
+    if (identical(sanitized, _stack.value) || sanitized == _stack.value) {
       return;
     }
-    _stack.value = next;
+    _stack.value = sanitized;
   }
 
   // ---- Mutations base ----
-  void push(PageModel page) => setStack(stack.push(page));
-  void replaceTop(PageModel page) => setStack(stack.replaceTop(page));
+  void push(PageModel page, {bool allowDuplicate = false}) {
+    if (!allowDuplicate && _sameTarget(stack.top, page)) {
+      return;
+    }
+    setStack(stack.push(page));
+  }
+
+  void goHome() {
+    if (stack.isRoot) {
+      return;
+    }
+    setStack(stack.resetTo(stack.pages.first));
+  }
+
+  void replaceTop(PageModel page, {bool allowNoop = false}) {
+    if (!allowNoop && _sameTarget(stack.top, page)) {
+      return;
+    }
+    setStack(stack.replaceTop(page));
+  }
+
   bool pop() {
     if (stack.isRoot) {
       return false;
@@ -52,6 +72,7 @@ class PageManager extends BlocModule {
     PageKind kind = PageKind.material,
     bool requiresAuth = false,
     Map<String, dynamic>? state,
+    bool allowDuplicate = false,
   }) {
     final PageModel page = PageModel(
       name: name,
@@ -63,7 +84,7 @@ class PageManager extends BlocModule {
       requiresAuth: requiresAuth,
       state: <String, dynamic>{...?state, if (title != null) 'title': title},
     );
-    push(page);
+    push(page, allowDuplicate: allowDuplicate);
   }
 
   /// Replace top using a name.
@@ -75,6 +96,7 @@ class PageManager extends BlocModule {
     PageKind kind = PageKind.material,
     bool requiresAuth = false,
     Map<String, dynamic>? state,
+    bool allowNoop = false,
   }) {
     final PageModel page = PageModel(
       name: name,
@@ -86,7 +108,7 @@ class PageManager extends BlocModule {
       requiresAuth: requiresAuth,
       state: <String, dynamic>{...?state, if (title != null) 'title': title},
     );
-    replaceTop(page);
+    replaceTop(page, allowNoop: allowNoop);
   }
 
   /// Reset stack to a single named page.
@@ -171,4 +193,83 @@ class PageManager extends BlocModule {
   String get currentTitle => _titleOf(stack.top);
   Stream<String> get currentTitleStream =>
       stackStream.map((NavStackModel s) => _titleOf(s.top)).distinct();
+
+  // ---- helpers ----
+  bool _sameTarget(PageModel a, PageModel b) {
+    return a.name == b.name &&
+        listEquals(a.segments, b.segments) &&
+        mapEquals(a.query, b.query) &&
+        a.kind == b.kind &&
+        a.requiresAuth == b.requiresAuth;
+  }
+
+  NavStackModel _dedupConsecutive(NavStackModel s) {
+    final List<PageModel> out = <PageModel>[];
+    for (final PageModel p in s.pages) {
+      if (out.isEmpty || !_sameTarget(out.last, p)) {
+        out.add(p);
+      }
+    }
+    // reconstruye el stack con `out`
+    return NavStackModel(out); // o copyWith(pages: out) si lo tienes
+  }
+
+  /// Push evitando duplicado consecutivo (no-op si el top es igual).
+  void pushDistinctTop(PageModel page, {PageEquals equals = _routeEquals}) {
+    setStack(stack.pushDistinctTop(page, equals: equals));
+  }
+
+  /// Push garantizando unicidad en el stack completo (remueve iguales antes).
+  void pushOnce(PageModel page, {PageEquals equals = _routeEquals}) {
+    setStack(stack.pushOnce(page, equals: equals));
+  }
+
+  // --- helpers "named" coherentes ---
+
+  void pushDistinctTopNamed(
+    String name, {
+    String? title,
+    List<String>? segments,
+    Map<String, String>? query,
+    PageKind kind = PageKind.material,
+    bool requiresAuth = false,
+    Map<String, dynamic>? state,
+    PageEquals equals = _routeEquals, // o _nameEquals si prefieres
+  }) {
+    final PageModel page = PageModel(
+      name: name,
+      segments: (segments == null || segments.isEmpty)
+          ? <String>[name]
+          : List<String>.from(segments),
+      query: query ?? const <String, String>{},
+      kind: kind,
+      requiresAuth: requiresAuth,
+      state: <String, dynamic>{...?state, if (title != null) 'title': title},
+    );
+    pushDistinctTop(page, equals: equals);
+  }
+
+  void pushOnceNamed(
+    String name, {
+    String? title,
+    List<String>? segments,
+    Map<String, String>? query,
+    PageKind kind = PageKind.material,
+    bool requiresAuth = false,
+    Map<String, dynamic>? state,
+    PageEquals equals =
+        _routeEquals, // cambia a _nameEquals si tu clave es el name
+  }) {
+    final PageModel page = PageModel(
+      name: name,
+      segments: (segments == null || segments.isEmpty)
+          ? <String>[name]
+          : List<String>.from(segments),
+      query: query ?? const <String, String>{},
+      kind: kind,
+      requiresAuth: requiresAuth,
+      state: <String, dynamic>{...?state, if (title != null) 'title': title},
+    );
+    pushOnce(page, equals: equals);
+  }
 }
