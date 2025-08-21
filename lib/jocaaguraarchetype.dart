@@ -50,6 +50,7 @@ part 'ui/widgets/column_blueprint_widget.dart';
 part 'ui/widgets/columns_blueprint_widget.dart';
 part 'ui/widgets/drawer_option_widget.dart';
 part 'ui/widgets/forms/custom_autocomplete_input_widget.dart';
+part 'ui/widgets/forms/jocaagura_autocomplete_input_widget.dart';
 part 'ui/widgets/gutter_blueprint_widget.dart';
 part 'ui/widgets/list_tile_exit_drawer_widget.dart';
 part 'ui/widgets/main_menu_option_widget.dart';

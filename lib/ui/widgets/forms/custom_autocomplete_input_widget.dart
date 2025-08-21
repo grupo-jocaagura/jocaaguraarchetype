@@ -70,7 +70,12 @@ class CustomAutoCompleteInputWidget extends StatefulWidget {
     this.onFieldSubmitted = _defaultFunction,
     this.icondata,
     this.textInputType = TextInputType.text,
+    this.onChangedDebounce,
   });
+
+  /// Debounce time applied to onChanged validations.
+  /// If null, validates on every keystroke.
+  final Duration? onChangedDebounce;
 
   /// List of suggestions for the autocomplete feature.
   final List<String>? suggestList;
@@ -111,12 +116,19 @@ class CustomAutoCompleteInputWidgetState
     extends State<CustomAutoCompleteInputWidget> {
   String? _errorText;
   late String _selectedValue;
+  Timer? _debounce; // NEW
 
   @override
   void initState() {
     super.initState();
     _selectedValue = widget.initialData;
     _onValidate(_selectedValue);
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
   }
 
   /// Validates the input value and updates the error text if necessary.
@@ -126,6 +138,16 @@ class CustomAutoCompleteInputWidgetState
       widget.onChanged(val);
     }
     setState(() {});
+  }
+
+  void _onChangedWithOptionalDebounce(String val) {
+    if (widget.onChangedDebounce != null) {
+      _debounce?.cancel();
+      _debounce = Timer(widget.onChangedDebounce!, () => _onValidate(val));
+      return;
+    } else {
+      _onValidate(val);
+    }
   }
 
   @override
@@ -186,7 +208,7 @@ class CustomAutoCompleteInputWidgetState
           textInputAction: TextInputAction.done,
           textCapitalization: TextCapitalization.sentences,
           autocorrect: true,
-          onChanged: _onValidate,
+          onChanged: _onChangedWithOptionalDebounce,
           onEditingComplete: () {
             final String v = controller.text;
             _errorText = widget.onEditingValidateFunction(v);
