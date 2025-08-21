@@ -44,20 +44,13 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
         ? <Page<dynamic>>[registry.toPage(stackNav.top, position: 0)]
         : List<Page<dynamic>>.generate(
             stackNav.pages.length,
-            (int i) =>
-                registry.toPage(stackNav.pages[i], position: i), // 👈 index
+            (int i) => registry.toPage(stackNav.pages[i], position: i),
           );
 
     return Navigator(
       key: navigatorKey,
       pages: pages,
-      onPopPage: (Route<dynamic> route, dynamic result) {
-        if (!route.didPop(result)) {
-          return false;
-        }
-        pop();
-        return true;
-      },
+      onDidRemovePage: (Page<Object?> page) => pageManager.pop,
     );
   }
 

@@ -18,7 +18,7 @@ class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {
   Future<NavStackModel> parseRouteInformation(
     RouteInformation routeInformation,
   ) async {
-    final Uri uri = Uri.parse(routeInformation.location);
+    final Uri uri = routeInformation.uri;
 
     // "/" → default
     if (uri.pathSegments.isEmpty) {
@@ -46,7 +46,7 @@ class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {
 
   @override
   RouteInformation? restoreRouteInformation(NavStackModel configuration) {
-    return RouteInformation(location: configuration.top.toUriString());
+    return RouteInformation(uri: Uri.parse(configuration.top.toUriString()));
   }
 
   // Utilidad simple para kebab-case → camelCase: "index-app" → "indexApp"

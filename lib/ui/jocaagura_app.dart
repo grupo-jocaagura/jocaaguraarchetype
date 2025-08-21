@@ -92,7 +92,7 @@ class _JocaaguraAppState extends State<JocaaguraApp> {
             routeInformationParser: _parser,
             routeInformationProvider: PlatformRouteInformationProvider(
               initialRouteInformation:
-                  RouteInformation(location: initialLocation), // "/home"
+                  RouteInformation(uri: Uri.parse(initialLocation)), // "/home"
             ),
           );
         },
