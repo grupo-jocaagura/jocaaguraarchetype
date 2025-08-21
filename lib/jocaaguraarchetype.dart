@@ -37,6 +37,7 @@ part 'ui/navigation/my_route_information_parser.dart';
 part 'ui/navigation/page_def.dart';
 part 'ui/navigation/page_manager.dart';
 part 'ui/navigation/page_registry.dart';
+part 'ui/navigation/session_nav_coordinator.dart';
 part 'ui/page_builder.dart';
 part 'ui/pages/loading_page.dart';
 part 'ui/pages/my_demo_home_page.dart';

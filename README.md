@@ -47,7 +47,7 @@ This package is designed to ensure that the cross-functional features of applica
       - [8) Anti-patrones](#8-anti-patrones)
       - [9) Checklist de integración](#9-checklist-de-integración)
       - [10) Snippets de referencia](#10-snippets-de-referencia)
-  - 
+  - [Sistema de navegacion con auth](#Navigation-with-auth)
 
 
 ## LabColor
@@ -491,5 +491,373 @@ page.setFromRouteChain(chain);
 ```
 
 ---
+# Navigation with auth
+## Navegación con sesión (auth) — Guía de implementación
 
-Con esto tienes un **sistema de navegación declarativo, testable y performante**, alineado a Clean Architecture, con API ergonómica y soporte de deep-links, 404 y redirecciones.
+> Recomendado: **`projectorMode: true`** para mejor rendimiento y evitar colisiones de keys en el `Navigator`.
+
+Esta guía explica cómo **proteger rutas**, **redirigir a login** cuando no hay sesión, **restaurar la intención** post-login (deep-links incluidos) y mantener el stack de navegación consistente usando:
+
+* `PageManager` (BLoC de navegación)
+* `PageRegistry` (resuelve `PageModel.name → Widget`)
+* `BlocSession` (estado de sesión de `jocaagura_domain`)
+* `SessionNavCoordinator` (política de navegación con auth)
+
+---
+
+## Visión general
+
+```
+UI (MaterialApp.router)
+    └── MyAppRouterDelegate (escucha PageManager.stackStream)
+           └── Navigator(pages: PageRegistry.toPage(...))
+PageManager (stack NavStackModel<PageModel>)
+    ↑                         ↑
+    │                         │
+SessionNavCoordinator  ←  BlocSession.stream (Authenticated / Unauthenticated / Refreshing / SessionError)
+         │
+         └─ Aplica política: redirige a login, restaura intención, etc.
+```
+
+**Política por defecto:**
+
+* Si la página **requiere auth** y el usuario **no** está autenticado → **redirige a `loginPage`** y recuerda el stack deseado.
+* Al **autenticarse** → **restaura** el stack pendiente (deep-link ok).
+* `Refreshing(prev)` se considera **autenticado** (no expulsa).
+* `SessionError` se trata como **no autenticado** para rutas protegidas (redirige a login).
+* Si ya está autenticado y está en login → **va a `homePage`** (opcional).
+
+---
+
+## 1) Define tus `PageModel` (con `requiresAuth`)
+
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+  static const PageModel pageModel = PageModel(
+    name: 'home',
+    segments: <String>['/'],
+    requiresAuth: false,
+  );
+  @override
+  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Home')));
+}
+
+class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+  static const PageModel pageModel = PageModel(
+    name: 'login',
+    segments: <String>['login'],
+    requiresAuth: false,
+  );
+  @override
+  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Login')));
+}
+
+class DashboardPage extends StatelessWidget {
+  const DashboardPage({super.key});
+  static const PageModel pageModel = PageModel(
+    name: 'dashboard',
+    segments: <String>['dashboard'],
+    requiresAuth: true, // ← protegida
+  );
+  @override
+  Widget build(BuildContext context) => const Scaffold(body: Center(child: Text('Dashboard')));
+}
+```
+
+> **Recomendación:** cada página defina su `static const PageModel pageModel` para mantener **vistas autorreferenciales** y evitar desalineaciones.
+
+---
+
+## 2) Registra tus páginas en `PageRegistry`
+
+```dart
+final PageRegistry registry = PageRegistry(<String, PageWidgetBuilder>{
+  HomePage.pageModel.name:   (ctx, p) => const HomePage(),
+  LoginPage.pageModel.name:  (ctx, p) => const LoginPage(),
+  DashboardPage.pageModel.name: (ctx, p) => const DashboardPage(),
+});
+```
+
+---
+
+## 3) Crea el `PageManager` (estado inicial)
+
+```dart
+final PageManager pageManager = PageManager(
+  initial: NavStackModel.single(HomePage.pageModel),
+);
+```
+
+> Si vas a iniciar en otra ruta (deep-link), puedes ajustar el `initial` o usar `setFromRouteChain()`.
+
+---
+
+## 4) Router (Navigator 2.0) — Activa **Projector Mode**
+
+```dart
+final MyAppRouterDelegate routerDelegate = MyAppRouterDelegate(
+  registry: registry,
+  pageManager: pageManager,
+  projectorMode: true, // ✅ recomendado
+);
+
+final MyRouteInformationParser routeParser = MyRouteInformationParser(
+  defaultRouteName: HomePage.pageModel.name,
+);
+
+MaterialApp.router(
+  routerDelegate: routerDelegate,
+  routeInformationParser: routeParser,
+);
+```
+
+**¿Por qué projector?** Renderiza **solo la página top** del stack. Evita colisiones de `GlobalKey`, reduce sobrecoste de widgets invisibles y simplifica animaciones.
+
+---
+
+## 5) `BlocSession` (wiring mínimo)
+
+> Usa tu wiring real de `jocaagura_domain` (usecases + repos). Aquí solo mostramos la secuencia.
+
+```dart
+final BlocSession blocSession = BlocSession(
+  usecases: SessionUsecases(/* ... */),
+  watchAuthStateChanges: WatchAuthStateChangesUsecase(/* repo */),
+);
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await blocSession.boot(); // comienza a escuchar cambios de auth del backend
+  runApp(MyApp());
+}
+```
+
+---
+
+## 6) Agrega el `SessionNavCoordinator`
+
+Este coordinador reacciona tanto a cambios de sesión **como** a cambios del stack de navegación y **aplica la política** descrita arriba.
+
+```dart
+late final SessionNavCoordinator sessionNav;
+
+void startCoordinators() {
+  sessionNav = SessionNavCoordinator(
+    page: pageManager,
+    sessionBloc: blocSession,
+    loginPage: LoginPage.pageModel,
+    homePage: HomePage.pageModel,
+    goHomeWhenAuthenticatedOnLogin: true, // opcional UX
+  );
+}
+
+void disposeCoordinators() {
+  sessionNav.dispose();
+}
+```
+
+Llama `startCoordinators()` antes de levantar el `MaterialApp.router`. Recuerda llamar `disposeCoordinators()` al cerrar.
+
+---
+
+## 7) Botón Back (cuando no uses AppBar automático)
+
+Si controlas tu `AppBar`, usa:
+
+```dart
+leading: pageManager.canPop
+    ? IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: pageManager.pop,
+      )
+    : null,
+```
+
+> También dispones de `pageManager.canPopStream` para un binding reactivo.
+
+---
+
+## 8) Deep-links, segmentos y query
+
+Ya están soportados:
+
+* `PageModel.segments` contiene los **segmentos** (`/dashboard/reportes/2024` → `['dashboard', 'reportes', '2024']`).
+* `PageModel.query` expone los **query params** (`?q=hola&page=2` → `{'q':'hola','page':'2'}`).
+
+URLs de ejemplo en web (hash-strategy por defecto):
+
+* `#/dashboard` → resuelve a `name: 'dashboard'` si tu `slugToName` mapea el primer segmento a ese name.
+* `#/dashboard/reportes/2024?q=hola` → `segments=['dashboard','reportes','2024']`, `query={'q':'hola'}`.
+
+> Puedes personalizar el mapeo slug→name con `MyRouteInformationParser.slugToName`.
+
+---
+
+## 9) Extensión temporal para `BlocSession`
+
+Hasta que `jocaagura_domain` exponga `stream` y `stateOrDefault` oficiales, incluye este **shim** (luego lo eliminas):
+
+```dart
+extension BlocSessionSnapshotX on BlocSession {
+  /// Canonical alias similar a otros blocs.
+  Stream<SessionState> get stream => sessionStream;
+
+  /// Snapshot best-effort:
+  /// - Authenticated(currentUser) si isAuthenticated
+  /// - Unauthenticated() en otro caso
+  SessionState get stateOrDefault {
+    if (isAuthenticated) return Authenticated(currentUser);
+    return const Unauthenticated();
+  }
+}
+```
+
+---
+
+## 10) `SessionNavCoordinator` (implementación usada)
+
+```dart
+class SessionNavCoordinator {
+  SessionNavCoordinator({
+    required this.page,
+    required this.sessionBloc,
+    required this.loginPage,
+    required this.homePage,
+    this.goHomeWhenAuthenticatedOnLogin = true,
+  }) {
+    _last = sessionBloc.stateOrDefault; // snapshot inicial (shim)
+    _sessionSub = sessionBloc.stream.listen((SessionState s) {
+      _last = s;
+      _enforcePolicy(page.stack, _last);
+    });
+    _stackSub = page.stackStream.listen((NavStackModel stack) {
+      _enforcePolicy(stack, _last);
+    });
+    _enforcePolicy(page.stack, _last);
+  }
+
+  final PageManager page;
+  final BlocSession sessionBloc;
+  final PageModel loginPage;
+  final PageModel homePage;
+  final bool goHomeWhenAuthenticatedOnLogin;
+
+  StreamSubscription<SessionState>? _sessionSub;
+  StreamSubscription<NavStackModel>? _stackSub;
+
+  NavStackModel? _pending;
+  SessionState _last = const Unauthenticated();
+  bool _disposed = false;
+
+  bool _isAuthed(SessionState s) => s is Authenticated || s is Refreshing;
+  bool _isProtected(PageModel p) => p.requiresAuth;
+  bool _isLogin(PageModel p) => p.name == loginPage.name;
+
+  void _enforcePolicy(NavStackModel stack, SessionState s) {
+    if (_disposed) return;
+    final PageModel top = stack.top;
+
+    // No auth + protegida → login (recordar intención)
+    if (!_isAuthed(s) && _isProtected(top) && !_isLogin(top)) {
+      _pending = stack;
+      page.resetTo(loginPage);
+      return;
+    }
+
+    // Autenticado y había intención → restaurar
+    if (_isAuthed(s) && _pending != null) {
+      final NavStackModel target = _pending!;
+      _pending = null;
+      page.setStack(target);
+      return;
+    }
+
+    // Sin auth estando en protegida → reforzar login
+    if (!_isAuthed(s) && _isProtected(top) && !_isLogin(top)) {
+      page.resetTo(loginPage);
+      return;
+    }
+
+    // UX opcional: autenticado en login → home
+    if (_isAuthed(s) && _isLogin(top) && goHomeWhenAuthenticatedOnLogin) {
+      page.resetTo(homePage);
+    }
+  }
+
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    _sessionSub?..cancel();
+    _stackSub?..cancel();
+    _sessionSub = null;
+    _stackSub = null;
+    _pending = null;
+  }
+}
+```
+
+---
+
+## 11) Variantes y personalización
+
+* **Projector mode**: déjalo en `true` en apps con navegación “pantalla completa”. Si necesitas **historial visual** con `Navigator` (gestos de back nativos iOS), puedes usar `false`, pero evita duplicados con:
+
+  * `pageManager.pushDistinctTop(...)` o `pushOnce(...)`
+  * `NavStackModel.pushDistinctTop(...)` / `pushOnce(...)` / `dedupAll(...)`
+* **Título actual**: `pageManager.currentTitle`/`currentTitleStream` (si tu `PageModel.state['title']` lo establece).
+* **Acceso granular**: cambia `requiresAuth: bool` por una política (roles/claims) y sustituye `_isProtected` por tu verificador.
+
+---
+
+## 12) Tests sugeridos (sin paquetes externos)
+
+* **Coordinator policy**:
+
+  * Dado `Unauthenticated` + `requiresAuth` en top → `PageManager.resetTo(login)`.
+  * Dado `Authenticated` y `_pending` guardado → `setStack(pending)`.
+  * `Refreshing` **no** debe redirigir a login.
+  * `SessionError` en protegida → login.
+* **Deep-link**:
+
+  * `setFromRouteChain("/dashboard;...")` + `Unauthenticated` → login → al autenticar, stack restaurado igual.
+* **Projector mode**:
+
+  * Con `projectorMode: true`, solo se construye la `Page` top (verifica logs/flags en el builder).
+
+---
+
+## 13) Errores comunes (y solución)
+
+* **404 de registry**: el `name` del `PageModel` no existe en el `PageRegistry`. Revisa `known=[...]` en el log.
+* **Colisión de keys del `Navigator`**: pilas con `PageModel` idénticos y `projectorMode=false`. Usa **projector** o `pushDistinctTop / pushOnce`.
+* **Loop hacia login**: tu `loginPage` marcada con `requiresAuth: true` por error. Debe ser `false`.
+* **Back infinito**: muestra el botón back solo si `pageManager.canPop`.
+
+---
+
+## 14) Migración rápida desde el API antiguo
+
+* Antes:
+
+  ```dart
+  context.appManager.navigator.pushPageWithTitle('Index', 'index-app', const IndexApp());
+  ```
+* Ahora (recomendado):
+
+  ```dart
+  context.appManager.page.pushNamed(
+    IndexApp.pageModel.name,
+    title: 'Index',
+    segments: IndexApp.pageModel.segments,
+  );
+  ```
+
+  O directo con el `PageModel`:
+
+  ```dart
+  context.appManager.page.push(IndexApp.pageModel);
+  ```
+
+---
