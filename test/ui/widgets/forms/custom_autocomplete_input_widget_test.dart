@@ -13,14 +13,14 @@ void main() {
         home: Material(
           child: Scaffold(
             body: CustomAutoCompleteInputWidget(
-              onEditingValueFunction: (String val) {
+              onChanged: (String val) {
                 valTmp = val;
               },
               suggestList: const <String>['Apple', 'Banana', 'Orange'],
               label: 'Label',
               icondata: Icons.search,
               placeholder: 'Placeholder',
-              onEditingValidateFunction: (String val) => null,
+              onEditingValidateFunction: (String? val) => null,
               initialData: 'Initial Data',
             ),
           ),

@@ -40,15 +40,17 @@ class ShowToastPage extends StatelessWidget {
             Positioned(
               bottom: 10.0,
               child: StreamBuilder<String>(
-                stream: blocUserNotification.toastStream,
+                stream: blocUserNotification.textStream,
                 builder:
                     (BuildContext context, AsyncSnapshot<String> snapshot) {
-                  if (blocUserNotification.msg.isNotEmpty) {
+                  if (blocUserNotification.toast.text.isNotEmpty) {
                     return Card(
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width * 0.7,
                         height: kToolbarHeight,
-                        child: Center(child: Text(blocUserNotification.msg)),
+                        child: Center(
+                          child: Text(blocUserNotification.toast.text),
+                        ),
                       ),
                     );
                   }

@@ -82,7 +82,9 @@ class BlocUserNotifications extends BlocModule {
 
   /// Clears the current toast to an empty sentinel.
   void clear() {
-    if (isDisposed) return;
+    if (isDisposed) {
+      return;
+    }
     _controller.value = ToastMessage.empty();
   }
 
@@ -90,7 +92,9 @@ class BlocUserNotifications extends BlocModule {
   ///
   /// If [duration] is provided it overrides the default debounce window.
   void showToast(String message, {Duration? duration}) {
-    if (isDisposed) return;
+    if (isDisposed) {
+      return;
+    }
     final ToastMessage next = ToastMessage(message, _now());
     if (next == _controller.value) {
       // identical content within same millisecond -> ignore to avoid noise
