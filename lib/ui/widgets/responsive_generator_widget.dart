@@ -1,91 +1,85 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// A widget that dynamically chooses its child based on the layout's aspect ratio.
+/// Generates a **wrap/flow** of items where each tile width equals a number
+/// of responsive columns from [BlocResponsive].
 ///
-/// The `GeneratorWidget` adapts its content by selecting one of the provided child widgets
-/// based on the current aspect ratio of the available space. This is useful for creating
-/// responsive layouts that need to render different content for various screen sizes or orientations.
+/// Great for building quick “cards grids” aligned to your design system, without
+/// hardcoding pixel widths. It wraps to the next line when running out of space.
 ///
-/// ## Example
+/// ### Parameters
+/// - [responsive]: metrics provider.
+/// - [itemCount]: items to render.
+/// - [spanForIndex]: returns the **column span** (>=1) for a given index.
+/// - [itemBuilder]: builds the tile for the given index.
+/// - [gapOverride]: custom gap between tiles; defaults to [BlocResponsive.gutterWidth].
+/// - [padding]: outer padding; defaults to horizontal marginWidth and vertical gutter.
 ///
+/// ### Example
 /// ```dart
-/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-/// import 'package:flutter/material.dart';
-///
-/// void main() {
-///   runApp(MyApp());
-/// }
-///
-/// class MyApp extends StatelessWidget {
-///   @override
-///   Widget build(BuildContext context) {
-///     return MaterialApp(
-///       home: Scaffold(
-///         body: GeneratorWidget(
-///           child1x1: Container(color: Colors.blue, child: Center(child: Text('1x1'))),
-///           child1x2: Container(color: Colors.green, child: Center(child: Text('1x2'))),
-///           child1x3: Container(color: Colors.red, child: Center(child: Text('1x3'))),
-///           childVertical: Container(color: Colors.yellow, child: Center(child: Text('Vertical'))),
-///           childHorizontal: Container(color: Colors.purple, child: Center(child: Text('Horizontal'))),
-///         ),
-///       ),
-///     );
-///   }
-/// }
+/// ResponsiveGeneratorWidget(
+///   responsive: resp,
+///   itemCount: 10,
+///   spanForIndex: (i, r) => (i % 3) + 1, // 1..3 columns
+///   itemBuilder: (ctx, i, r) => Container(height: 120, color: Colors.grey.shade200),
+/// );
 /// ```
-class GeneratorWidget extends StatelessWidget {
-  /// Creates a `GeneratorWidget`.
-  ///
-  /// - [child1x1]: The widget to display when the aspect ratio is 1:1.
-  /// - [child1x2]: The widget to display when the aspect ratio is 1:2.
-  /// - [child1x3]: The widget to display when the aspect ratio is 1:3.
-  /// - [childVertical]: The widget to display when the layout is taller than wide.
-  /// - [childHorizontal]: The widget to display when the layout is wider than tall.
-  const GeneratorWidget({
-    required this.child1x1,
-    required this.child1x2,
-    required this.child1x3,
-    required this.childVertical,
-    required this.childHorizontal,
+class ResponsiveGeneratorWidget extends StatelessWidget {
+  const ResponsiveGeneratorWidget({
+    required this.responsive,
+    required this.itemCount,
+    required this.itemBuilder,
+    required this.spanForIndex,
     super.key,
+    this.gapOverride,
+    this.padding,
+    this.alignment = WrapAlignment.start,
+    this.runAlignment = WrapAlignment.start,
   });
 
-  /// The widget to display when the aspect ratio is 1:1.
-  final Widget child1x1;
+  final BlocResponsive responsive;
+  final int itemCount;
 
-  /// The widget to display when the aspect ratio is 1:2.
-  final Widget child1x2;
+  /// Builder that receives (context, index, responsive).
+  final Widget Function(BuildContext, int, BlocResponsive) itemBuilder;
 
-  /// The widget to display when the aspect ratio is 1:3.
-  final Widget child1x3;
+  /// Returns how many **columns** a tile at [index] should occupy.
+  final int Function(int index, BlocResponsive responsive) spanForIndex;
 
-  /// The widget to display when the layout is taller than wide.
-  final Widget childVertical;
+  final double? gapOverride;
+  final EdgeInsets? padding;
 
-  /// The widget to display when the layout is wider than tall.
-  final Widget childHorizontal;
+  /// Align items in the main/run axes.
+  final WrapAlignment alignment;
+  final WrapAlignment runAlignment;
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        final double width = constraints.maxWidth;
-        final double height = constraints.maxHeight;
+    if (context.mounted) {
+      responsive.setSizeFromContext(context);
+    }
 
-        if (width == height * 3) {
-          return child1x3;
-        }
-        if (width == height * 2) {
-          return child1x2;
-        }
-        if (width == height) {
-          return child1x1;
-        }
-        if (width > height) {
-          return childHorizontal;
-        }
-        return childVertical;
-      },
+    final double mh = responsive.marginWidth;
+    final double gap = (gapOverride ?? responsive.gutterWidth).clamp(0.0, 64.0);
+
+    final List<Widget> children = <Widget>[
+      for (int i = 0; i < itemCount; i++)
+        SizedBox(
+          width: responsive.widthByColumns(
+            spanForIndex(i, responsive).clamp(1, responsive.columnsNumber),
+          ),
+          child: itemBuilder(context, i, responsive),
+        ),
+    ];
+
+    return Padding(
+      padding: padding ?? EdgeInsets.fromLTRB(mh, gap, mh, gap),
+      child: Wrap(
+        spacing: gap,
+        runSpacing: gap,
+        alignment: alignment,
+        runAlignment: runAlignment,
+        children: children,
+      ),
     );
   }
 }

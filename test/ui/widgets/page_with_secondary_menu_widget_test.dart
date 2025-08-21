@@ -2,56 +2,86 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-// revisado 10/03/2024 author: @albertjjimenezp
-void testMe() {}
-void main() {
-  testWidgets('PageWidthSecondaryMenuWidget should render correctly',
-      (WidgetTester tester) async {
-    const List<ModelMainMenuModel> listOfModelMainMenu = <ModelMainMenuModel>[
-      ModelMainMenuModel(
-        iconData: Icons.ac_unit,
-        onPressed: testMe,
-        label: 'Option 1',
-        description: 'Description 1',
-      ),
-      ModelMainMenuModel(
-        iconData: Icons.access_alarm,
-        onPressed: testMe,
-        label: 'Option 2',
-        description: 'Description 2',
-      ),
-    ];
-    const double secondaryMenuWidth = 200.0;
-    const ScreenSizeEnum screenSizeEnum = ScreenSizeEnum.tablet;
-    final Container page =
-        Container(); // Debes proporcionar un widget válido para la página
+Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: PageWidthSecondaryMenuWidget(
-            listOfModelMainMenu: listOfModelMainMenu,
-            secondaryMenuWidth: secondaryMenuWidth,
-            screenSizeEnum: screenSizeEnum,
-            page: page,
+void main() {
+  group('PageWithSecondaryMenuWidget', () {
+    testWidgets(
+        'mobile: renders content and bottom overlay when secondary exists',
+        (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(390, 844)); // mobile
+
+      await tester.pumpWidget(
+        _wrap(
+          PageWithSecondaryMenuWidget(
+            responsive: resp,
+            content: const Text('MainContent'),
+            secondaryMenu: Container(key: const Key('sec'), height: 48),
           ),
         ),
-      ),
-    );
+      );
 
-    // Verificar que el widget se renderice correctamente según la lógica del widget
-    if (listOfModelMainMenu.isEmpty) {
-      expect(find.byType(Container), findsOneWidget);
-    } else if (screenSizeEnum == ScreenSizeEnum.mobile ||
-        screenSizeEnum == ScreenSizeEnum.tablet) {
-      expect(find.byType(SizedBox), findsAtLeastNWidgets(1));
-      expect(find.byType(Stack), findsAtLeastNWidgets(1));
-      expect(find.byType(MobileSecondaryMenuWidget), findsOneWidget);
-    } else {
-      expect(find.byType(SingleChildScrollView), findsOneWidget);
-      expect(find.byType(Row), findsOneWidget);
-      expect(find.byType(Container), findsOneWidget);
-      expect(find.byType(ListView), findsOneWidget);
-    }
+      expect(find.text('MainContent'), findsOneWidget);
+      expect(find.byKey(const Key('sec')), findsOneWidget);
+    });
+
+    testWidgets('tablet: renders side panel with constrained content width',
+        (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(1024, 768)); // tablet
+
+      await tester.pumpWidget(
+        _wrap(
+          PageWithSecondaryMenuWidget(
+            responsive: resp,
+            content: const Text('MainContent'),
+            secondaryMenu: Container(key: const Key('sec-panel'), width: 100),
+          ),
+        ),
+      );
+
+      expect(find.text('MainContent'), findsOneWidget);
+      expect(find.byKey(const Key('sec-panel')), findsOneWidget);
+    });
+
+    testWidgets('desktop: supports secondaryOnRight = false (left panel)',
+        (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(1440, 900)); // desktop
+
+      await tester.pumpWidget(
+        _wrap(
+          PageWithSecondaryMenuWidget(
+            responsive: resp,
+            content: const Text('Content'),
+            secondaryMenu: Container(key: const Key('left-panel')),
+            secondaryOnRight: false,
+          ),
+        ),
+      );
+
+      expect(find.text('Content'), findsOneWidget);
+      expect(find.byKey(const Key('left-panel')), findsOneWidget);
+    });
+
+    testWidgets('mobile: hides overlay when no secondaryMenu provided',
+        (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(375, 812));
+
+      await tester.pumpWidget(
+        _wrap(
+          PageWithSecondaryMenuWidget(
+            responsive: resp,
+            content: const Text('OnlyContent'),
+          ),
+        ),
+      );
+
+      expect(find.text('OnlyContent'), findsOneWidget);
+      // No secondary menu should be found.
+      expect(find.byKey(const Key('mobile-secondary')), findsNothing);
+    });
   });
 }

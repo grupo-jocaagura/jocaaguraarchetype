@@ -65,6 +65,7 @@ part 'ui/widgets/responsive_1x1_widget.dart';
 part 'ui/widgets/responsive_1x2_widget.dart';
 part 'ui/widgets/responsive_1x3_widget.dart';
 part 'ui/widgets/responsive_generator_widget.dart';
+part 'ui/widgets/responsive_nx_base.dart';
 part 'ui/widgets/responsive_size_widget.dart';
 part 'ui/widgets/secondary_option_widget.dart';
 part 'ui/widgets/work_area_widget.dart';

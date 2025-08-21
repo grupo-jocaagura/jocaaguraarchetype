@@ -48,6 +48,7 @@ This package is designed to ensure that the cross-functional features of applica
       - [9) Checklist de integración](#9-checklist-de-integración)
       - [10) Snippets de referencia](#10-snippets-de-referencia)
   - [Sistema de navegacion con auth](#Navigation-with-auth)
+  - [Responsive layout](#Responsive-layout)
 
 
 ## LabColor
@@ -861,3 +862,135 @@ class SessionNavCoordinator {
   ```
 
 ---
+# Responsive layout
+````md
+## 📐 Responsive Layout con WorkAreaWidget
+
+El `WorkAreaWidget` permite aprovechar el `BlocResponsive` provisto por `jocaagura_domain` para construir UIs adaptativas sin depender de cálculos manuales.  
+
+### ✅ Ejemplo de uso
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+
+class MyResponsivePage extends StatelessWidget {
+  const MyResponsivePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return WorkAreaWidget(
+      builder: (context, responsive) {
+        // responsive es una instancia de BlocResponsive
+        final int cols = responsive.columnsNumber;
+        final double w4 = responsive.widthByColumns(4);
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: responsive.marginWidth),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Device: ${responsive.deviceType}',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              SizedBox(
+                width: w4,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: Text('Botón con ancho de 4 columnas'),
+                ),
+              ),
+              Text('Total columnas disponibles: $cols'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+````
+
+### 🎯 Beneficios
+
+* El cálculo de columnas, márgenes y gutters se resuelve automáticamente.
+* `BlocResponsive` abstrae la lógica de breakpoints (mobile, tablet, desktop, tv).
+* Permite escribir widgets declarativos y mantenibles sin hardcodear medidas.
+
+---
+
+👉 **Tip:** Si necesitas más granularidad (ej. alto de appbar, drawer widths), consulta directamente las propiedades de `BlocResponsive` dentro del `builder`.
+
+### 🟢 Ejemplo mínimo
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:jocaagura_domain/jocaagura_domain.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+
+class SimpleResponsiveBox extends StatelessWidget {
+  const SimpleResponsiveBox({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return WorkAreaWidget(
+      builder: (context, responsive) {
+        Color color;
+
+        switch (responsive.deviceType) {
+          case ScreenSizeEnum.mobile:
+            color = Colors.blue; // Celeste en móviles
+            break;
+          case ScreenSizeEnum.tablet:
+            color = Colors.green; // Verde en tablets
+            break;
+          case ScreenSizeEnum.desktop:
+            color = Colors.orange; // Naranja en desktop
+            break;
+          case ScreenSizeEnum.tv:
+            color = Colors.purple; // Morado en TVs
+            break;
+        }
+
+        return Container(
+          height: 100,
+          width: responsive.widthByColumns(4),
+          color: color,
+          child: Center(
+            child: Text(
+              'Soy ${responsive.deviceType.name}',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colors.white,
+                  ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+```
+### 🧩 PageWithSecondaryMenuWidget
+
+Componente liviano para páginas con **menú secundario**. En móvil se presenta como **barra flotante inferior**; en pantallas grandes como **panel lateral**.
+
+```dart
+final BlocResponsive resp = BlocResponsive()..setSizeForTesting(const Size(1280, 800));
+
+PageWithSecondaryMenuWidget(
+  responsive: resp,
+  content: const MyDetailPage(),
+  secondaryMenu: MobileSecondaryMenuWidget(
+    responsive: resp,
+    items: <SecondaryMenuItem>[
+      SecondaryMenuItem(Icons.edit, 'Edit', onTap: () {}),
+      SecondaryMenuItem(Icons.share, 'Share', onTap: () {}),
+    ],
+  ),
+  panelColumns: 2,          // ancho del panel lateral en columnas (tablet/desktop)
+  secondaryOnRight: true,   // ubicar panel a la derecha
+  animate: true,            // transición suave al mostrar/ocultar menú
+);
+```
+___

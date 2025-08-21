@@ -144,10 +144,12 @@ class _JocaaguraAutocompleteInputWidgetState
     return Autocomplete<String>(
       initialValue: TextEditingValue(text: widget.value),
       optionsBuilder: (TextEditingValue tev) {
-        if (tev.text.isEmpty) return const Iterable<String>.empty();
+        if (tev.text.isEmpty) {
+          return const Iterable<String>.empty();
+        }
         final List<String> base = widget.suggestList ?? const <String>[];
         final String q = tev.text.toLowerCase();
-        return base.where((s) => s.toLowerCase().contains(q));
+        return base.where((String s) => s.toLowerCase().contains(q));
       },
       optionsViewBuilder:
           (_, void Function(String) onSelected, Iterable<String> options) {
@@ -226,7 +228,7 @@ class _JocaaguraAutocompleteInputWidgetState
           ),
         );
 
-        final textField = TextField(
+        final TextField textField = TextField(
           controller: controller,
           focusNode: focusNode,
           keyboardType: widget.textInputType,

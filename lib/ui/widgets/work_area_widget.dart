@@ -1,160 +1,241 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// A widget for constructing a responsive work area with menus and a configurable layout.
+/// Composes the main work area with primary menu, optional secondary menu,
+/// and the page content. Fully responsive through [BlocResponsive].
 ///
-/// The `WorkAreaWidget` is designed to create a layout that includes:
-/// - A primary menu (optional, for TV and desktop layouts).
-/// - A secondary menu, dynamically positioned based on the screen size.
-/// - A work area, divided into columns.
+/// ### Layout policy
+/// - **Mobile** (ScreenSizeEnum.mobile):
+///   - Primary menu is expected elsewhere (e.g. app bar/drawer).
+///   - Secondary menu appears as a **floating bottom bar** (when provided).
+///   - Content takes the whole work area width.
+/// - **Tablet** (ScreenSizeEnum.tablet):
+///   - Primary menu (optional) collapses to a slim side rail (via [primaryMenuWidthColumns]).
+///   - Secondary menu appears as a **side panel** (right by default).
+/// - **Desktop/TV**:
+///   - Primary menu as a **left side panel**.
+///   - Secondary menu as a **right side panel**.
+///   - Content centered using margins/gutters from [BlocResponsive].
 ///
-/// It adapts its structure based on the provided [ScreenSizeEnum], supporting TV, desktop, tablet, and mobile layouts.
+/// Widths are computed using:
+/// - [BlocResponsive.marginWidth]
+/// - [BlocResponsive.widthByColumns]
+/// - [BlocResponsive.gutterWidth]
+///
+/// ## Parameters
+/// - [responsive]: The responsive bloc providing metrics & device type.
+/// - [content]: Main page content.
+/// - [primaryMenu]: Optional left-side menu (rail/panel on larger devices).
+/// - [secondaryMenu]: Optional secondary menu (right panel on tablet/desktop;
+///   bottom bar on mobile).
+/// - [floatingActionButton]: Optional FAB layered over content.
+/// - [secondaryMenuOnRight]: If `true` (default), places secondary menu on the right
+///   for tablet/desktop.
+/// - [primaryMenuWidthColumns], [secondaryMenuWidthColumns]: Column widths (coarse)
+///   for side panels on tablet/desktop.
+/// - [safeArea]: Wraps the whole work area in a `SafeArea`.
 ///
 /// ## Example
-///
 /// ```dart
-/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-/// import 'package:flutter/material.dart';
+/// final BlocResponsive resp = BlocResponsive()
+///   ..setSizeForTesting(const Size(1280, 800));
 ///
-/// void main() {
-///   runApp(MyApp());
-/// }
-///
-/// class MyApp extends StatelessWidget {
-///   @override
-///   Widget build(BuildContext context) {
-///     return MaterialApp(
-///       home: Scaffold(
-///         appBar: AppBar(title: Text('Work Area Example')),
-///         body: WorkAreaWidget(
-///           columnsNumber: 12,
-///           workAreaSize: Size(1200, 800),
-///           marginWidth: 16,
-///           columnWidth: 80,
-///           gutterWidth: 8,
-///           drawerWidth: 250,
-///           screenSizeEnum: ScreenSizeEnum.desktop,
-///           listMenuOptions: [
-///             ModelMainMenuModel(
-///               label: 'Home',
-///               iconData: Icons.home,
-///               onPressed: () => print('Home pressed'),
-///             ),
-///           ],
-///           listSecondaryMenuOptions: [
-///             ModelMainMenuModel(
-///               label: 'Settings',
-///               iconData: Icons.settings,
-///               onPressed: () => print('Settings pressed'),
-///             ),
-///           ],
-///           page: Center(child: Text('Work Area Content')),
-///         ),
-///       ),
-///     );
-///   }
+/// Widget build(BuildContext context) {
+///   return WorkAreaWidget(
+///     responsive: resp,
+///     primaryMenu: MyPrimaryMenu(),        // optional
+///     secondaryMenu: MySecondaryMenu(),    // optional
+///     content: const MyPageContent(),
+///     floatingActionButton: FloatingActionButton(
+///       onPressed: () {},
+///       child: const Icon(Icons.add),
+///     ),
+///   );
 /// }
 /// ```
+///
+/// ### Notes
+/// - On mobile, [secondaryMenu] is rendered as a floating bottom bar container
+///   (so pass a compact widget) — e.g. `MobileSecondaryMenuWidget`.
 class WorkAreaWidget extends StatelessWidget {
-  /// Creates a `WorkAreaWidget`.
-  ///
-  /// - [columnsNumber]: The number of columns in the work area.
-  /// - [workAreaSize]: The size of the work area.
-  /// - [marginWidth]: The width of the margins around the work area.
-  /// - [columnWidth]: The width of each column.
-  /// - [gutterWidth]: The width of the spaces (gutters) between columns.
-  /// - [drawerWidth]: The width of the primary menu drawer.
-  /// - [screenSizeEnum]: The screen size type to adapt the layout.
-  /// - [listMenuOptions]: The list of options for the primary menu.
-  /// - [listSecondaryMenuOptions]: The list of options for the secondary menu.
-  /// - [page]: The content of the work area. If null, a column blueprint is shown.
   const WorkAreaWidget({
-    required this.columnsNumber,
-    required this.workAreaSize,
-    required this.marginWidth,
-    required this.columnWidth,
-    required this.gutterWidth,
-    required this.screenSizeEnum,
-    required this.listMenuOptions,
-    required this.drawerWidth,
-    required this.listSecondaryMenuOptions,
+    required this.responsive,
+    required this.content,
     super.key,
-    this.page,
+    this.primaryMenu,
+    this.secondaryMenu,
+    this.floatingActionButton,
+    this.secondaryMenuOnRight = true,
+    this.primaryMenuWidthColumns = 2,
+    this.secondaryMenuWidthColumns = 2,
+    this.safeArea = true,
+    this.backgroundColor,
   });
 
-  /// The number of columns in the work area.
-  final int columnsNumber;
+  final BlocResponsive responsive;
+  final Widget content;
 
-  /// The size of the work area.
-  final Size workAreaSize;
+  /// Optional left-side menu (rail/panel) for tablet/desktop.
+  final Widget? primaryMenu;
 
-  /// The width of the margins around the work area.
-  final double marginWidth;
+  /// Optional secondary menu:
+  /// - mobile: bottom floating bar;
+  /// - tablet/desktop: side panel (right by default).
+  final Widget? secondaryMenu;
 
-  /// The width of each column.
-  final double columnWidth;
+  /// Optional floating action button layered over the content.
+  final Widget? floatingActionButton;
 
-  /// The width of the spaces (gutters) between columns.
-  final double gutterWidth;
+  /// Side for the secondary panel on tablet/desktop.
+  final bool secondaryMenuOnRight;
 
-  /// The width of the primary menu drawer.
-  final double drawerWidth;
+  /// Coarse width in columns for the primary panel (tablet/desktop).
+  final int primaryMenuWidthColumns;
 
-  /// The screen size type to adapt the layout.
-  final ScreenSizeEnum screenSizeEnum;
+  /// Coarse width in columns for the secondary panel (tablet/desktop).
+  final int secondaryMenuWidthColumns;
 
-  /// The list of options for the primary menu.
-  final List<ModelMainMenuModel> listMenuOptions;
+  /// Wrap entire layout in SafeArea.
+  final bool safeArea;
 
-  /// The list of options for the secondary menu.
-  final List<ModelMainMenuModel> listSecondaryMenuOptions;
-
-  /// The content of the work area.
-  final Widget? page;
+  /// Optional background; defaults to theme surface.
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
-    final ColumnsBluePrintWidget columnsBluePrintWidget =
-        ColumnsBluePrintWidget(
-      numberOfColumns: columnsNumber,
-      workAreaSize: workAreaSize,
-      marginWidth: marginWidth,
-      columnWidth: columnWidth,
-      gutterWidth: gutterWidth,
-    );
+    // Keep metrics synchronized on rebuild.
+    // (Si se usa en un LayoutBuilder superior, también se puede llamar allí)
+    if (context.mounted) {
+      responsive.setSizeFromContext(context);
+    }
 
-    final Widget child = PageWidthSecondaryMenuWidget(
-      screenSizeEnum: screenSizeEnum,
-      secondaryMenuWidth: columnWidth * 2,
-      page: page ?? columnsBluePrintWidget,
-      listOfModelMainMenu: listSecondaryMenuOptions,
-    );
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final Color bg = backgroundColor ?? scheme.surface;
 
-    /// TV and Desktop Layout
-    if (screenSizeEnum == ScreenSizeEnum.tv ||
-        screenSizeEnum == ScreenSizeEnum.desktop) {
-      if (listMenuOptions.isNotEmpty) {
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: <Widget>[
-              MainMenuWidget(
-                listMenuOptions: listMenuOptions,
-                drawerWidth: drawerWidth,
-              ),
-              child,
-            ],
+    final Widget body = switch (responsive.deviceType) {
+      ScreenSizeEnum.mobile => _buildMobile(context, bg),
+      ScreenSizeEnum.tablet =>
+        _buildTabletDesktop(context, bg, isDesktop: false),
+      ScreenSizeEnum.desktop ||
+      ScreenSizeEnum.tv =>
+        _buildTabletDesktop(context, bg, isDesktop: true),
+    };
+
+    return safeArea ? SafeArea(child: body) : body;
+  }
+
+  // ----------------------------
+  // Mobile: content full width + bottom floating secondary menu (if any)
+  // ----------------------------
+  Widget _buildMobile(BuildContext context, Color bg) {
+    final double mh = responsive.marginWidth;
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: <Widget>[
+        Container(
+          color: bg,
+          width: double.infinity,
+          height: double.infinity,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: mh),
+            child: content,
           ),
-        );
-      }
-      return child;
-    }
+        ),
+        if (secondaryMenu != null)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: mh,
+                right: mh,
+                bottom: responsive.gutterWidth.clamp(8.0, 16.0),
+              ),
+              child: secondaryMenu,
+            ),
+          ),
+        if (floatingActionButton != null)
+          Positioned(
+            right: mh,
+            bottom: (responsive.gutterWidth * 3).clamp(48.0, 96.0),
+            child: floatingActionButton!,
+          ),
+      ],
+    );
+  }
 
-    /// Tablet Layout
-    if (screenSizeEnum == ScreenSizeEnum.tablet) {
-      return child;
-    }
+  // ----------------------------
+  // Tablet/Desktop: side panels + content centered
+  // ----------------------------
+  Widget _buildTabletDesktop(
+    BuildContext context,
+    Color bg, {
+    required bool isDesktop,
+  }) {
+    final double mh = responsive.marginWidth;
+    final double gap = responsive.gutterWidth;
+    final double contentGutter = gap; // between panels and content
 
-    /// Mobile Layout
-    return child;
+    final double primaryW = primaryMenu != null
+        ? responsive.widthByColumns(primaryMenuWidthColumns)
+        : 0.0;
+
+    final double secondaryW = secondaryMenu != null
+        ? responsive.widthByColumns(secondaryMenuWidthColumns)
+        : 0.0;
+
+    // Work area is already a percentage of full width on desktop/TV by BlocResponsive.
+    final double maxW = responsive.workAreaSize.width;
+
+    // Content width = remaining after subtracting side panels + gutters
+    final int guttersCount = <bool>[primaryMenu != null, secondaryMenu != null]
+        .where((bool v) => v)
+        .length;
+    final double usedGutters =
+        guttersCount > 0 ? contentGutter * guttersCount : 0.0;
+    final double contentW =
+        (maxW - primaryW - secondaryW - usedGutters).clamp(320.0, maxW);
+
+    final List<Widget> row = <Widget>[
+      if (primaryMenu != null) ...<Widget>[
+        SizedBox(width: primaryW, child: primaryMenu),
+        SizedBox(width: contentGutter),
+      ],
+      ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: contentW),
+        child: content,
+      ),
+      if (secondaryMenu != null) ...<Widget>[
+        SizedBox(width: contentGutter),
+        SizedBox(width: secondaryW, child: secondaryMenu),
+      ],
+    ];
+
+    // Allow swapping side of secondary menu
+    final List<Widget> children =
+        secondaryMenuOnRight ? row : row.reversed.toList();
+
+    return Stack(
+      children: <Widget>[
+        Container(
+          color: bg,
+          width: double.infinity,
+          height: double.infinity,
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: mh),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: children,
+              ),
+            ),
+          ),
+        ),
+        if (floatingActionButton != null)
+          Positioned(
+            right: mh,
+            bottom: mh,
+            child: floatingActionButton!,
+          ),
+      ],
+    );
   }
 }

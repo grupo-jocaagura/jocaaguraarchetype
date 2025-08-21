@@ -1,135 +1,195 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// A widget that displays a page with a secondary menu, adapting to the screen size.
+/// Composes a page body with an optional secondary menu, adapting to device size
+/// via [BlocResponsive]. It does **not** own navigation; it only lays out UI.
 ///
-/// The `PageWidthSecondaryMenuWidget` is designed to include a secondary menu
-/// that adapts its layout based on the screen size (`ScreenSizeEnum`). It supports
-/// both mobile and desktop layouts, ensuring a responsive design.
+/// ## Policy
+/// - **Mobile**: secondary menu appears as a floating bottom bar (overlay).
+/// - **Tablet/Desktop/TV**: secondary menu is rendered as a side panel.
+/// - Gaps, margins and panel widths are derived from [BlocResponsive].
 ///
-/// ## Example
+/// ### Parameters
+/// - [responsive]: Required instance of [BlocResponsive].
+/// - [content]: Required main page widget.
+/// - [secondaryMenu]: Optional widget for the secondary actions.
+/// - [panelColumns]: Side panel width in columns for tablet/desktop (default: 2).
+/// - [secondaryOnRight]: If true (default), side panel is on the right.
+/// - [animate]: Enables slide/opacity animation for the menu (default: true).
+/// - [backgroundColor]: Optional background; defaults to theme surface.
+/// - [safeArea]: Applies [SafeArea] to the whole composition (default: true).
 ///
+/// ### Example
 /// ```dart
-/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-/// import 'package:flutter/material.dart';
+/// final BlocResponsive resp = BlocResponsive()..setSizeForTesting(const Size(1280, 800));
 ///
-/// void main() {
-///   runApp(MyApp());
-/// }
-///
-/// class MyApp extends StatelessWidget {
-///   @override
-///   Widget build(BuildContext context) {
-///     return MaterialApp(
-///       home: PageWidthSecondaryMenuWidget(
-///         screenSizeEnum: ScreenSizeEnum.desktop,
-///         secondaryMenuWidth: 250.0,
-///         page: Center(child: Text('Main Page Content')),
-///         listOfModelMainMenu: [
-///           ModelMainMenuModel(
-///             label: 'Option 1',
-///             iconData: Icons.home,
-///             onPressed: () => print('Option 1 Pressed'),
-///           ),
-///           ModelMainMenuModel(
-///             label: 'Option 2',
-///             iconData: Icons.settings,
-///             onPressed: () => print('Option 2 Pressed'),
-///           ),
-///         ],
-///       ),
-///     );
-///   }
-/// }
+/// return PageWithSecondaryMenuWidget(
+///   responsive: resp,
+///   content: const MyPage(),
+///   secondaryMenu: MySecondaryMenu(), // e.g. a list of quick actions
+///   panelColumns: 2,
+///   secondaryOnRight: true,
+/// );
 /// ```
-class PageWidthSecondaryMenuWidget extends StatelessWidget {
-  /// Creates a `PageWidthSecondaryMenuWidget`.
-  ///
-  /// - [screenSizeEnum]: Specifies the current screen size.
-  /// - [secondaryMenuWidth]: The width of the secondary menu.
-  /// - [page]: The main content of the page.
-  /// - [listOfModelMainMenu]: The list of menu options to display in the secondary menu.
-  const PageWidthSecondaryMenuWidget({
-    required this.screenSizeEnum,
-    required this.secondaryMenuWidth,
-    required this.page,
-    required this.listOfModelMainMenu,
+///
+/// ### Notes
+/// - For a multi-panel shell (primary + secondary + content), prefer
+///   [WorkAreaWidget]. This widget focuses on a single page + secondary menu.
+class PageWithSecondaryMenuWidget extends StatelessWidget {
+  const PageWithSecondaryMenuWidget({
+    required this.responsive,
+    required this.content,
     super.key,
+    this.secondaryMenu,
+    this.panelColumns = 2,
+    this.secondaryOnRight = true,
+    this.animate = true,
+    this.backgroundColor,
+    this.safeArea = true,
   });
 
-  /// The list of menu options to display in the secondary menu.
-  final List<ModelMainMenuModel> listOfModelMainMenu;
+  final BlocResponsive responsive;
+  final Widget content;
+  final Widget? secondaryMenu;
 
-  /// The width of the secondary menu.
-  final double secondaryMenuWidth;
+  /// Side panel width (tablet/desktop), expressed in columns.
+  final int panelColumns;
 
-  /// The screen size enum to determine layout adaptations.
-  final ScreenSizeEnum screenSizeEnum;
+  /// Panel side for tablet/desktop.
+  final bool secondaryOnRight;
 
-  /// The main content of the page.
-  final Widget page;
+  /// Enable slide/opacity animation on menu.
+  final bool animate;
+
+  final Color? backgroundColor;
+  final bool safeArea;
 
   @override
   Widget build(BuildContext context) {
-    if (listOfModelMainMenu.isEmpty) {
-      return page;
+    // Sync metrics with current context.
+    if (context.mounted) {
+      responsive.setSizeFromContext(context);
     }
-    if (screenSizeEnum == ScreenSizeEnum.mobile ||
-        screenSizeEnum == ScreenSizeEnum.tablet) {
-      final double menuItemWidth = secondaryMenuWidth * 0.8;
-      return SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        child: Stack(
-          children: <Widget>[
-            page,
-            Positioned(
-              bottom: 10.0,
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: menuItemWidth,
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: MobileSecondaryMenuWidget(
-                  listOfModelMainMenu: listOfModelMainMenu,
-                  menuItemWidth: menuItemWidth,
+
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    final Color bg = backgroundColor ?? scheme.surface;
+
+    final Widget body = switch (responsive.deviceType) {
+      ScreenSizeEnum.mobile => _mobile(context, bg),
+      ScreenSizeEnum.tablet => _tabletDesktop(context, bg, isDesktop: false),
+      ScreenSizeEnum.desktop ||
+      ScreenSizeEnum.tv =>
+        _tabletDesktop(context, bg, isDesktop: true),
+    };
+
+    return safeArea ? SafeArea(child: body) : body;
+  }
+
+  // ---------------- Mobile: overlay bottom bar ----------------
+  Widget _mobile(BuildContext context, Color bg) {
+    final double mh = responsive.marginWidth;
+    final double gap = responsive.gutterWidth.clamp(8.0, 16.0);
+
+    final Widget overlay = secondaryMenu == null
+        ? const SizedBox.shrink()
+        : Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.only(left: mh, right: mh, bottom: gap),
+              child: _maybeAnimated(
+                key: const ValueKey<String>('mobile-secondary'),
+                child: Material(
+                  elevation: 8,
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: EdgeInsets.all(gap * 0.5),
+                    child: secondaryMenu,
+                  ),
                 ),
               ),
             ),
-          ],
-        ),
-      );
-    }
+          );
 
-    if (listOfModelMainMenu.isNotEmpty) {
-      final List<Widget> secondaryMenuTmp = <Widget>[];
-      for (final ModelMainMenuModel option in listOfModelMainMenu) {
-        secondaryMenuTmp.add(
-          SecondaryOptionWidget(
-            onPressed: option.onPressed,
-            label: option.label,
-            icondata: option.iconData,
-            description: option.description,
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: <Widget>[
+        Container(
+          color: bg,
+          width: double.infinity,
+          height: double.infinity,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: mh),
+            child: content,
           ),
-        );
-      }
-      return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: <Widget>[
-            Container(
-              width: secondaryMenuWidth,
-              decoration: BoxDecoration(
-                color: Theme.of(context).focusColor,
-                border: Border.all(color: Theme.of(context).primaryColor),
-              ),
-              child: ListView(
-                children: secondaryMenuTmp,
-              ),
-            ),
-            page,
-          ],
         ),
-      );
+        overlay,
+      ],
+    );
+  }
+
+  // ------------- Tablet/Desktop: side panel -------------------
+  Widget _tabletDesktop(
+    BuildContext context,
+    Color bg, {
+    required bool isDesktop,
+  }) {
+    final double mh = responsive.marginWidth;
+    final double gap = responsive.gutterWidth;
+    final double panelW = secondaryMenu != null
+        ? responsive
+            .widthByColumns(panelColumns.clamp(1, responsive.columnsNumber))
+        : 0.0;
+
+    final double maxW = responsive.workAreaSize.width;
+    final double contentGap = secondaryMenu == null ? 0.0 : gap;
+    final double contentW = (maxW - panelW - contentGap).clamp(360.0, maxW);
+
+    final List<Widget> rowChildren = <Widget>[
+      ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: contentW),
+        child: content,
+      ),
+      if (secondaryMenu != null) ...<Widget>[
+        SizedBox(width: gap),
+        SizedBox(
+          width: panelW,
+          child: _maybeAnimated(
+            key: const ValueKey<String>('panel-secondary'),
+            child: secondaryMenu!,
+          ),
+        ),
+      ],
+    ];
+
+    final List<Widget> ordered =
+        secondaryOnRight ? rowChildren : rowChildren.reversed.toList();
+
+    return Container(
+      color: bg,
+      width: double.infinity,
+      height: double.infinity,
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: mh),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: ordered,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _maybeAnimated({required Widget child, Key? key}) {
+    if (!animate) {
+      return child;
     }
-    return page;
+    return AnimatedSwitcher(
+      key: key,
+      duration: const Duration(milliseconds: 200),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      child: child,
+    );
   }
 }

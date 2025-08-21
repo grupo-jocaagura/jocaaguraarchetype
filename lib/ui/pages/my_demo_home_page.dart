@@ -117,9 +117,12 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
                 for (int i = 0; i < options.length; i++)
                   DrawerOptionWidget(
                     key: ValueKey<String>('${MyDemoHomePage.maniMenuKey}$i'),
-                    onPressed: options[i].onPressed,
                     label: options[i].label,
-                    icondata: options[i].iconData,
+                    icon: options[i].iconData,
+                    responsive: context.appManager.responsive,
+                    onTap: () {
+                      options[i].onPressed();
+                    },
                   ),
               ],
             ),

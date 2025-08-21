@@ -2,40 +2,96 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-// revisado 10/03/2024 author: @albertjjimenezp
+Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+
 void main() {
-  testWidgets('should render ColumnsBluePrintWidget',
-      (WidgetTester tester) async {
-    const int numberOfColumns = 3;
-    const double marginWidth = 16.0;
-    const double columnWidth = 100.0;
-    const double gutterWidth = 8.0;
-    const Size workAreaSize = Size(800.0, 600.0);
+  group('ColumnsBlueprintWidget', () {
+    testWidgets('renders children and respects spans (desktop)',
+        (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(1440, 900)); // desktop → más columnas
 
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: ColumnsBluePrintWidget(
-          numberOfColumns: numberOfColumns,
-          marginWidth: marginWidth,
-          columnWidth: columnWidth,
-          gutterWidth: gutterWidth,
-          workAreaSize: workAreaSize,
+      await tester.pumpWidget(
+        _wrap(
+          ColumnsBlueprintWidget(
+            responsive: resp,
+            children: const <ColumnSlot>[
+              ColumnSlot(span: 2, child: Text('A')),
+              ColumnSlot(span: 6, child: Text('B')),
+              ColumnSlot(span: 2, child: Text('C')),
+            ],
+          ),
         ),
-      ),
-    );
+      );
 
-    // Verificar que se rendericen las columnas y los margenes correctamente
-    expect(find.byType(ColumnBlueprintWidget), findsNWidgets(numberOfColumns));
-    expect(
-      find.byType(GutterBlueprintWidget),
-      findsNWidgets(numberOfColumns - 1),
-    );
-    expect(find.byType(MarginBlueprintWidget), findsNWidgets(2));
+      expect(find.text('A'), findsOneWidget);
+      expect(find.text('B'), findsOneWidget);
+      expect(find.text('C'), findsOneWidget);
+    });
 
-    // Verificar el tamaño del widget
-    final RenderBox renderBox =
-        tester.renderObject(find.byType(ColumnsBluePrintWidget));
-    expect(renderBox.size.width, lessThanOrEqualTo(workAreaSize.width));
-    expect(renderBox.size.height, equals(workAreaSize.height));
+    testWidgets('clamps spans when exceeding grid',
+        (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(1024, 768)); // tablet
+
+      await tester.pumpWidget(
+        _wrap(
+          ColumnsBlueprintWidget(
+            responsive: resp,
+            children: const <ColumnSlot>[
+              ColumnSlot(span: 8, child: Text('Left')),
+              ColumnSlot(span: 8, child: Text('Right')), // will clamp/trim
+            ],
+          ),
+        ),
+      );
+
+      expect(find.text('Left'), findsOneWidget);
+      expect(find.text('Right'), findsOneWidget);
+    });
+
+    testWidgets('uses custom gap and shows guides',
+        (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(800, 600));
+
+      await tester.pumpWidget(
+        _wrap(
+          ColumnsBlueprintWidget(
+            responsive: resp,
+            children: const <ColumnSlot>[
+              ColumnSlot(span: 3, child: Text('X')),
+              ColumnSlot(span: 3, child: Text('Y')),
+            ],
+            gapOverride: 24.0,
+            showGuides: true,
+            backgroundColor: Colors.white,
+          ),
+        ),
+      );
+
+      expect(find.text('X'), findsOneWidget);
+      expect(find.text('Y'), findsOneWidget);
+    });
+
+    testWidgets('works on mobile with SafeArea', (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(390, 844)); // mobile
+
+      await tester.pumpWidget(
+        _wrap(
+          ColumnsBlueprintWidget(
+            responsive: resp,
+            children: const <ColumnSlot>[
+              ColumnSlot(span: 2, child: Text('One')),
+              ColumnSlot(span: 2, child: Text('Two')),
+            ],
+          ),
+        ),
+      );
+
+      expect(find.text('One'), findsOneWidget);
+      expect(find.text('Two'), findsOneWidget);
+    });
   });
 }

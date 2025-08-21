@@ -1,47 +1,9 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// A versatile page builder widget that integrates navigation, menus, and responsive layouts.
-///
-/// The `PageBuilder` is designed to simplify the construction of pages within the
-/// Jocaagura framework. It manages the following functionalities:
-/// - **Responsive Layouts**: Adapts the page layout to different screen sizes.
-/// - **Navigation**: Integrates with `AppManager` to manage navigation and history.
-/// - **Loading States**: Displays a loading page when the application is in a loading state.
-/// - **Menus**: Handles primary and secondary menus dynamically.
-///
-/// ## Features
-/// - Dynamic menu updates based on the app state.
-/// - Responsive design with a flexible work area.
-/// - Built-in support for snack bars and notifications.
-///
-/// ## Example
-///
-/// ```dart
-/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-/// import 'package:flutter/material.dart';
-///
-/// void main() {
-///   final AppManager appManager = AppManager();
-///   runApp(MaterialApp(
-///     home: PageBuilder(
-///       page: Center(child: Text('Page Content')),
-///     ),
-///   ));
-/// }
-/// ```
-///
-/// ## Parameters
-/// - [page]: The main content of the page. If null, the default work area is displayed.
 class PageBuilder extends StatefulWidget {
-  /// Creates a `PageBuilder`.
-  ///
-  /// - [page]: The main content of the page. Optional.
-  const PageBuilder({
-    super.key,
-    this.page,
-  });
+  const PageBuilder({super.key, this.page});
 
-  /// The main content of the page.
+  /// Contenido principal de la página.
   final Widget? page;
 
   @override
@@ -49,132 +11,131 @@ class PageBuilder extends StatefulWidget {
 }
 
 class _PageBuilderState extends State<PageBuilder> {
-  final List<Widget> listWidget = <Widget>[];
-  final List<Widget> actions = <Widget>[];
-  late StreamSubscription<List<ModelMainMenuModel>> streamSubscription;
-  late StreamSubscription<Size> streamSizeSubscription;
-  late StreamSubscription<List<ModelMainMenuModel>>
-      streamSecondaryMenuSubscription;
+  // Suscripciones para re-render ante cambios de tamaño y menús.
+  late final StreamSubscription<Size> _sizeSub;
+  late final StreamSubscription<void> _mainMenuSub;
+  late final StreamSubscription<List<ModelMainMenuModel>> _secondaryMenuSub;
 
   @override
   void initState() {
     super.initState();
+    final AppManager app = context.appManager;
 
-    // Listen to screen size changes
-    streamSizeSubscription =
-        context.appManager.responsive.appScreenSizeStream.listen((Size event) {
-      setState(() {});
-    });
-
-    // Listen to secondary menu updates
-    streamSecondaryMenuSubscription = context
-        .appManager.secondaryMenu.listDrawerOptionSizeStream
-        .listen((List<ModelMainMenuModel> event) {
-      setState(() {});
-    });
-
-    // Listen to primary menu updates
-    streamSubscription =
-        context.appManager.mainMenu.listMenuOptionsStream.listen((void event) {
-      setState(() {});
-    });
+    _sizeSub =
+        app.responsive.appScreenSizeStream.listen((Size _) => setState(() {}));
+    _mainMenuSub =
+        app.mainMenu.listMenuOptionsStream.listen((void _) => setState(() {}));
+    _secondaryMenuSub = app.secondaryMenu.listDrawerOptionSizeStream
+        .listen((List<ModelMainMenuModel> _) => setState(() {}));
   }
 
   @override
   void dispose() {
-    streamSizeSubscription.cancel();
-    streamSecondaryMenuSubscription.cancel();
-    streamSubscription.cancel();
+    _sizeSub.cancel();
+    _mainMenuSub.cancel();
+    _secondaryMenuSub.cancel();
     super.dispose();
-  }
-
-  void update() {
-    listWidget.clear();
-    for (final ModelMainMenuModel element
-        in context.appManager.mainMenu.listMenuOptions) {
-      listWidget.add(
-        DrawerOptionWidget(
-          onPressed: () {
-            setState(() {
-              element.onPressed();
-            });
-          },
-          label: element.label,
-          icondata: element.iconData,
-        ),
-      );
-    }
-    actions.clear();
-    if (context.appManager.historyPageNames.length > 1) {
-      actions.add(
-        IconButton(
-          onPressed: () {
-            context.appManager.pop();
-          },
-          icon: const Icon(Icons.chevron_left),
-        ),
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final AppManager appManager = context.appManager;
+    final AppManager app = context.appManager;
+    final BlocResponsive responsive = app.responsive;
 
-    update();
+    // Acciones (back) basadas en historial
+    final List<Widget> actions = <Widget>[
+      if (app.historyPageNames.length > 1)
+        IconButton(
+          onPressed: app.pop,
+          icon: const Icon(Icons.chevron_left),
+          tooltip: 'Back',
+        ),
+    ];
+
+    // Drawer (mobile): mapeo a DrawerOptionWidget (API nueva)
+    final double gap =
+        responsive.gutterWidth.clamp(8.0, 16.0); // <- cast a double
+
+    final List<Widget> primaryMenuTiles = <Widget>[
+      for (final ModelMainMenuModel it in app.mainMenu.listMenuOptions)
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: gap,
+            vertical: (responsive.gutterWidth * 0.25).clamp(4.0, 8.0), // cast
+          ),
+          child: DrawerOptionWidget(
+            responsive: responsive,
+            label: it.label,
+            icon: it.iconData,
+            selected: it.isSelected,
+            onTap: () {
+              it.onPressed();
+              // cerrar el drawer si está abierto
+              if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+                Navigator.of(context).maybePop();
+              }
+              setState(() {});
+            },
+          ),
+        ),
+    ];
 
     return StreamBuilder<String>(
-      stream: appManager.loading.loadingMsgStream,
+      stream: app.loading.loadingMsgStream,
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-        if (appManager.loading.loadingMsg.isNotEmpty) {
-          return LoadingPage(msg: appManager.loading.loadingMsg);
+        if (app.loading.loadingMsg.isNotEmpty) {
+          return LoadingPage(msg: app.loading.loadingMsg);
         }
+
         return Scaffold(
-          drawer: listWidget.isNotEmpty
+          // Drawer colapsable (principalmente para mobile)
+          drawer: primaryMenuTiles.isNotEmpty
               ? Drawer(
-                  child: ListView(
-                    children: <Widget>[
-                      const DrawerHeader(
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
+                  child: SafeArea(
+                    child: ListView(
+                      padding: EdgeInsets.only(
+                        top: responsive.gutterWidth,
+                        bottom: responsive.gutterWidth,
                       ),
-                      ...listWidget,
-                    ],
+                      children: <Widget>[
+                        DrawerHeader(
+                          child: Center(
+                            child: Text(
+                              app.page.currentTitle,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                          ),
+                        ),
+                        ...primaryMenuTiles,
+                      ],
+                    ),
                   ),
                 )
               : null,
-          appBar: appManager.responsive.showAppbar
+
+          appBar: responsive.showAppbar
               ? AppBar(
-                  toolbarHeight: appManager.responsive.appBarHeight,
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  title: Text(appManager.page.currentTitle),
+                  toolbarHeight: responsive.appBarHeight,
+                  title: Text(app.page.currentTitle),
                   actions: actions,
                 )
               : null,
+
           body: Stack(
             children: <Widget>[
+              // ⬇️ Tu WorkAreaWidget actual pide 'responsive' y 'content'
               WorkAreaWidget(
-                columnsNumber: appManager.responsive.columnsNumber,
-                drawerWidth: appManager.responsive.drawerWidth,
-                screenSizeEnum: appManager.responsive.deviceType,
-                columnWidth: appManager.responsive.columnWidth,
-                gutterWidth: appManager.responsive.gutterWidth,
-                listMenuOptions: appManager.mainMenu.listMenuOptions,
-                marginWidth: appManager.responsive.marginWidth,
-                workAreaSize: appManager.responsive.workAreaSize,
-                page: widget.page,
-                listSecondaryMenuOptions:
-                    appManager.secondaryMenu.listMenuOptions,
+                responsive: responsive,
+                content: widget.page ?? const SizedBox.shrink(),
               ),
+
+              // ⬇️ Snack/Toast con stream de String (retrocompat)
               Positioned(
-                bottom: appManager.responsive.gutterWidth,
-                left: appManager.responsive.marginWidth,
-                child: MySnackBarWidget(
-                  gutterWidth: appManager.responsive.gutterWidth,
-                  marginWidth: appManager.responsive.marginWidth,
-                  width: appManager.responsive.size.width,
-                  toastStream: appManager.blocUserNotifications.toastStream,
+                bottom: responsive.gutterWidth,
+                left: responsive.marginWidth,
+                child: MySnackBarWidget.fromStringStream(
+                  responsive: responsive,
+                  toastStream: app.blocUserNotifications.toastStream,
                 ),
               ),
             ],
@@ -182,5 +143,83 @@ class _PageBuilderState extends State<PageBuilder> {
         );
       },
     );
+  }
+}
+
+// Estado UI adjunto a cada instancia de ModelMainMenuModel mediante Expando.
+final Expando<bool> _mmSelected = Expando<bool>('mm.selected');
+final Expando<bool> _mmEnabled = Expando<bool>('mm.enabled');
+final Expando<int> _mmBadgeCount = Expando<int>('mm.badgeCount');
+final Expando<String> _mmTooltip = Expando<String>('mm.tooltip');
+
+/// UI extensions for [ModelMainMenuModel] without modifying jocaagura_domain.
+///
+/// These properties are **UI-only** and are stored via `Expando`, so they do
+/// not change the original model nor require codegen/serialization changes.
+///
+/// ### Provided properties
+/// - `selected` / `isSelected` (default: `false`)
+/// - `enabled` (default: `true`)
+/// - `badgeCount` (default: `null`)
+/// - `tooltip` (default: `null`)
+///
+/// ### Example
+/// ```dart
+/// final item = ModelMainMenuModel(
+///   iconData: Icons.home,
+///   onPressed: () {},
+///   label: 'Home',
+/// )
+///   ..selected = true
+///   ..badgeCount = 3
+///   ..tooltip = 'Go home';
+///
+/// // Back-compat
+/// debugPrint('isSelected? ${item.isSelected}'); // true
+/// ```
+extension ModelMainMenuModelX on ModelMainMenuModel {
+  /// Selection flag for UI.
+  bool get selected => _mmSelected[this] ?? false;
+  set selected(bool v) => _mmSelected[this] = v;
+
+  /// Backwards-compatible alias used by older code.
+  bool get isSelected => selected;
+
+  /// Whether the menu item is enabled/tappable in UI.
+  bool get enabled => _mmEnabled[this] ?? true;
+  set enabled(bool v) => _mmEnabled[this] = v;
+
+  /// Optional numeric badge (e.g., unread count).
+  int? get badgeCount => _mmBadgeCount[this];
+  set badgeCount(int? v) => _mmBadgeCount[this] = v;
+
+  /// Optional tooltip text.
+  String? get tooltip => _mmTooltip[this];
+  set tooltip(String? v) => _mmTooltip[this] = v;
+
+  /// Fluent helper to set multiple UI fields and return `this`.
+  ///
+  /// ```dart
+  /// item.ui(selected: true, badgeCount: 7, tooltip: 'Inbox');
+  /// ```
+  ModelMainMenuModel ui({
+    bool? selected,
+    bool? enabled,
+    int? badgeCount,
+    String? tooltip,
+  }) {
+    if (selected != null) {
+      this.selected = selected;
+    }
+    if (enabled != null) {
+      this.enabled = enabled;
+    }
+    if (badgeCount != null) {
+      this.badgeCount = badgeCount;
+    }
+    if (tooltip != null) {
+      this.tooltip = tooltip;
+    }
+    return this;
   }
 }

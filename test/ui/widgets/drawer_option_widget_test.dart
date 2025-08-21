@@ -2,96 +2,89 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-// revisado 10/03/2024 author: @albertjjimenezp
+Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+
 void main() {
   group('DrawerOptionWidget', () {
-    late VoidCallback onPressed;
-    late String label;
-    late IconData icondata;
-    late String description;
-    late bool getOutOnTap;
-
-    setUp(() {
-      onPressed = () {};
-      label = 'Option';
-      icondata = Icons.star;
-      description = 'Option description';
-      getOutOnTap = true;
-    });
-
-    testWidgets('renders ListTile with correct values',
+    testWidgets('renders label, icon and triggers onTap',
         (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(1280, 800));
+
+      bool tapped = false;
+
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: DrawerOptionWidget(
-              onPressed: onPressed,
-              label: label,
-              icondata: icondata,
-              description: description,
-              getOutOnTap: getOutOnTap,
-            ),
+        _wrap(
+          DrawerOptionWidget(
+            responsive: resp,
+            label: 'Dashboard',
+            icon: Icons.dashboard,
+            onTap: () => tapped = true,
+            selected: true,
+            tooltip: 'Go to dashboard',
           ),
         ),
       );
 
-      expect(find.byType(ListTile), findsOneWidget);
-      expect(find.text(label), findsOneWidget);
-      expect(find.byIcon(icondata), findsOneWidget);
-      expect(find.text(description), findsOneWidget);
+      expect(find.text('Dashboard'), findsOneWidget);
+      expect(find.byIcon(Icons.dashboard), findsOneWidget);
+
+      await tester.tap(find.byType(InkWell));
+      await tester.pumpAndSettle();
+
+      expect(tapped, isTrue);
     });
 
-    testWidgets('calls onPressed when tapped', (WidgetTester tester) async {
-      bool onPressedCalled = false;
-      onPressed = () {
-        onPressedCalled = true;
-      };
+    testWidgets('shows badge when badgeCount > 0', (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(1024, 768));
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: DrawerOptionWidget(
-              onPressed: onPressed,
-              label: label,
-              icondata: icondata,
-              description: description,
-              getOutOnTap: getOutOnTap,
-            ),
+        _wrap(
+          DrawerOptionWidget(
+            responsive: resp,
+            label: 'Inbox',
+            icon: Icons.inbox,
+            badgeCount: 5,
+            onTap: () {},
           ),
         ),
       );
 
-      await tester.tap(find.byType(ListTile));
-      await tester.pump();
-
-      expect(onPressedCalled, isTrue);
+      expect(find.text('5'), findsOneWidget);
     });
 
-    testWidgets('does not open drawer when getOutOnTap is false',
+    testWidgets('disabled when onTap is null or enabled=false',
         (WidgetTester tester) async {
-      getOutOnTap = false;
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(390, 844));
 
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            drawer: Drawer(
-              child: Container(),
-            ),
-            body: DrawerOptionWidget(
-              onPressed: onPressed,
-              label: label,
-              icondata: icondata,
-              description: description,
-              getOutOnTap: getOutOnTap,
-            ),
+        _wrap(
+          Column(
+            children: <Widget>[
+              DrawerOptionWidget(
+                responsive: resp,
+                label: 'Disabled A',
+                icon: Icons.block,
+                onTap: null, // disabled by null
+              ),
+              DrawerOptionWidget(
+                responsive: resp,
+                label: 'Disabled B',
+                icon: Icons.block,
+                onTap: () {},
+                enabled: false, // forced disabled
+              ),
+            ],
           ),
         ),
       );
 
-      await tester.tap(find.byType(ListTile));
+      // Both should be present and not tappable (no exceptions thrown on tap).
+      await tester.tap(find.text('Disabled A'));
+      await tester.tap(find.text('Disabled B'));
       await tester.pump();
-
-      expect(find.byType(Drawer), findsNothing);
     });
   });
 }

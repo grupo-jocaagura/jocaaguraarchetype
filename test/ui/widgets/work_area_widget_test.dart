@@ -2,148 +2,93 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-// revisado 10/03/2024 author: @albertjjimenezp
+Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+
 void main() {
   group('WorkAreaWidget', () {
-    testWidgets('should render ColumnsBluePrintWidget for mobile screens',
+    testWidgets('mobile: renders content full width and bottom secondary bar',
         (WidgetTester tester) async {
-      // Arrange
-      const ScreenSizeEnum screenSizeEnum = ScreenSizeEnum.mobile;
-      const WorkAreaWidget widget = WorkAreaWidget(
-        screenSizeEnum: screenSizeEnum,
-        columnsNumber: 2,
-        workAreaSize: Size(300, 600),
-        marginWidth: 16,
-        columnWidth: 120,
-        gutterWidth: 8,
-        drawerWidth: 200,
-        listMenuOptions: <ModelMainMenuModel>[],
-        listSecondaryMenuOptions: <ModelMainMenuModel>[],
-      );
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(390, 844)); // mobile
 
-      // Act
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Material(child: widget),
+        _wrap(
+          WorkAreaWidget(
+            responsive: resp,
+            content: const Text('Content'),
+            secondaryMenu: Container(key: const Key('sec'), height: 48),
+          ),
         ),
       );
 
-      // Assert
-      expect(find.byType(ColumnsBluePrintWidget), findsOneWidget);
+      expect(find.text('Content'), findsOneWidget);
+      expect(find.byKey(const Key('sec')), findsOneWidget);
+    });
+
+    testWidgets('tablet: composes primary + content + secondary side panels',
+        (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(1024, 768)); // tablet
+
+      await tester.pumpWidget(
+        _wrap(
+          WorkAreaWidget(
+            responsive: resp,
+            primaryMenu: Container(key: const Key('primary'), width: 100),
+            content: const Text('Content'),
+            secondaryMenu: Container(key: const Key('secondary'), width: 100),
+          ),
+        ),
+      );
+
+      expect(find.byKey(const Key('primary')), findsOneWidget);
+      expect(find.text('Content'), findsOneWidget);
+      expect(find.byKey(const Key('secondary')), findsOneWidget);
+    });
+
+    testWidgets('desktop: respects floatingActionButton overlay',
+        (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(1440, 900)); // desktop
+
+      await tester.pumpWidget(
+        _wrap(
+          WorkAreaWidget(
+            responsive: resp,
+            content: const Text('Content'),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {},
+              child: const Icon(Icons.add),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Content'), findsOneWidget);
+      expect(find.byType(FloatingActionButton), findsOneWidget);
     });
 
     testWidgets(
-        'should render ColumnsBluePrintWidget and MainMenuWidget for tablet screens with menu options',
+        'tablet: can invert secondary panel side when secondaryMenuOnRight=false',
         (WidgetTester tester) async {
-      // Arrange
-      const ScreenSizeEnum screenSizeEnum = ScreenSizeEnum.tablet;
-      final WorkAreaWidget widget = WorkAreaWidget(
-        screenSizeEnum: screenSizeEnum,
-        columnsNumber: 3,
-        workAreaSize: const Size(600, 800),
-        marginWidth: 24,
-        columnWidth: 180,
-        gutterWidth: 12,
-        drawerWidth: 240,
-        listSecondaryMenuOptions: const <ModelMainMenuModel>[],
-        listMenuOptions: <ModelMainMenuModel>[
-          ModelMainMenuModel(
-            label: 'Option 1',
-            onPressed: () {},
-            iconData: Icons.add,
-          ),
-          ModelMainMenuModel(
-            label: 'Option 2',
-            onPressed: () {},
-            iconData: Icons.add,
-          ),
-        ],
-      );
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(1100, 820));
 
-      // Act
       await tester.pumpWidget(
-        MaterialApp(
-          home: Material(child: widget),
-        ),
-      );
-
-      // Assert
-      expect(find.byType(ColumnsBluePrintWidget), findsOneWidget);
-      expect(find.byType(MainMenuWidget), findsNothing);
-    });
-
-    testWidgets(
-        'should render ColumnsBluePrintWidget and MainMenuWidget for TV screens',
-        (WidgetTester tester) async {
-      // Arrange
-      const ScreenSizeEnum screenSizeEnum = ScreenSizeEnum.tv;
-      final WorkAreaWidget widget = WorkAreaWidget(
-        screenSizeEnum: screenSizeEnum,
-        columnsNumber: 4,
-        workAreaSize: const Size(800, 1200),
-        marginWidth: 32,
-        columnWidth: 200,
-        gutterWidth: 16,
-        drawerWidth: 280,
-        listSecondaryMenuOptions: const <ModelMainMenuModel>[],
-        listMenuOptions: <ModelMainMenuModel>[
-          ModelMainMenuModel(
-            label: 'Option 1',
-            onPressed: () {},
-            iconData: Icons.add,
-          ),
-          ModelMainMenuModel(
-            label: 'Option 2',
-            onPressed: () {},
-            iconData: Icons.add,
-          ),
-          ModelMainMenuModel(
-            label: 'Option 3',
-            onPressed: () {},
-            iconData: Icons.add,
-          ),
-        ],
-      );
-
-      // Act
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Material(child: widget),
-        ),
-      );
-
-      // Assert
-      expect(find.byType(ColumnsBluePrintWidget), findsOneWidget);
-      expect(find.byType(MainMenuWidget), findsOneWidget);
-    });
-
-    testWidgets('should render ColumnsBluePrintWidget for desktop screens',
-        (WidgetTester tester) async {
-      // Arrange
-      const ScreenSizeEnum screenSizeEnum = ScreenSizeEnum.desktop;
-      const WorkAreaWidget widget = WorkAreaWidget(
-        screenSizeEnum: screenSizeEnum,
-        columnsNumber: 4,
-        workAreaSize: Size(1024, 768),
-        marginWidth: 32,
-        columnWidth: 200,
-        gutterWidth: 16,
-        drawerWidth: 280,
-        listSecondaryMenuOptions: <ModelMainMenuModel>[],
-        listMenuOptions: <ModelMainMenuModel>[],
-      );
-
-      // Act
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Material(
-            child: Material(child: widget),
+        _wrap(
+          WorkAreaWidget(
+            responsive: resp,
+            primaryMenu: Container(key: const Key('left')),
+            content: const Text('Content'),
+            secondaryMenu: Container(key: const Key('right')),
+            secondaryMenuOnRight: false,
           ),
         ),
       );
 
-      // Assert
-      expect(find.byType(ColumnsBluePrintWidget), findsOneWidget);
+      // Just check both panels exist; layout side inversion is harder to assert without golden.
+      expect(find.byKey(const Key('left')), findsOneWidget);
+      expect(find.byKey(const Key('right')), findsOneWidget);
     });
   });
 }
