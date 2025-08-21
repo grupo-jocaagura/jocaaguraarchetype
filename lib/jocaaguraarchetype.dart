@@ -22,6 +22,7 @@ part 'domain/blocs/bloc_user_notifications.dart';
 part 'domain/gateways/gateway_theme.dart';
 part 'domain/models/nav_stack_model.dart';
 part 'domain/models/page_model.dart';
+part 'domain/models/toast_message.dart';
 part 'domain/repositories/repository_theme.dart';
 part 'domain/services/service_theme.dart';
 part 'domain/states/theme_state.dart';

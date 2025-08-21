@@ -15,7 +15,8 @@ class BlocMainMenuDrawer extends BlocMenuBase {
 
   // Stream y snapshot con los nombres ya usados en el proyecto
   Stream<List<ModelMainMenuModel>> get listMenuOptionsStream => itemsStream;
-  List<ModelMainMenuModel> get listMenuOptions => items;
+  List<ModelMainMenuModel> get listMenuOptions =>
+      List<ModelMainMenuModel>.unmodifiable(items);
 
   void clearMainDrawer() => clear();
 

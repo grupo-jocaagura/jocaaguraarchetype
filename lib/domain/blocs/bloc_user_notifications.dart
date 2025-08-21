@@ -25,86 +25,107 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///   blocUserNotifications.showToast('Hello, user!');
 /// }
 /// ```
+/// A BLoC (Business Logic Component) for user-facing toast notifications.
+///
+/// - Emits [ToastMessage]s via a reactive stream.
+/// - Auto-clears the last message after a debounce window.
+/// - New messages restart the auto-clear timer.
+///
+/// ### Example
+/// ```dart
+/// final BlocUserNotifications bloc = BlocUserNotifications();
+/// final StreamSubscription sub = bloc.stream.listen((ToastMessage t) {
+///   if (t.isNotEmpty) {
+///     print('Toast: ${t.text}');
+///   }
+/// });
+///
+/// bloc.showToast('Hello!');
+/// // …
+//// await sub.cancel();
+/// await bloc.dispose();
+/// ```
 class BlocUserNotifications extends BlocModule {
-  BlocUserNotifications({Duration? autoClose})
-      : debouncer = Debouncer(
+  BlocUserNotifications({
+    Duration? autoClose,
+    DateTime Function()? now, // for testability
+  })  : _now = now ?? DateTime.now,
+        _debouncer = Debouncer(
           milliseconds:
               (autoClose ?? const Duration(seconds: 7)).inMilliseconds,
         );
 
-  /// The name identifier for the BLoC, used for tracking or debugging.
-  static const String name = 'blocUserNotifications';
+  static const String name = 'BlocUserNotifications';
 
-  /// Internal controller for managing the notification message.
-  final BlocGeneral<String> _msgController = BlocGeneral<String>('');
+  final BlocGeneral<ToastMessage> _controller = BlocGeneral<ToastMessage>(
+    ToastMessage.empty(),
+  );
+  final Debouncer _debouncer;
+  final DateTime Function() _now;
 
-  /// A debouncer to clear messages after a set duration.
-  final Debouncer debouncer;
+  /// Emits the current toast state (including timestamp).
+  Stream<ToastMessage> get stream => _controller.stream;
 
-  /// A stream of notification messages.
-  ///
-  /// This stream emits the current message, which can be used to display
-  /// toast notifications in the UI.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// blocUserNotifications.toastStream.listen((message) {
-  ///   if (message.isNotEmpty) {
-  ///     print('Toast message: $message');
-  ///   }
-  /// });
-  /// ```
-  Stream<String> get toastStream => _msgController.stream;
+  /// Convenience stream that only emits when message text changes.
+  Stream<ToastMessage> get distinctStream =>
+      _controller.stream.distinct((ToastMessage a, ToastMessage b) => a == b);
 
-  /// The current notification message.
-  ///
-  /// Returns the latest message set in the controller.
-  String get msg => _msgController.value;
+  /// Syntactic sugar for UI layers wanting only text.
+  Stream<String> get textStream =>
+      _controller.stream.map((ToastMessage t) => t.text);
 
-  /// Clears the current notification message.
-  ///
-  /// This method resets the message to an empty string, effectively clearing
-  /// any active notifications.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// blocUserNotifications.clear();
-  /// ```
+  /// Current toast value.
+  ToastMessage get toast => _controller.value;
+
+  /// Whether the internal controller was closed.
+  bool get isClosed => _controller.isClosed;
+
+  /// Clears the current toast to an empty sentinel.
   void clear() {
-    _msgController.value = '';
+    if (isDisposed) return;
+    _controller.value = ToastMessage.empty();
   }
 
-  /// Displays a toast notification with the given [message].
+  /// Shows a toast and schedules auto-clear.
   ///
-  /// The message is emitted through the [toastStream], and will automatically
-  /// clear after the debounce duration.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// blocUserNotifications.showToast('Hello, user!');
-  /// ```
-  void showToast(String message) {
-    _msgController.value = message;
-    debouncer.call(clear);
+  /// If [duration] is provided it overrides the default debounce window.
+  void showToast(String message, {Duration? duration}) {
+    if (isDisposed) return;
+    final ToastMessage next = ToastMessage(message, _now());
+    if (next == _controller.value) {
+      // identical content within same millisecond -> ignore to avoid noise
+      return;
+    }
+    _controller.value = next;
+
+    // Restart auto-clear window.
+    final Debouncer d = (duration == null)
+        ? _debouncer
+        : Debouncer(milliseconds: duration.inMilliseconds);
+    d.call(clear);
   }
 
-  /// Releases resources held by the BLoC.
-  ///
-  /// This method must be called when the BLoC is no longer needed to prevent
-  /// memory leaks.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// blocUserNotifications.dispose();
-  /// ```
+  bool isDisposed = false;
+
   @override
-  FutureOr<void> dispose() {
-    _msgController.dispose();
+  Future<void> dispose() async {
+    if (isDisposed) {
+      return;
+    }
+    isDisposed = true;
+    _controller.dispose();
   }
+  // ------------------------
+  // RETROCOMPATIBILIDAD 👇
+  // ------------------------
 
-  bool get isClosed => _msgController.isClosed;
+  /// Histórico: muchas UIs consumían directamente el texto.
+  @Deprecated('Use textStream (only text) or stream (ToastMessage) instead.')
+  Stream<String> get toastStream => textStream;
+
+  /// Histórico: acceso directo al texto actual.
+  @Deprecated('Use toast.text instead.')
+  String get msg => toast.text;
+
+// ------------------------
 }
