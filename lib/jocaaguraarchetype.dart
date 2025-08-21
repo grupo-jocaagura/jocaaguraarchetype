@@ -34,6 +34,7 @@ part 'src/services/service_jocaagura_archetype_theme.dart';
 part 'ui/jocaagura_app.dart';
 part 'ui/navigation/my_app_router_delegate.dart';
 part 'ui/navigation/my_route_information_parser.dart';
+part 'ui/navigation/page_def.dart';
 part 'ui/navigation/page_manager.dart';
 part 'ui/navigation/page_registry.dart';
 part 'ui/page_builder.dart';

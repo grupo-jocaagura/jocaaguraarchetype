@@ -22,6 +22,16 @@ class PageRegistry {
     this.defaultPage,
     this.defaultStack,
   });
+  PageRegistry.fromDefs(
+    List<PageDef> defs, {
+    this.notFoundBuilder,
+    this.defaultPage,
+    this.defaultStack,
+  }) : _builders =
+            Map<String, PageWidgetBuilder>.unmodifiable(<dynamic, dynamic>{
+          for (final PageDef pageDef in defs)
+            pageDef.model.name: pageDef.builder,
+        });
 
   final Map<String, PageWidgetBuilder> _builders;
 
