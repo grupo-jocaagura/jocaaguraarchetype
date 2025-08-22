@@ -44,7 +44,7 @@ class _PageBuilderState extends State<PageBuilder> {
 
     // Acciones (back) basadas en historial
     final List<Widget> actions = <Widget>[
-      if (app.historyPageNames.length > 1)
+      if (app.pageManager.canPop)
         IconButton(
           onPressed: app.pop,
           icon: const Icon(Icons.chevron_left),
@@ -101,7 +101,7 @@ class _PageBuilderState extends State<PageBuilder> {
                         DrawerHeader(
                           child: Center(
                             child: Text(
-                              app.page.currentTitle,
+                              app.pageManager.currentTitle,
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                           ),
@@ -116,7 +116,7 @@ class _PageBuilderState extends State<PageBuilder> {
           appBar: responsive.showAppbar
               ? AppBar(
                   toolbarHeight: responsive.appBarHeight,
-                  title: Text(app.page.currentTitle),
+                  title: Text(app.pageManager.currentTitle),
                   actions: actions,
                 )
               : null,
@@ -135,7 +135,7 @@ class _PageBuilderState extends State<PageBuilder> {
                 left: responsive.marginWidth,
                 child: MySnackBarWidget.fromStringStream(
                   responsive: responsive,
-                  toastStream: app.blocUserNotifications.toastStream,
+                  toastStream: app.notifications.toastStream,
                 ),
               ),
             ],

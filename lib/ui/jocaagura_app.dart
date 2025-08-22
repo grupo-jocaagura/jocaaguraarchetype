@@ -1,102 +1,125 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// Entry point widget for a Jocaagura-based app using the new declarative navigation.
+/// Jocaagura shell wiring around MaterialApp.router.
 ///
-/// It creates (once) the RouterDelegate and the RouteInformationParser from:
-/// - `PageManager` (navigation source of truth)
-/// - `PageRegistry` (name → builder)
+/// - Navigation source of truth: [PageManager] (from AppConfig).
+/// - Theme source of truth: [BlocTheme] -> emits [ThemeState].
+/// - UI builds ThemeData via [ThemeDataUtils] (UI-only).
+/// - Requires a [PageRegistry] to resolve slugs/builders.
+/// - `projectorMode` is required and passed to the RouterDelegate.
+/// - `initialLocation` is provided via RouteInformation (uri-based).
 ///
-/// ### Example
+/// ### Example (factory)
 /// ```dart
-/// final appConfig = AppConfig.dev(registry: registry); // o tu flavor preferido
-/// final appManager = AppManager(appConfig);
-///
-/// runApp(JocaaguraApp(
-///   appManager: appManager,
+/// final registry = buildExampleRegistry();
+/// runApp(JocaaguraApp.dev(
 ///   registry: registry,
-///   title: 'My jocaagura app',
+///   projectorMode: false,
+///   initialLocation: '/home',
+/// ));
+/// ```
+///
+/// ### Example (advanced)
+/// ```dart
+/// final registry = buildExampleRegistry();
+/// final cfg = AppConfig.dev(registry: registry);
+/// final manager = AppManager(cfg);
+/// runApp(JocaaguraApp(
+///   appManager: manager,
+///   registry: registry,
+///   projectorMode: true,
+///   initialLocation: '/settings',
 /// ));
 /// ```
 class JocaaguraApp extends StatefulWidget {
   const JocaaguraApp({
     required this.appManager,
     required this.registry,
-    this.title = 'My jocaagura app',
-    this.routerDelegate, // opcional: si quieres inyectarlo desde un flavor
-    this.routeInformationParser, // opcional: idem
     super.key,
+    this.projectorMode = true,
+    this.initialLocation = '/home',
   });
 
-  /// Core app state & blocs (incluye `PageManager`).
+  /// Factory for DEV flavour using archetype defaults.
+  factory JocaaguraApp.dev({
+    required PageRegistry registry,
+    required bool projectorMode,
+    Key? key,
+    String initialLocation = '/home',
+    List<OnboardingStep> onboardingSteps = const <OnboardingStep>[],
+  }) {
+    final AppConfig config = AppConfig.dev(
+      registry: registry,
+      onboardingSteps: onboardingSteps,
+    );
+    final AppManager manager = AppManager(config);
+    return JocaaguraApp(
+      key: key,
+      appManager: manager,
+      registry: registry,
+      projectorMode: projectorMode,
+      initialLocation: initialLocation,
+    );
+  }
+
+  /// Fully built manager (theme, loading, notifications, pageManager, etc.).
   final AppManager appManager;
 
-  /// Registry used to materialize PageModel → Widget.
+  /// Page registry used by the RouterDelegate to build pages from slugs.
   final PageRegistry registry;
 
-  /// App title.
-  final String title;
+  /// Enables projector-specific behaviors in the RouterDelegate.
+  final bool projectorMode;
 
-  /// Optional delegate injection (useful for flavors/testing).
-  final MyAppRouterDelegate? routerDelegate;
-
-  /// Optional parser injection (useful for flavors/testing).
-  final MyRouteInformationParser? routeInformationParser;
+  /// First location to load when the app starts (defaults to '/home').
+  final String initialLocation;
 
   @override
   State<JocaaguraApp> createState() => _JocaaguraAppState();
 }
 
 class _JocaaguraAppState extends State<JocaaguraApp> {
-  late final MyAppRouterDelegate _delegate = widget.routerDelegate ??
-      MyAppRouterDelegate(
-        registry: widget.registry,
-        pageManager: widget.appManager.page,
-      );
-
-  late final MyRouteInformationParser _parser =
-      widget.routeInformationParser ?? const MyRouteInformationParser();
+  late final MyRouteInformationParser _parser; // provisto por el arquetipo
+  late final MyAppRouterDelegate _delegate; // provisto por el arquetipo
 
   @override
   void initState() {
     super.initState();
-    final PageModel top = widget.appManager.page.stack.top;
-    assert(
-      widget.registry.contains(top.name),
-      'No builder in PageRegistry for initial route: ${top.name}. '
-      'Known routes: ${widget.registry._builders.keys.toList()}',
+    _parser = const MyRouteInformationParser();
+    _delegate = MyAppRouterDelegate(
+      registry: widget.registry,
+      pageManager: widget.appManager.pageManager,
+      projectorMode: widget.projectorMode,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final AppManager app = widget.appManager;
+    return StreamBuilder<ThemeState>(
+      stream: widget.appManager.theme.stream,
+      initialData: widget.appManager.theme.stateOrDefault,
+      builder: (BuildContext context, AsyncSnapshot<ThemeState> snap) {
+        final ThemeState s = snap.data ?? ThemeState.defaults;
 
-    app.responsive.setSizeFromContext(context);
+        // Construcción UI-only del tema (no entra a dominio).
+        final ThemeData light = ThemeDataUtils.light(s);
+        final ThemeData dark = ThemeDataUtils.dark(s);
 
-    return AppManagerProvider(
-      appManager: app,
-      child: StreamBuilder<ThemeState>(
-        stream: app.theme.stream,
-        initialData: app.theme.stateOrDefault,
-        builder: (_, __) {
-          final ThemeState s = app.theme.stateOrDefault;
-          final String initialLocation =
-              widget.appManager.page.stack.top.toUriString();
-          return MaterialApp.router(
-            debugShowCheckedModeBanner: false,
-            title: widget.title,
-            themeMode: s.mode,
-            theme: ThemeDataUtils.light(s),
-            darkTheme: ThemeDataUtils.dark(s),
-            routerDelegate: _delegate,
-            routeInformationParser: _parser,
-            routeInformationProvider: PlatformRouteInformationProvider(
-              initialRouteInformation:
-                  RouteInformation(uri: Uri.parse(initialLocation)), // "/home"
+        return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          routerDelegate: _delegate,
+          routeInformationParser: _parser,
+          routeInformationProvider: PlatformRouteInformationProvider(
+            initialRouteInformation: RouteInformation(
+              uri: Uri.parse(widget.initialLocation),
             ),
-          );
-        },
-      ),
+          ),
+          theme: light,
+          darkTheme: dark,
+          themeMode: s
+              .mode, // proviene de ThemeState; settable vía BlocTheme.setMode(...)
+        );
+      },
     );
   }
 }

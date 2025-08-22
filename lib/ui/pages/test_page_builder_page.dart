@@ -73,10 +73,8 @@ class TestPageBuilderPage extends StatelessWidget {
           const SizedBox(height: 16),
           FilledButton(
             onPressed: () {
-              context.appManager.pushNamed(
+              context.appManager.goTo(
                 TestPageBuilderPage.name,
-                title: 'Pushed again',
-                query: <String, String>{'content': 'pushed'},
               );
             },
             child: const Text('Push again'),

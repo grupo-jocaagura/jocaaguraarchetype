@@ -50,8 +50,5 @@ Widget makeTesteablePage({
   return JocaaguraApp(
     appManager: jAppManager,
     registry: registry,
-    routeInformationParser: const MyRouteInformationParser(
-      defaultRouteName: '/',
-    ),
   );
 }

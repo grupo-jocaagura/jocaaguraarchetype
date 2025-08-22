@@ -80,11 +80,10 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
       );
       context.appManager.mainMenu.addMainMenuOption(
         onPressed: () {
-          final String msg =
-              context.appManager.blocUserNotifications.msg.isEmpty
-                  ? 'Este es un mensaje de prueba para el toast'
-                  : '';
-          context.appManager.blocUserNotifications.showToast(msg);
+          final String msg = context.appManager.notifications.msg.isEmpty
+              ? 'Este es un mensaje de prueba para el toast'
+              : '';
+          context.appManager.notifications.showToast(msg);
         },
         label: 'toast',
         iconData: Icons.chat_bubble,
@@ -147,15 +146,17 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
             ),
             TextButton(
               onPressed: () {
-                app.pushNamed(
-                  TestPageBuilderPage.name,
-                  title: 'TestPage',
-                  // segments/query/kind si los necesitas:
-                  // segments: ['test'],
-                  // query: {'ref':'home'},
+                app.pageManager.pushOnce(
+                  const PageModel(
+                    name: TestPageBuilderPage.name,
+
+                    segments: <String>['test'],
+                    // query: {'ref':'home'},
+                  ),
                 );
               },
-              child: Text('Go to test push page ${app.historyPageNames}'),
+              child:
+                  Text('Go to test push page ${app.pageManager.historyNames}'),
             ),
           ],
         ),

@@ -39,7 +39,7 @@ void main() {
     test('should provide access to BLoCs', () {
       expect(appManager.theme, isA<MockBlocTheme>());
       expect(
-        appManager.blocUserNotifications,
+        appManager.notifications,
         isA<MockBlocUserNotifications>(),
       );
       expect(appManager.loading, isA<MockBlocLoading>());
@@ -47,12 +47,12 @@ void main() {
       expect(appManager.secondaryMenu, isA<MockBlocSecondaryMenuDrawer>());
       expect(appManager.responsive, isA<MockBlocResponsive>());
       expect(appManager.onboarding, isA<MockBlocOnboarding>());
-      expect(appManager.page, isA<MockBlocNavigator>());
+      expect(appManager.pageManager, isA<MockBlocNavigator>());
     });
 
     test('dispose should properly dispose all BLoCs', () {
       appManager.dispose();
-      expect(appManager.blocUserNotifications.msg, '');
+      expect(appManager.notifications.msg, '');
       expect(appManager.mainMenu.isClosed, true);
     });
   });

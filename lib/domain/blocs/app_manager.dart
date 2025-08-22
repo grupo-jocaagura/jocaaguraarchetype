@@ -1,61 +1,152 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Single façade for navigation, UI wiring, and cross-cutting concerns.
+///
+/// Aligned with the current archetype:
+/// - Navigation source of truth: [PageManager].
+/// - Theme source of truth: [BlocTheme] (ThemeUsecases → Repository → Gateway).
+/// - Onboarding: [BlocOnboarding] from jocaagura_domain.
+/// - Loading: [BlocLoading] (loadingWhile / queueLoadingWhile).
+/// - Notifications: [BlocUserNotifications] (showToast).
+/// - Menus: [BlocMainMenuDrawer] and [BlocSecondaryMenuDrawer] (acciones canalizadas aquí).
+///
+/// ### Navigation policy
+/// - `pushOnce` is encouraged to avoid duplicates.
+/// - `home` behaves as singleTop via [clearAndGoHome].
+/// - Pages may set `requiresAuth`; coordinator redirects to `/login`.
 class AppManager {
-  AppManager(this.appConfig) : _blocCore = appConfig.blocCore();
+  AppManager(this._config);
+  AppConfig _config;
+  bool _disposed = false;
 
-  final AppConfig appConfig;
-  final BlocCore<dynamic> _blocCore;
+  // ---- Read-only accessors to core blocs ----
+  BlocTheme get theme => _config.blocTheme;
+  BlocUserNotifications get notifications => _config.blocUserNotifications;
+  BlocLoading get loading => _config.blocLoading;
+  BlocResponsive get responsive => _config.blocResponsive;
+  BlocOnboarding get onboarding => _config.blocOnboarding;
+  PageManager get pageManager => _config.pageManager;
 
-  BlocCore<dynamic> get blocCore => _blocCore;
+  /// Menús (drawers)
+  BlocMainMenuDrawer get mainMenu => _config.blocMainMenuDrawer;
+  BlocSecondaryMenuDrawer get secondaryMenu => _config.blocSecondaryMenuDrawer;
 
-  // BLoCs
-  BlocResponsive get responsive =>
-      blocCore.getBlocModule<BlocResponsive>(BlocResponsive.name);
-  BlocLoading get loading =>
-      blocCore.getBlocModule<BlocLoading>(BlocLoading.name);
-  BlocMainMenuDrawer get mainMenu =>
-      blocCore.getBlocModule<BlocMainMenuDrawer>(BlocMainMenuDrawer.name);
-  BlocSecondaryMenuDrawer get secondaryMenu => blocCore
-      .getBlocModule<BlocSecondaryMenuDrawer>(BlocSecondaryMenuDrawer.name);
-  BlocTheme get theme => blocCore.getBlocModule<BlocTheme>(BlocTheme.name);
-  BlocOnboarding get onboarding =>
-      blocCore.getBlocModule<BlocOnboarding>(BlocOnboarding.name);
-  BlocUserNotifications get blocUserNotifications =>
-      blocCore.getBlocModule(BlocUserNotifications.name);
+  bool get isDisposed => _disposed;
 
-  /// Navegación (única fuente de verdad)
-  PageManager get page => blocCore.getBlocModule<PageManager>(PageManager.name);
-
-  // Proxies ergonómicos para el UI
-  void push(PageModel pageModel) => page.push(pageModel);
-  void pushNamed(
-    String name, {
-    String? title,
-    List<String>? segments,
-    Map<String, String>? query,
-    PageKind kind = PageKind.material,
-    bool requiresAuth = false,
-    Map<String, dynamic>? state,
-  }) =>
-      page.pushNamed(
-        name,
-        title: title,
-        segments: segments,
-        query: query,
-        kind: kind,
-        requiresAuth: requiresAuth,
-        state: state,
-      );
-  bool pop() => page.pop();
-  List<String> get historyPageNames => page.historyNames;
-
-  FutureOr<void> dispose() {
-    if (isDisposed) {
-      return null;
+  /// Applies a new [AppConfig]. Keeps the navigation stack by default.
+  void applyConfig(AppConfig next, {bool resetStack = false}) {
+    _config = next;
+    if (resetStack) {
+      clearAndGoHome();
     }
-    isDisposed = true;
-    blocCore.dispose();
   }
 
-  bool isDisposed = false;
+  // --------------------------------------------------------------------------
+  // Navigation API (String-based; internamente PageModel.fromUri)
+  // --------------------------------------------------------------------------
+  void goTo(String location) {
+    final PageModel root = PageModel.fromUri(Uri.parse(location));
+    pageManager.resetTo(root);
+  }
+
+  void push(String location, {bool allowDuplicate = true}) {
+    final PageModel page = PageModel.fromUri(Uri.parse(location));
+    pageManager.push(page, allowDuplicate: allowDuplicate);
+  }
+
+  void pushOnce(String location) {
+    final PageModel page = PageModel.fromUri(Uri.parse(location));
+    pageManager.pushOnce(page);
+  }
+
+  void replaceTop(String location, {bool allowNoop = false}) {
+    final PageModel page = PageModel.fromUri(Uri.parse(location));
+    pageManager.replaceTop(page, allowNoop: allowNoop);
+  }
+
+  /// Snapshot del stack pendiente cuando se redirige a /login.
+  String? _pendingRouteChain;
+
+  /// Limpia cualquier intención pendiente previamente almacenada.
+  void clearPendingIntent() => _pendingRouteChain = null;
+  bool pop() => pageManager.pop();
+
+  void clearAndGoHome() => pageManager.goHome();
+
+  // --------------------------------------------------------------------------
+  // Menu actions → navegación centralizada en AppManager
+  // --------------------------------------------------------------------------
+
+  /// Dispara una acción desde el **Main Menu** (por convención, pushOnce).
+  void selectFromMainMenu(String location) => pushOnce(location);
+
+  /// Dispara una acción desde el **Secondary Menu** (por convención, pushOnce).
+  void selectFromSecondaryMenu(String location) => pushOnce(location);
+
+  // Si luego tenemos un tipo MenuItem, agregamos handlers tipeados:
+  // void handleMainMenuItem(MenuItem item) { ... }
+
+  // --------------------------------------------------------------------------
+  // Session coordination
+  // --------------------------------------------------------------------------
+  void onRequiresAuthAtTop() => goTo('/login');
+
+  void onAuthenticatedRestorePendingStack() {
+    if (_pendingRouteChain != null && _pendingRouteChain!.isNotEmpty) {
+      pageManager.setFromRouteChain(_pendingRouteChain!);
+      _pendingRouteChain = null;
+    } else {
+      clearAndGoHome();
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // UI helpers (loading / notifications)
+  // --------------------------------------------------------------------------
+  void notify(String message) => notifications.showToast(message);
+
+  Future<T> runWithLoading<T>(
+    Future<T> future, {
+    String label = 'Loading…',
+    Duration minShow = Duration.zero,
+  }) {
+    return loading.loadingWhile<T>(
+      label,
+      () async => future,
+      minShow: minShow,
+    );
+  }
+
+  Future<T> queueRunWithLoading<T>(
+    Future<T> Function() task, {
+    String label = 'Loading…',
+    Duration minShow = Duration.zero,
+  }) {
+    return loading.queueLoadingWhile<T>(
+      label,
+      task,
+      minShow: minShow,
+    );
+  }
+
+  // --------------------------------------------------------------------------
+  // Telemetry hooks (no-op by default)
+  // --------------------------------------------------------------------------
+  void trackPageView(
+    String name, {
+    Map<String, Object?> params = const <String, Object?>{},
+  }) {}
+  void trackEvent(
+    String id, {
+    Map<String, Object?> params = const <String, Object?>{},
+  }) {}
+
+  // --------------------------------------------------------------------------
+  FutureOr<void> dispose() {
+    if (_disposed) {
+      return null;
+    }
+    _disposed = true;
+    _config.dispose(); // si AppConfig es dueño de los blocs, libera allí
+  }
 }

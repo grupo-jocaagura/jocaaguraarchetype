@@ -120,7 +120,7 @@ class _DefaultNotFoundPage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: InkWell(
-          onTap: () => context.appManager.page.goHome(),
+          onTap: () => context.appManager.pageManager.goHome(),
           child: Text('404 — $location'),
         ),
       ),
@@ -139,7 +139,7 @@ class _RegistryRedirect extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final PageManager pm = context.appManager.page;
+      final PageManager pm = context.appManager.pageManager;
       if (stack != null) {
         pm.setStack(stack!);
       } else if (page != null) {

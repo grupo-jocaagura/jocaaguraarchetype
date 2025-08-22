@@ -14,6 +14,7 @@ export 'jocaaguraarchetype_domain.dart';
 part 'app_config.dart';
 part 'consts/app_constants.dart';
 part 'domain/blocs/app_manager.dart';
+part 'domain/blocs/bloc_app_config.dart';
 part 'domain/blocs/bloc_main_menu_drawer.dart';
 part 'domain/blocs/bloc_menu_base.dart';
 part 'domain/blocs/bloc_secondary_menu_drawer.dart';
