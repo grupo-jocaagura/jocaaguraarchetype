@@ -85,6 +85,26 @@ class AppManager {
 
   // Si luego tenemos un tipo MenuItem, agregamos handlers tipeados:
   // void handleMainMenuItem(MenuItem item) { ... }
+  // En AppManager
+  void replaceTopNamed(
+    String name, {
+    List<String>? segments,
+    Map<String, String>? query,
+    PageKind kind = PageKind.material,
+    bool requiresAuth = false,
+    Map<String, dynamic>? state,
+    bool allowNoop = false,
+  }) {
+    final PageModel page = PageModel(
+      name: name,
+      segments: segments ?? <String>[name],
+      query: query ?? const <String, String>{},
+      kind: kind,
+      requiresAuth: requiresAuth,
+      state: state ?? const <String, dynamic>{},
+    );
+    pageManager.replaceTop(page, allowNoop: allowNoop);
+  }
 
   // --------------------------------------------------------------------------
   // Session coordination

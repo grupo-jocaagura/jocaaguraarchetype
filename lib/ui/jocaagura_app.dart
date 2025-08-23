@@ -79,13 +79,13 @@ class JocaaguraApp extends StatefulWidget {
 }
 
 class _JocaaguraAppState extends State<JocaaguraApp> {
-  late final MyRouteInformationParser _parser; // provisto por el arquetipo
-  late final MyAppRouterDelegate _delegate; // provisto por el arquetipo
+  late MyRouteInformationParser _parser;
+  late MyAppRouterDelegate _delegate;
 
   @override
   void initState() {
     super.initState();
-    _parser = const MyRouteInformationParser();
+    _parser = MyRouteInformationParser();
     _delegate = MyAppRouterDelegate(
       registry: widget.registry,
       pageManager: widget.appManager.pageManager,
@@ -94,32 +94,50 @@ class _JocaaguraAppState extends State<JocaaguraApp> {
   }
 
   @override
+  void didUpdateWidget(covariant JocaaguraApp oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final bool managerChanged =
+        !identical(oldWidget.appManager, widget.appManager);
+    final bool registryChanged =
+        !identical(oldWidget.registry, widget.registry);
+    final bool projectorChanged =
+        oldWidget.projectorMode != widget.projectorMode;
+
+    if (managerChanged || registryChanged || projectorChanged) {
+      // recrea el delegate con las nuevas dependencias
+      _delegate = MyAppRouterDelegate(
+        registry: widget.registry,
+        pageManager: widget.appManager.pageManager,
+        projectorMode: widget.projectorMode,
+      );
+      setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return StreamBuilder<ThemeState>(
-      stream: widget.appManager.theme.stream,
-      initialData: widget.appManager.theme.stateOrDefault,
-      builder: (BuildContext context, AsyncSnapshot<ThemeState> snap) {
-        final ThemeState s = snap.data ?? ThemeState.defaults;
-
-        // Construcción UI-only del tema (no entra a dominio).
-        final ThemeData light = ThemeDataUtils.light(s);
-        final ThemeData dark = ThemeDataUtils.dark(s);
-
-        return MaterialApp.router(
-          debugShowCheckedModeBanner: false,
-          routerDelegate: _delegate,
-          routeInformationParser: _parser,
-          routeInformationProvider: PlatformRouteInformationProvider(
-            initialRouteInformation: RouteInformation(
-              uri: Uri.parse(widget.initialLocation),
+    return AppManagerProvider(
+      appManager: widget.appManager,
+      child: StreamBuilder<ThemeState>(
+        stream: widget.appManager.theme.stream,
+        initialData: widget.appManager.theme.stateOrDefault,
+        builder: (__, AsyncSnapshot<ThemeState> snap) {
+          final ThemeState s = snap.data ?? ThemeState.defaults;
+          return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            routerDelegate: _delegate,
+            routeInformationParser: _parser,
+            routeInformationProvider: PlatformRouteInformationProvider(
+              initialRouteInformation: RouteInformation(
+                uri: Uri.parse(widget.initialLocation),
+              ),
             ),
-          ),
-          theme: light,
-          darkTheme: dark,
-          themeMode: s
-              .mode, // proviene de ThemeState; settable vía BlocTheme.setMode(...)
-        );
-      },
+            theme: ThemeDataUtils.light(s),
+            darkTheme: ThemeDataUtils.dark(s),
+            themeMode: s.mode,
+          );
+        },
+      ),
     );
   }
 }

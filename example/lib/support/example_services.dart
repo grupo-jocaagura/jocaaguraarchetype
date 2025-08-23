@@ -1,3 +1,11 @@
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+
+class ExampleServices {
+  static final FakeServiceConnectivity connectivity = FakeServiceConnectivity();
+
+  static final ExampleAuth auth = ExampleAuth._();
+}
+
 class ExampleConnectivity {
   ExampleConnectivity._();
   static final ExampleConnectivity instance = ExampleConnectivity._();

@@ -1,60 +1,67 @@
-// example/lib/support/example_env.dart
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 import 'example_services.dart';
 
-/// Modos de ejecución para el example.
 enum AppMode { dev, qa }
 
-/// Entorno estático simple para el example (solo demo).
 class ExampleEnv {
   static late BlocAppConfig appConfigBloc;
   static late AppConfig cfgDev;
   static late AppConfig cfgQa;
 
-  /// Construye un AppConfig para el modo dado.
   static AppConfig buildConfig({
     required AppMode mode,
     required PageRegistry registry,
   }) {
-    // Onboarding steps: conectividad + sesión (Either<ErrorItem, Unit>).
     final List<OnboardingStep> steps = <OnboardingStep>[
       OnboardingStep(
         title: 'net-check',
         onEnter: () async {
-          final bool online = await ExampleConnectivity.instance.checkNow();
-          if (!online) {
+          try {
+            final ConnectionTypeEnum t =
+                await ExampleServices.connectivity.checkConnectivity();
+            final bool online = t != ConnectionTypeEnum.none;
+            if (!online) {
+              return Left<ErrorItem, Unit>(
+                const ErrorItem(
+                  title: 'Offline',
+                  code: 'NET_OFFLINE',
+                  description:
+                      'No network connection detected. Please check your connectivity.',
+                  errorLevel: ErrorLevelEnum.severe,
+                ),
+              );
+            }
+            return Right<ErrorItem, Unit>(Unit.value);
+          } catch (e) {
             return Left<ErrorItem, Unit>(
-              const ErrorItem(
-                title: 'offline',
-                code: 'offline',
-                description: 'No connection available',
+              ErrorItem(
+                title: 'Connectivity Error',
+                code: 'NET_CHECK_FAIL',
+                description: e.toString(),
                 errorLevel: ErrorLevelEnum.severe,
               ),
             );
           }
-          return Right<ErrorItem, Unit>(Unit.value);
         },
+        autoAdvanceAfter: const Duration(seconds: 1),
       ),
       OnboardingStep(
         title: 'session-check',
         onEnter: () async {
-          // La navegación final se decide tras completar el onboarding.
-          await ExampleAuth.instance.ensureInitializedAndCheck();
+          await ExampleServices.auth.ensureInitializedAndCheck();
           return Right<ErrorItem, Unit>(Unit.value);
         },
+        autoAdvanceAfter: const Duration(seconds: 1),
       ),
-      // (Opcional) Auto-advance explícito por UX:
-      // OnboardingStep(title: 'finish', autoAdvanceAfter: const Duration(milliseconds: 1)),
     ];
 
-    // Preconfigurar fakes por modo
     if (mode == AppMode.dev) {
-      ExampleConnectivity.instance.setOnline(true);
-      ExampleAuth.instance.setLoggedIn(false);
+      ExampleServices.connectivity.simulateConnection(ConnectionTypeEnum.wifi);
+      ExampleServices.auth.setLoggedIn(false);
     } else {
-      ExampleConnectivity.instance.setOnline(true);
-      ExampleAuth.instance.setLoggedIn(true);
+      ExampleServices.connectivity.simulateConnection(ConnectionTypeEnum.wifi);
+      ExampleServices.auth.setLoggedIn(true);
     }
 
     return AppConfig.dev(

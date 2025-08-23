@@ -56,6 +56,7 @@ class _ExampleRootState extends State<ExampleRoot> {
         final AppConfig cfg = snap.data ?? _current;
         final AppManager manager = AppManager(cfg);
         return JocaaguraApp(
+          key: ObjectKey(cfg),
           appManager: manager,
           registry: widget.registry,
           projectorMode: false,
