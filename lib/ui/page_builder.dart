@@ -12,28 +12,72 @@ class PageBuilder extends StatefulWidget {
 
 class _PageBuilderState extends State<PageBuilder> {
   // Suscripciones para re-render ante cambios de tamaño y menús.
-  late final StreamSubscription<Size> _sizeSub;
-  late final StreamSubscription<void> _mainMenuSub;
-  late final StreamSubscription<List<ModelMainMenuModel>> _secondaryMenuSub;
+  StreamSubscription<Size>? _sizeSub;
+  StreamSubscription<void>? _mainMenuSub;
+  StreamSubscription<List<ModelMainMenuModel>>? _secondaryMenuSub;
+
+  AppManager? _app; // cache del AppManager
+  bool _boundStreams = false; // evita re-suscribir innecesariamente
 
   @override
   void initState() {
     super.initState();
+    // ⚠️ No usar context aquí. Se hace en didChangeDependencies().
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Punto *seguro* para leer InheritedWidgets.
     final AppManager app = context.appManager;
 
-    _sizeSub =
-        app.responsive.appScreenSizeStream.listen((Size _) => setState(() {}));
-    _mainMenuSub =
-        app.mainMenu.listMenuOptionsStream.listen((void _) => setState(() {}));
-    _secondaryMenuSub = app.secondaryMenu.listDrawerOptionSizeStream
-        .listen((List<ModelMainMenuModel> _) => setState(() {}));
+    // Si cambió el provider o nunca nos habíamos enlazado, (re)enlazar streams.
+    if (!identical(_app, app) || !_boundStreams) {
+      _unbindStreams();
+      _app = app;
+      _bindStreams(app);
+      _boundStreams = true;
+    }
+  }
+
+  void _bindStreams(AppManager app) {
+    _sizeSub = app.responsive.appScreenSizeStream.listen((Size _) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    });
+
+    _mainMenuSub = app.mainMenu.listMenuOptionsStream.listen((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    });
+
+    // Si tu stream del menú secundario emite otro tipo, ajusta el genérico.
+    _secondaryMenuSub =
+        app.secondaryMenu.listDrawerOptionSizeStream.listen((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    });
+  }
+
+  void _unbindStreams() {
+    _sizeSub?.cancel();
+    _mainMenuSub?.cancel();
+    _secondaryMenuSub?.cancel();
+    _sizeSub = null;
+    _mainMenuSub = null;
+    _secondaryMenuSub = null;
   }
 
   @override
   void dispose() {
-    _sizeSub.cancel();
-    _mainMenuSub.cancel();
-    _secondaryMenuSub.cancel();
+    _unbindStreams();
     super.dispose();
   }
 
@@ -54,14 +98,14 @@ class _PageBuilderState extends State<PageBuilder> {
 
     // Drawer (mobile): mapeo a DrawerOptionWidget (API nueva)
     final double gap =
-        responsive.gutterWidth.clamp(8.0, 16.0); // <- cast a double
+        responsive.gutterWidth.clamp(8.0, 16.0); // cast explícito
 
     final List<Widget> primaryMenuTiles = <Widget>[
       for (final ModelMainMenuModel it in app.mainMenu.listMenuOptions)
         Padding(
           padding: EdgeInsets.symmetric(
             horizontal: gap,
-            vertical: (responsive.gutterWidth * 0.25).clamp(4.0, 8.0), // cast
+            vertical: (responsive.gutterWidth * 0.25).clamp(4.0, 8.0),
           ),
           child: DrawerOptionWidget(
             responsive: responsive,
@@ -71,7 +115,8 @@ class _PageBuilderState extends State<PageBuilder> {
             onTap: () {
               it.onPressed();
               // cerrar el drawer si está abierto
-              if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+              final ScaffoldState? sc = Scaffold.maybeOf(context);
+              if (sc?.isDrawerOpen ?? false) {
                 Navigator.of(context).maybePop();
               }
               setState(() {});
@@ -153,55 +198,21 @@ final Expando<int> _mmBadgeCount = Expando<int>('mm.badgeCount');
 final Expando<String> _mmTooltip = Expando<String>('mm.tooltip');
 
 /// UI extensions for [ModelMainMenuModel] without modifying jocaagura_domain.
-///
-/// These properties are **UI-only** and are stored via `Expando`, so they do
-/// not change the original model nor require codegen/serialization changes.
-///
-/// ### Provided properties
-/// - `selected` / `isSelected` (default: `false`)
-/// - `enabled` (default: `true`)
-/// - `badgeCount` (default: `null`)
-/// - `tooltip` (default: `null`)
-///
-/// ### Example
-/// ```dart
-/// final item = ModelMainMenuModel(
-///   iconData: Icons.home,
-///   onPressed: () {},
-///   label: 'Home',
-/// )
-///   ..selected = true
-///   ..badgeCount = 3
-///   ..tooltip = 'Go home';
-///
-/// // Back-compat
-/// debugPrint('isSelected? ${item.isSelected}'); // true
-/// ```
 extension ModelMainMenuModelX on ModelMainMenuModel {
-  /// Selection flag for UI.
   bool get selected => _mmSelected[this] ?? false;
   set selected(bool v) => _mmSelected[this] = v;
 
-  /// Backwards-compatible alias used by older code.
   bool get isSelected => selected;
 
-  /// Whether the menu item is enabled/tappable in UI.
   bool get enabled => _mmEnabled[this] ?? true;
   set enabled(bool v) => _mmEnabled[this] = v;
 
-  /// Optional numeric badge (e.g., unread count).
   int? get badgeCount => _mmBadgeCount[this];
   set badgeCount(int? v) => _mmBadgeCount[this] = v;
 
-  /// Optional tooltip text.
   String? get tooltip => _mmTooltip[this];
   set tooltip(String? v) => _mmTooltip[this] = v;
 
-  /// Fluent helper to set multiple UI fields and return `this`.
-  ///
-  /// ```dart
-  /// item.ui(selected: true, badgeCount: 7, tooltip: 'Inbox');
-  /// ```
   ModelMainMenuModel ui({
     bool? selected,
     bool? enabled,

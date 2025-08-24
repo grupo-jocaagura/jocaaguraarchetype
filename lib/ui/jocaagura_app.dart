@@ -85,7 +85,7 @@ class _JocaaguraAppState extends State<JocaaguraApp> {
   @override
   void initState() {
     super.initState();
-    _parser = MyRouteInformationParser();
+    _parser = const MyRouteInformationParser();
     _delegate = MyAppRouterDelegate(
       registry: widget.registry,
       pageManager: widget.appManager.pageManager,
