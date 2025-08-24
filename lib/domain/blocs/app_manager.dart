@@ -169,4 +169,11 @@ class AppManager {
     _disposed = true;
     _config.dispose(); // si AppConfig es dueño de los blocs, libera allí
   }
+
+  @visibleForTesting
+  void debugSetPendingRouteChain(String? chain) {
+    if (_pendingRouteChain != chain) {
+      _pendingRouteChain = chain;
+    }
+  }
 }
