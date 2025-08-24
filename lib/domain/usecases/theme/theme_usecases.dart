@@ -10,6 +10,9 @@ class ThemeUsecases {
     required this.setTextScale,
     required this.reset,
     required this.randomize,
+    required this.applyPatch,
+    required this.setFromState,
+    required this.buildThemeData,
   });
 
   factory ThemeUsecases.fromRepo(
@@ -25,6 +28,9 @@ class ThemeUsecases {
       setTextScale: SetThemeTextScale(repository),
       reset: ResetTheme(repository),
       randomize: RandomizeTheme(repository, serviceTheme),
+      applyPatch: ApplyThemePatch(repository),
+      setFromState: SetThemeState(repository),
+      buildThemeData: const BuildThemeData(),
     );
   }
 
@@ -36,6 +42,27 @@ class ThemeUsecases {
   final SetThemeTextScale setTextScale;
   final ResetTheme reset;
   final RandomizeTheme randomize;
+  final ApplyThemePatch applyPatch;
+  final SetThemeState setFromState;
+  final BuildThemeData buildThemeData;
+}
+
+class ApplyThemePatch with _ThemeUpdate {
+  ApplyThemePatch(this.repo);
+  final RepositoryTheme repo;
+
+  /// Applies a partial patch on top of current ThemeState and persists it.
+  Future<Either<ErrorItem, ThemeState>> call(ThemePatch patch) =>
+      update(repo, patch.applyOn);
+}
+
+class SetThemeState {
+  const SetThemeState(this.repo);
+  final RepositoryTheme repo;
+
+  /// Saves a complete ThemeState provided by the UI (full replacement).
+  Future<Either<ErrorItem, ThemeState>> call(ThemeState next) =>
+      repo.save(next);
 }
 
 mixin _ThemeUpdate {

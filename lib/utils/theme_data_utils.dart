@@ -1,32 +1,58 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// Utilitario UI-only para construir ThemeData desde ThemeState.
-/// No forma parte del dominio ni del Bloc; no requiere DI.
-class ThemeDataUtils {
-  const ThemeDataUtils._(); // no instanciable
+/// Builds ThemeData from ThemeState combining seed-generated schemes
+/// with optional per-scheme overrides. UI-only helper.
+class BuildThemeData {
+  const BuildThemeData();
 
-  static ColorScheme _scheme(Color seed, Brightness b) =>
-      ColorScheme.fromSeed(seedColor: seed, brightness: b);
+  static ThemeData fromState(ThemeState s, {TextTheme? baseTextTheme}) {
+    final bool dark = s.mode == ThemeMode.dark;
 
-  static ThemeData light(ThemeState s) {
-    final ThemeData base = ThemeData.from(
-      colorScheme: _scheme(s.seed, Brightness.light),
-      useMaterial3: s.useMaterial3,
+    // 1) Base desde seed
+    final ColorScheme base = ColorScheme.fromSeed(
+      seedColor: s.seed,
+      brightness: dark ? Brightness.dark : Brightness.light,
     );
-    return base.copyWith(
-      textTheme: base.textTheme.apply(fontSizeFactor: s.textScale),
+
+    // 2) Overrides opcionales
+    final ColorScheme effective = _mergeOverrides(
+      base,
+      dark ? s.overrides?.dark : s.overrides?.light,
+    );
+
+    // 3) Material 3 + textScale
+    final ThemeData t = ThemeData(
+      useMaterial3: s.useMaterial3,
+      colorScheme: effective,
+      textTheme: baseTextTheme,
+    );
+    return t.copyWith(
+      textTheme:
+          (baseTextTheme ?? t.textTheme).apply(fontSizeFactor: s.textScale),
       visualDensity: VisualDensity.standard,
     );
   }
 
-  static ThemeData dark(ThemeState s) {
-    final ThemeData base = ThemeData.from(
-      colorScheme: _scheme(s.seed, Brightness.dark),
-      useMaterial3: s.useMaterial3,
-    );
+  static ColorScheme _mergeOverrides(ColorScheme base, ColorScheme? ovr) {
+    if (ovr == null) {
+      return base;
+    }
     return base.copyWith(
-      textTheme: base.textTheme.apply(fontSizeFactor: s.textScale),
-      visualDensity: VisualDensity.standard,
+      primary: ovr.primary,
+      onPrimary: ovr.onPrimary,
+      secondary: ovr.secondary,
+      onSecondary: ovr.onSecondary,
+      tertiary: ovr.tertiary,
+      onTertiary: ovr.onTertiary,
+      error: ovr.error,
+      onError: ovr.onError,
+      surface: ovr.surface,
+      onSurface: ovr.onSurface,
+      surfaceTint: ovr.surfaceTint,
+      outline: ovr.outline,
+      onSurfaceVariant: ovr.onSurfaceVariant,
+      inverseSurface: ovr.inverseSurface,
+      inversePrimary: ovr.inversePrimary,
     );
   }
 }
