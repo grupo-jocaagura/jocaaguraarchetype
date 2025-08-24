@@ -226,7 +226,7 @@ class _SecondaryMenuDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppManager app = context.appManager;
     return StreamBuilder<List<ModelMainMenuModel>>(
-      stream: app.secondaryMenu.listMenuOptionsStream,
+      stream: app.secondaryMenu.itemsStream,
       initialData: app.secondaryMenu.listMenuOptions,
       builder: (_, AsyncSnapshot<List<ModelMainMenuModel>> snapshot) {
         final List<ModelMainMenuModel> options =

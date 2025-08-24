@@ -57,8 +57,7 @@ class _PageBuilderState extends State<PageBuilder> {
     });
 
     // Si tu stream del menú secundario emite otro tipo, ajusta el genérico.
-    _secondaryMenuSub =
-        app.secondaryMenu.listDrawerOptionSizeStream.listen((_) {
+    _secondaryMenuSub = app.secondaryMenu.itemsStream.listen((_) {
       if (!mounted) {
         return;
       }

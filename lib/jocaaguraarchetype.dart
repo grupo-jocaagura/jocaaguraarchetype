@@ -28,7 +28,6 @@ part 'domain/repositories/repository_theme.dart';
 part 'domain/services/service_theme.dart';
 part 'domain/states/theme_state.dart';
 part 'domain/usecases/theme/theme_usecases.dart';
-part 'navigator/custom_page.dart';
 part 'src/fake_services/fake_service_jocaagura_archetype_theme.dart';
 part 'src/gateways/gateway_theme_impl.dart';
 part 'src/repositories/repository_theme_impl.dart';

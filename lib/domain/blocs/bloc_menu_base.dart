@@ -77,8 +77,14 @@ abstract class BlocMenuBase extends BlocModule {
     _itemsCtrl.value = list;
   }
 
+  bool _isDisposed = false;
+  bool get disposed => _isDisposed;
   @override
   FutureOr<void> dispose() {
+    if (_isDisposed) {
+      return null;
+    }
+    _isDisposed = true;
     _itemsCtrl.dispose();
   }
 }

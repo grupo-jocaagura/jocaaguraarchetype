@@ -17,9 +17,6 @@ class BlocSecondaryMenuDrawer extends BlocMenuBase {
 
   static const String name = 'BlocSecondaryMenuDrawer';
 
-  // Stream y snapshot con nombres actuales
-  Stream<List<ModelMainMenuModel>> get listDrawerOptionSizeStream =>
-      itemsStream;
   List<ModelMainMenuModel> get listMenuOptions => items;
 
   void clearSecondaryDrawer() => clear();
@@ -59,8 +56,4 @@ class BlocSecondaryMenuDrawer extends BlocMenuBase {
 
   @Deprecated('Use clearSecondaryDrawer instead.')
   void clearMainDrawer() => clearSecondaryDrawer();
-
-  @Deprecated('Use listDrawerOptionSizeStream (or itemsStream).')
-  Stream<List<ModelMainMenuModel>> get listMenuOptionsStream =>
-      listDrawerOptionSizeStream;
 }
