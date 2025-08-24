@@ -49,6 +49,9 @@ class NavStackModel extends Model {
     return NavStackModel(parsed);
   }
 
+  static const String rootName = 'root';
+  static const String pagesKey = 'pages';
+
   /// Back stack, bottom→top.
   final List<PageModel> pages;
 
@@ -89,7 +92,7 @@ class NavStackModel extends Model {
   @override
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'pages': pages.map((PageModel p) => p.toJson()).toList(growable: false),
+      pagesKey: pages.map((PageModel p) => p.toJson()).toList(growable: false),
     };
   }
 
@@ -103,7 +106,7 @@ class NavStackModel extends Model {
   static NavStackModel decodeRouteChain(String chain) {
     if (chain.trim().isEmpty) {
       return NavStackModel.single(
-        const PageModel(name: 'root', segments: <String>[]),
+        const PageModel(name: rootName, segments: <String>[]),
       );
     }
     final List<PageModel> parsed = chain
@@ -115,7 +118,7 @@ class NavStackModel extends Model {
 
     return NavStackModel(
       parsed.isEmpty
-          ? <PageModel>[const PageModel(name: 'root', segments: <String>[])]
+          ? <PageModel>[const PageModel(name: rootName, segments: <String>[])]
           : parsed,
     );
   }
