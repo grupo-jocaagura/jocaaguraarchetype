@@ -135,10 +135,17 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
         actions: <Widget>[
-          IconButton(
-            tooltip: 'Abrir menú secundario',
-            icon: const Icon(Icons.more_vert),
-            onPressed: () => Scaffold.of(context).openEndDrawer(),
+          StreamBuilder<List<ModelMainMenuModel>>(
+            stream: app.secondaryMenu.itemsStream,
+            builder: (_, __) {
+              return (app.secondaryMenu.items.isNotEmpty)
+                  ? IconButton(
+                      tooltip: 'Abrir menú secundario',
+                      icon: const Icon(Icons.more_vert),
+                      onPressed: () => Scaffold.of(context).openEndDrawer(),
+                    )
+                  : const SizedBox.shrink();
+            },
           ),
         ],
       ),
