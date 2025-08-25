@@ -1,114 +1,90 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/physics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
-  group('Initial tests', () {
-    test('Test colorToLab', () {
-      const Color color = Color.fromRGBO(255, 0, 0, 1);
-      final List<double> lab = LabColor.colorToLab(color);
-      expect(
-        nearEqual(lab[0], lab[0], 1),
-        nearEqual(53.24, 53.24, 1),
-      );
+  group('LabColor · colorToLab (conocidos sRGB→Lab aprox)', () {
+    // Tolerancias “de ingeniería” por redondeos/gamma
+    const double tolL = 0.6;
+    const double tola = 1.0;
+    const double tolb = 1.0;
+
+    test('Rojo puro (255,0,0) ~ L≈53.2 a≈80.1 b≈67.2', () {
+      final List<double> lab = LabColor.colorToLab(const Color(0xFFFF0000));
+      expect(lab[0], closeTo(53.24, tolL));
+      expect(lab[1], closeTo(80.09, tola));
+      expect(lab[2], closeTo(67.20, tolb));
     });
 
-    test('Test rgbToXyz', () {
-      final List<double> xyz = LabColor.rgbToXyz(255, 0, 0);
-      expect(
-        nearEqual(
-          xyz[0],
-          xyz[0],
-          1,
-        ),
-        nearEqual(
-          41.2464,
-          41.2464,
-          1,
-        ),
-      );
+    test('Verde puro (0,255,0) ~ L≈87.73 a≈−86.18 b≈83.18', () {
+      final List<double> lab = LabColor.colorToLab(const Color(0xFF00FF00));
+      expect(lab[0], closeTo(87.73, 0.8));
+      expect(lab[1], closeTo(-86.18, 1.2));
+      expect(lab[2], closeTo(83.18, 1.2));
     });
 
-    test('Test xyzToLab', () {
-      final List<double> lab = LabColor.xyzToLab(
-        41.24642268041237,
-        21.267213114754098,
-        1.9338842975206612,
-      );
-      expect(
-        nearEqual(lab[0], lab[0], 1),
-        nearEqual(53.2407, 53.2407, 1),
-      );
-    });
-
-    test('Test labToColor', () {
-      final List<int> color = LabColor.labToColor(
-        53.24079414146717,
-        80.09245959669247,
-        67.20319618020961,
-      );
-      expect(color, equals(<double>[255, 0, 0]));
-    });
-  });
-  group('LabColor.colorValue', () {
-    test('Debe generar el valor ARGB correcto para un color dado', () {
-      final int result = LabColor.colorValue(255, 0, 0); // Rojo puro
-      expect(result, equals(0xFFFF0000));
-    });
-
-    test(
-        'Debe generar el valor ARGB correcto para un color con componentes mixtos',
-        () {
-      final int result = LabColor.colorValue(128, 128, 128); // Gris medio
-      expect(result, equals(0xFF808080));
-    });
-
-    test('Debe generar el valor ARGB correcto para negro', () {
-      final int result = LabColor.colorValue(0, 0, 0); // Negro
-      expect(result, equals(0xFF000000));
-    });
-
-    test('Debe generar el valor ARGB correcto para blanco', () {
-      final int result = LabColor.colorValue(255, 255, 255); // Blanco
-      expect(result, equals(0xFFFFFFFF));
-    });
-
-    test('Debe lanzar una excepción si los valores están fuera de rango', () {
-      expect(
-        () => LabColor.colorValue(-1, 0, 0),
-        throwsA(isA<AssertionError>()),
-      );
-      expect(
-        () => LabColor.colorValue(256, 0, 0),
-        throwsA(isA<AssertionError>()),
-      );
+    test('Azul puro (0,0,255) ~ L≈32.30 a≈79.20 b≈−107.86', () {
+      final List<double> lab = LabColor.colorToLab(const Color(0xFF0000FF));
+      expect(lab[0], closeTo(32.30, 0.8));
+      expect(lab[1], closeTo(79.20, 1.2));
+      expect(lab[2], closeTo(-107.86, 1.8));
     });
   });
 
-  group('LabColor.colorValueFromColor', () {
-    test('Debe generar el valor ARGB correcto para un color Material', () {
-      const Color color = Color(0xFF00FF00); // Verde puro
-      final int result = LabColor.colorValueFromColor(color);
-      expect(result, equals(0xFF00FF00));
+  group('LabColor · Round-trip RGB→Lab→RGB', () {
+    test('colores aleatorios quedan a ±1 por canal', () {
+      final Random rnd = Random(42);
+      for (int i = 0; i < 25; i += 1) {
+        final int r = rnd.nextInt(256);
+        final int g = rnd.nextInt(256);
+        final int b = rnd.nextInt(256);
+
+        final List<double> lab = LabColor.colorToLab(Color.fromARGB(255, r, g, b));
+        final List<int> rgb = LabColor.labToColor(lab[0], lab[1], lab[2]);
+
+        expect((rgb[0] - r).abs(), lessThanOrEqualTo(1));
+      expect((rgb[1] - g).abs(), lessThanOrEqualTo(1));
+      expect((rgb[2] - b).abs(), lessThanOrEqualTo(1));
+    }
+    });
+  });
+
+  group('LabColor · Monotonicidad de L', () {
+    test('subir L +10 eleva la L medida tras round-trip', () {
+      const Color base = Color(0xFF4A90E2); // azul medio
+      final List<double> lab0 = LabColor.colorToLab(base);
+
+      final List<int> rgbUp =
+      LabColor.labToColor(lab0[0] + 10.0, lab0[1], lab0[2]);
+      final List<double> labUp =
+      LabColor.colorToLab(Color.fromARGB(255, rgbUp[0], rgbUp[1], rgbUp[2]));
+
+      expect(labUp[0], greaterThan(lab0[0]));
     });
 
-    test('Debe manejar colores con componentes mixtos correctamente', () {
-      const Color color = Color(0xFF123456); // Color arbitrario
-      final int result = LabColor.colorValueFromColor(color);
-      expect(result, equals(0xFF123456));
+    test('bajar L -10 reduce la L medida tras round-trip', () {
+      const Color base = Color(0xFF4A90E2);
+      final List<double> lab0 = LabColor.colorToLab(base);
+
+      final List<int> rgbDown =
+      LabColor.labToColor(lab0[0] - 10.0, lab0[1], lab0[2]);
+      final List<double> labDown =
+      LabColor.colorToLab(Color.fromARGB(255, rgbDown[0], rgbDown[1], rgbDown[2]));
+
+      expect(labDown[0], lessThan(lab0[0]));
+    });
+  });
+
+  group('LabColor · utilitarios ARGB', () {
+    test('colorValue produce ARGB esperado', () {
+      final int v = LabColor.colorValue(0x12, 0x34, 0x56);
+      expect(v, 0xFF123456);
     });
 
-    test('Debe generar el valor ARGB correcto para negro', () {
-      const Color color = Color(0xFF000000); // Negro
-      final int result = LabColor.colorValueFromColor(color);
-      expect(result, equals(0xFF000000));
-    });
-
-    test('Debe generar el valor ARGB correcto para blanco', () {
-      const Color color = Color(0xFFFFFFFF); // Blanco
-      final int result = LabColor.colorValueFromColor(color);
-      expect(result, equals(0xFFFFFFFF));
+    test('colorValueFromColor extrae canales nativos', () {
+      const Color c = Color(0xFFABCDEF);
+      expect(LabColor.colorValueFromColor(c), 0xFFABCDEF);
     });
   });
 }

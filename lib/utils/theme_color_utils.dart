@@ -1,7 +1,7 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class ThemeColorUtils {
-  const ThemeColorUtils._(); // no instanciable
+  const ThemeColorUtils();
 
   static bool validateHexColor(String colorHex) {
     const String pattern = r'^#([A-Fa-f0-9]{6})$';
@@ -19,19 +19,22 @@ class ThemeColorUtils {
     return Color.fromRGBO(rgb[0], rgb[1], rgb[2], 1);
   }
 
-  static Color getDarker(Color color, {double amount = .1}) {
+  static Color getDarker(Color c, {double amount = .10}) {
     assert(amount > 0 && amount < 1);
-    final LabColor lab = convertToLab(color);
-    final LabColor darker = lab.withLightness(lab.lightness - amount);
-    return convertToRgb(darker);
+    final List<double> lab = LabColor.colorToLab(c);
+    final double L = (lab[0] - 100.0 * amount).clamp(0.0, 100.0);
+    final List<int> rgb = LabColor.labToColor(L, lab[1], lab[2]);
+    return Color.fromARGB(255, rgb[0], rgb[1], rgb[2]);
   }
 
-  static Color getLighter(Color color, {double amount = .1}) {
+  static Color getLighter(Color c, {double amount = .10}) {
     assert(amount > 0 && amount < 1);
-    final LabColor lab = convertToLab(color);
-    final LabColor lighter = lab.withLightness(lab.lightness + amount);
-    return convertToRgb(lighter);
+    final List<double> lab = LabColor.colorToLab(c);
+    final double L = (lab[0] + 100.0 * amount).clamp(0.0, 100.0);
+    final List<int> rgb = LabColor.labToColor(L, lab[1], lab[2]);
+    return Color.fromARGB(255, rgb[0], rgb[1], rgb[2]);
   }
+
 
   static MaterialColor materialColorFromRGB(int r, int g, int b) {
     assert(r >= 0 && r <= 255);
