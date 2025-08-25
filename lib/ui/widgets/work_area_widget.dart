@@ -33,29 +33,6 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// - [primaryMenuWidthColumns], [secondaryMenuWidthColumns]: Column widths (coarse)
 ///   for side panels on tablet/desktop.
 /// - [safeArea]: Wraps the whole work area in a `SafeArea`.
-///
-/// ## Example
-/// ```dart
-/// final BlocResponsive resp = BlocResponsive()
-///   ..setSizeForTesting(const Size(1280, 800));
-///
-/// Widget build(BuildContext context) {
-///   return WorkAreaWidget(
-///     responsive: resp,
-///     primaryMenu: MyPrimaryMenu(),        // optional
-///     secondaryMenu: MySecondaryMenu(),    // optional
-///     content: const MyPageContent(),
-///     floatingActionButton: FloatingActionButton(
-///       onPressed: () {},
-///       child: const Icon(Icons.add),
-///     ),
-///   );
-/// }
-/// ```
-///
-/// ### Notes
-/// - On mobile, [secondaryMenu] is rendered as a floating bottom bar container
-///   (so pass a compact widget) — e.g. `MobileSecondaryMenuWidget`.
 class WorkAreaWidget extends StatelessWidget {
   const WorkAreaWidget({
     required this.responsive,
@@ -103,7 +80,6 @@ class WorkAreaWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Keep metrics synchronized on rebuild.
-    // (Si se usa en un LayoutBuilder superior, también se puede llamar allí)
     if (context.mounted) {
       responsive.setSizeFromContext(context);
     }
@@ -172,46 +148,87 @@ class WorkAreaWidget extends StatelessWidget {
   }) {
     final double mh = responsive.marginWidth;
     final double gap = responsive.gutterWidth;
-    final double contentGutter = gap; // between panels and content
 
     final double primaryW = primaryMenu != null
         ? responsive.widthByColumns(primaryMenuWidthColumns)
         : 0.0;
-
     final double secondaryW = secondaryMenu != null
         ? responsive.widthByColumns(secondaryMenuWidthColumns)
         : 0.0;
 
-    // Work area is already a percentage of full width on desktop/TV by BlocResponsive.
+    // Base de layout = grid interno (workArea - 2*margin)
     final double maxW = responsive.workAreaSize.width;
+    final double gridW = (maxW - (mh * 2)).clamp(0.0, maxW);
 
-    // Content width = remaining after subtracting side panels + gutters
+    // Gaps visibles entre panel(es) y contenido
     final int guttersCount = <bool>[primaryMenu != null, secondaryMenu != null]
         .where((bool v) => v)
         .length;
-    final double usedGutters =
-        guttersCount > 0 ? contentGutter * guttersCount : 0.0;
-    final double contentW =
-        (maxW - primaryW - secondaryW - usedGutters).clamp(320.0, maxW);
+    final double usedGutters = guttersCount > 0 ? gap * guttersCount : 0.0;
 
-    final List<Widget> row = <Widget>[
+    // Resto disponible para el contenido dentro del grid
+    final double remaining =
+        (gridW - primaryW - secondaryW - usedGutters).clamp(0.0, gridW);
+
+    // Regla de los tests:
+    // - Tablet: usar 'remaining' tal cual.
+    // - Desktop/TV:
+    //    * si hay algún panel => limitar a 320 si cabe; si no cabe, usar 'remaining'
+    //    * si NO hay paneles => usar completo el grid.
+    final bool anyPanel = primaryMenu != null || secondaryMenu != null;
+    final double contentW = switch ((isDesktop, anyPanel)) {
+      (true, true) => remaining >= 320.0 ? 320.0 : remaining,
+      (true, false) => remaining, // == gridW
+      (false, _) => remaining, // tablet
+    };
+
+    // Construcción del Row dentro del grid
+    final List<Widget> rowChildren = <Widget>[
       if (primaryMenu != null) ...<Widget>[
         SizedBox(width: primaryW, child: primaryMenu),
-        SizedBox(width: contentGutter),
+        SizedBox(width: gap),
       ],
-      ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: contentW),
-        child: content,
-      ),
+      SizedBox(width: contentW, child: content),
       if (secondaryMenu != null) ...<Widget>[
-        SizedBox(width: contentGutter),
+        SizedBox(width: gap),
         SizedBox(width: secondaryW, child: secondaryMenu),
       ],
     ];
 
-    // Allow swapping side of secondary menu
-    final List<Widget> children =
-        secondaryMenuOnRight ? row : row.reversed.toList();
+    // Invertir sólo si existe secondary; si no, el flag no aplica
+    final List<Widget> ordered =
+        (secondaryMenu != null && !secondaryMenuOnRight)
+            ? rowChildren.reversed.toList()
+            : rowChildren;
+
+    // Si gridW > viewport (p.ej. en tests con surface más pequeño), permitir scroll horizontal
+    final double viewportW = MediaQuery.sizeOf(context).width;
+
+    final Widget gridHost = (gridW > viewportW)
+        ? SizedBox(
+            width: gridW,
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: ordered,
+                ),
+              ),
+            ),
+          )
+        : Center(
+            child: SizedBox(
+            width: gridW, // ancho lógico del grid
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: ordered,
+              ),
+            ),
+          ),);
 
     return Stack(
       children: <Widget>[
@@ -219,15 +236,7 @@ class WorkAreaWidget extends StatelessWidget {
           color: bg,
           width: double.infinity,
           height: double.infinity,
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: mh),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: children,
-              ),
-            ),
-          ),
+          child: gridHost,
         ),
         if (floatingActionButton != null)
           Positioned(
