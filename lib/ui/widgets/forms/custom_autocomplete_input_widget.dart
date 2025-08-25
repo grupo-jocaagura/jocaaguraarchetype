@@ -207,7 +207,6 @@ class CustomAutoCompleteInputWidgetState
           keyboardType: widget.textInputType,
           textInputAction: TextInputAction.done,
           textCapitalization: TextCapitalization.sentences,
-          autocorrect: true,
           onChanged: _onChangedWithOptionalDebounce,
           onEditingComplete: () {
             final String v = controller.text;
