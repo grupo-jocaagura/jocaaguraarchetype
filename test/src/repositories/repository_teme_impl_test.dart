@@ -381,6 +381,108 @@ void main() {
           );
         });
   });
+  group('RepositoryThemeImpl · overrides (ThemeOverrides)', () {
+    test('read() mapea correctamente overrides light/dark desde payload', () async {
+      final ThemeOverrides overrides = ThemeOverrides(
+        light: ColorScheme.fromSeed(seedColor: const Color(0xFF8E4D2F)),
+        dark: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF8E4D2F),
+          brightness: Brightness.dark,
+        ),
+      );
+
+      final Map<String, dynamic> payload = ThemeState.defaults
+          .copyWith(preset: 'designer', overrides: overrides)
+          .toJson();
+
+      final RepositoryTheme repo = RepositoryThemeImpl(
+        gateway: _GwReadRight(payload),
+        errorMapper: _FakeMapper(),
+      );
+
+      final Either<ErrorItem, ThemeState> r = await repo.read();
+      r.when(
+            (ErrorItem _) => fail('No debía fallar al mapear overrides'),
+            (ThemeState s) {
+          expect(s.preset, 'designer');
+          expect(s.overrides, isNotNull);
+          // Brillos correctos
+          expect(s.overrides!.light!.brightness, Brightness.light);
+          expect(s.overrides!.dark!.brightness, Brightness.dark);
+          // Sanity de un par de slots (evitamos comparaciones totales del scheme)
+          expect(s.overrides!.light!.primary, overrides.light!.primary);
+          expect(s.overrides!.dark!.primary, overrides.dark!.primary);
+        },
+      );
+    });
+
+    test('save() preserva overrides al pasar por el gateway (echo)', () async {
+      final ThemeOverrides overrides = ThemeOverrides(
+        light: ColorScheme.fromSeed(seedColor: const Color(0xFF445566)),
+        dark: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF445566),
+          brightness: Brightness.dark,
+        ),
+      );
+
+      final RepositoryTheme repo = RepositoryThemeImpl(
+        gateway: _GwWriteEcho(),
+        errorMapper: _FakeMapper(),
+      );
+
+      final ThemeState next = ThemeState.defaults.copyWith(
+        preset: 'custom-over',
+        overrides: overrides,
+        // de paso verificamos otros campos no-interferentes
+        seed: const Color(0xFF112233),
+        useMaterial3: true,
+        textScale: 1.1,
+      );
+
+      final Either<ErrorItem, ThemeState> r = await repo.save(next);
+      r.when(
+            (ErrorItem _) => fail('No debía fallar guardando overrides'),
+            (ThemeState s) {
+          expect(s.preset, 'custom-over');
+          expect(s.overrides, isNotNull);
+          // Brillos correctos
+          expect(s.overrides!.light!.brightness, Brightness.light);
+          expect(s.overrides!.dark!.brightness, Brightness.dark);
+          // Un par de slots para asegurar igualdad
+          expect(s.overrides!.light!.primary, overrides.light!.primary);
+          expect(s.overrides!.dark!.primary, overrides.dark!.primary);
+          // Y el resto del estado también viajó bien
+          expect(s.seed.toARGB32(), 0xFF112233);
+          expect(s.useMaterial3, isTrue);
+          expect(s.textScale, 1.1);
+        },
+      );
+    });
+
+    test('read() con solo light → dark queda null (payload parcial)', () async {
+      final ThemeOverrides overrides = ThemeOverrides(
+        light: ColorScheme.fromSeed(seedColor: const Color(0xFF009688)),
+      );
+
+      final RepositoryTheme repo = RepositoryThemeImpl(
+        gateway: _GwReadRight(
+          ThemeState.defaults.copyWith(overrides: overrides).toJson(),
+        ),
+        errorMapper: _FakeMapper(),
+      );
+
+      final Either<ErrorItem, ThemeState> r = await repo.read();
+      r.when(
+            (ErrorItem _) => fail('No debía fallar con overrides parciales'),
+            (ThemeState s) {
+          expect(s.overrides, isNotNull);
+          expect(s.overrides!.light, isNotNull);
+          expect(s.overrides!.dark, isNull);
+        },
+      );
+    });
+  });
+
 }
 
 /// Gateway que siempre devuelve Right con bandera de negocio para test de save()

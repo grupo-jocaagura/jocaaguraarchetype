@@ -3,7 +3,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 class BuildThemeData {
   const BuildThemeData();
 
-  static ThemeData fromState(ThemeState s, {TextTheme? baseTextTheme}) {
+  ThemeData fromState(ThemeState s, {TextTheme? baseTextTheme}) {
     final bool dark = s.mode == ThemeMode.dark;
 
     final ColorScheme base = ColorScheme.fromSeed(
@@ -31,7 +31,7 @@ class BuildThemeData {
     );
   }
 
-  static ColorScheme _mergeOverrides(ColorScheme base, ColorScheme? ovr) {
+ ColorScheme _mergeOverrides(ColorScheme base, ColorScheme? ovr) {
     if (ovr == null) {
       return base;
     }
@@ -55,7 +55,7 @@ class BuildThemeData {
   }
 
   /// Scales only text styles that have a non-null fontSize.
-  static TextTheme _applyTextScaleSafely(TextTheme t, double factor) {
+TextTheme _applyTextScaleSafely(TextTheme t, double factor) {
     if (factor == 1.0 || factor.isNaN) {
       return t;
     }

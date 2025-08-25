@@ -29,7 +29,7 @@ void main() {
         ),
       );
 
-      final ThemeData t = BuildThemeData.fromState(s);
+      final ThemeData t = const BuildThemeData().fromState(s);
       expect(t.colorScheme.brightness, Brightness.light);
       expect(t.colorScheme.primary, const Color(0xFF00BCD4));
       // textScale factor aplicado
@@ -43,7 +43,7 @@ void main() {
       final ThemeState s = ThemeState.defaults.copyWith(
         seed: const Color(0xFF3366AA),
       );
-      final ThemeData t = BuildThemeData.fromState(s);
+      final ThemeData t = const BuildThemeData().fromState(s);
       expect(t.colorScheme.primary, isA<Color>());
     });
   });
