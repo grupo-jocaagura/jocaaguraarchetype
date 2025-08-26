@@ -59,8 +59,14 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
     pageManager.setStack(configuration);
   }
 
+  bool get isDisposed => _isDisposed;
+  bool _isDisposed = false;
   @override
   void dispose() {
+    if (_isDisposed) {
+      return;
+    }
+    _isDisposed = true;
     _sub?.cancel();
     super.dispose();
   }

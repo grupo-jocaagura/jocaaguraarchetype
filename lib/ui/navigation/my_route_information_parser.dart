@@ -1,4 +1,3 @@
-// my_route_information_parser.dart
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {

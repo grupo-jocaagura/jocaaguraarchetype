@@ -21,8 +21,17 @@ class PageManager extends BlocModule {
   NavStackModel get stack => _stack.value;
   bool get isClosed => _stack.isClosed;
 
-  void setStack(NavStackModel next) {
-    final NavStackModel sanitized = _dedupConsecutive(next);
+  void setStack(
+    NavStackModel next, {
+    bool allowDuplicate = false,
+  }) {
+    NavStackModel sanitized;
+    if (allowDuplicate) {
+      sanitized = next;
+    } else {
+      sanitized = _dedupConsecutive(next);
+    }
+
     if (identical(sanitized, _stack.value) || sanitized == _stack.value) {
       return;
     }
@@ -34,7 +43,7 @@ class PageManager extends BlocModule {
     if (!allowDuplicate && _sameTarget(stack.top, page)) {
       return;
     }
-    setStack(stack.push(page));
+    setStack(stack.push(page), allowDuplicate: allowDuplicate);
   }
 
   void goHome() {
