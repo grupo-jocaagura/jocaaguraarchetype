@@ -170,11 +170,11 @@ class WorkAreaWidget extends StatelessWidget {
     final double remaining =
         (gridW - primaryW - secondaryW - usedGutters).clamp(0.0, gridW);
 
-    // Regla de los tests:
+    // Reglas:
     // - Tablet: usar 'remaining' tal cual.
     // - Desktop/TV:
     //    * si hay algún panel => limitar a 320 si cabe; si no cabe, usar 'remaining'
-    //    * si NO hay paneles => usar completo el grid.
+    //    * si NO hay paneles => usar el grid completo.
     final bool anyPanel = primaryMenu != null || secondaryMenu != null;
     final double contentW = switch ((isDesktop, anyPanel)) {
       (true, true) => remaining >= 320.0 ? 320.0 : remaining,
@@ -182,7 +182,6 @@ class WorkAreaWidget extends StatelessWidget {
       (false, _) => remaining, // tablet
     };
 
-    // Construcción del Row dentro del grid
     final List<Widget> rowChildren = <Widget>[
       if (primaryMenu != null) ...<Widget>[
         SizedBox(width: primaryW, child: primaryMenu),
@@ -201,34 +200,31 @@ class WorkAreaWidget extends StatelessWidget {
             ? rowChildren.reversed.toList()
             : rowChildren;
 
-    // Si gridW > viewport (p.ej. en tests con surface más pequeño), permitir scroll horizontal
-    final double viewportW = MediaQuery.sizeOf(context).width;
+    // Grid lógico con ancho fijo = gridW
+    final Widget grid = SizedBox(
+      width: gridW,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: ordered,
+      ),
+    );
 
-    final Widget gridHost = (gridW > viewportW)
-        ? SizedBox(
-            width: gridW,
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: ordered,
-                ),
-              ),
-            ),
-          )
-        : Center(
-            child: SizedBox(
-            width: gridW, // ancho lógico del grid
+    // Sólo activar scroll horizontal si gridW no cabe en el viewport.
+    final Widget gridHost = LayoutBuilder(
+      builder: (BuildContext ctx, BoxConstraints c) {
+        final double viewportW = c.maxWidth;
+        if (gridW > viewportW) {
+          return Align(
+            alignment: Alignment.topLeft,
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: ordered,
-              ),
+              child: grid,
             ),
-          ),);
+          );
+        }
+        return Center(child: grid);
+      },
+    );
 
     return Stack(
       children: <Widget>[
