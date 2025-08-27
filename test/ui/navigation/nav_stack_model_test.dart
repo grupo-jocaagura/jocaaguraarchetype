@@ -5,7 +5,7 @@ void main() {
   group('NavStackModel', () {
     const PageModel home = PageModel(name: 'home', segments: <String>['home']);
     const PageModel details =
-        PageModel(name: 'details', segments: <String>['products', '42']);
+        PageModel(name: 'details', segments: <String>['details', '42']);
 
     test('push / top / pop', () {
       NavStackModel s = NavStackModel.single(home);

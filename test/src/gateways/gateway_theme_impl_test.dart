@@ -14,9 +14,9 @@ class _ThrowingServiceTheme extends ServiceTheme {
 
   @override
   ThemeData toThemeData(
-      ThemeState state, {
-        required Brightness platformBrightness,
-      }) {
+    ThemeState state, {
+    required Brightness platformBrightness,
+  }) {
     throw StateError('boom-toThemeData');
   }
 
@@ -33,20 +33,22 @@ class _ThrowingServiceTheme extends ServiceTheme {
 
 void main() {
   group('GatewayThemeImpl · read()', () {
-    test('sin documento inicial → Left(ERR_NOT_FOUND) y location=read', () async {
+    test('sin documento inicial → Left(ERR_NOT_FOUND) y location=read',
+        () async {
       final GatewayThemeImpl gw = GatewayThemeImpl();
       final Either<ErrorItem, Map<String, dynamic>> r = await gw.read();
 
       r.when(
-            (ErrorItem e) {
+        (ErrorItem e) {
           expect(e.code, 'ERR_NOT_FOUND');
           expect(e.meta['location'], 'GatewayThemeImpl.read');
         },
-            (_) => fail('Debió fallar con ERR_NOT_FOUND'),
+        (_) => fail('Debió fallar con ERR_NOT_FOUND'),
       );
     });
 
-    test('con documento inicial → Right(normalizado) + smoke-test OK', () async {
+    test('con documento inicial → Right(normalizado) + smoke-test OK',
+        () async {
       final GatewayThemeImpl gw = GatewayThemeImpl(
         initial: <String, dynamic>{
           'mode': 'light',
@@ -60,8 +62,8 @@ void main() {
       final Either<ErrorItem, Map<String, dynamic>> r = await gw.read();
 
       r.when(
-            (_) => fail('Se esperaba Right (map)'),
-            (Map<String, dynamic> json) {
+        (_) => fail('Se esperaba Right (map)'),
+        (Map<String, dynamic> json) {
           expect(json['mode'], 'light');
           expect(json['seed'], 0xFF123456);
           expect(json['useM3'], isTrue);
@@ -71,7 +73,8 @@ void main() {
       );
     });
 
-    test('con ServiceTheme que lanza → Left(error mapeado) y location=read', () async {
+    test('con ServiceTheme que lanza → Left(error mapeado) y location=read',
+        () async {
       final GatewayThemeImpl gw = GatewayThemeImpl(
         themeService: const _ThrowingServiceTheme(),
         initial: <String, dynamic>{
@@ -86,34 +89,36 @@ void main() {
       final Either<ErrorItem, Map<String, dynamic>> r = await gw.read();
 
       r.when(
-            (ErrorItem e) {
+        (ErrorItem e) {
           // No acoplamos a título/código del mapper por si cambian;
           // validamos que mapee y etiquete la ubicación.
           expect(e.code.isNotEmpty, isTrue);
           expect(e.meta['location'], 'GatewayThemeImpl.read');
         },
-            (_) => fail('Debió fallar por _smokeTest (ServiceTheme lanza)'),
+        (_) => fail('Debió fallar por _smokeTest (ServiceTheme lanza)'),
       );
     });
   });
 
   group('GatewayThemeImpl · write()', () {
-    test('normaliza payload: mode inválido, seed raro, useM3 omitido, clamp textScale', () async {
+    test(
+        'normaliza payload: mode inválido, seed raro, useM3 omitido, clamp textScale',
+        () async {
       final GatewayThemeImpl gw = GatewayThemeImpl();
 
       final Either<ErrorItem, Map<String, dynamic>> r = await gw.write(
         <String, dynamic>{
-          'mode': 'weird',         // → system
-          'seed': 'oops',          // → default 0xFF6750A4
+          'mode': 'weird', // → system
+          'seed': 'oops', // → default 0xFF6750A4
           // 'useM3' omitido        // → true
-          'textScale': 3.2,        // → 1.6 (clamp)
+          'textScale': 3.2, // → 1.6 (clamp)
           // 'preset' omitido       // → 'brand'
         },
       );
 
       r.when(
-            (_) => fail('Se esperaba Right (map normalizado)'),
-            (Map<String, dynamic> json) {
+        (_) => fail('Se esperaba Right (map normalizado)'),
+        (Map<String, dynamic> json) {
           expect(json['mode'], 'system');
           expect(json['seed'], 0xFF6750A4);
           expect(json['useM3'], isTrue);
@@ -137,8 +142,8 @@ void main() {
       );
 
       r.when(
-            (_) => fail('Se esperaba Right'),
-            (Map<String, dynamic> json) {
+        (_) => fail('Se esperaba Right'),
+        (Map<String, dynamic> json) {
           expect(json['mode'], 'dark');
           expect(json['seed'], 0xFF445566);
           expect(json['useM3'], isFalse);
@@ -148,7 +153,8 @@ void main() {
       );
     });
 
-    test('ServiceTheme que lanza durante smoke-test → Left(location=write)', () async {
+    test('ServiceTheme que lanza durante smoke-test → Left(location=write)',
+        () async {
       final GatewayThemeImpl gw = GatewayThemeImpl(
         themeService: const _ThrowingServiceTheme(),
       );
@@ -164,15 +170,16 @@ void main() {
       );
 
       r.when(
-            (ErrorItem e) {
+        (ErrorItem e) {
           expect(e.code.isNotEmpty, isTrue);
           expect(e.meta['location'], 'GatewayThemeImpl.write');
         },
-            (_) => fail('Debió fallar por _smokeTest (ServiceTheme lanza)'),
+        (_) => fail('Debió fallar por _smokeTest (ServiceTheme lanza)'),
       );
     });
 
-    test('write → read roundtrip mantiene normalización (idempotente)', () async {
+    test('write → read roundtrip mantiene normalización (idempotente)',
+        () async {
       final GatewayThemeImpl gw = GatewayThemeImpl();
 
       final Map<String, dynamic> input = <String, dynamic>{
@@ -185,8 +192,8 @@ void main() {
 
       final Either<ErrorItem, Map<String, dynamic>> w = await gw.write(input);
       w.when(
-            (_) => fail('Se esperaba Right'),
-            (Map<String, dynamic> jsonW) async {
+        (_) => fail('Se esperaba Right'),
+        (Map<String, dynamic> jsonW) async {
           // Chequeo de normalización de write
           expect(jsonW['useM3'], isTrue);
           expect(jsonW['textScale'], closeTo(0.8, 1e-9));
@@ -195,12 +202,47 @@ void main() {
           // read posterior devuelve el mismo documento normalizado
           final Either<ErrorItem, Map<String, dynamic>> r = await gw.read();
           r.when(
-                (_) => fail('Se esperaba Right'),
-                (Map<String, dynamic> jsonR) {
+            (_) => fail('Se esperaba Right'),
+            (Map<String, dynamic> jsonR) {
               expect(jsonR, jsonW);
             },
           );
         },
+      );
+    });
+    test('GatewayThemeImpl.write preserva overrides', () async {
+      final GatewayThemeImpl gw = GatewayThemeImpl();
+      final RepositoryThemeImpl repo = RepositoryThemeImpl(gateway: gw);
+
+      final ThemeOverrides overrides = ThemeOverrides(
+        light: ColorScheme.fromSeed(seedColor: const Color(0xFFAA5500)),
+        dark: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFAA5500),
+          brightness: Brightness.dark,
+        ),
+      );
+
+      final ThemeState s = ThemeState.defaults.copyWith(
+        mode: ThemeMode.dark,
+        textScale: 1.15,
+        preset: 'designer',
+        overrides: overrides,
+      );
+
+      final Either<ErrorItem, ThemeState> saved = await repo.save(s);
+      saved.when(
+        (_) => fail('No debía fallar'),
+        (ThemeState out) {
+          expect(out.overrides, isNotNull);
+          expect(out.overrides!.light!.brightness, Brightness.light);
+          expect(out.overrides!.dark!.brightness, Brightness.dark);
+        },
+      );
+
+      final Either<ErrorItem, ThemeState> loaded = await repo.read();
+      loaded.when(
+        (_) => fail('No debía fallar'),
+        (ThemeState out) => expect(out.overrides, isNotNull),
       );
     });
   });

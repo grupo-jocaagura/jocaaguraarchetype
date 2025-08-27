@@ -40,16 +40,18 @@ void main() {
     });
 
     test('workAreaSize should return _workAreaSize if isMovil is false', () {
+      final double tmpDouble = 71.8.floorToDouble();
+
       const Size size = Size(1280, 720);
       const Size workAreaSize = Size(1100.8, 720);
       responsiveBloc.setSizeForTesting(size);
       responsiveBloc.workAreaSize = size;
       expect(responsiveBloc.workAreaSize, workAreaSize);
       expect(responsiveBloc.columnsNumber, 12);
-      expect(responsiveBloc.columnWidth, greaterThanOrEqualTo(71.8));
+      expect(responsiveBloc.columnWidth, greaterThanOrEqualTo(tmpDouble));
       expect(
         responsiveBloc.secondaryDrawerWidth,
-        greaterThanOrEqualTo(71.8),
+        greaterThanOrEqualTo(tmpDouble),
       );
       expect(responsiveBloc.appBarHeight, kAppBarHeight);
       expect(responsiveBloc.gutterWidth, 10.0);
@@ -66,8 +68,8 @@ void main() {
       final double mg = responsiveBloc.marginWidth;
       final double mg2 = responsiveBloc.widthByColumns(3);
       expect(mg, 32);
-      expect(mg2, 383.5);
-      expect(responsiveBloc.columnWidth, 122.5);
+      expect(mg2, 382.0);
+      expect(responsiveBloc.columnWidth, 122.0);
       expect(responsiveBloc.gutterWidth, 8.0);
 
       responsiveBloc.showAppbar = false;

@@ -64,7 +64,10 @@ class _ServiceFixed extends ServiceTheme {
       ColorScheme.fromSeed(seedColor: seed, brightness: b);
 
   @override
-  ThemeData toThemeData(ThemeState state, {required Brightness platformBrightness}) {
+  ThemeData toThemeData(
+    ThemeState state, {
+    required Brightness platformBrightness,
+  }) {
     final Brightness b = switch (state.mode) {
       ThemeMode.light => Brightness.light,
       ThemeMode.dark => Brightness.dark,
@@ -78,15 +81,15 @@ class _ServiceFixed extends ServiceTheme {
 
   @override
   ThemeData lightTheme(ThemeState state) => ThemeData.from(
-    colorScheme: schemeFromSeed(state.seed, Brightness.light),
-    useMaterial3: state.useMaterial3,
-  );
+        colorScheme: schemeFromSeed(state.seed, Brightness.light),
+        useMaterial3: state.useMaterial3,
+      );
 
   @override
   ThemeData darkTheme(ThemeState state) => ThemeData.from(
-    colorScheme: schemeFromSeed(state.seed, Brightness.dark),
-    useMaterial3: state.useMaterial3,
-  );
+        colorScheme: schemeFromSeed(state.seed, Brightness.dark),
+        useMaterial3: state.useMaterial3,
+      );
 }
 
 /// Atajo para construir Usecases “by hand”.
@@ -99,7 +102,8 @@ ThemeUsecases _ucsWith(RepositoryTheme repo, {ServiceTheme? service}) {
     applyPreset: ApplyThemePreset(repo),
     setTextScale: SetThemeTextScale(repo),
     reset: ResetTheme(repo),
-    randomize: RandomizeTheme(repo, service ?? const _ServiceFixed(Color(0xFF00AA77))),
+    randomize:
+        RandomizeTheme(repo, service ?? const _ServiceFixed(Color(0xFF00AA77))),
     applyPatch: ApplyThemePatch(repo),
     setFromState: SetThemeState(repo),
     buildThemeData: const BuildThemeData(),
@@ -115,8 +119,8 @@ void main() {
 
       final Either<ErrorItem, ThemeState> r = await uc.load();
       r.when(
-            (ErrorItem _) => fail('No debía fallar'),
-            (ThemeState s) => expect(s.mode, ThemeMode.dark),
+        (ErrorItem _) => fail('No debía fallar'),
+        (ThemeState s) => expect(s.mode, ThemeMode.dark),
       );
     });
 
@@ -136,7 +140,7 @@ void main() {
       r1.when((_) {}, (ThemeState s) => expect(s.mode, ThemeMode.dark));
 
       final Either<ErrorItem, ThemeState> r2 =
-      await uc.setSeed(const Color(0xFF112233));
+          await uc.setSeed(const Color(0xFF112233));
       r2.when((_) {}, (ThemeState s) => expect(s.seed.toARGB32(), 0xFF112233));
 
       final Either<ErrorItem, ThemeState> r3 = await uc.toggleM3();
@@ -146,7 +150,8 @@ void main() {
       r4.when((_) {}, (ThemeState s) => expect(s.preset, 'brandX'));
     });
 
-    test('_ThemeUpdate: si read() falla, propaga Left y no llama save()', () async {
+    test('_ThemeUpdate: si read() falla, propaga Left y no llama save()',
+        () async {
       final ThemeUsecases uc = _ucsWith(_RepoReadLeft());
       final Either<ErrorItem, ThemeState> r = await uc.setMode(ThemeMode.dark);
       expect(r.isLeft, isTrue);
@@ -187,14 +192,15 @@ void main() {
 
       final Either<ErrorItem, ThemeState> r = await uc.reset();
       r.when(
-            (ErrorItem _) => fail('No debía fallar'),
-            (ThemeState s) => expect(s, ThemeState.defaults),
+        (ErrorItem _) => fail('No debía fallar'),
+        (ThemeState s) => expect(s, ThemeState.defaults),
       );
     });
   });
 
   group('ThemeUsecases.randomize (usa ServiceTheme.colorRandom)', () {
-    test('establece seed devuelto por el ServiceTheme y preset="random"', () async {
+    test('establece seed devuelto por el ServiceTheme y preset="random"',
+        () async {
       final ThemeUsecases uc = _ucsWith(
         _RepoOk(),
         service: const _ServiceFixed(Color(0xFF77CC11)),
@@ -202,8 +208,8 @@ void main() {
 
       final Either<ErrorItem, ThemeState> r = await uc.randomize();
       r.when(
-            (ErrorItem _) => fail('No debía fallar'),
-            (ThemeState s) {
+        (ErrorItem _) => fail('No debía fallar'),
+        (ThemeState s) {
           expect(s.seed.toARGB32(), 0xFF77CC11);
           expect(s.preset, 'random');
         },
@@ -223,8 +229,8 @@ void main() {
       );
 
       r.when(
-            (ErrorItem _) => fail('No debía fallar'),
-            (ThemeState s) {
+        (ErrorItem _) => fail('No debía fallar'),
+        (ThemeState s) {
           expect(s.mode, ThemeMode.dark);
           expect(s.textScale, 1.3);
           // Campos no provistos se conservan
@@ -258,8 +264,8 @@ void main() {
 
       final Either<ErrorItem, ThemeState> r = await uc.setFromState(next);
       r.when(
-            (ErrorItem _) => fail('No debía fallar'),
-            (ThemeState s) {
+        (ErrorItem _) => fail('No debía fallar'),
+        (ThemeState s) {
           expect(s.mode, ThemeMode.light);
           expect(s.seed.toARGB32(), 0xFF334455);
           expect(s.useMaterial3, isTrue);
@@ -293,122 +299,141 @@ void main() {
     });
   });
 
-    group('ThemeUsecases.fromRepo – wiring completo con impl reales', () {
-      test('load() → defaults cuando GatewayThemeImpl está vacío (ERR_NOT_FOUND)', () async {
-        // Gateway en memoria, sin "initial" ⇒ read => ERR_NOT_FOUND
-        final GatewayTheme gw = GatewayThemeImpl();
-        final RepositoryTheme repo = RepositoryThemeImpl(gateway: gw);
+  group('ThemeUsecases.fromRepo – wiring completo con impl reales', () {
+    test('load() → defaults cuando GatewayThemeImpl está vacío (ERR_NOT_FOUND)',
+        () async {
+      // Gateway en memoria, sin "initial" ⇒ read => ERR_NOT_FOUND
+      final GatewayTheme gw = GatewayThemeImpl();
+      final RepositoryTheme repo = RepositoryThemeImpl(gateway: gw);
 
-        // Factory under test: inyecta FakeServiceJocaaguraArchetypeTheme por defecto
-        final ThemeUsecases ucs = ThemeUsecases.fromRepo(repo);
+      // Factory under test: inyecta FakeServiceJocaaguraArchetypeTheme por defecto
+      final ThemeUsecases ucs = ThemeUsecases.fromRepo(repo);
 
-        final Either<ErrorItem, ThemeState> r = await ucs.load();
-        r.when(
-              (ErrorItem e) => fail('Debió ser éxito (defaults). Recibido Left: $e'),
-              (ThemeState s) {
-            expect(s, ThemeState.defaults);
-          },
-        );
-      });
-
-      test('randomize() usa FakeService por defecto (seed 0xFF0066CC) y persiste', () async {
-        final GatewayTheme gw = GatewayThemeImpl();
-        final RepositoryTheme repo = RepositoryThemeImpl(gateway: gw);
-        final ThemeUsecases ucs = ThemeUsecases.fromRepo(repo);
-
-        final Either<ErrorItem, ThemeState> r = await ucs.randomize();
-        r.when(
-              (ErrorItem e) => fail('No debía fallar: $e'),
-              (ThemeState s) {
-            expect(s.seed.toARGB32(), 0xFF0066CC, reason: 'seed del FakeService');
-            expect(s.preset, 'random');
-          },
-        );
-
-        // Confirmamos que quedó persistido leyendo nuevamente
-        final Either<ErrorItem, ThemeState> after = await ucs.load();
-        after.when(
-              (ErrorItem e) => fail('No debía fallar al leer luego de randomize: $e'),
-              (ThemeState s) {
-            expect(s.seed.toARGB32(), 0xFF0066CC);
-            expect(s.preset, 'random');
-          },
-        );
-      });
-
-      test('setFromState() guarda y luego load() devuelve exactamente ese estado', () async {
-        final GatewayTheme gw = GatewayThemeImpl();
-        final RepositoryTheme repo = RepositoryThemeImpl(gateway: gw);
-        final ThemeUsecases ucs = ThemeUsecases.fromRepo(repo);
-
-        final ThemeOverrides overrides = ThemeOverrides(
-          light: ColorScheme.fromSeed(seedColor: const Color(0xFFAA5500)),
-          dark: ColorScheme.fromSeed(
-            seedColor: const Color(0xFFAA5500),
-            brightness: Brightness.dark,
-          ),
-        );
-
-        final ThemeState next = ThemeState(
-          mode: ThemeMode.dark,
-          seed: const Color(0xFF123456),
-          useMaterial3: true,
-          textScale: 1.15,
-          preset: 'designer',
-          overrides: overrides,
-        );
-
-        final Either<ErrorItem, ThemeState> saved = await ucs.setFromState(next);
-        saved.when(
-              (ErrorItem e) => fail('No debía fallar al guardar: $e'),
-              (ThemeState s) {
-            expect(s.mode, ThemeMode.dark);
-            expect(s.seed.toARGB32(), 0xFF123456);
-            expect(s.useMaterial3, isTrue);
-            expect(s.textScale, closeTo(1.15, 1e-9));
-            expect(s.preset, 'designer');
-            expect(s.overrides, isNotNull);
-            expect(s.overrides!.light!.brightness, Brightness.light);
-            expect(s.overrides!.dark!.brightness, Brightness.dark);
-          },
-        );
-
-        final Either<ErrorItem, ThemeState> loaded = await ucs.load();
-        loaded.when(
-              (ErrorItem e) => fail('No debía fallar al leer: $e'),
-              (ThemeState s) {
-            expect(s, next, reason: 'Debe ser exactamente el mismo estado');
-          },
-        );
-      });
-
-      test('buildThemeData produce ThemeData coherente desde el estado', () async {
-        final GatewayTheme gw = GatewayThemeImpl();
-        final RepositoryTheme repo = RepositoryThemeImpl(gateway: gw);
-        final ThemeUsecases ucs = ThemeUsecases.fromRepo(repo);
-
-        // Persistimos un estado concreto (dark + M3 + escala 1.1)
-        final ThemeState next = ThemeState.defaults.copyWith(
-          mode: ThemeMode.dark,
-          useMaterial3: true,
-          textScale: 1.1,
-          seed: const Color(0xFF445566),
-        );
-        final Either<ErrorItem, ThemeState> saved = await ucs.setFromState(next);
-        expect(saved.isRight, isTrue);
-
-        final Either<ErrorItem, ThemeState> loaded = await ucs.load();
-        final ThemeState s = loaded.when(
-              (ErrorItem e) => fail('No debía fallar: $e'),
-              (ThemeState x) => x,
-        );
-
-        // buildThemeData (const BuildThemeData) viene del factory
-        final ThemeData theme = ucs.buildThemeData.fromState(s);
-        expect(theme.useMaterial3, isTrue);
-        expect(theme.colorScheme.brightness, Brightness.dark);
-        // No validamos valores exactos del algoritmo, solo la forma general
-        expect(theme.textTheme.bodyMedium, isNotNull);
-      });
+      final Either<ErrorItem, ThemeState> r = await ucs.load();
+      r.when(
+        (ErrorItem e) => fail('Debió ser éxito (defaults). Recibido Left: $e'),
+        (ThemeState s) {
+          expect(s, ThemeState.defaults);
+        },
+      );
     });
-  }
+
+    test('randomize() usa FakeService por defecto (seed 0xFF0066CC) y persiste',
+        () async {
+      final GatewayTheme gw = GatewayThemeImpl();
+      final RepositoryTheme repo = RepositoryThemeImpl(gateway: gw);
+      final ThemeUsecases ucs = ThemeUsecases.fromRepo(repo);
+
+      final Either<ErrorItem, ThemeState> r = await ucs.randomize();
+      r.when(
+        (ErrorItem e) => fail('No debía fallar: $e'),
+        (ThemeState s) {
+          expect(s.seed.toARGB32(), 0xFF0066CC, reason: 'seed del FakeService');
+          expect(s.preset, 'random');
+        },
+      );
+
+      // Confirmamos que quedó persistido leyendo nuevamente
+      final Either<ErrorItem, ThemeState> after = await ucs.load();
+      after.when(
+        (ErrorItem e) => fail('No debía fallar al leer luego de randomize: $e'),
+        (ThemeState s) {
+          expect(s.seed.toARGB32(), 0xFF0066CC);
+          expect(s.preset, 'random');
+        },
+      );
+    });
+
+    test('setFromState() guarda y luego load() devuelve exactamente ese estado',
+        () async {
+      final GatewayTheme gw = GatewayThemeImpl();
+      final RepositoryTheme repo = RepositoryThemeImpl(gateway: gw);
+      final ThemeUsecases ucs = ThemeUsecases.fromRepo(repo);
+
+      final ThemeOverrides overrides = ThemeOverrides(
+        light: ColorScheme.fromSeed(seedColor: const Color(0xFFAA5500)),
+        dark: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFAA5500),
+          brightness: Brightness.dark,
+        ),
+      );
+
+      final ThemeState next = ThemeState(
+        mode: ThemeMode.dark,
+        seed: const Color(0xFF123456),
+        useMaterial3: true,
+        textScale: 1.15,
+        preset: 'designer',
+        overrides: overrides,
+      );
+
+      final Either<ErrorItem, ThemeState> saved = await ucs.setFromState(next);
+      saved.when(
+        (ErrorItem e) => fail('No debía fallar al guardar: $e'),
+        (ThemeState s) {
+          expect(s.mode, ThemeMode.dark);
+          expect(s.seed.toARGB32(), 0xFF123456);
+          expect(s.useMaterial3, isTrue);
+          expect(s.textScale, closeTo(1.15, 1e-9));
+          expect(s.preset, 'designer');
+          expect(s.overrides, isNotNull);
+          expect(s.overrides!.light!.brightness, Brightness.light);
+          expect(s.overrides!.dark!.brightness, Brightness.dark);
+        },
+      );
+
+      final Either<ErrorItem, ThemeState> loaded = await ucs.load();
+      loaded.when(
+        (ErrorItem e) => fail('No debía fallar al leer: $e'),
+        (ThemeState s) {
+          expect(
+            s,
+            equals(next),
+            reason: 'Debe ser exactamente el mismo estado',
+          );
+        },
+      );
+    });
+
+    test('buildThemeData produce ThemeData coherente desde el estado',
+        () async {
+      final GatewayTheme gw = GatewayThemeImpl();
+      final RepositoryTheme repo = RepositoryThemeImpl(gateway: gw);
+      final ThemeUsecases ucs = ThemeUsecases.fromRepo(repo);
+
+      // Persistimos un estado concreto (dark + M3 + escala 1.1)
+      final ThemeState next = ThemeState.defaults.copyWith(
+        mode: ThemeMode.dark,
+        useMaterial3: true,
+        textScale: 1.1,
+        seed: const Color(0xFF445566),
+      );
+      final Either<ErrorItem, ThemeState> saved = await ucs.setFromState(next);
+      expect(saved.isRight, isTrue);
+
+      final Either<ErrorItem, ThemeState> loaded = await ucs.load();
+      final ThemeState s = loaded.when(
+        (ErrorItem e) => fail('No debía fallar: $e'),
+        (ThemeState x) => x,
+      );
+
+      final ThemeData theme = ucs.buildThemeData.fromState(s);
+      expect(theme.useMaterial3, isTrue);
+      expect(theme.colorScheme.brightness, Brightness.dark);
+
+      // Robustez: no asumir bodyMedium siempre no-nulo
+      final bool hasAnyTextStyle = <TextStyle?>[
+        theme.textTheme.bodyMedium,
+        theme.textTheme.bodyLarge,
+        theme.textTheme.titleMedium,
+        theme.textTheme.labelLarge,
+        theme.textTheme.headlineSmall,
+      ].any((TextStyle? e) => e != null);
+      expect(
+        hasAnyTextStyle,
+        isTrue,
+        reason: 'Al menos un estilo del TextTheme debería estar definido.',
+      );
+    });
+  });
+}

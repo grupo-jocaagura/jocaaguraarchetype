@@ -127,6 +127,71 @@ class ThemeOverrides {
       ),
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    } else if (other is ThemeOverrides) {
+      return _schemeEquals(light, other.light) &&
+          _schemeEquals(dark, other.dark);
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode => _schemeHash(light) ^ (_schemeHash(dark) * 31);
+
+  static bool _schemeEquals(ColorScheme? a, ColorScheme? b) {
+    if (identical(a, b)) {
+      return true;
+    }
+    if (a == null || b == null) {
+      return a == b;
+    }
+    return a.brightness == b.brightness &&
+        a.primary == b.primary &&
+        a.onPrimary == b.onPrimary &&
+        a.secondary == b.secondary &&
+        a.onSecondary == b.onSecondary &&
+        a.tertiary == b.tertiary &&
+        a.onTertiary == b.onTertiary &&
+        a.error == b.error &&
+        a.onError == b.onError &&
+        a.surface == b.surface &&
+        a.onSurface == b.onSurface &&
+        a.surfaceTint == b.surfaceTint &&
+        a.outline == b.outline &&
+        a.onSurfaceVariant == b.onSurfaceVariant &&
+        a.inverseSurface == b.inverseSurface &&
+        a.inversePrimary == b.inversePrimary;
+  }
+
+  static int _schemeHash(ColorScheme? s) {
+    if (s == null) {
+      return 0;
+    }
+    int h = s.brightness.hashCode;
+    h = 0x1fffffff & (h ^ s.primary.hashCode);
+    h = 0x1fffffff & (h ^ s.onPrimary.hashCode);
+    h = 0x1fffffff & (h ^ s.secondary.hashCode);
+    h = 0x1fffffff & (h ^ s.onSecondary.hashCode);
+    h = 0x1fffffff & (h ^ s.tertiary.hashCode);
+    h = 0x1fffffff & (h ^ s.onTertiary.hashCode);
+    h = 0x1fffffff & (h ^ s.error.hashCode);
+    h = 0x1fffffff & (h ^ s.onError.hashCode);
+    h = 0x1fffffff & (h ^ s.surface.hashCode);
+    h = 0x1fffffff & (h ^ s.onSurface.hashCode);
+    h = 0x1fffffff & (h ^ s.surfaceTint.hashCode);
+    h = 0x1fffffff & (h ^ s.outline.hashCode);
+    h = 0x1fffffff & (h ^ s.onSurfaceVariant.hashCode);
+    h = 0x1fffffff & (h ^ s.inverseSurface.hashCode);
+    h = 0x1fffffff & (h ^ s.inversePrimary.hashCode);
+    return h;
+  }
 }
 
 @immutable
@@ -207,6 +272,33 @@ class ThemeState {
     seed: Color(0xFF6750A4),
     useMaterial3: true,
   );
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (other is ThemeState) {
+      return mode == other.mode &&
+          seed == other.seed &&
+          useMaterial3 == other.useMaterial3 &&
+          textScale == other.textScale &&
+          preset == other.preset &&
+          overrides == other.overrides;
+    }
+    return false;
+  }
+
+  @override
+  int get hashCode {
+    int h = mode.hashCode ^ seed.hashCode ^ useMaterial3.hashCode;
+    h = 0x1fffffff & (h ^ textScale.hashCode);
+    h = 0x1fffffff & (h ^ preset.hashCode);
+    h = 0x1fffffff & (h ^ (overrides?.hashCode ?? 0));
+    return h;
+  }
 }
 
 /// Partial update intent for theme. Any non-null field will be applied on top

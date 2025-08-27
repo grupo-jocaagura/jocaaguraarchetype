@@ -70,11 +70,11 @@ class GatewayThemeImpl implements GatewayTheme {
     // mode
     final String modeName = (json['mode'] as String?) ?? ThemeMode.system.name;
     final ThemeMode mode = ThemeMode.values.firstWhere(
-      (ThemeMode mode) => mode.name == modeName,
+      (ThemeMode m) => m.name == modeName,
       orElse: () => ThemeMode.system,
     );
 
-    // seed (int ARGB32). Si llega algo raro, usa el default.
+    // seed (int ARGB32)
     final int seedInt = switch (json['seed']) {
       final int v => v,
       _ => 0xFF6750A4,
@@ -84,12 +84,20 @@ class GatewayThemeImpl implements GatewayTheme {
     // useM3
     final bool useM3 = (json['useM3'] ??= true) == true;
 
-    // textScale clamped
     final double textScale =
         ((json['textScale'] as num?)?.toDouble() ?? 1.0).clamp(0.8, 1.6);
 
-    // preset
     final String preset = (json['preset'] as String?) ?? 'brand';
+
+    final dynamic rawOverrides = json['overrides'];
+    Map<String, dynamic>? overrides;
+    if (rawOverrides is ThemeOverrides) {
+      overrides = rawOverrides.toJson();
+    } else if (rawOverrides is Map<String, dynamic>) {
+      overrides = Map<String, dynamic>.from(rawOverrides);
+    } else {
+      overrides = null;
+    }
 
     return <String, dynamic>{
       'mode': mode.name,
@@ -97,6 +105,7 @@ class GatewayThemeImpl implements GatewayTheme {
       'useM3': useM3,
       'textScale': textScale,
       'preset': preset,
+      if (overrides != null) 'overrides': overrides, // 👈 mantenerlo
     };
   }
 

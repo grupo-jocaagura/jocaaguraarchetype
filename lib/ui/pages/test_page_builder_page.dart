@@ -111,8 +111,6 @@ class TestPageBuilderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Si tienes un layout propio "PageBuilder", seguimos usándolo como contenedor.
-    // En caso contrario, reemplázalo por un Scaffold aquí.
     return PageBuilder(
       page: legacyPage ?? _buildContent(context),
     );

@@ -1,50 +1,34 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// Demo home page wired to Jocaagura Archetype navigation & managers.
-///
-/// This page showcases how to:
-/// - Register reactive **main** and **secondary** menu options.
-/// - Trigger **loading** (auto and manual clear) and **toasts**.
-/// - Randomize **theme**.
-/// - Navigate using **PageManager** without pushing raw routes.
-///
-/// ### Example
-/// ```dart
-/// // Register the page in your BlocNavigator directory during onboarding:
-/// blocNavigator.addPagesForDynamicLinksDirectory({
-///   MyDemoHomePage.pageModel.name: const MyDemoHomePage(title: 'Demo'),
-/// });
-///
-/// // Set it as home after onboarding steps:
-/// blocNavigator.setHomePageAndUpdate(const MyDemoHomePage(title: 'Demo'));
-/// ```
-class MyDemoHomePage extends StatefulWidget {
-  const MyDemoHomePage({
-    required this.title,
-    super.key,
-  });
+/// BLoC minimalista para la demo (contador + stream).
+class _BlocCounter extends BlocModule {
+  _BlocCounter() : _count = BlocGeneral<int>(0);
 
-  /// Title displayed in the AppBar.
+  final BlocGeneral<int> _count;
+
+  Stream<int> get stream => _count.stream;
+  int get value => _count.value;
+
+  void inc() => _count.value = _count.value + 1;
+
+  @override
+  void dispose() => _count.dispose();
+}
+
+/// Página de demo que **no crea Scaffold** propio.
+/// En su lugar usa `PageBuilder` para integrarse al shell del arquetipo
+/// (AppBar, Drawer, overlay de loading y toasts).
+class MyDemoHomePage extends StatefulWidget {
+  const MyDemoHomePage({required this.title, super.key});
+
   final String title;
 
-  /// Route name to be used in the dynamic links directory.
   static const String name = 'MyDemoHomePage';
 
-  /// PageModel to keep navigation declarative and UI-domain independent.
-  /// Consumers should reference `MyDemoHomePage.page` rather than
-  /// constructing `PageModel` manually.
-  static const PageModel page = PageModel(
-    name: name,
-    segments: <String>['home'],
-  );
-
-  /// Key prefix used for main menu items rendered by this page.
-  static const String mainMenuKey = 'mainMenuKey';
-
-  /// Static PageModel to keep navigation independent from UI.
   static const PageModel pageModel = PageModel(
-    name: MyDemoHomePage.name,
+    name: name,
     segments: <String>['demo'],
+    state: <String, dynamic>{'title': 'Demo'},
   );
 
   @override
@@ -52,16 +36,27 @@ class MyDemoHomePage extends StatefulWidget {
 }
 
 class _MyDemoHomePageState extends State<MyDemoHomePage> {
-  int _counter = 0;
+  late final _BlocCounter _counter;
 
   AppManager get app => context.appManager;
+
+  @override
+  void initState() {
+    super.initState();
+    _counter = _BlocCounter();
+  }
+
+  @override
+  void dispose() {
+    _counter.dispose();
+    super.dispose();
+  }
 
   Future<void> _fakeTask() async =>
       Future<void>.delayed(const Duration(seconds: 2));
 
-  /// Adds demo options to main & secondary menus to showcase interactions.
   void _injectDemoMenu() {
-    // Add a removable option to main menu
+    // Opción que prepara eliminación a través del menú secundario
     app.mainMenu.addMainMenuOption(
       label: 'Eliminame',
       iconData: Icons.remove,
@@ -77,7 +72,7 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
       },
     );
 
-    // Loading via built-in future wrapper
+    // Loading (auto) usando helper
     app.mainMenu.addMainMenuOption(
       label: 'Loading (auto)',
       iconData: Icons.hourglass_bottom,
@@ -86,7 +81,7 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
       },
     );
 
-    // Loading manual (set + clear)
+    // Loading (manual) → secundario (no visible por PageBuilder, pero útil en flows)
     app.secondaryMenu.addSecondaryMenuOption(
       label: 'Loading (manual)',
       iconData: Icons.hourglass_top,
@@ -98,7 +93,7 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
       },
     );
 
-    // Random theme
+    // Random theme (y se auto-quita del menú principal)
     app.mainMenu.addMainMenuOption(
       label: 'Cambiar tema',
       iconData: Icons.color_lens,
@@ -108,7 +103,7 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
       },
     );
 
-    // Toast toggle
+    // Toast con toggle vacío/visible (overlay lo maneja PageBuilder)
     app.mainMenu.addMainMenuOption(
       label: 'Toast demo',
       iconData: Icons.chat_bubble,
@@ -121,136 +116,51 @@ class _MyDemoHomePageState extends State<MyDemoHomePage> {
     );
   }
 
-  void _incrementCounter() {
-    setState(() => _counter++);
+  void _onIncrement() {
+    _counter.inc();
     _injectDemoMenu();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const _MainMenuDrawer(prefixKey: MyDemoHomePage.mainMenuKey),
-      endDrawer: const _SecondaryMenuDrawer(),
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-        actions: <Widget>[
-          StreamBuilder<List<ModelMainMenuModel>>(
-            stream: app.secondaryMenu.itemsStream,
-            builder: (_, __) {
-              return (app.secondaryMenu.items.isNotEmpty)
-                  ? IconButton(
-                      tooltip: 'Abrir menú secundario',
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () => Scaffold.of(context).openEndDrawer(),
-                    )
-                  : const SizedBox.shrink();
+    // El contenido **puro**: PageBuilder envuelve y aporta AppBar/Drawer/overlays
+    final Widget content = Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          TextButton(
+            onPressed: _onIncrement,
+            child: const Text('You have pushed the button this many times:'),
+          ),
+          StreamBuilder<int>(
+            stream: _counter.stream,
+            initialData: _counter.value,
+            builder: (_, AsyncSnapshot<int> snap) {
+              return Text(
+                '${snap.data ?? 0}',
+                style: Theme.of(context).textTheme.headlineMedium,
+              );
             },
+          ),
+          const SizedBox(height: 12),
+          // Ejemplo de navegación (no lo usamos en los tests de esta demo)
+          TextButton(
+            onPressed: () {
+              app.pageManager.pushOnce(
+                const PageModel(
+                  name: 'testPush',
+                  segments: <String>['test-push'],
+                  state: <String, dynamic>{'title': 'Test push'},
+                ),
+              );
+            },
+            child: Text('Go to test push page ${app.pageManager.historyNames}'),
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextButton(
-              onPressed: _incrementCounter,
-              child: const Text('You have pushed the button this many times:'),
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () {
-                app.pageManager.pushOnce(TestPageBuilderPage.pageModel);
-              },
-              child:
-                  Text('Go to test push page ${app.pageManager.historyNames}'),
-            ),
-          ],
-        ),
-      ),
     );
-  }
-}
 
-/// Drawer that listens to **main menu** options reactively.
-class _MainMenuDrawer extends StatelessWidget {
-  const _MainMenuDrawer({required this.prefixKey});
-
-  /// Prefix to build stable keys for list items.
-  final String prefixKey;
-
-  @override
-  Widget build(BuildContext context) {
-    final AppManager app = context.appManager;
-    return StreamBuilder<List<ModelMainMenuModel>>(
-      stream: app.mainMenu.listMenuOptionsStream,
-      initialData: app.mainMenu.listMenuOptions,
-      builder: (_, AsyncSnapshot<List<ModelMainMenuModel>> snapshot) {
-        final List<ModelMainMenuModel> options =
-            snapshot.data ?? <ModelMainMenuModel>[];
-        if (options.isEmpty) {
-          return const SizedBox.shrink();
-        }
-
-        return Drawer(
-          child: ListView(
-            children: <Widget>[
-              const DrawerHeader(
-                child: Center(child: CircularProgressIndicator()),
-              ),
-              for (int i = 0; i < options.length; i++)
-                DrawerOptionWidget(
-                  key: ValueKey<String>('${prefixKey}_$i'),
-                  label: options[i].label,
-                  icon: options[i].iconData,
-                  responsive: app.responsive,
-                  onTap: options[i].onPressed,
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// Drawer that listens to **secondary menu** options reactively.
-class _SecondaryMenuDrawer extends StatelessWidget {
-  const _SecondaryMenuDrawer();
-
-  @override
-  Widget build(BuildContext context) {
-    final AppManager app = context.appManager;
-    return StreamBuilder<List<ModelMainMenuModel>>(
-      stream: app.secondaryMenu.itemsStream,
-      initialData: app.secondaryMenu.listMenuOptions,
-      builder: (_, AsyncSnapshot<List<ModelMainMenuModel>> snapshot) {
-        final List<ModelMainMenuModel> options =
-            snapshot.data ?? <ModelMainMenuModel>[];
-        if (options.isEmpty) {
-          return const SizedBox.shrink();
-        }
-
-        return Drawer(
-          child: ListView(
-            children: <Widget>[
-              const DrawerHeader(child: Center(child: Icon(Icons.menu_open))),
-              for (final ModelMainMenuModel opt in options)
-                DrawerOptionWidget(
-                  key: ValueKey<String>('secondary_${opt.label}'),
-                  label: opt.label,
-                  icon: opt.iconData,
-                  responsive: app.responsive,
-                  onTap: opt.onPressed,
-                ),
-            ],
-          ),
-        );
-      },
-    );
+    // ✅ Aquí integramos el contenido con el shell del arquetipo
+    return PageBuilder(page: content);
   }
 }
