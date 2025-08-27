@@ -1,189 +1,167 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-class PageBuilder extends StatefulWidget {
+class PageBuilder extends StatelessWidget {
   const PageBuilder({super.key, this.page});
-
-  /// Contenido principal de la página.
   final Widget? page;
-
-  @override
-  State<PageBuilder> createState() => _PageBuilderState();
-}
-
-class _PageBuilderState extends State<PageBuilder> {
-  // Suscripciones para re-render ante cambios de tamaño y menús.
-  StreamSubscription<Size>? _sizeSub;
-  StreamSubscription<void>? _mainMenuSub;
-  StreamSubscription<List<ModelMainMenuModel>>? _secondaryMenuSub;
-
-  AppManager? _app; // cache del AppManager
-  bool _boundStreams = false; // evita re-suscribir innecesariamente
-
-  @override
-  void initState() {
-    super.initState();
-    // ⚠️ No usar context aquí. Se hace en didChangeDependencies().
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // Punto *seguro* para leer InheritedWidgets.
-    final AppManager app = context.appManager;
-
-    // Si cambió el provider o nunca nos habíamos enlazado, (re)enlazar streams.
-    if (!identical(_app, app) || !_boundStreams) {
-      _unbindStreams();
-      _app = app;
-      _bindStreams(app);
-      _boundStreams = true;
-    }
-  }
-
-  void _bindStreams(AppManager app) {
-    _sizeSub = app.responsive.appScreenSizeStream.listen((Size _) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    });
-
-    _mainMenuSub = app.mainMenu.listMenuOptionsStream.listen((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    });
-
-    // Si tu stream del menú secundario emite otro tipo, ajusta el genérico.
-    _secondaryMenuSub = app.secondaryMenu.itemsStream.listen((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    });
-  }
-
-  void _unbindStreams() {
-    _sizeSub?.cancel();
-    _mainMenuSub?.cancel();
-    _secondaryMenuSub?.cancel();
-    _sizeSub = null;
-    _mainMenuSub = null;
-    _secondaryMenuSub = null;
-  }
-
-  @override
-  void dispose() {
-    _unbindStreams();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final AppManager app = context.appManager;
-    final BlocResponsive responsive = app.responsive;
-
-    // Acciones (back) basadas en historial
-    final List<Widget> actions = <Widget>[
-      if (app.pageManager.canPop)
-        IconButton(
-          onPressed: app.pop,
-          icon: const Icon(Icons.chevron_left),
-          tooltip: 'Back',
-        ),
-    ];
-
-    // Drawer (mobile): mapeo a DrawerOptionWidget (API nueva)
-    final double gap =
-        responsive.gutterWidth.clamp(8.0, 16.0); // cast explícito
-
-    final List<Widget> primaryMenuTiles = <Widget>[
-      for (final ModelMainMenuModel it in app.mainMenu.listMenuOptions)
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: gap,
-            vertical: (responsive.gutterWidth * 0.25).clamp(4.0, 8.0),
-          ),
-          child: DrawerOptionWidget(
-            responsive: responsive,
-            label: it.label,
-            icon: it.iconData,
-            selected: it.isSelected,
-            onTap: () {
-              it.onPressed();
-              // cerrar el drawer si está abierto
-              final ScaffoldState? sc = Scaffold.maybeOf(context);
-              if (sc?.isDrawerOpen ?? false) {
-                Navigator.of(context).maybePop();
-              }
-              setState(() {});
-            },
-          ),
-        ),
-    ];
+    final BlocResponsive r = app.responsive;
+    r.setSizeFromContext(context);
 
     return StreamBuilder<String>(
       stream: app.loading.loadingMsgStream,
-      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-        if (app.loading.loadingMsg.isNotEmpty) {
-          return LoadingPage(msg: app.loading.loadingMsg);
+      initialData: app.loading.loadingMsg,
+      builder: (_, AsyncSnapshot<String> loadSnap) {
+        final String msg = loadSnap.data ?? '';
+        if (msg.isNotEmpty) {
+          return LoadingPage(msg: msg);
         }
 
-        return Scaffold(
-          // Drawer colapsable (principalmente para mobile)
-          drawer: primaryMenuTiles.isNotEmpty
-              ? Drawer(
-                  child: SafeArea(
-                    child: ListView(
-                      padding: EdgeInsets.only(
-                        top: responsive.gutterWidth,
-                        bottom: responsive.gutterWidth,
-                      ),
-                      children: <Widget>[
-                        DrawerHeader(
-                          child: Center(
-                            child: Text(
-                              app.pageManager.currentTitle,
-                              style: Theme.of(context).textTheme.titleLarge,
+        return StreamBuilder<Size>(
+          stream: r.appScreenSizeStream,
+          initialData: r.size,
+          builder: (BuildContext context, _) {
+            final double gap = r.gutterWidth.clamp(8.0, 16.0);
+
+            return StreamBuilder<List<ModelMainMenuModel>>(
+              stream: app.mainMenu.listMenuOptionsStream,
+              initialData: app.mainMenu.listMenuOptions,
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<List<ModelMainMenuModel>> menuSnap,
+              ) {
+                final List<ModelMainMenuModel> items =
+                    menuSnap.data ?? const <ModelMainMenuModel>[];
+
+                final Widget? drawerWidget = items.isEmpty
+                    ? null
+                    : Drawer(
+                        child: SafeArea(
+                          child: ListView(
+                            padding: EdgeInsets.only(
+                              top: r.gutterWidth,
+                              bottom: r.gutterWidth,
                             ),
+                            children: <Widget>[
+                              DrawerHeader(
+                                child: Center(
+                                  child: StreamBuilder<String>(
+                                    stream: app.pageManager.currentTitleStream,
+                                    initialData: app.pageManager.currentTitle,
+                                    builder: (
+                                      BuildContext context,
+                                      AsyncSnapshot<String> tSnap,
+                                    ) =>
+                                        Text(
+                                      tSnap.data ?? '',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              for (final ModelMainMenuModel it in items)
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: gap,
+                                    vertical:
+                                        (r.gutterWidth * 0.25).clamp(4.0, 8.0),
+                                  ),
+                                  child: DrawerOptionWidget(
+                                    responsive: r,
+                                    label: it.label,
+                                    icon: it.iconData,
+                                    selected: it.selected,
+                                    onTap: () {
+                                      it.onPressed();
+                                      final ScaffoldState? sc =
+                                          Scaffold.maybeOf(context);
+                                      if (sc?.isDrawerOpen ?? false) {
+                                        // Cierra el drawer del Scaffold actual
+                                        sc!.closeDrawer();
+                                      } else {
+                                        // Fallback: cierra la ruta del drawer si está en el stack
+                                        Navigator.of(context).maybePop();
+                                      }
+                                    },
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
-                        ...primaryMenuTiles,
-                      ],
-                    ),
-                  ),
-                )
-              : null,
+                      );
 
-          appBar: responsive.showAppbar
-              ? AppBar(
-                  toolbarHeight: responsive.appBarHeight,
-                  title: Text(app.pageManager.currentTitle),
-                  actions: actions,
-                )
-              : null,
+                return StreamBuilder<bool>(
+                  stream: r.showAppbarStream,
+                  initialData: r.showAppbar,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<bool> showSnap) {
+                    final bool showAppbar = showSnap.data ?? true;
 
-          body: Stack(
-            children: <Widget>[
-              // ⬇️ Tu WorkAreaWidget actual pide 'responsive' y 'content'
-              WorkAreaWidget(
-                responsive: responsive,
-                content: widget.page ?? const SizedBox.shrink(),
-              ),
+                    PreferredSizeWidget? appBarWidget;
+                    if (showAppbar) {
+                      appBarWidget = AppBar(
+                        // ✅ Fuerza recálculo del leading cuando cambia el drawer
+                        key: ValueKey<String>(
+                          'appbar_hasDrawer_${drawerWidget != null}',
+                        ),
+                        toolbarHeight: r.appBarHeight,
+                        title: StreamBuilder<String>(
+                          stream: app.pageManager.currentTitleStream,
+                          initialData: app.pageManager.currentTitle,
+                          builder: (
+                            BuildContext context,
+                            AsyncSnapshot<String> tSnap,
+                          ) =>
+                              Text(tSnap.data ?? ''),
+                        ),
+                        actions: <Widget>[
+                          StreamBuilder<bool>(
+                            stream: app.pageManager.canPopStream,
+                            initialData: app.pageManager.canPop,
+                            builder: (
+                              BuildContext context,
+                              AsyncSnapshot<bool> canPopSnap,
+                            ) {
+                              final bool canPop = canPopSnap.data ?? false;
+                              if (!canPop) {
+                                return const SizedBox.shrink();
+                              }
+                              return IconButton(
+                                onPressed: app.pop,
+                                icon: const Icon(Icons.chevron_left),
+                                tooltip: 'Back',
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    }
 
-              // ⬇️ Snack/Toast con stream de String (retrocompat)
-              Positioned(
-                bottom: responsive.gutterWidth,
-                left: responsive.marginWidth,
-                child: MySnackBarWidget.fromStringStream(
-                  responsive: responsive,
-                  toastStream: app.notifications.toastStream,
-                ),
-              ),
-            ],
-          ),
+                    return Scaffold(
+                      drawer: drawerWidget,
+                      appBar: appBarWidget,
+                      body: Stack(
+                        children: <Widget>[
+                          WorkAreaWidget(
+                            responsive: r,
+                            content: page ?? const SizedBox.shrink(),
+                          ),
+                          MySnackBarWidget.fromStringStream(
+                            responsive: r,
+                            toastStream: app.notifications.toastStream,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          },
         );
       },
     );
