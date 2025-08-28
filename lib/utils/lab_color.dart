@@ -165,6 +165,7 @@ class LabColor extends EntityUtil {
   }
 
   static int colorValueFromColor(Color color) {
-    return colorValue(convertTo255Value(color.r), convertTo255Value(color.g), convertTo255Value(color.b));
+    return colorValue(convertTo255Value(color.r), convertTo255Value(color.g),
+        convertTo255Value(color.b));
   }
 }

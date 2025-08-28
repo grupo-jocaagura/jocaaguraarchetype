@@ -126,7 +126,8 @@ void main() {
         // Deja que el evento del stream llegue y que el widget procese setState/animaciones.
         await tester.pump(); // procesa setState inmediato
         await tester.pump(
-            const Duration(milliseconds: 200)); // deja entrar la animación
+          const Duration(milliseconds: 200),
+        ); // deja entrar la animación
 
         // Verifica presencia del botón de cierre (usa tooltip)
         expect(find.byTooltip('Close'), findsAtLeastNWidgets(0));
@@ -198,9 +199,9 @@ void main() {
           appManager: m2,
           child: MaterialApp(
             theme: ThemeData(useMaterial3: true),
-            home: MediaQuery(
-              data: const MediaQueryData(size: Size(1200, 800)),
-              child: const PageBuilder(page: SizedBox()),
+            home: const MediaQuery(
+              data: MediaQueryData(size: Size(1200, 800)),
+              child: PageBuilder(page: SizedBox()),
             ),
           ),
         ),

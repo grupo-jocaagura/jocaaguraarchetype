@@ -144,9 +144,10 @@ Widget _contentHuge({Key? key, double height = 40}) => SizedBox(
     );
 
 Widget _menuBox({Key? key, double height = 40}) => SizedBox(
-    key: key,
-    height: height,
-    child: const ColoredBox(color: Colors.transparent),);
+      key: key,
+      height: height,
+      child: const ColoredBox(color: Colors.transparent),
+    );
 
 void main() {
   group('WorkAreaWidget - Mobile', () {
@@ -171,7 +172,9 @@ void main() {
       expect(find.byType(SafeArea), findsOneWidget);
       expect(resp.setFromCtxCalled, isTrue);
       expect(
-          find.byKey(const ValueKey<String>('secondary-menu')), findsNothing,);
+        find.byKey(const ValueKey<String>('secondary-menu')),
+        findsNothing,
+      );
     });
 
     testWidgets('con secondaryMenu => overlay en bottom-center',
@@ -290,14 +293,17 @@ void main() {
       await _pump(tester, child: w, surface: const Size(1000, 900));
 
       expect(
-          tester.getSize(find.byKey(const ValueKey<String>('primary'))).width,
-          primaryW,);
+        tester.getSize(find.byKey(const ValueKey<String>('primary'))).width,
+        primaryW,
+      );
       expect(
-          tester.getSize(find.byKey(const ValueKey<String>('secondary'))).width,
-          secondaryW,);
+        tester.getSize(find.byKey(const ValueKey<String>('secondary'))).width,
+        secondaryW,
+      );
       expect(
-          tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
-          expectedW,);
+        tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
+        expectedW,
+      );
 
       final double dxP =
           tester.getTopLeft(find.byKey(const ValueKey<String>('primary'))).dx;
@@ -372,8 +378,9 @@ void main() {
       // Surface >= workArea
       await _pump(tester, child: w, surface: const Size(1200, 800));
       expect(
-          tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
-          expectedW,);
+        tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
+        expectedW,
+      );
     });
 
     testWidgets(
@@ -406,8 +413,9 @@ void main() {
 
       await _pump(tester, child: w, surface: const Size(1200, 800));
       expect(
-          tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
-          expectedW,);
+        tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
+        expectedW,
+      );
     });
 
     testWidgets('desktop: sin menús => contentW = gridW (sin clamp)',
@@ -435,8 +443,9 @@ void main() {
 
       await _pump(tester, child: w, surface: const Size(1400, 800));
       expect(
-          tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
-          expectedW,);
+        tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
+        expectedW,
+      );
     });
 
     testWidgets(
@@ -469,8 +478,9 @@ void main() {
 
       await _pump(tester, child: w, surface: const Size(800, 700));
       expect(
-          tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
-          expectedW,);
+        tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
+        expectedW,
+      );
     });
 
     testWidgets('TV: mismo que desktop y FAB en esquina con margen',

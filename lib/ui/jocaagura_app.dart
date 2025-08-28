@@ -132,9 +132,10 @@ class _JocaaguraAppState extends State<JocaaguraApp> {
                 uri: Uri.parse(widget.initialLocation),
               ),
             ),
-            theme: const BuildThemeData().fromState(s.copyWith(mode: ThemeMode.light)),
-            darkTheme:
-            const BuildThemeData().fromState(s.copyWith(mode: ThemeMode.dark)),
+            theme: const BuildThemeData()
+                .fromState(s.copyWith(mode: ThemeMode.light)),
+            darkTheme: const BuildThemeData()
+                .fromState(s.copyWith(mode: ThemeMode.dark)),
             themeMode: s.mode,
           );
         },

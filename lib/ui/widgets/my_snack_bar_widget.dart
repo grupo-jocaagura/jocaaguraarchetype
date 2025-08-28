@@ -206,7 +206,9 @@ class MySnackBarWidget extends StatelessWidget {
           switchOutCurve: Curves.easeIn,
           child: show
               ? KeyedSubtree(
-                  key: const ValueKey<String>('snack-on'), child: toast,)
+                  key: const ValueKey<String>('snack-on'),
+                  child: toast,
+                )
               : const SizedBox(key: ValueKey<String>('snack-off')),
         );
 

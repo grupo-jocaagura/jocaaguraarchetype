@@ -40,13 +40,14 @@ void main() {
         final int g = rnd.nextInt(256);
         final int b = rnd.nextInt(256);
 
-        final List<double> lab = LabColor.colorToLab(Color.fromARGB(255, r, g, b));
+        final List<double> lab =
+            LabColor.colorToLab(Color.fromARGB(255, r, g, b));
         final List<int> rgb = LabColor.labToColor(lab[0], lab[1], lab[2]);
 
         expect((rgb[0] - r).abs(), lessThanOrEqualTo(1));
-      expect((rgb[1] - g).abs(), lessThanOrEqualTo(1));
-      expect((rgb[2] - b).abs(), lessThanOrEqualTo(1));
-    }
+        expect((rgb[1] - g).abs(), lessThanOrEqualTo(1));
+        expect((rgb[2] - b).abs(), lessThanOrEqualTo(1));
+      }
     });
   });
 
@@ -56,9 +57,9 @@ void main() {
       final List<double> lab0 = LabColor.colorToLab(base);
 
       final List<int> rgbUp =
-      LabColor.labToColor(lab0[0] + 10.0, lab0[1], lab0[2]);
-      final List<double> labUp =
-      LabColor.colorToLab(Color.fromARGB(255, rgbUp[0], rgbUp[1], rgbUp[2]));
+          LabColor.labToColor(lab0[0] + 10.0, lab0[1], lab0[2]);
+      final List<double> labUp = LabColor.colorToLab(
+          Color.fromARGB(255, rgbUp[0], rgbUp[1], rgbUp[2]));
 
       expect(labUp[0], greaterThan(lab0[0]));
     });
@@ -68,9 +69,9 @@ void main() {
       final List<double> lab0 = LabColor.colorToLab(base);
 
       final List<int> rgbDown =
-      LabColor.labToColor(lab0[0] - 10.0, lab0[1], lab0[2]);
-      final List<double> labDown =
-      LabColor.colorToLab(Color.fromARGB(255, rgbDown[0], rgbDown[1], rgbDown[2]));
+          LabColor.labToColor(lab0[0] - 10.0, lab0[1], lab0[2]);
+      final List<double> labDown = LabColor.colorToLab(
+          Color.fromARGB(255, rgbDown[0], rgbDown[1], rgbDown[2]));
 
       expect(labDown[0], lessThan(lab0[0]));
     });

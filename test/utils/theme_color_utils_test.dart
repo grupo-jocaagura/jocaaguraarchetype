@@ -6,10 +6,10 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 bool _nearInt(int a, int b, {int tol = 2}) => (a - b).abs() <= tol;
 
 bool _nearColor(Color a, Color b, {int tol = 2}) =>
-    _nearInt((a.r*255).round(), (b.r*255).round(), tol: tol) &&
-        _nearInt((a.g*255).round(), (b.g*255).round(), tol: tol) &&
-        _nearInt((a.b*255).round(), (b.b*255).round(), tol: tol) &&
-        a.a == b.a;
+    _nearInt((a.r * 255).round(), (b.r * 255).round(), tol: tol) &&
+    _nearInt((a.g * 255).round(), (b.g * 255).round(), tol: tol) &&
+    _nearInt((a.b * 255).round(), (b.b * 255).round(), tol: tol) &&
+    a.a == b.a;
 
 void main() {
   group('ThemeColorUtils.validateHexColor', () {
@@ -21,11 +21,16 @@ void main() {
     });
 
     test('rechaza strings inválidos o longitudes incorrectas', () {
-      expect(ThemeColorUtils.validateHexColor('FFFFFF'), isFalse, reason: 'sin #');
-      expect(ThemeColorUtils.validateHexColor('#FFF'), isFalse, reason: '3 dígitos');
-      expect(ThemeColorUtils.validateHexColor('#FFFFF'), isFalse, reason: '5 dígitos');
-      expect(ThemeColorUtils.validateHexColor('#FFFFFG'), isFalse, reason: 'carácter fuera de [0-9A-Fa-f]');
-      expect(ThemeColorUtils.validateHexColor('#12 4AF'), isFalse, reason: 'espacios');
+      expect(ThemeColorUtils.validateHexColor('FFFFFF'), isFalse,
+          reason: 'sin #');
+      expect(ThemeColorUtils.validateHexColor('#FFF'), isFalse,
+          reason: '3 dígitos');
+      expect(ThemeColorUtils.validateHexColor('#FFFFF'), isFalse,
+          reason: '5 dígitos');
+      expect(ThemeColorUtils.validateHexColor('#FFFFFG'), isFalse,
+          reason: 'carácter fuera de [0-9A-Fa-f]');
+      expect(ThemeColorUtils.validateHexColor('#12 4AF'), isFalse,
+          reason: 'espacios');
       expect(ThemeColorUtils.validateHexColor(''), isFalse);
     });
   });
@@ -49,7 +54,8 @@ void main() {
         expect(
           _nearColor(back, c),
           isTrue,
-          reason: 'RGB→LAB→RGB debería conservar (±2 por canal) para $c, obtuvo $back',
+          reason:
+              'RGB→LAB→RGB debería conservar (±2 por canal) para $c, obtuvo $back',
         );
       }
     });
@@ -58,10 +64,14 @@ void main() {
   group('ThemeColorUtils.getDarker / getLighter', () {
     test('asserts de amount fuera de rango lanzan AssertionError', () {
       const Color base = Color(0xFF6699CC);
-      expect(() => ThemeColorUtils.getDarker(base, amount: 0), throwsAssertionError);
-      expect(() => ThemeColorUtils.getDarker(base, amount: 1), throwsAssertionError);
-      expect(() => ThemeColorUtils.getLighter(base, amount: 0), throwsAssertionError);
-      expect(() => ThemeColorUtils.getLighter(base, amount: 1), throwsAssertionError);
+      expect(() => ThemeColorUtils.getDarker(base, amount: 0),
+          throwsAssertionError);
+      expect(() => ThemeColorUtils.getDarker(base, amount: 1),
+          throwsAssertionError);
+      expect(() => ThemeColorUtils.getLighter(base, amount: 0),
+          throwsAssertionError);
+      expect(() => ThemeColorUtils.getLighter(base, amount: 1),
+          throwsAssertionError);
     });
 
     test('variar lightness en LAB produce colores más oscuros/claros', () {
@@ -79,9 +89,9 @@ void main() {
 
       // Canales RGB válidos
       for (final Color c in <Color>[darker10, lighter10]) {
-        expect(c.r*255, inInclusiveRange(0, 255));
-        expect(c.g*255, inInclusiveRange(0, 255));
-        expect(c.b*255, inInclusiveRange(0, 255));
+        expect(c.r * 255, inInclusiveRange(0, 255));
+        expect(c.g * 255, inInclusiveRange(0, 255));
+        expect(c.b * 255, inInclusiveRange(0, 255));
       }
     });
 
@@ -111,34 +121,52 @@ void main() {
 
   group('ThemeColorUtils.materialColorFromRGB', () {
     test('asserts en canales fuera de rango', () {
-      expect(() => ThemeColorUtils.materialColorFromRGB(-1, 0, 0), throwsAssertionError);
-      expect(() => ThemeColorUtils.materialColorFromRGB(0, 256, 0), throwsAssertionError);
-      expect(() => ThemeColorUtils.materialColorFromRGB(0, 0, 999), throwsAssertionError);
+      expect(() => ThemeColorUtils.materialColorFromRGB(-1, 0, 0),
+          throwsAssertionError);
+      expect(() => ThemeColorUtils.materialColorFromRGB(0, 256, 0),
+          throwsAssertionError);
+      expect(() => ThemeColorUtils.materialColorFromRGB(0, 0, 999),
+          throwsAssertionError);
     });
 
     test('estructura del MaterialColor y consistencia del tono 500', () {
-      final MaterialColor mc = ThemeColorUtils.materialColorFromRGB(102, 153, 204); // 0xFF6699CC
+      final MaterialColor mc =
+          ThemeColorUtils.materialColorFromRGB(102, 153, 204); // 0xFF6699CC
       expect(mc.toARGB32(), const Color(0xFF6699CC).toARGB32());
       expect(mc[500], const Color(0xFF6699CC));
 
       // todos los tonos presentes
-      const List<int> keys = <int>[50,100,200,300,400,500,600,700,800,900];
+      const List<int> keys = <int>[
+        50,
+        100,
+        200,
+        300,
+        400,
+        500,
+        600,
+        700,
+        800,
+        900
+      ];
       for (final int k in keys) {
         expect(mc[k], isA<Color>(), reason: 'Debe tener shade $k');
       }
     });
 
     test('gradiente de luminosidad: 50..400 > 500 > 600..900', () {
-      final MaterialColor mc = ThemeColorUtils.materialColorFromRGB(102, 153, 204);
+      final MaterialColor mc =
+          ThemeColorUtils.materialColorFromRGB(102, 153, 204);
       final double l500 = ThemeColorUtils.convertToLab(mc[500]!).lightness;
 
       for (final int k in <int>[50, 100, 200, 300, 400]) {
         final double l = ThemeColorUtils.convertToLab(mc[k]!).lightness;
-        expect(l, greaterThan(l500), reason: 'shade $k debería ser más claro que 500');
+        expect(l, greaterThan(l500),
+            reason: 'shade $k debería ser más claro que 500');
       }
       for (final int k in <int>[600, 700, 800, 900]) {
         final double l = ThemeColorUtils.convertToLab(mc[k]!).lightness;
-        expect(l, lessThan(l500), reason: 'shade $k debería ser más oscuro que 500');
+        expect(l, lessThan(l500),
+            reason: 'shade $k debería ser más oscuro que 500');
       }
     });
   });

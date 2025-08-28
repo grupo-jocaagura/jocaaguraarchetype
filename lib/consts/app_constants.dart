@@ -1,4 +1,5 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+
 /// Global UI constants used across the archetype.
 ///
 /// Keep values minimal and platform-agnostic. Prefer injecting configurable

@@ -4,12 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 /// Envuelve un [child] en un MaterialApp con ThemeData M3 por defecto.
 /// Permite override de tema, locale y textScale.
 Future<void> pumpWithApp(
-    WidgetTester tester,
-    Widget child, {
-      ThemeData? theme,
-      Locale locale = const Locale('es', 'CO'),
-      double textScaleFactor = 1.0,
-    }) async {
+  WidgetTester tester,
+  Widget child, {
+  ThemeData? theme,
+  Locale locale = const Locale('es', 'CO'),
+  double textScaleFactor = 1.0,
+}) async {
   final ThemeData effectiveTheme = theme ??
       ThemeData(
         useMaterial3: true,
@@ -37,6 +37,7 @@ Widget wrapConstrained(Widget child, {required Size size}) {
     child: MaterialApp(home: Scaffold(body: Center(child: child))),
   );
 }
+
 class NavProbe extends StatelessWidget {
   const NavProbe({required this.child, super.key});
 

@@ -79,8 +79,8 @@ class BlocTheme extends BlocModule {
       _run(() => themeUsecases.setFromState.call(next));
 
   /// Canonical way to produce ThemeData for MaterialApp (seed + overrides + M3 + textScale).
-  ThemeData themeData({TextTheme? baseTextTheme}) =>
-      const BuildThemeData().fromState(stateOrDefault, baseTextTheme: baseTextTheme);
+  ThemeData themeData({TextTheme? baseTextTheme}) => const BuildThemeData()
+      .fromState(stateOrDefault, baseTextTheme: baseTextTheme);
 
   // ---------------------
   // Internals
