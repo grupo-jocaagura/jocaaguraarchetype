@@ -22,7 +22,7 @@ jobs:
           fi
 
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
@@ -31,6 +31,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
       - name: Validate Changelog Update
         run: |
@@ -39,14 +40,14 @@ jobs:
             exit 1
           fi
 
-      - name: Analyze Code
-        run: flutter analyze
-
-      - name: Check Formatting
-        run: dart format --set-exit-if-changed .
-
       - name: Install Dependencies
         run: flutter pub get
+
+      - name: Check Formatting (read-only)
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze Code
+        run: flutter analyze
 
       - name: Run Tests
         run: flutter test
@@ -55,6 +56,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Configure SSH Signing Key
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_SIGNING_KEY }}" > ~/.ssh/commit_signing_key
@@ -68,10 +70,13 @@ jobs:
           git config --global commit.gpgsign true
           git config --global gpg.format ssh
 
-      - name: Increment Version Based on Label
+      - name: Increment Version Based on Label (same-repo PRs)
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
+
           CURRENT_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
           echo "Current version: $CURRENT_VERSION"
 
@@ -82,11 +87,11 @@ jobs:
           LABELS=$(echo "$LABELS_RESPONSE" | jq -r '.[].name')
 
           if echo "$LABELS" | grep -q "major"; then
-            UPDATED_VERSION=$(echo $CURRENT_VERSION | awk -F. '{$1+=1; $2=0; $3=0}1' OFS=".")
+            UPDATED_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{$1+=1; $2=0; $3=0}1' OFS=".")
           elif echo "$LABELS" | grep -q "minor"; then
-            UPDATED_VERSION=$(echo $CURRENT_VERSION | awk -F. '{$2+=1; $3=0}1' OFS=".")
+            UPDATED_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{$2+=1; $3=0}1' OFS=".")
           elif echo "$LABELS" | grep -q "patch"; then
-            UPDATED_VERSION=$(echo $CURRENT_VERSION | awk -F. '{$3+=1}1' OFS=".")
+            UPDATED_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{$3+=1}1' OFS=".")
           else
             echo "❌ No version label found. Please add 'major', 'minor', or 'patch'."
             exit 1
@@ -95,10 +100,30 @@ jobs:
           echo "Updated version: $UPDATED_VERSION"
           sed -i "s/^version:.*/version: $UPDATED_VERSION/" pubspec.yaml
 
-          git config user.name "${{ secrets.BOT_NAME }}"
-          git config user.email "${{ secrets.BOT_EMAIL }}"
-
           git add pubspec.yaml
-          git commit -S -m "Bump version to $UPDATED_VERSION"
+          git commit -S -m "chore(version): bump to $UPDATED_VERSION"
 
-          git push
+      - name: Sync PR branch and push with retry (same-repo PRs)
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          set -e
+          BRANCH="${{ github.head_ref }}"
+          git config --global rebase.gpgSign true
+
+          for i in 1 2 3; do
+            git fetch origin "$BRANCH"
+            git pull --rebase origin "$BRANCH" || true
+            if git push; then
+              echo "✅ Push OK"
+              exit 0
+            fi
+            echo "🔁 Reintentando ($i/3)..."
+            sleep $((i*2))
+          done
+          echo "❌ No se pudo pushear tras reintentos"; exit 1
+
+      - name: Skipping version bump/push for fork PRs
+        if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        run: |
+          echo "ℹ️ Fork PR detected: skipping automatic version bump & push."
+          echo "Please bump 'pubspec.yaml' locally or let a maintainer apply the label and update."

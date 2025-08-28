@@ -1,7 +1,4 @@
-import 'dart:math';
-import 'dart:ui';
-
-import 'package:jocaagura_domain/jocaagura_domain.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// A utility class for working with the CIE-Lab color space.
 ///
@@ -13,7 +10,7 @@ import 'package:jocaagura_domain/jocaagura_domain.dart';
 /// ## Example
 ///
 /// ```dart
-/// import 'package:jocaaguraarchetype/lab_color.dart';
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// void main() {
 ///   // Create a LabColor instance
@@ -29,163 +26,133 @@ import 'package:jocaagura_domain/jocaagura_domain.dart';
 /// }
 /// ```
 class LabColor extends EntityUtil {
-  /// Creates a LabColor instance with the given [lightness], [a], and [b] values.
-  ///
-  /// The `lightness` value represents the brightness of the color,
-  /// while `a` and `b` represent the chromaticity.
   const LabColor(this.lightness, this.a, this.b);
 
-  /// The lightness component of the Lab color.
-  final double lightness;
+  final double lightness; // 0..100
+  final double a; // ~ -128..127
+  final double b; // ~ -128..127
 
-  /// The `a` chromatic component of the Lab color.
-  final double a;
+  LabColor withLightness(double lightness) => LabColor(lightness, a, b);
 
-  /// The `b` chromatic component of the Lab color.
-  final double b;
+  // --- Helpers numéricos ---
+  static double _clamp(double v, double min, double max) =>
+      v < min ? min : (v > max ? max : v);
 
-  /// Returns a new `LabColor` instance with the updated [lightness].
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// const labColor = LabColor(53.0, 80.0, 67.0);
-  /// final newColor = labColor.withLightness(70.0);
-  /// print('New Lightness: ${newColor.lightness}'); // Output: New Lightness: 70.0
-  /// ```
-  LabColor withLightness(double lightness) {
-    return LabColor(lightness, a, b);
+  static int _clamp8(double v) {
+    final int n = v.round();
+    if (n < 0) {
+      return 0;
+    }
+    if (n > 255) {
+      return 255;
+    }
+    return n;
   }
 
-  /// Converts a [Color] to its Lab color representation.
-  ///
-  /// This method internally converts the RGB values to the XYZ color space,
-  /// and then to the Lab color space.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// final labValues = LabColor.colorToLab(Color.fromARGB(255, 255, 0, 0));
-  /// print('Lab Values: L=${labValues[0]}, a=${labValues[1]}, b=${labValues[2]}');
-  /// ```
+  static int convertTo255Value(double value) {
+    return (value * 255).round() & 0xff;
+  }
+
+  /// Convierte un [Color] ARGB de Flutter a Lab.
+  /// Usa los canales nativos `red/green/blue` (0..255) para evitar doble redondeo.
   static List<double> colorToLab(Color color) {
     final List<double> xyz = rgbToXyz(
-      (color.r * 255).round(),
-      (color.g * 255).round(),
-      (color.b * 255).round(),
+      convertTo255Value(color.r),
+      convertTo255Value(color.g),
+      convertTo255Value(color.b),
     );
     return xyzToLab(xyz[0], xyz[1], xyz[2]);
   }
 
-  /// Converts RGB values to the XYZ color space.
-  ///
-  /// Each color channel ([r], [g], and [b]) must be provided as an integer
-  /// between 0 and 255. The resulting XYZ values are returned as a list.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// final xyz = LabColor.rgbToXyz(255, 0, 0);
-  /// print('XYZ Values: X=${xyz[0]}, Y=${xyz[1]}, Z=${xyz[2]}');
-  /// ```
+  /// sRGB (0..255) → XYZ (D65; 0..100)
   static List<double> rgbToXyz(int r, int g, int b) {
-    final double normalizedR = r / 255;
-    final double normalizedG = g / 255;
-    final double normalizedB = b / 255;
+    // Normaliza a 0..1
+    final double R = r / 255.0;
+    final double G = g / 255.0;
+    final double B = b / 255.0;
 
-    final double rLinear = normalizedR > 0.04045
-        ? pow((normalizedR + 0.055) / 1.055, 2.4).toDouble()
-        : normalizedR / 12.92;
-    final double gLinear = normalizedG > 0.04045
-        ? pow((normalizedG + 0.055) / 1.055, 2.4).toDouble()
-        : normalizedG / 12.92;
-    final double bLinear = normalizedB > 0.04045
-        ? pow((normalizedB + 0.055) / 1.055, 2.4).toDouble()
-        : normalizedB / 12.92;
+    // Corrección gamma (sRGB companding)
+    double lin(double u) =>
+        (u <= 0.04045) ? (u / 12.92) : pow((u + 0.055) / 1.055, 2.4).toDouble();
 
+    final double rLin = lin(R);
+    final double gLin = lin(G);
+    final double bLin = lin(B);
+
+    // Matriz sRGB→XYZ (D65)
     final double x =
-        rLinear * 0.4124564 + gLinear * 0.3575761 + bLinear * 0.1804375;
+        (0.4124564 * rLin + 0.3575761 * gLin + 0.1804375 * bLin) * 100.0;
     final double y =
-        rLinear * 0.2126729 + gLinear * 0.7151522 + bLinear * 0.0721750;
+        (0.2126729 * rLin + 0.7151522 * gLin + 0.0721750 * bLin) * 100.0;
     final double z =
-        rLinear * 0.0193339 + gLinear * 0.1191920 + bLinear * 0.9503041;
+        (0.0193339 * rLin + 0.1191920 * gLin + 0.9503041 * bLin) * 100.0;
 
-    return <double>[x * 100, y * 100, z * 100];
+    return <double>[x, y, z];
   }
 
-  /// Converts XYZ values to the Lab color space.
-  ///
-  /// The inputs [x], [y], and [z] should be normalized XYZ values.
-  /// Returns the Lab values as a list `[L, a, b]`.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// final lab = LabColor.xyzToLab(41.24, 21.26, 1.93);
-  /// print('Lab Values: L=${lab[0]}, a=${lab[1]}, b=${lab[2]}');
-  /// ```
+  /// XYZ (D65; 0..100) → Lab
   static List<double> xyzToLab(double x, double y, double z) {
-    final double xNormalized = x / 95.047;
-    final double yNormalized = y / 100.000;
-    final double zNormalized = z / 108.883;
+    // Blanco de referencia D65
+    const double Xn = 95.047;
+    const double Yn = 100.000;
+    const double Zn = 108.883;
 
-    final double x3 = xNormalized > 0.008856
-        ? pow(xNormalized, 1 / 3).toDouble()
-        : (903.3 * xNormalized + 16) / 116;
-    final double y3 = yNormalized > 0.008856
-        ? pow(yNormalized, 1 / 3).toDouble()
-        : (903.3 * yNormalized + 16) / 116;
-    final double z3 = zNormalized > 0.008856
-        ? pow(zNormalized, 1 / 3).toDouble()
-        : (903.3 * zNormalized + 16) / 116;
+    double f(double t) => (t > 0.008856)
+        ? pow(t, 1.0 / 3.0).toDouble()
+        : ((903.3 * t + 16.0) / 116.0);
 
-    final double l = max(0, (116 * y3) - 16);
-    final double a = max(-128, min(127, 500 * (x3 - y3)));
-    final double b = max(-128, min(127, 200 * (y3 - z3)));
+    final double fx = f(x / Xn);
+    final double fy = f(y / Yn);
+    final double fz = f(z / Zn);
 
-    return <double>[l, a, b];
+    final double L = _clamp(116.0 * fy - 16.0, 0.0, 100.0);
+    final double a = _clamp(500.0 * (fx - fy), -128.0, 127.0);
+    final double b = _clamp(200.0 * (fy - fz), -128.0, 127.0);
+
+    return <double>[L, a, b];
   }
 
-  /// Converts Lab values back to RGB.
-  ///
-  /// The inputs [l], [a], and [b1] represent the Lab values. Returns the RGB
-  /// values as a list `[R, G, B]`.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// final rgb = LabColor.labToColor(53.0, 80.0, 67.0);
-  /// print('RGB Values: R=${rgb[0]}, G=${rgb[1]}, B=${rgb[2]}');
-  /// ```
+  /// Lab → sRGB (0..255)
   static List<int> labToColor(double l, double a, double b1) {
-    final double y3 = (l + 16) / 116;
-    final double x3 = a / 500 + y3;
-    final double z3 = y3 - (b1 / 200);
+    // Inversa de xyzToLab
+    const double Xn = 95.047;
+    const double Yn = 100.000;
+    const double Zn = 108.883;
 
-    final double xNormalized =
-        x3 * x3 * x3 > 0.008856 ? x3 * x3 * x3 : (x3 - 16 / 116) / 7.787;
-    final double yNormalized =
-        l > 8 ? pow((l + 16) / 116, 3).toDouble() : l / 903.3;
-    final double zNormalized =
-        z3 * z3 * z3 > 0.008856 ? z3 * z3 * z3 : (z3 - 16 / 116) / 7.787;
+    final double fy = (l + 16.0) / 116.0;
+    final double fx = a / 500.0 + fy;
+    final double fz = fy - (b1 / 200.0);
 
-    final double x = xNormalized * 95.047;
-    final double y = yNormalized * 100.000;
-    final double z = zNormalized * 108.883;
+    double inv(double t) =>
+        (t * t * t > 0.008856) ? (t * t * t) : ((t - 16.0 / 116.0) / 7.787);
 
-    final double rLinear = x * 0.032406 + y * -0.015372 + z * -0.004986;
-    final double gLinear = x * -0.009689 + y * 0.018758 + z * 0.000415;
-    final double bLinear = x * 0.000557 + y * -0.002040 + z * 0.010570;
+    final double xr = inv(fx);
+    final double yr =
+        (l > 8.0) ? pow((l + 16.0) / 116.0, 3.0).toDouble() : (l / 903.3);
+    final double zr = inv(fz);
 
-    final int r = rLinear <= 0.0031308
-        ? (12.92 * rLinear * 255).round()
-        : ((1.055 * pow(rLinear, 1 / 2.4) - 0.055) * 255).round();
-    final int g = gLinear <= 0.0031308
-        ? (12.92 * gLinear * 255).round()
-        : ((1.055 * pow(gLinear, 1 / 2.4) - 0.055) * 255).round();
-    final int b = bLinear <= 0.0031308
-        ? (12.92 * bLinear * 255).round()
-        : ((1.055 * pow(bLinear, 1 / 2.4).toDouble() - 0.055) * 255).round();
+    final double X = xr * Xn;
+    final double Y = yr * Yn;
+    final double Z = zr * Zn;
+
+    // XYZ → sRGB lineal
+    final double rLin = 3.2404542 * (X / 100.0) +
+        (-1.5371385) * (Y / 100.0) +
+        (-0.4985314) * (Z / 100.0);
+    final double gLin = -0.9692660 * (X / 100.0) +
+        1.8760108 * (Y / 100.0) +
+        0.0415560 * (Z / 100.0);
+    final double bLin = 0.0556434 * (X / 100.0) +
+        (-0.2040259) * (Y / 100.0) +
+        1.0572252 * (Z / 100.0);
+
+    double compand(double u) => (u <= 0.0031308)
+        ? (12.92 * u)
+        : (1.055 * pow(u, 1.0 / 2.4).toDouble() - 0.055);
+
+    final int r = _clamp8(compand(rLin) * 255.0);
+    final int g = _clamp8(compand(gLin) * 255.0);
+    final int b = _clamp8(compand(bLin) * 255.0);
 
     return <int>[r, g, b];
   }
@@ -198,10 +165,10 @@ class LabColor extends EntityUtil {
   }
 
   static int colorValueFromColor(Color color) {
-    final int r = (color.r * 255).round();
-    final int g = (color.g * 255).round();
-    final int b = (color.b * 255).round();
-
-    return (255 << 24) | (r << 16) | (g << 8) | b;
+    return colorValue(
+      convertTo255Value(color.r),
+      convertTo255Value(color.g),
+      convertTo255Value(color.b),
+    );
   }
 }

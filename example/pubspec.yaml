@@ -9,7 +9,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  jocaagura_domain: ^1.21.2
   jocaaguraarchetype:
     path: ../
 

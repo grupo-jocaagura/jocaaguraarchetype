@@ -6,26 +6,28 @@ late AppManager jAppManager;
 Widget makeTesteablePage({
   required Widget child,
 }) {
-  /// Zona de configuración inicial
-  final BlocTheme blocTheme = BlocTheme(
-    const ProviderTheme(
-      ServiceTheme(),
+  final ThemeUsecases themeUsecases = ThemeUsecases.fromRepo(
+    RepositoryThemeImpl(
+      gateway: GatewayThemeImpl(
+        themeService: const ServiceJocaaguraArchetypeTheme(),
+      ),
     ),
   );
+
+  /// Zona de configuración inicial
+  final BlocTheme blocTheme = BlocTheme(themeUsecases: themeUsecases);
   final BlocUserNotifications blocUserNotifications = BlocUserNotifications();
   final BlocLoading blocLoading = BlocLoading();
   final BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
   final BlocSecondaryMenuDrawer blocSecondaryMenuDrawer =
       BlocSecondaryMenuDrawer();
   final BlocResponsive blocResponsive = BlocResponsive();
-  final BlocOnboarding blocOnboarding = BlocOnboarding(
-    <Future<void> Function()>[],
-  );
+  final BlocOnboarding blocOnboarding = BlocOnboarding();
+  final PageRegistry registry = PageRegistry(<String, PageWidgetBuilder>{
+    // Ruta inicial "home"
+    '/': (BuildContext context, PageModel page) => const Scaffold(),
+  });
 
-  final BlocNavigator blocNavigator = BlocNavigator(
-    PageManager(),
-    child,
-  );
   jAppManager = AppManager(
     AppConfig(
       blocTheme: blocTheme,
@@ -35,11 +37,18 @@ Widget makeTesteablePage({
       blocSecondaryMenuDrawer: blocSecondaryMenuDrawer,
       blocResponsive: blocResponsive,
       blocOnboarding: blocOnboarding,
-      blocNavigator: blocNavigator,
+      pageManager: PageManager(
+        initial: NavStackModel(
+          const <PageModel>[
+            PageModel(name: '/', segments: <String>['home']),
+          ],
+        ),
+      ),
     ),
   );
 
   return JocaaguraApp(
     appManager: jAppManager,
+    registry: registry,
   );
 }

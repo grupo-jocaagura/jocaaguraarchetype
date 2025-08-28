@@ -2,11 +2,14 @@ name: Validate Merge to master from develop
 
 on:
   pull_request:
-    branches:
-      - master
+    branches: [ master ]
 
 permissions:
   contents: read
+
+concurrency:
+  group: validate-master-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   validate_master_pr:
@@ -14,35 +17,56 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Ensure PR source is develop
+      - name: Ensure PR source branch is allowed
         run: |
-          if [[ "${{ github.head_ref }}" != "develop" ]]; then
-            echo "❌ Only pull requests from 'develop' to 'master' are allowed."
+          HEAD_REF="${{ github.head_ref }}"
+          # 🔒 Estricto: solo develop → master
+          if [[ "$HEAD_REF" != "develop" ]]; then
+            echo "❌ Only pull requests from 'develop' to 'master' are allowed. Current: $HEAD_REF"
             exit 1
           fi
 
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.1'
+          channel: stable
+          cache: true
+
+      - name: Install Dependencies
+        run: flutter pub get
 
       - name: Validate Changelog and Version Match
+        shell: bash
         run: |
-          VERSION_CHANGELOG=$(grep -oP '^## \[\K[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md | head -1)
-          VERSION_PUBSPEC=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          set -euo pipefail
+          VERSION_CHANGELOG="$(sed -n 's/^## \[\([0-9]\+\.[0-9]\+\.[0-9]\+\)\].*/\1/p' CHANGELOG.md | head -1)"
+          VERSION_PUBSPEC="$(awk '/^version:/{print $2}' pubspec.yaml)"
 
-          echo "🔍 Changelog version: $VERSION_CHANGELOG"
-          echo "🔍 pubspec.yaml version: $VERSION_PUBSPEC"
+          echo "🔍 CHANGELOG: $VERSION_CHANGELOG"
+          echo "🔍 pubspec.yaml: $VERSION_PUBSPEC"
 
-          if [[ "$VERSION_CHANGELOG" != "$VERSION_PUBSPEC" ]]; then
-            echo "❌ Version mismatch: CHANGELOG.md has $VERSION_CHANGELOG but pubspec.yaml has $VERSION_PUBSPEC"
+          if [[ -z "${VERSION_CHANGELOG:-}" || -z "${VERSION_PUBSPEC:-}" ]]; then
+            echo "❌ Could not parse versions from CHANGELOG.md or pubspec.yaml"
             exit 1
           fi
+
+          if [[ "$VERSION_CHANGELOG" != "$VERSION_PUBSPEC" ]]; then
+            echo "❌ Version mismatch: CHANGELOG=$VERSION_CHANGELOG vs PUBSPEC=$VERSION_PUBSPEC"
+            exit 1
+          fi
+
+          if ! grep -Eq "^## \[$VERSION_PUBSPEC\] - [0-9]{4}-[0-9]{2}-[0-9]{2}" CHANGELOG.md; then
+            echo "❌ Missing dated section for $VERSION_PUBSPEC in CHANGELOG.md (expected '## [$VERSION_PUBSPEC] - YYYY-MM-DD')."
+            exit 1
+          fi
+
+      - name: Check Formatting (read-only)
+        run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze Code
         run: flutter analyze
@@ -50,5 +74,25 @@ jobs:
       - name: Run Tests
         run: flutter test
 
-      - name: Validate Format
-        run: dart format --set-exit-if-changed .
+      - name: Ensure version is greater than master
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION_PUBSPEC="$(awk '/^version:/{print $2}' pubspec.yaml)"
+          git fetch origin master --depth=1
+          VERSION_MASTER="$(git show origin/master:pubspec.yaml | awk '/^version:/{print $2}')"
+
+          echo "📦 master version: $VERSION_MASTER"
+          echo "📦 PR version:     $VERSION_PUBSPEC"
+
+          if [[ -z "${VERSION_MASTER:-}" ]]; then
+            echo "ℹ️ No version could be read from origin/master (new repo?). Skipping compare."
+            exit 0
+          fi
+
+          # Requiere GNU sort (disponible en ubuntu-latest)
+          HIGHEST="$(printf '%s\n' "$VERSION_MASTER" "$VERSION_PUBSPEC" | sort -V | tail -1)"
+          if [[ "$HIGHEST" != "$VERSION_PUBSPEC" ]]; then
+            echo "❌ pubspec.yaml version ($VERSION_PUBSPEC) must be greater than master ($VERSION_MASTER)."
+            exit 1
+          fi

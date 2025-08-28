@@ -1,79 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-import 'package:jocaaguraarchetype/services/service_connectivity_plus.dart';
 
-import 'blocs/bloc_counter.dart';
-import 'ui/pages/my_home_page.dart';
-
-final JocaaguraArchetype jocaaguraArchetype = JocaaguraArchetype();
-
-/// Zona de configuración inicial
-final BlocTheme blocTheme = BlocTheme(
-  const ProviderTheme(
-    ServiceTheme(),
-  ),
-);
-final BlocConnectivity blocConnectivity = BlocConnectivity(
-  ServiceConnectivityPlus(
-    const FakeConnectivityProvider(),
-    const FakeInternetProvider(),
-    debouncer: Debouncer(milliseconds: 1000),
-  ),
-);
-final BlocUserNotifications blocUserNotifications = BlocUserNotifications();
-final BlocLoading blocLoading = BlocLoading();
-final BlocMainMenuDrawer blocMainMenuDrawer = BlocMainMenuDrawer();
-final BlocSecondaryMenuDrawer blocSecondaryMenuDrawer =
-    BlocSecondaryMenuDrawer();
-final BlocResponsive blocResponsive = BlocResponsive();
-final BlocOnboarding blocOnboarding = BlocOnboarding(
-  <Future<void> Function()>[
-    // reemplazar por las funciones iniciales de configuración
-    () async {
-      blocNavigator.addPagesForDynamicLinksDirectory(<String, Widget>{
-        MyDemoHomePage.name: const MyDemoHomePage(title: 'Prueba'),
-      });
-    },
-    jocaaguraArchetype.testMe,
-    jocaaguraArchetype.testMe,
-    jocaaguraArchetype.testMe,
-    jocaaguraArchetype.testMe,
-    () async {
-      blocNavigator.setHomePageAndUpdate(
-        const MyHomePage(),
-      );
-    },
-  ],
-);
-final BlocNavigator blocNavigator = BlocNavigator(
-  PageManager(),
-  OnBoardingPage(
-    blocOnboarding: blocOnboarding,
-  ),
-);
-
-final AppManager appManager = AppManager(
-  AppConfig(
-    blocTheme: blocTheme,
-    blocUserNotifications: blocUserNotifications,
-    blocLoading: blocLoading,
-    blocMainMenuDrawer: blocMainMenuDrawer,
-    blocSecondaryMenuDrawer: blocSecondaryMenuDrawer,
-    blocResponsive: blocResponsive,
-    blocOnboarding: blocOnboarding,
-    blocNavigator: blocNavigator,
-    blocModuleList: <String, BlocModule>{
-      BlocCounter.name: BlocCounter(),
-      BlocConnectivity.name: blocConnectivity,
-    },
-  ),
-);
+import 'app_registry.dart';
+import 'support/example_env.dart';
 
 void main() {
-  runApp(
-    JocaaguraApp(
-      appManager: appManager,
-    ),
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Registry de páginas del example
+  final PageRegistry registry = buildExampleRegistry();
+
+  // Construimos dos configuraciones (DEV y QA) con pasos de onboarding distintos.
+  final AppConfig cfgDev = ExampleEnv.buildConfig(
+    mode: AppMode.dev,
+    registry: registry,
   );
+  final AppConfig cfgQa = ExampleEnv.buildConfig(
+    mode: AppMode.qa,
+    registry: registry,
+  );
+
+  // BlocAppConfig para swap en caliente entre DEV/QA
+  ExampleEnv.appConfigBloc = BlocAppConfig(initial: cfgDev);
+  ExampleEnv.cfgDev = cfgDev;
+  ExampleEnv.cfgQa = cfgQa;
+
+  runApp(ExampleRoot(registry: registry));
+}
+
+/// Wrapper que escucha el BlocAppConfig y reconstruye el shell.
+class ExampleRoot extends StatefulWidget {
+  const ExampleRoot({required this.registry, super.key});
+  final PageRegistry registry;
+  @override
+  State<ExampleRoot> createState() => _ExampleRootState();
+}
+
+class _ExampleRootState extends State<ExampleRoot> {
+  late AppConfig _current;
+  late Stream<AppConfig> _stream;
+
+  @override
+  void initState() {
+    super.initState();
+    _current = ExampleEnv.appConfigBloc.state;
+    _stream = ExampleEnv.appConfigBloc.stream;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<AppConfig>(
+      stream: _stream,
+      initialData: _current,
+      builder: (_, AsyncSnapshot<AppConfig> snap) {
+        final AppConfig cfg = snap.data ?? _current;
+        final AppManager manager = AppManager(cfg);
+        return JocaaguraApp(
+          key: ObjectKey(cfg),
+          appManager: manager,
+          registry: widget.registry,
+          projectorMode: false,
+          initialLocation: '/onboarding',
+        );
+      },
+    );
+  }
 }

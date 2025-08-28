@@ -1,60 +1,296 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-import 'package:jocaaguraarchetype/consts/enum_screen_size.dart';
-import 'package:jocaaguraarchetype/ui/widgets/movil_secondary_menu_widget.dart';
-import 'package:jocaaguraarchetype/ui/widgets/page_with_secondary_menu_widget.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-// revisado 10/03/2024 author: @albertjjimenezp
-void testMe() {}
 void main() {
-  testWidgets('PageWidthSecondaryMenuWidget should render correctly',
-      (WidgetTester tester) async {
-    const List<ModelMainMenuModel> listOfModelMainMenu = <ModelMainMenuModel>[
-      ModelMainMenuModel(
-        iconData: Icons.ac_unit,
-        onPressed: testMe,
-        label: 'Option 1',
-        description: 'Description 1',
-      ),
-      ModelMainMenuModel(
-        iconData: Icons.access_alarm,
-        onPressed: testMe,
-        label: 'Option 2',
-        description: 'Description 2',
-      ),
-    ];
-    const double secondaryMenuWidth = 200.0;
-    const ScreenSizeEnum screenSizeEnum = ScreenSizeEnum.tablet;
-    final Container page =
-        Container(); // Debes proporcionar un widget válido para la página
+  group('PageWithSecondaryMenuWidget', () {
+    // ---- Helpers -----------------------------------------------------------
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: PageWidthSecondaryMenuWidget(
-            listOfModelMainMenu: listOfModelMainMenu,
-            secondaryMenuWidth: secondaryMenuWidth,
-            screenSizeEnum: screenSizeEnum,
-            page: page,
+    const Size mobileSize = Size(360, 640);
+    const Size desktopSize = Size(1280, 800);
+
+    BlocResponsive mobileResp() {
+      final BlocResponsive r = BlocResponsive()..setSizeForTesting(mobileSize);
+      return r;
+    }
+
+    BlocResponsive desktopResp() {
+      final BlocResponsive r = BlocResponsive()..setSizeForTesting(desktopSize);
+      return r;
+    }
+
+    Future<void> setSurfaceSize(WidgetTester tester, Size size) async {
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = Size(size.width, size.height);
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+    }
+
+    Future<void> pumpPage(
+      WidgetTester tester, {
+      required BlocResponsive r,
+      required Size surfaceSize,
+      required Widget content,
+      Widget? secondary,
+      int panelColumns = 2,
+      bool secondaryOnRight = true,
+      bool animate = true,
+      Color? backgroundColor,
+      bool safeArea = true,
+    }) async {
+      await setSurfaceSize(tester, surfaceSize);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: PageWithSecondaryMenuWidget(
+              responsive: r,
+              content: content,
+              secondaryMenu: secondary,
+              panelColumns: panelColumns,
+              secondaryOnRight: secondaryOnRight,
+              animate: animate,
+              backgroundColor: backgroundColor,
+              safeArea: safeArea,
+            ),
           ),
         ),
-      ),
-    );
-
-    // Verificar que el widget se renderice correctamente según la lógica del widget
-    if (listOfModelMainMenu.isEmpty) {
-      expect(find.byType(Container), findsOneWidget);
-    } else if (screenSizeEnum == ScreenSizeEnum.movil ||
-        screenSizeEnum == ScreenSizeEnum.tablet) {
-      expect(find.byType(SizedBox), findsAtLeastNWidgets(1));
-      expect(find.byType(Stack), findsAtLeastNWidgets(1));
-      expect(find.byType(MovilSecondaryMenuWidget), findsOneWidget);
-    } else {
-      expect(find.byType(SingleChildScrollView), findsOneWidget);
-      expect(find.byType(Row), findsOneWidget);
-      expect(find.byType(Container), findsOneWidget);
-      expect(find.byType(ListView), findsOneWidget);
+      );
+      await tester.pumpAndSettle();
     }
+
+    // ---- Tests -------------------------------------------------------------
+
+    testWidgets('móvil: muestra overlay inferior cuando hay secondaryMenu',
+        (WidgetTester tester) async {
+      final BlocResponsive r = mobileResp();
+      await pumpPage(
+        tester,
+        r: r,
+        surfaceSize: mobileSize,
+        content: Container(
+          key: const Key('content'),
+          color: Colors.blue,
+          height: 200,
+        ),
+        secondary: Container(key: const Key('secondary'), height: 40),
+      );
+
+      // El overlay usa _maybeAnimated con key 'mobile-secondary'
+      expect(
+        find.byKey(const ValueKey<String>('mobile-secondary')),
+        findsOneWidget,
+      );
+      // El contenido existe
+      expect(find.byKey(const Key('content')), findsOneWidget);
+      // El secondary existe
+      expect(find.byKey(const Key('secondary')), findsOneWidget);
+    });
+
+    testWidgets('móvil: no muestra overlay si secondaryMenu es null',
+        (WidgetTester tester) async {
+      final BlocResponsive r = mobileResp();
+      await pumpPage(
+        tester,
+        r: r,
+        surfaceSize: mobileSize,
+        content: Container(key: const Key('content')),
+      );
+
+      expect(
+        find.byKey(const ValueKey<String>('mobile-secondary')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('escritorio: ancho del panel = widthByColumns(panelColumns)',
+        (WidgetTester tester) async {
+      final BlocResponsive r = desktopResp();
+      const int cols = 3;
+
+      await pumpPage(
+        tester,
+        r: r,
+        surfaceSize: desktopSize,
+        content: Container(key: const Key('content')),
+        secondary: Container(key: const Key('secondary')),
+        panelColumns: cols,
+      );
+
+      // AnimatedSwitcher del panel (animate=true por defecto)
+      final Finder panelSwitcher =
+          find.byKey(const ValueKey<String>('panel-secondary'));
+      expect(panelSwitcher, findsOneWidget);
+
+      final double expectedPanelW =
+          r.widthByColumns(cols.clamp(1, r.columnsNumber));
+
+      // Medimos el ancho real del switcher (igual al SizedBox de panel).
+      final Size actualSize = tester.getSize(panelSwitcher);
+
+      expect(
+        (actualSize.width - expectedPanelW).abs() < 0.001,
+        isTrue,
+        reason: 'ancho real ${actualSize.width} vs esperado $expectedPanelW',
+      );
+    });
+
+    testWidgets('escritorio: panel a la derecha por defecto',
+        (WidgetTester tester) async {
+      final BlocResponsive r = desktopResp();
+
+      await pumpPage(
+        tester,
+        r: r,
+        surfaceSize: desktopSize,
+        content: Container(
+          key: const Key('content'),
+          width: 200,
+          height: 200,
+          color: Colors.green,
+        ),
+        secondary: Container(
+          key: const Key('secondary'),
+          width: 120,
+          height: 100,
+          color: Colors.red,
+        ),
+      );
+
+      final Offset contentPos =
+          tester.getTopLeft(find.byKey(const Key('content')));
+      final Offset secondaryPos =
+          tester.getTopLeft(find.byKey(const Key('secondary')));
+
+      expect(secondaryPos.dx, greaterThan(contentPos.dx));
+    });
+
+    testWidgets(
+        'escritorio: panel a la izquierda cuando secondaryOnRight=false',
+        (WidgetTester tester) async {
+      final BlocResponsive r = desktopResp();
+
+      await pumpPage(
+        tester,
+        r: r,
+        surfaceSize: desktopSize,
+        content: const SizedBox(key: Key('content'), width: 200, height: 200),
+        secondary:
+            const SizedBox(key: Key('secondary'), width: 120, height: 100),
+        secondaryOnRight: false,
+      );
+
+      final Offset contentPos =
+          tester.getTopLeft(find.byKey(const Key('content')));
+      final Offset secondaryPos =
+          tester.getTopLeft(find.byKey(const Key('secondary')));
+
+      expect(secondaryPos.dx, lessThan(contentPos.dx));
+    });
+
+    testWidgets('aplica backgroundColor al contenedor raíz',
+        (WidgetTester tester) async {
+      final BlocResponsive r = desktopResp();
+      const Color bg = Colors.amber;
+
+      await pumpPage(
+        tester,
+        r: r,
+        surfaceSize: desktopSize,
+        content: const SizedBox(),
+        secondary: const SizedBox(),
+        backgroundColor: bg,
+      );
+
+      // Busca algún Container con ese color (el root del layout de página)
+      final Finder rootContainer = find.byWidgetPredicate(
+        (Widget w) => w is Container && w.color == bg,
+      );
+      expect(rootContainer, findsOneWidget);
+    });
+
+    testWidgets('safeArea=true envuelve el contenido en SafeArea',
+        (WidgetTester tester) async {
+      final BlocResponsive r = desktopResp();
+
+      await pumpPage(
+        tester,
+        r: r,
+        surfaceSize: desktopSize,
+        content: const SizedBox(),
+        secondary: const SizedBox(),
+      );
+
+      expect(find.byType(SafeArea), findsOneWidget);
+    });
+
+    testWidgets('safeArea=false no inserta SafeArea',
+        (WidgetTester tester) async {
+      final BlocResponsive r = desktopResp();
+
+      await pumpPage(
+        tester,
+        r: r,
+        surfaceSize: desktopSize,
+        content: const SizedBox(),
+        secondary: const SizedBox(),
+        safeArea: false,
+      );
+
+      expect(find.byType(SafeArea), findsNothing);
+    });
+
+    testWidgets('animate=false no crea los AnimatedSwitcher con keys',
+        (WidgetTester tester) async {
+      final BlocResponsive r = desktopResp();
+
+      await pumpPage(
+        tester,
+        r: r,
+        surfaceSize: desktopSize,
+        content: const SizedBox(),
+        secondary: const SizedBox(),
+        animate: false,
+      );
+
+      expect(
+        find.byKey(const ValueKey<String>('panel-secondary')),
+        findsNothing,
+      );
+
+      // Móvil también sin switcher
+      await pumpPage(
+        tester,
+        r: mobileResp(),
+        surfaceSize: mobileSize,
+        content: const SizedBox(),
+        secondary: const SizedBox(),
+        animate: false,
+      );
+      expect(
+        find.byKey(const ValueKey<String>('mobile-secondary')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('cuando no hay secondaryMenu, no se reserva ancho de panel',
+        (WidgetTester tester) async {
+      final BlocResponsive r = desktopResp();
+
+      await pumpPage(
+        tester,
+        r: r,
+        surfaceSize: desktopSize,
+        content: const SizedBox(),
+        panelColumns: 4,
+      );
+
+      expect(
+        find.byKey(const ValueKey<String>('panel-secondary')),
+        findsNothing,
+      );
+    });
   });
 }

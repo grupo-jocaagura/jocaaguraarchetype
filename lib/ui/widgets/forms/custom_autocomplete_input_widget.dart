@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-String? _defaultFunction(String val) {
+String? _defaultFunction(String? val) {
   return null;
 }
 
@@ -52,7 +52,7 @@ String? _defaultFunction(String val) {
 class CustomAutoCompleteInputWidget extends StatefulWidget {
   /// Creates a `CustomAutoCompleteInputWidget`.
   ///
-  /// - [onEditingValueFunction]: Function to call when editing is complete.
+  /// - [onChanged]: Function to call when editing is complete.
   /// - [suggestList]: List of suggestions for autocomplete.
   /// - [initialData]: Initial value for the input field.
   /// - [placeholder]: Placeholder text for the input field.
@@ -60,16 +60,22 @@ class CustomAutoCompleteInputWidget extends StatefulWidget {
   /// - [icondata]: Icon to display as a prefix in the input field.
   /// - [textInputType]: Keyboard type for the input field.
   const CustomAutoCompleteInputWidget({
-    required this.onEditingValueFunction,
+    required this.onChanged,
     super.key,
     this.label = '',
     this.suggestList,
     this.initialData = '',
     this.placeholder = '',
     this.onEditingValidateFunction = _defaultFunction,
+    this.onFieldSubmitted = _defaultFunction,
     this.icondata,
     this.textInputType = TextInputType.text,
+    this.onChangedDebounce,
   });
+
+  /// Debounce time applied to onChanged validations.
+  /// If null, validates on every keystroke.
+  final Duration? onChangedDebounce;
 
   /// List of suggestions for the autocomplete feature.
   final List<String>? suggestList;
@@ -84,12 +90,15 @@ class CustomAutoCompleteInputWidget extends StatefulWidget {
   final String label;
 
   /// Function called when editing is complete.
-  final void Function(String val) onEditingValueFunction;
+  final void Function(String val) onChanged;
+
+  /// Function called when editing is complete.
+  final void Function(String val) onFieldSubmitted;
 
   /// Function for validating the input value.
   ///
   /// Should return an error message if invalid, or `null` if valid.
-  final String? Function(String val) onEditingValidateFunction;
+  final String? Function(String? val) onEditingValidateFunction;
 
   /// Icon displayed as a prefix in the input field.
   final IconData? icondata;
@@ -105,114 +114,130 @@ class CustomAutoCompleteInputWidget extends StatefulWidget {
 /// State class for `CustomAutoCompleteInputWidget`.
 class CustomAutoCompleteInputWidgetState
     extends State<CustomAutoCompleteInputWidget> {
-  late TextEditingController _controller;
   String? _errorText;
   late String _selectedValue;
-  bool _isStarted = false;
+  Timer? _debounce; // NEW
 
   @override
   void initState() {
     super.initState();
     _selectedValue = widget.initialData;
-    _controller = TextEditingController(text: _selectedValue);
     _onValidate(_selectedValue);
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
   }
 
   /// Validates the input value and updates the error text if necessary.
   void _onValidate(String val) {
     _errorText = widget.onEditingValidateFunction(val);
     if (_errorText == null) {
-      widget.onEditingValueFunction(val);
+      widget.onChanged(val);
     }
     setState(() {});
   }
 
+  void _onChangedWithOptionalDebounce(String val) {
+    if (widget.onChangedDebounce != null) {
+      _debounce?.cancel();
+      _debounce = Timer(widget.onChangedDebounce!, () => _onValidate(val));
+      return;
+    } else {
+      _onValidate(val);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Autocomplete<String>(
-        optionsBuilder: (TextEditingValue textEditingValue) {
-          if (textEditingValue.text.isEmpty) {
-            return const Iterable<String>.empty();
-          } else {
-            return widget.suggestList?.where(
-                  (String word) => word
-                      .toLowerCase()
-                      .contains(textEditingValue.text.toLowerCase()),
-                ) ??
-                const Iterable<String>.empty();
-          }
-        },
-        optionsViewBuilder: (
-          BuildContext context,
-          AutocompleteOnSelected<String> onSelected,
-          Iterable<String> options,
-        ) {
-          return Material(
+    return Autocomplete<String>(
+      initialValue: TextEditingValue(text: widget.initialData),
+      optionsBuilder: (TextEditingValue tev) {
+        if (tev.text.isEmpty) {
+          return const Iterable<String>.empty();
+        }
+        final Iterable<String> base = widget.suggestList ?? const <String>[];
+        final String q = tev.text.toLowerCase();
+        return base.where((String s) => s.toLowerCase().contains(q));
+      },
+      optionsViewBuilder:
+          (_, void Function(String) onSelected, Iterable<String> options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
             elevation: 4,
-            child: ListView.separated(
-              padding: EdgeInsets.zero,
-              itemBuilder: (BuildContext context, int index) {
-                final String option = options.elementAt(index);
-                return ListTile(
-                  title: Text(option),
-                  onTap: () {
-                    _selectedValue = option;
-                    _controller.text = _selectedValue;
-                    _onValidate(_selectedValue);
-                    onSelected(option);
-                    FocusScope.of(context).unfocus();
-                  },
-                );
-              },
-              separatorBuilder: (BuildContext context, int index) =>
-                  const Divider(),
-              itemCount: options.length,
-            ),
-          );
-        },
-        onSelected: (String selectedString) {
-          _controller.text = selectedString;
-          _onValidate(selectedString);
-          FocusScope.of(context).unfocus();
-        },
-        fieldViewBuilder: (
-          BuildContext context,
-          TextEditingController controller,
-          FocusNode focusNode,
-          void Function() onEditingComplete,
-        ) {
-          if (_isStarted == false) {
-            controller.text = _selectedValue;
-            _isStarted = true;
-          }
-          return TextField(
-            keyboardType: widget.textInputType,
-            controller: controller,
-            focusNode: focusNode,
-            onChanged: _onValidate,
-            decoration: InputDecoration(
-              prefixIcon:
-                  widget.icondata != null ? Icon(widget.icondata) : null,
-              label: widget.label.isNotEmpty ? Text(widget.label) : null,
-              errorText: _errorText,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.orange),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.orange),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.orange),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 240, minWidth: 280),
+              child: ListView.separated(
+                padding: EdgeInsets.zero,
+                itemCount: options.length,
+                separatorBuilder: (_, __) => const Divider(height: 1),
+                itemBuilder: (_, int i) {
+                  final String option = options.elementAt(i);
+                  return ListTile(
+                    title: Text(option),
+                    onTap: () {
+                      onSelected(
+                        option,
+                      ); // Autocomplete sincroniza el controller
+                      FocusScope.of(context).unfocus();
+                    },
+                  );
+                },
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
+      onSelected: (String val) {
+        _onValidate(val);
+        FocusScope.of(context).unfocus();
+      },
+      fieldViewBuilder: (
+        BuildContext context,
+        TextEditingController controller,
+        FocusNode focusNode,
+        void Function() onEditingComplete,
+      ) {
+        return TextField(
+          controller: controller,
+          focusNode: focusNode,
+          keyboardType: widget.textInputType,
+          textInputAction: TextInputAction.done,
+          textCapitalization: TextCapitalization.sentences,
+          onChanged: _onChangedWithOptionalDebounce,
+          onEditingComplete: () {
+            final String v = controller.text;
+            _errorText = widget.onEditingValidateFunction(v);
+            if (_errorText == null) {
+              widget.onFieldSubmitted(v);
+            }
+            setState(() {});
+            onEditingComplete();
+            FocusScope.of(context).unfocus();
+          },
+          decoration: InputDecoration(
+            prefixIcon: widget.icondata != null ? Icon(widget.icondata) : null,
+            label: widget.label.isNotEmpty ? Text(widget.label) : null,
+            hintText: widget.placeholder,
+            errorText: _errorText,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.orange),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.orange),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.orange),
+            ),
+          ),
+        );
+      },
     );
   }
 }

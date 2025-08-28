@@ -1,7 +1,20 @@
-import 'package:flutter/material.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-import '../../blocs/bloc_onboarding.dart';
-
+/// Simple onboarding flow for first-run setup.
+///
+/// Supply the steps (widgets or descriptors) and handle completion by
+/// notifying the AppManager / Router to proceed to the home route.
+///
+/// ### Example
+/// ```dart
+/// OnboardingPage(
+///   steps: <Widget>[
+///     const _StepWelcome(),
+///     const _StepPermissions(),
+///   ],
+///   onFinish: () => context.read<AppManager>().goToHome(),
+/// );
+/// ```
 class OnBoardingPage extends StatelessWidget {
   const OnBoardingPage({required this.blocOnboarding, super.key});
   final BlocOnboarding blocOnboarding;
@@ -14,11 +27,14 @@ class OnBoardingPage extends StatelessWidget {
         children: <Widget>[
           SizedBox(
             width: double.infinity,
-            child: StreamBuilder<String>(
-              stream: blocOnboarding.msgStream,
-              builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+            child: StreamBuilder<OnboardingState>(
+              stream: blocOnboarding.stateStream,
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<OnboardingState> snapshot,
+              ) {
                 return Text(
-                  blocOnboarding.msg,
+                  blocOnboarding.currentStep?.title ?? 'Loading...',
                   textAlign: TextAlign.center,
                 );
               },
