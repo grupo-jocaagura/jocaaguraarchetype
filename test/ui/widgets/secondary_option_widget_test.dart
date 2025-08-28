@@ -1,54 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/ui/widgets/secondary_option_widget.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-// revisado 10/03/2024 author: @albertjjimenezp
 void main() {
-  testWidgets('SecondaryOptionWidget should display the correct content',
-      (WidgetTester tester) async {
-    // Build the widget
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SecondaryOptionWidget(
-            onPressed: () {},
-            label: 'Option 1',
-            icondata: Icons.star,
-            description: 'Description for Option 1',
+  group('SecondaryOptionWidget', () {
+    testWidgets('renders and respects selected state',
+        (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(1440, 900));
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Material(
+            child: SecondaryOptionWidget(
+              icon: Icons.dashboard,
+              label: 'Dashboard',
+              responsive: resp,
+              onPressed: () {},
+              selected: true,
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    // Verify the content
-    expect(find.text('Option 1'), findsOneWidget);
-    expect(find.text('Description for Option 1'), findsOneWidget);
-    expect(find.byIcon(Icons.star), findsOneWidget);
-  });
+      expect(find.text('Dashboard'), findsOneWidget);
+      expect(find.byIcon(Icons.dashboard), findsOneWidget);
+    });
 
-  testWidgets('SecondaryOptionWidget should call onPressed callback on tap',
-      (WidgetTester tester) async {
-    bool onPressedCalled = false;
+    testWidgets('handles disabled state', (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(1280, 800));
 
-    // Build the widget
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SecondaryOptionWidget(
-            onPressed: () {
-              onPressedCalled = true;
-            },
-            label: 'Option 1',
-            icondata: Icons.star,
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Material(
+            child: SecondaryOptionWidget(
+              icon: Icons.delete,
+              label: 'Delete',
+              responsive: resp,
+              onPressed: null,
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    // Tap the widget
-    await tester.tap(find.byType(ListTile));
-
-    // Verify that onPressed callback was called
-    expect(onPressedCalled, isTrue);
+      final TextButton btn = tester.widget<TextButton>(find.byType(TextButton));
+      expect(btn.onPressed, isNull);
+    });
   });
 }

@@ -1,195 +1,213 @@
-import 'dart:async';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
-import '../jocaaguraarchetype.dart';
-import 'pages/loading_page.dart';
-import 'widgets/drawer_option_widget.dart';
-import 'widgets/my_snack_bar_widget.dart';
-import 'widgets/work_area_widget.dart';
-
-/// A versatile page builder widget that integrates navigation, menus, and responsive layouts.
-///
-/// The `PageBuilder` is designed to simplify the construction of pages within the
-/// Jocaagura framework. It manages the following functionalities:
-/// - **Responsive Layouts**: Adapts the page layout to different screen sizes.
-/// - **Navigation**: Integrates with `AppManager` to manage navigation and history.
-/// - **Loading States**: Displays a loading page when the application is in a loading state.
-/// - **Menus**: Handles primary and secondary menus dynamically.
-///
-/// ## Features
-/// - Dynamic menu updates based on the app state.
-/// - Responsive design with a flexible work area.
-/// - Built-in support for snack bars and notifications.
-///
-/// ## Example
-///
-/// ```dart
-/// import 'package:jocaaguraarchetype/page_builder.dart';
-/// import 'package:flutter/material.dart';
-///
-/// void main() {
-///   final AppManager appManager = AppManager();
-///   runApp(MaterialApp(
-///     home: PageBuilder(
-///       page: Center(child: Text('Page Content')),
-///     ),
-///   ));
-/// }
-/// ```
-///
-/// ## Parameters
-/// - [page]: The main content of the page. If null, the default work area is displayed.
-class PageBuilder extends StatefulWidget {
-  /// Creates a `PageBuilder`.
-  ///
-  /// - [page]: The main content of the page. Optional.
-  const PageBuilder({
-    super.key,
-    this.page,
-  });
-
-  /// The main content of the page.
+class PageBuilder extends StatelessWidget {
+  const PageBuilder({super.key, this.page});
   final Widget? page;
 
   @override
-  State<PageBuilder> createState() => _PageBuilderState();
-}
-
-class _PageBuilderState extends State<PageBuilder> {
-  final List<Widget> listWidget = <Widget>[];
-  final List<Widget> actions = <Widget>[];
-  late StreamSubscription<List<ModelMainMenuModel>> streamSubscription;
-  late StreamSubscription<Size> streamSizeSubscription;
-  late StreamSubscription<List<ModelMainMenuModel>>
-      streamSecondaryMenuSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Listen to screen size changes
-    streamSizeSubscription =
-        context.appManager.responsive.appScreenSizeStream.listen((Size event) {
-      setState(() {});
-    });
-
-    // Listen to secondary menu updates
-    streamSecondaryMenuSubscription = context
-        .appManager.secondaryMenu.listDrawerOptionSizeStream
-        .listen((List<ModelMainMenuModel> event) {
-      setState(() {});
-    });
-
-    // Listen to primary menu updates
-    streamSubscription = context.appManager.mainMenu.listDrawerOptionSizeStream
-        .listen((void event) {
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    streamSizeSubscription.cancel();
-    streamSecondaryMenuSubscription.cancel();
-    streamSubscription.cancel();
-    super.dispose();
-  }
-
-  void update() {
-    listWidget.clear();
-    for (final ModelMainMenuModel element
-        in context.appManager.mainMenu.listMenuOptions) {
-      listWidget.add(
-        DrawerOptionWidget(
-          onPressed: () {
-            setState(() {
-              element.onPressed();
-            });
-          },
-          label: element.label,
-          icondata: element.iconData,
-        ),
-      );
-    }
-    actions.clear();
-    if (context.appManager.navigator.historyPageLength > 1) {
-      actions.add(
-        IconButton(
-          onPressed: () {
-            context.appManager.navigator.back();
-          },
-          icon: const Icon(Icons.chevron_left),
-        ),
-      );
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final AppManager appManager = context.appManager;
-
-    update();
+    final AppManager app = context.appManager;
+    final BlocResponsive r = app.responsive;
+    r.setSizeFromContext(context);
 
     return StreamBuilder<String>(
-      stream: appManager.loading.loadingMsgStream,
-      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-        if (appManager.loading.loadingMsg.isNotEmpty) {
-          return LoadingPage(msg: appManager.loading.loadingMsg);
+      stream: app.loading.loadingMsgStream,
+      initialData: app.loading.loadingMsg,
+      builder: (_, AsyncSnapshot<String> loadSnap) {
+        final String msg = loadSnap.data ?? '';
+        if (msg.isNotEmpty) {
+          return LoadingPage(msg: msg);
         }
-        return Scaffold(
-          drawer: listWidget.isNotEmpty
-              ? Drawer(
-                  child: ListView(
-                    children: <Widget>[
-                      const DrawerHeader(
-                        child: Center(
-                          child: CircularProgressIndicator(),
+
+        return StreamBuilder<Size>(
+          stream: r.appScreenSizeStream,
+          initialData: r.size,
+          builder: (BuildContext context, _) {
+            final double gap = r.gutterWidth.clamp(8.0, 16.0);
+
+            return StreamBuilder<List<ModelMainMenuModel>>(
+              stream: app.mainMenu.listMenuOptionsStream,
+              initialData: app.mainMenu.listMenuOptions,
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<List<ModelMainMenuModel>> menuSnap,
+              ) {
+                final List<ModelMainMenuModel> items =
+                    menuSnap.data ?? const <ModelMainMenuModel>[];
+
+                final Widget? drawerWidget = items.isEmpty
+                    ? null
+                    : Drawer(
+                        child: SafeArea(
+                          child: ListView(
+                            padding: EdgeInsets.only(
+                              top: r.gutterWidth,
+                              bottom: r.gutterWidth,
+                            ),
+                            children: <Widget>[
+                              DrawerHeader(
+                                child: Center(
+                                  child: StreamBuilder<String>(
+                                    stream: app.pageManager.currentTitleStream,
+                                    initialData: app.pageManager.currentTitle,
+                                    builder: (
+                                      BuildContext context,
+                                      AsyncSnapshot<String> tSnap,
+                                    ) =>
+                                        Text(
+                                      tSnap.data ?? '',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              for (final ModelMainMenuModel it in items)
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: gap,
+                                    vertical:
+                                        (r.gutterWidth * 0.25).clamp(4.0, 8.0),
+                                  ),
+                                  child: DrawerOptionWidget(
+                                    responsive: r,
+                                    label: it.label,
+                                    icon: it.iconData,
+                                    selected: it.selected,
+                                    onTap: () {
+                                      it.onPressed();
+                                      final ScaffoldState? sc =
+                                          Scaffold.maybeOf(context);
+                                      if (sc?.isDrawerOpen ?? false) {
+                                        // Cierra el drawer del Scaffold actual
+                                        sc!.closeDrawer();
+                                      } else {
+                                        // Fallback: cierra la ruta del drawer si está en el stack
+                                        Navigator.of(context).maybePop();
+                                      }
+                                    },
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
+                      );
+
+                return StreamBuilder<bool>(
+                  stream: r.showAppbarStream,
+                  initialData: r.showAppbar,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<bool> showSnap) {
+                    final bool showAppbar = showSnap.data ?? true;
+
+                    PreferredSizeWidget? appBarWidget;
+                    if (showAppbar) {
+                      appBarWidget = AppBar(
+                        // ✅ Fuerza recálculo del leading cuando cambia el drawer
+                        key: ValueKey<String>(
+                          'appbar_hasDrawer_${drawerWidget != null}',
+                        ),
+                        toolbarHeight: r.appBarHeight,
+                        title: StreamBuilder<String>(
+                          stream: app.pageManager.currentTitleStream,
+                          initialData: app.pageManager.currentTitle,
+                          builder: (
+                            BuildContext context,
+                            AsyncSnapshot<String> tSnap,
+                          ) =>
+                              Text(tSnap.data ?? ''),
+                        ),
+                        actions: <Widget>[
+                          StreamBuilder<bool>(
+                            stream: app.pageManager.canPopStream,
+                            initialData: app.pageManager.canPop,
+                            builder: (
+                              BuildContext context,
+                              AsyncSnapshot<bool> canPopSnap,
+                            ) {
+                              final bool canPop = canPopSnap.data ?? false;
+                              if (!canPop) {
+                                return const SizedBox.shrink();
+                              }
+                              return IconButton(
+                                onPressed: app.pop,
+                                icon: const Icon(Icons.chevron_left),
+                                tooltip: 'Back',
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    }
+
+                    return Scaffold(
+                      drawer: drawerWidget,
+                      appBar: appBarWidget,
+                      body: Stack(
+                        children: <Widget>[
+                          WorkAreaWidget(
+                            responsive: r,
+                            content: page ?? const SizedBox.shrink(),
+                          ),
+                          MySnackBarWidget.fromStringStream(
+                            responsive: r,
+                            toastStream: app.notifications.toastStream,
+                          ),
+                        ],
                       ),
-                      ...listWidget,
-                    ],
-                  ),
-                )
-              : null,
-          appBar: appManager.responsive.showAppbar
-              ? AppBar(
-                  toolbarHeight: appManager.responsive.appBarHeight,
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  title: Text(appManager.navigator.title),
-                  actions: actions,
-                )
-              : null,
-          body: Stack(
-            children: <Widget>[
-              WorkAreaWidget(
-                columnsNumber: appManager.responsive.columnsNumber,
-                drawerWidth: appManager.responsive.drawerWidth,
-                screenSizeEnum: appManager.responsive.getDeviceType,
-                columnWidth: appManager.responsive.columnWidth,
-                gutterWidth: appManager.responsive.gutterWidth,
-                listMenuOptions: appManager.mainMenu.listMenuOptions,
-                marginWidth: appManager.responsive.marginWidth,
-                workAreaSize: appManager.responsive.workAreaSize,
-                page: widget.page,
-                listSecondaryMenuOptions:
-                    appManager.secondaryMenu.listMenuOptions,
-              ),
-              Positioned(
-                bottom: appManager.responsive.gutterWidth,
-                left: appManager.responsive.marginWidth,
-                child: MySnackBarWidget(
-                  gutterWidth: appManager.responsive.gutterWidth,
-                  marginWidth: appManager.responsive.marginWidth,
-                  width: appManager.responsive.size.width,
-                  toastStream: appManager.blocUserNotifications.toastStream,
-                ),
-              ),
-            ],
-          ),
+                    );
+                  },
+                );
+              },
+            );
+          },
         );
       },
     );
+  }
+}
+
+// Estado UI adjunto a cada instancia de ModelMainMenuModel mediante Expando.
+final Expando<bool> _mmSelected = Expando<bool>('mm.selected');
+final Expando<bool> _mmEnabled = Expando<bool>('mm.enabled');
+final Expando<int> _mmBadgeCount = Expando<int>('mm.badgeCount');
+final Expando<String> _mmTooltip = Expando<String>('mm.tooltip');
+
+/// UI extensions for [ModelMainMenuModel] without modifying jocaagura_domain.
+extension ModelMainMenuModelX on ModelMainMenuModel {
+  bool get selected => _mmSelected[this] ?? false;
+  set selected(bool v) => _mmSelected[this] = v;
+
+  bool get isSelected => selected;
+
+  bool get enabled => _mmEnabled[this] ?? true;
+  set enabled(bool v) => _mmEnabled[this] = v;
+
+  int? get badgeCount => _mmBadgeCount[this];
+  set badgeCount(int? v) => _mmBadgeCount[this] = v;
+
+  String? get tooltip => _mmTooltip[this];
+  set tooltip(String? v) => _mmTooltip[this] = v;
+
+  ModelMainMenuModel ui({
+    bool? selected,
+    bool? enabled,
+    int? badgeCount,
+    String? tooltip,
+  }) {
+    if (selected != null) {
+      this.selected = selected;
+    }
+    if (enabled != null) {
+      this.enabled = enabled;
+    }
+    if (badgeCount != null) {
+      this.badgeCount = badgeCount;
+    }
+    if (tooltip != null) {
+      this.tooltip = tooltip;
+    }
+    return this;
   }
 }

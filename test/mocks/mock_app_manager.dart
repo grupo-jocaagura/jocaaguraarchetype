@@ -1,23 +1,31 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-
-import 'pagemanager_mock.dart';
-import 'provider_theme_mock.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 
 final AppConfig mockAppConfig = AppConfig(
-  blocTheme: MockBlocTheme(ProviderThemeMock()),
+  blocTheme: MockBlocTheme(
+    themeUsecases: ThemeUsecases.fromRepo(
+      RepositoryThemeImpl(
+        gateway: GatewayThemeImpl(
+          themeService: const ServiceJocaaguraArchetypeTheme(),
+        ),
+      ),
+    ),
+  ),
   blocUserNotifications: MockBlocUserNotifications(),
   blocLoading: MockBlocLoading(),
   blocMainMenuDrawer: MockBlocMainMenuDrawer(),
   blocSecondaryMenuDrawer: MockBlocSecondaryMenuDrawer(),
   blocResponsive: MockBlocResponsive(),
-  blocOnboarding: MockBlocOnboarding(<FutureOr<void> Function()>[]),
-  blocNavigator: MockBlocNavigator(MockPageManager()),
+  blocOnboarding: MockBlocOnboarding(),
+  pageManager: MockBlocNavigator(
+    initial: NavStackModel(
+      const <PageModel>[
+        PageModel(name: '/', segments: <String>['home']),
+      ],
+    ),
+  ),
 );
 
 class MockAppManager extends AppManager {
@@ -36,14 +44,26 @@ class MockAppManager extends AppManager {
   BlocSecondaryMenuDrawer get secondaryMenu => MockBlocSecondaryMenuDrawer();
 
   @override
-  BlocTheme get theme => MockBlocTheme(ProviderThemeMock());
+  BlocTheme get theme => MockBlocTheme(
+        themeUsecases: ThemeUsecases.fromRepo(
+          RepositoryThemeImpl(
+            gateway: GatewayThemeImpl(
+              themeService: const ServiceJocaaguraArchetypeTheme(),
+            ),
+          ),
+        ),
+      );
+
+  PageManager get navigator => MockBlocNavigator(
+        initial: NavStackModel(
+          const <PageModel>[
+            PageModel(name: '/', segments: <String>['home']),
+          ],
+        ),
+      );
 
   @override
-  BlocNavigator get navigator => MockBlocNavigator(MockPageManager());
-
-  @override
-  BlocOnboarding get onboarding =>
-      MockBlocOnboarding(<FutureOr<void> Function()>[]);
+  BlocOnboarding get onboarding => MockBlocOnboarding();
 }
 
 class MockBlocResponsive extends BlocResponsive {
@@ -66,19 +86,16 @@ class MockBlocMainMenuDrawer extends BlocMainMenuDrawer {
 
 class MockBlocSecondaryMenuDrawer extends BlocSecondaryMenuDrawer {}
 
-class MockBlocTheme extends BlocTheme {
-  MockBlocTheme(super.providerTheme);
-
-  @override
-  ThemeData get themeData => ThemeData();
+class MockBlocNavigator extends PageManager {
+  MockBlocNavigator({required super.initial});
 }
 
-class MockBlocNavigator extends BlocNavigator {
-  MockBlocNavigator(super.pageManager);
+class MockBlocTheme extends BlocTheme {
+  MockBlocTheme({required super.themeUsecases});
 }
 
 class MockBlocOnboarding extends BlocOnboarding {
-  MockBlocOnboarding(super.blocOnboardingList);
+  MockBlocOnboarding();
 
   bool get isOnboardingCompleted => true;
 

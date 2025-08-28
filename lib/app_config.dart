@@ -1,40 +1,17 @@
-import 'package:jocaagura_domain/jocaagura_domain.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-import 'jocaaguraarchetype.dart';
-
-/// A configuration class for managing application-wide BLoC instances.
+/// Holds the source-of-truth blocs for the app shell, aligned with the
+/// current archetype flow. Uses ThemeUsecases → RepositoryThemeImpl →
+/// GatewayThemeImpl for theming, and the jocaagura_domain BlocOnboarding.
 ///
-/// The `AppConfig` class serves as a central point for initializing and managing
-/// all the required BLoC modules in an application. It facilitates the organization
-/// of application state and provides a `BlocCore` for accessing all registered BLoCs.
-///
-/// ## Example
-///
+/// Example
 /// ```dart
-/// import 'package:jocaaguraarchetype/app_config.dart';
-///
-/// void main() {
-///   final appConfig = AppConfig(
-///     blocTheme: BlocTheme(ProviderTheme(ServiceTheme())),
-///     blocUserNotifications: BlocUserNotifications(),
-///     blocLoading: BlocLoading(),
-///     blocMainMenuDrawer: BlocMainMenuDrawer(),
-///     blocSecondaryMenuDrawer: BlocSecondaryMenuDrawer(),
-///     blocResponsive: BlocResponsive(),
-///     blocOnboarding: BlocOnboarding([]),
-///     blocNavigator: BlocNavigator(PageManager()),
-///   );
-///
-///   final blocCore = appConfig.blocCore();
-///   print('Registered BLoCs: ${blocCore.modules.keys}');
-/// }
+/// final PageRegistry registry = buildExampleRegistry();
+/// final AppConfig cfg = AppConfig.dev(registry: registry);
+/// final AppManager manager = AppManager(cfg);
+/// runApp(JocaaguraApp(appManager: manager, registry: registry));
 /// ```
 class AppConfig {
-  /// Creates an instance of `AppConfig`.
-  ///
-  /// The constructor requires all necessary BLoC instances to be provided, ensuring
-  /// that the application's state management is fully configured. Optionally, additional
-  /// custom BLoC modules can be included via [blocModuleList].
   const AppConfig({
     required this.blocTheme,
     required this.blocUserNotifications,
@@ -43,60 +20,90 @@ class AppConfig {
     required this.blocSecondaryMenuDrawer,
     required this.blocResponsive,
     required this.blocOnboarding,
-    required this.blocNavigator,
+    required this.pageManager,
     this.blocModuleList = const <String, BlocModule>{},
   });
 
-  /// The BLoC responsible for managing the application's theme.
-  final BlocTheme blocTheme;
+  /// DEV factory using the archetype defaults and in‑memory theme gateway.
+  /// The PageRegistry is required by the app shell (JocaaguraApp), while the
+  /// initial stack here starts at `/home`.
+  factory AppConfig.dev({
+    required PageRegistry registry,
+    List<OnboardingStep> onboardingSteps = const <OnboardingStep>[],
+  }) {
+    // Minimal initial stack → /home
+    final PageManager pm = PageManager(
+      initial: NavStackModel.single(
+        const PageModel(name: 'home', segments: <String>['home']),
+      ),
+    );
 
-  /// The BLoC responsible for managing user notifications.
+    // BlocTheme wired to ThemeUsecases → RepositoryThemeImpl → GatewayThemeImpl
+    final BlocTheme themeBloc = BlocTheme(
+      themeUsecases: ThemeUsecases.fromRepo(
+        RepositoryThemeImpl(gateway: GatewayThemeImpl()),
+      ),
+    );
+
+    // jocaagura_domain BlocOnboarding with optional configured steps
+    final BlocOnboarding onboardingBloc = BlocOnboarding();
+    if (onboardingSteps.isNotEmpty) {
+      onboardingBloc.configure(onboardingSteps);
+    }
+
+    return AppConfig(
+      blocTheme: themeBloc,
+      blocUserNotifications: BlocUserNotifications(),
+      blocLoading: BlocLoading(),
+      blocMainMenuDrawer: BlocMainMenuDrawer(),
+      blocSecondaryMenuDrawer: BlocSecondaryMenuDrawer(),
+      blocResponsive: BlocResponsive(),
+      blocOnboarding: onboardingBloc,
+      pageManager: pm,
+    );
+  }
+
+  // Core blocs (frozen)
+  final BlocTheme blocTheme; // archetype BlocTheme (ThemeUsecases-based)
   final BlocUserNotifications blocUserNotifications;
-
-  /// The BLoC responsible for managing loading states.
   final BlocLoading blocLoading;
-
-  /// The BLoC responsible for managing the main menu drawer.
   final BlocMainMenuDrawer blocMainMenuDrawer;
-
-  /// The BLoC responsible for managing the secondary menu drawer.
   final BlocSecondaryMenuDrawer blocSecondaryMenuDrawer;
-
-  /// The BLoC responsible for managing responsive layouts.
   final BlocResponsive blocResponsive;
+  final BlocOnboarding blocOnboarding; // from jocaagura_domain
+  final PageManager pageManager; // navigation source of truth
 
-  /// The BLoC responsible for managing the onboarding process.
-  final BlocOnboarding blocOnboarding;
-
-  /// The BLoC responsible for managing navigation.
-  final BlocNavigator blocNavigator;
-
-  /// A map of additional custom BLoC modules to include in the configuration.
-  ///
-  /// The key represents the module name, and the value is the corresponding BLoC instance.
+  /// Extendable modules (non-core). Keys must be unique.
   final Map<String, BlocModule> blocModuleList;
 
-  /// Combines all registered BLoC modules into a `BlocCore` instance.
-  ///
-  /// This method returns a `BlocCore` containing all required and custom BLoC modules.
-  ///
-  /// ## Example
-  ///
-  /// ```dart
-  /// final blocCore = appConfig.blocCore();
-  /// print('Registered BLoCs: ${blocCore.modules.keys}');
-  /// ```
+  /// Builds the BlocCore with frozen core modules plus extendable extras.
   BlocCore<dynamic> blocCore() {
     return BlocCore<dynamic>(<String, BlocModule>{
-      BlocTheme.name: blocTheme,
-      BlocNavigator.name: blocNavigator,
-      BlocOnboarding.name: blocOnboarding,
+      BlocTheme.name: blocTheme, // 'BlocTheme'
+      BlocOnboarding.name: blocOnboarding, // 'blocOnboarding'
       BlocResponsive.name: blocResponsive,
       BlocMainMenuDrawer.name: blocMainMenuDrawer,
       BlocSecondaryMenuDrawer.name: blocSecondaryMenuDrawer,
       BlocLoading.name: blocLoading,
       BlocUserNotifications.name: blocUserNotifications,
+      PageManager.name: pageManager, // 'pageManager'
       ...blocModuleList,
     });
+  }
+
+  FutureOr<void> dispose() {
+    blocTheme.dispose();
+    blocUserNotifications.dispose();
+    blocLoading.dispose();
+    blocMainMenuDrawer.dispose();
+    blocSecondaryMenuDrawer.dispose();
+    blocResponsive.dispose();
+    blocOnboarding.dispose();
+    pageManager.dispose();
+
+    // Dispose any extra modules
+    for (final BlocModule module in blocModuleList.values) {
+      module.dispose();
+    }
   }
 }

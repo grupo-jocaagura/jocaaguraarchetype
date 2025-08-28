@@ -1,14 +1,7 @@
-import 'package:jocaaguraarchetype/blocs/bloc_loading.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_main_menu_drawer.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_navigator.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_onboarding.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_responsive.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_secondary_menu_drawer.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_theme.dart';
-import 'package:jocaaguraarchetype/blocs/bloc_user_notifications.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class MockBlocTheme extends BlocTheme {
-  MockBlocTheme(super.providerTheme);
+  MockBlocTheme({required super.themeUsecases});
   static String get name => BlocTheme.name;
 }
 
@@ -33,11 +26,11 @@ class MockBlocResponsive extends BlocResponsive {
 }
 
 class MockBlocOnboarding extends BlocOnboarding {
-  MockBlocOnboarding(super.blocOnboardingList);
+  MockBlocOnboarding();
   static String get name => BlocOnboarding.name;
 }
 
-class MockBlocNavigator extends BlocNavigator {
-  MockBlocNavigator(super.pageManager);
-  static String get name => BlocNavigator.name;
+class MockBlocNavigator extends PageManager {
+  MockBlocNavigator({required super.initial});
+  static String get name => PageManager.name;
 }

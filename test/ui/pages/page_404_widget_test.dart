@@ -1,73 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/navigator/page_manager.dart';
-import 'package:jocaaguraarchetype/ui/pages/page_404_widget.dart';
-
-// revisado 10/03/2024 author: @albertjjimenezp
-class MockPageManager extends PageManager {
-  bool backCalled = false;
-  int _historyPagesCount = 0;
-
-  @override
-  void back() {
-    backCalled = true;
-  }
-
-  @override
-  int get historyPagesCount => _historyPagesCount;
-
-  set historyPagesCount(int value) {
-    _historyPagesCount = value;
-  }
-
-  void setCurrentUrl(RouteInformation routeInformation) {}
-}
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
-  testWidgets('Page404Widget - Back button is shown when historyPagesCount > 1',
-      (WidgetTester tester) async {
-    final MockPageManager mockPageManager = MockPageManager();
-    mockPageManager.historyPagesCount =
-        2; // Set historyPagesCount to a value > 1
+  group('Page404Widget', () {
+    testWidgets('muestra título y mensaje base', (WidgetTester tester) async {
+      final _FakePageManager pm = _FakePageManager(history: <String>['/home']);
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Page404Widget(pageManager: mockPageManager),
-      ),
-    );
+      await _pump404(tester, pageManager: pm);
 
-    expect(find.byType(BackButton), findsOneWidget);
+      expect(find.text('Error 404'), findsOneWidget);
+      expect(find.text('Pagina No encontrada'), findsOneWidget);
+      expect(
+        find.byType(BackButton),
+        findsNothing,
+      ); // solo 1 entrada → sin back
+    });
+
+    testWidgets('muestra BackButton cuando historyNames.length > 1',
+        (WidgetTester tester) async {
+      final _FakePageManager pm =
+          _FakePageManager(history: <String>['/home', '/details']);
+
+      await _pump404(tester, pageManager: pm);
+
+      expect(find.byType(BackButton), findsOneWidget);
+    });
+
+    testWidgets('tap en BackButton llama a pageManager.pop',
+        (WidgetTester tester) async {
+      final _FakePageManager pm =
+          _FakePageManager(history: <String>['/home', '/details']);
+
+      await _pump404(tester, pageManager: pm);
+
+      expect(pm.popped, isFalse);
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+
+      expect(pm.popped, isTrue);
+    });
   });
+}
 
-  testWidgets(
-      'Page404Widget - Back button is not shown when historyPagesCount <= 1',
-      (WidgetTester tester) async {
-    final MockPageManager mockPageManager = MockPageManager();
-    mockPageManager.historyPagesCount =
-        1; // Set historyPagesCount to a value <= 1
+/// --- Helpers & Fakes ---
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Page404Widget(pageManager: mockPageManager),
-      ),
-    );
+Future<void> _pump404(
+  WidgetTester tester, {
+  required PageManager pageManager,
+}) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Page404Widget(pageManager: pageManager),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
 
-    expect(find.byType(BackButton), findsNothing);
-  });
+/// Fake mínimo que satisface lo que Page404Widget utiliza.
+/// Si tu PageManager real tiene más miembros, añade stubs aquí.
+class _FakePageManager implements PageManager {
+  _FakePageManager({required List<String> history})
+      : _history = List<String>.from(history);
 
-  testWidgets('Page404Widget - Back button calls pageManager.back()',
-      (WidgetTester tester) async {
-    final MockPageManager mockPageManager = MockPageManager();
-    mockPageManager.historyPagesCount =
-        2; // Set historyPagesCount to a value > 1
+  final List<String> _history;
+  bool popped = false;
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Page404Widget(pageManager: mockPageManager),
-      ),
-    );
+  @override
+  List<String> get historyNames => _history;
 
-    await tester.tap(find.byType(BackButton));
-    expect(mockPageManager.backCalled, isTrue);
-  });
+  @override
+  bool pop() {
+    popped = true;
+    return popped;
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

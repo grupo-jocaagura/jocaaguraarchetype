@@ -1,168 +1,166 @@
-import 'package:flutter/material.dart';
-import 'package:jocaagura_domain/jocaagura_domain.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-import '../../blocs/app_manager.dart';
-import '../../providers/app_manager_provider.dart';
-import '../widgets/drawer_option_widget.dart';
-import 'test_page_builder_page.dart';
+/// BLoC minimalista para la demo (contador + stream).
+class _BlocCounter extends BlocModule {
+  _BlocCounter() : _count = BlocGeneral<int>(0);
 
+  final BlocGeneral<int> _count;
+
+  Stream<int> get stream => _count.stream;
+  int get value => _count.value;
+
+  void inc() => _count.value = _count.value + 1;
+
+  @override
+  void dispose() => _count.dispose();
+}
+
+/// Página de demo que **no crea Scaffold** propio.
+/// En su lugar usa `PageBuilder` para integrarse al shell del arquetipo
+/// (AppBar, Drawer, overlay de loading y toasts).
 class MyDemoHomePage extends StatefulWidget {
-  const MyDemoHomePage({
-    required this.title,
-    super.key,
-  });
+  const MyDemoHomePage({required this.title, super.key});
+
   final String title;
+
   static const String name = 'MyDemoHomePage';
-  static const String maniMenuKey = 'mainMenuKey';
+
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>['demo'],
+    state: <String, dynamic>{'title': 'Demo'},
+  );
 
   @override
   State<MyDemoHomePage> createState() => _MyDemoHomePageState();
 }
 
 class _MyDemoHomePageState extends State<MyDemoHomePage> {
-  int _counter = 0;
-  Future<void> f() async {
-    await Future<void>.delayed(
-      const Duration(seconds: 5),
+  late final _BlocCounter _counter;
+
+  AppManager get app => context.appManager;
+
+  @override
+  void initState() {
+    super.initState();
+    _counter = _BlocCounter();
+  }
+
+  @override
+  void dispose() {
+    _counter.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fakeTask() async =>
+      Future<void>.delayed(const Duration(seconds: 2));
+
+  void _injectDemoMenu() {
+    // Opción que prepara eliminación a través del menú secundario
+    app.mainMenu.addMainMenuOption(
+      label: 'Eliminame',
+      iconData: Icons.remove,
+      onPressed: () {
+        app.secondaryMenu.addSecondaryMenuOption(
+          label: 'Eliminame',
+          iconData: Icons.remove,
+          onPressed: () {
+            app.mainMenu.removeMainMenuOption('Eliminame');
+            app.secondaryMenu.removeSecondaryMenuOption('Eliminame');
+          },
+        );
+      },
+    );
+
+    // Loading (auto) usando helper
+    app.mainMenu.addMainMenuOption(
+      label: 'Loading (auto)',
+      iconData: Icons.hourglass_bottom,
+      onPressed: () {
+        app.loading.loadingMsgWithFuture('Cargando…', _fakeTask);
+      },
+    );
+
+    // Loading (manual) → secundario (no visible por PageBuilder, pero útil en flows)
+    app.secondaryMenu.addSecondaryMenuOption(
+      label: 'Loading (manual)',
+      iconData: Icons.hourglass_top,
+      onPressed: () async {
+        app.loading.loadingMsg = 'Cargando…';
+        await _fakeTask();
+        app.loading.clearLoading();
+        app.secondaryMenu.removeSecondaryMenuOption('Loading (manual)');
+      },
+    );
+
+    // Random theme (y se auto-quita del menú principal)
+    app.mainMenu.addMainMenuOption(
+      label: 'Cambiar tema',
+      iconData: Icons.color_lens,
+      onPressed: () {
+        app.theme.randomTheme();
+        app.mainMenu.removeMainMenuOption('Cambiar tema');
+      },
+    );
+
+    // Toast con toggle vacío/visible (overlay lo maneja PageBuilder)
+    app.mainMenu.addMainMenuOption(
+      label: 'Toast demo',
+      iconData: Icons.chat_bubble,
+      onPressed: () {
+        final String msg = app.notifications.msg.isEmpty
+            ? 'Este es un mensaje de prueba para el toast'
+            : '';
+        app.notifications.showToast(msg);
+      },
     );
   }
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-      context.appManager.mainMenu.addMainMenuOption(
-        onPressed: () {
-          context.appManager.secondaryMenu.addMainMenuOption(
-            onPressed: () {
-              context.appManager.mainMenu.removeMainMenuOption('Eliminame');
-              context.appManager.secondaryMenu
-                  .removeMainMenuOption('Eliminame');
-            },
-            label: 'Eliminame',
-            iconData: Icons.remove,
-          );
-        },
-        label: 'Eliminame',
-        iconData: Icons.remove,
-      );
-
-      context.appManager.mainMenu.addMainMenuOption(
-        onPressed: () {
-          context.appManager.loading.loadingMsgWithFuture('Cargando', f);
-        },
-        label: 'Loading',
-        iconData: Icons.remove,
-      );
-
-      context.appManager.secondaryMenu.addMainMenuOption(
-        onPressed: () {
-          context.appManager.loading.loadingMsg = '';
-          context.appManager.mainMenu.removeMainMenuOption('loading');
-          context.appManager.mainMenu.removeMainMenuOption('EliminaLoading');
-        },
-        label: 'EliminaLoading',
-        iconData: Icons.remove,
-      );
-
-      context.appManager.secondaryMenu.addMainMenuOption(
-        onPressed: () async {
-          final AppManager appManager = context.appManager;
-          appManager.loading.loadingMsg = 'Cargando';
-          await f();
-          appManager.loading.clearLoading();
-          appManager.mainMenu.removeMainMenuOption('EliminaLoadingManual');
-        },
-        label: 'EliminaLoadingManual',
-        iconData: Icons.remove,
-      );
-
-      context.appManager.mainMenu.addMainMenuOption(
-        onPressed: () {
-          context.appManager.theme.randomTheme();
-          context.appManager.mainMenu.removeMainMenuOption('Cambia el tema');
-        },
-        label: 'Cambia el tema',
-        iconData: Icons.remove,
-      );
-      context.appManager.mainMenu.addMainMenuOption(
-        onPressed: () {
-          final String msg =
-              context.appManager.blocUserNotifications.msg.isEmpty
-                  ? 'Este es un mensaje de prueba para el toast'
-                  : '';
-          context.appManager.blocUserNotifications.showToast(msg);
-        },
-        label: 'toast',
-        iconData: Icons.chat_bubble,
-      );
-    });
+  void _onIncrement() {
+    _counter.inc();
+    _injectDemoMenu();
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO(alberjjimenezp): extraer esto al BlocMainMenu
-    final List<Widget> listWidget = <Widget>[];
-    int index = 0;
-    for (final ModelMainMenuModel element
-        in context.appManager.mainMenu.listMenuOptions) {
-      listWidget.add(
-        DrawerOptionWidget(
-          key: ValueKey<String>('${MyDemoHomePage.maniMenuKey}$index'),
-          onPressed: element.onPressed,
-          label: element.label,
-          icondata: element.iconData,
-        ),
-      );
-      index++;
-    }
-    return Scaffold(
-      drawer: listWidget.isNotEmpty
-          ? Drawer(
-              child: ListView(
-                children: <Widget>[
-                  const DrawerHeader(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                  ...listWidget,
-                ],
-              ),
-            )
-          : null,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            MaterialButton(
-              onPressed: _incrementCounter,
-              child: const Text(
-                'You have pushed the button this many times:',
-              ),
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            MaterialButton(
-              onPressed: () {
-                context.appManager.navigator.pushPageWidthTitle(
-                  'TestPage',
-                  TestPageBuilderPage.name,
-                  const TestPageBuilderPage(),
-                );
-              },
-              child: Text(
-                'Go to test push page ${context.appManager.navigator.historyPageNames}',
-              ),
-            ),
-          ],
-        ),
+    // El contenido **puro**: PageBuilder envuelve y aporta AppBar/Drawer/overlays
+    final Widget content = Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          TextButton(
+            onPressed: _onIncrement,
+            child: const Text('You have pushed the button this many times:'),
+          ),
+          StreamBuilder<int>(
+            stream: _counter.stream,
+            initialData: _counter.value,
+            builder: (_, AsyncSnapshot<int> snap) {
+              return Text(
+                '${snap.data ?? 0}',
+                style: Theme.of(context).textTheme.headlineMedium,
+              );
+            },
+          ),
+          const SizedBox(height: 12),
+          // Ejemplo de navegación (no lo usamos en los tests de esta demo)
+          TextButton(
+            onPressed: () {
+              app.pageManager.pushOnce(
+                const PageModel(
+                  name: 'testPush',
+                  segments: <String>['test-push'],
+                  state: <String, dynamic>{'title': 'Test push'},
+                ),
+              );
+            },
+            child: Text('Go to test push page ${app.pageManager.historyNames}'),
+          ),
+        ],
       ),
     );
+
+    // ✅ Aquí integramos el contenido con el shell del arquetipo
+    return PageBuilder(page: content);
   }
 }

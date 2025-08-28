@@ -1,42 +1,94 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jocaaguraarchetype/ui/widgets/list_tile_exit_drawer_widget.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-// revisado 10/03/2024 author: @albertjjimenezp
+Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
+
 void main() {
   group('ListTileExitDrawerWidget', () {
-    testWidgets('renders ListTile with correct values',
+    testWidgets('renders label, icon and confirms before exit',
         (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(390, 844));
+
+      bool exited = false;
+
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: ListTileExitDrawerWidget(),
+        _wrap(
+          ListTileExitDrawerWidget(
+            responsive: resp,
+            onExit: () => exited = true,
+            confirmMessage: 'Sure?',
+            cancelActionLabel: 'No',
           ),
         ),
       );
 
-      expect(find.byType(ListTile), findsOneWidget);
-      expect(find.byIcon(Icons.close), findsOneWidget);
-      expect(find.text('Salir'), findsOneWidget);
-      expect(find.text('Cerrar menú lateral'), findsOneWidget);
+      expect(find.text('Sign out'), findsOneWidget);
+      expect(find.byIcon(Icons.logout), findsOneWidget);
+
+      await tester.tap(find.byType(InkWell));
+      await tester.pumpAndSettle();
+
+      // Dialog appears
+      expect(find.text('Confirm'), findsOneWidget);
+      expect(find.text('Sure?'), findsOneWidget);
+
+      // Confirm
+      await tester.tap(find.text('Yes'));
+      await tester.pumpAndSettle();
+
+      expect(exited, isTrue);
     });
 
-    testWidgets('opens end drawer when tapped', (WidgetTester tester) async {
+    testWidgets('executes immediately when confirmBeforeExit=false',
+        (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(1024, 768));
+
+      bool exited = false;
+
+      await tester.pumpWidget(
+        _wrap(
+          ListTileExitDrawerWidget(
+            responsive: resp,
+            label: 'Exit',
+            confirmBeforeExit: false,
+            onExit: () => exited = true,
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Exit'));
+      await tester.pumpAndSettle();
+
+      expect(exited, isTrue);
+    });
+    testWidgets('disabled state prevents tap & dialog',
+        (WidgetTester tester) async {
+      final BlocResponsive resp = BlocResponsive()
+        ..setSizeForTesting(const Size(390, 844));
+      bool called = false;
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            endDrawer: Drawer(
-              child: Container(),
+            body: ListTileExitDrawerWidget(
+              responsive: resp,
+              onExit: () => called = true,
+              enabled: false, // 👈 deshabilitado
             ),
-            body: const ListTileExitDrawerWidget(),
           ),
         ),
       );
 
-      await tester.tap(find.byType(ListTile));
-      await tester.pump();
+      await tester.tap(
+        find.byType(InkWell),
+      ); // no debería abrir diálogo ni llamar callback
+      await tester.pumpAndSettle();
 
-      expect(find.byType(Drawer), findsOneWidget);
+      expect(called, isFalse);
+      expect(find.byType(AlertDialog), findsNothing);
     });
   });
 }
