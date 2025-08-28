@@ -1,5 +1,20 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Base class for responsive N× layouts (1×1, 1×2, 1×3).
+///
+/// Computes max width, gutters, and column spans depending on screen size.
+/// Concrete widgets provide specific N via composition.
+///
+/// ### Example
+/// ```dart
+/// ResponsiveNxBase(
+///   columns: 3,
+///   builder: (context, maxWidth) => ConstrainedBox(
+///     constraints: BoxConstraints(maxWidth: maxWidth),
+///     child: child,
+///   ),
+/// );
+/// ```
 abstract class ResponsiveNxBase extends StatelessWidget {
   const ResponsiveNxBase({
     required this.responsive,

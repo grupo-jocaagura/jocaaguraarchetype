@@ -1,5 +1,15 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Color utilities for hex conversion, swatch generation and light/darken.
+///
+/// Keep helpers pure and deterministic. Do not read from Theme.of(context)
+/// here to facilitate reuse in domain/services.
+///
+/// ### Example
+/// ```dart
+/// final int hex = ThemeColorUtils.toHex(Colors.indigo);
+/// final Color lighter = ThemeColorUtils.lighten(Colors.indigo, 0.08);
+/// ```
 class ThemeColorUtils {
   const ThemeColorUtils();
 
@@ -34,7 +44,6 @@ class ThemeColorUtils {
     final List<int> rgb = LabColor.labToColor(L, lab[1], lab[2]);
     return Color.fromARGB(255, rgb[0], rgb[1], rgb[2]);
   }
-
 
   static MaterialColor materialColorFromRGB(int r, int g, int b) {
     assert(r >= 0 && r <= 255);

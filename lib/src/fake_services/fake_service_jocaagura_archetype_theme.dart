@@ -1,5 +1,15 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Deterministic fake for building [ThemeData] during development and tests.
+///
+/// Use this fake when you need predictable ThemeData without platform-specific
+/// quirks. It should not access I/O nor read runtime settings.
+///
+/// ### Example
+/// ```dart
+/// final ServiceJocaaguraArchetypeTheme service = FakeServiceJocaaguraArchetypeTheme();
+/// final ThemeData theme = service.build(const ThemeState.light());
+/// ```
 class FakeServiceJocaaguraArchetypeTheme
     extends ServiceJocaaguraArchetypeTheme {
   const FakeServiceJocaaguraArchetypeTheme();

@@ -1,5 +1,14 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Fallback page shown when a route is not found.
+///
+/// Integrates with the RouterDelegate and PageRegistry defaults.
+/// Keep it minimal and accessible.
+///
+/// ### Example
+/// ```dart
+/// const Page404Widget(suggestedRouteName: '/home');
+/// ```
 class Page404Widget extends StatelessWidget {
   const Page404Widget({required this.pageManager, super.key});
 

@@ -1,5 +1,18 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Default implementation of [RepositoryTheme].
+///
+/// Responsibilities:
+/// * Read/write JSON via [GatewayTheme].
+/// * Validate/normalize payloads.
+/// * Map I/O or parsing issues into [ErrorItem]s.
+///
+/// ### Example
+/// ```dart
+/// final RepositoryTheme repo = RepositoryThemeImpl(gateway: InMemoryGatewayTheme());
+/// final Either<ErrorItem, ThemeState> loaded = await repo.load();
+/// await repo.save(loaded.getOrElse(() => const ThemeState.light()));
+/// ```
 class RepositoryThemeImpl implements RepositoryTheme {
   RepositoryThemeImpl({
     required GatewayTheme gateway,

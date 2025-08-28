@@ -1,5 +1,20 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Simple onboarding flow for first-run setup.
+///
+/// Supply the steps (widgets or descriptors) and handle completion by
+/// notifying the AppManager / Router to proceed to the home route.
+///
+/// ### Example
+/// ```dart
+/// OnboardingPage(
+///   steps: <Widget>[
+///     const _StepWelcome(),
+///     const _StepPermissions(),
+///   ],
+///   onFinish: () => context.read<AppManager>().goToHome(),
+/// );
+/// ```
 class OnBoardingPage extends StatelessWidget {
   const OnBoardingPage({required this.blocOnboarding, super.key});
   final BlocOnboarding blocOnboarding;

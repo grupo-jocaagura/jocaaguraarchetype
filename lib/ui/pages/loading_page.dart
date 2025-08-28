@@ -1,5 +1,14 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Lightweight loading screen.
+///
+/// Displays a centered progress indicator and an optional message,
+/// intended for short transitions or initial app boot.
+///
+/// ### Example
+/// ```dart
+/// const LoadingPage(message: 'Syncing...');
+/// ```
 class LoadingPage extends StatelessWidget {
   const LoadingPage({
     required this.msg,

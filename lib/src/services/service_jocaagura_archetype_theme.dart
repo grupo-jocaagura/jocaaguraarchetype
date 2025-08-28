@@ -1,5 +1,17 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Service that builds [ThemeData] from a [ThemeState].
+///
+/// Encapsulates Material 3 flags, seed color, text scale, and optional
+/// component overrides. Pure function: no I/O nor side effects.
+///
+/// ### Example
+/// ```dart
+/// final ServiceJocaaguraArchetypeTheme service = ServiceJocaaguraArchetypeTheme();
+/// final ThemeData theme = service.build(
+///   const ThemeState(mode: ThemeMode.dark, useMaterial3: true),
+/// );
+/// ```
 class ServiceJocaaguraArchetypeTheme extends ServiceTheme {
   const ServiceJocaaguraArchetypeTheme();
 

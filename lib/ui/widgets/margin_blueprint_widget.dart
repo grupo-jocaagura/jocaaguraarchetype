@@ -1,5 +1,19 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Visual overlay that renders margin guides for layout debugging.
+///
+/// This widget should be used only in debug/dev modes to verify spacing
+/// decisions against your design tokens.
+///
+/// ### Example
+/// ```dart
+/// Stack(
+///   children: <Widget>[
+///     child,
+///     const MarginBlueprintWidget(enabled: kDebugMode),
+///   ],
+/// );
+/// ```
 class MarginBlueprintWidget extends StatelessWidget {
   const MarginBlueprintWidget({
     required this.width,
