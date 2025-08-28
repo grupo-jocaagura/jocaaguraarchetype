@@ -42,255 +42,189 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// This widget paints inside its own box; place it in a `Stack` for an overlay.
 ///
 /// See: [AppSnack], [AppSnackVariant].
-class MySnackBarWidget extends StatefulWidget {
+class MySnackBarWidget extends StatelessWidget {
   const MySnackBarWidget({
     required this.responsive,
-    required this.snacks,
+    required this.snacks, // Stream<AppSnack?>: null = oculto, AppSnack = visible
     super.key,
-    this.duration = const Duration(seconds: 3),
     this.maxWidthColumns,
     this.elevation = 8.0,
     this.dismissible = true,
     this.safeArea = true,
+    this.onDismissRequested,
   });
 
-  /// Backwards-compatible factory for `Stream<String>`.
+  /// Backwards-compatible factory para `Stream<String>`.
   factory MySnackBarWidget.fromStringStream({
     required BlocResponsive responsive,
     required Stream<String> toastStream,
-    Duration duration = const Duration(seconds: 3),
     int? maxWidthColumns,
     double elevation = 8.0,
     bool dismissible = true,
     bool safeArea = true,
+    VoidCallback? onDismissRequested,
     Key? key,
   }) {
-    final Stream<AppSnack> mapped = toastStream.map(
-      (String msg) => AppSnack.info(msg),
-    );
+    final Stream<AppSnack?> mapped =
+        toastStream.map<AppSnack?>((String msg) => AppSnack.info(msg));
     return MySnackBarWidget(
       key: key,
       responsive: responsive,
       snacks: mapped,
-      duration: duration,
       maxWidthColumns: maxWidthColumns,
       elevation: elevation,
       dismissible: dismissible,
       safeArea: safeArea,
+      onDismissRequested: onDismissRequested,
     );
   }
 
   /// Responsive metrics provider.
   final BlocResponsive responsive;
 
-  /// Stream of snacks to show (use [AppSnack] to include variant/action/duration).
-  final Stream<AppSnack> snacks;
+  /// Stream reactivo: `null` oculta, `AppSnack` muestra.
+  final Stream<AppSnack?> snacks;
 
-  /// Default lifetime of a snack (can be overridden per [AppSnack.duration]).
-  final Duration duration;
-
-  /// Clamp max width using responsive columns (default: mobile full width,
-  /// desktop ~4 columns).
+  /// Clamp max width usando columnas responsivas.
   final int? maxWidthColumns;
 
-  /// Material elevation for the toast surface.
+  /// Material elevation.
   final double elevation;
 
-  /// If true, renders a close (X) button.
+  /// Si `true`, muestra botón de cierre (X) **si** hay `onDismissRequested`.
   final bool dismissible;
 
-  /// Wrap with SafeArea paddings.
+  /// Envuelve en SafeArea.
   final bool safeArea;
 
-  @override
-  State<MySnackBarWidget> createState() => _MySnackBarWidgetState();
-}
-
-class _MySnackBarWidgetState extends State<MySnackBarWidget> {
-  final List<AppSnack> _queue = <AppSnack>[];
-  AppSnack? _current;
-  bool _visible = false;
-  Timer? _timer;
-  StreamSubscription<AppSnack>? _sub;
-
-  @override
-  void initState() {
-    super.initState();
-    _sub = widget.snacks.listen(_onSnack);
-  }
-
-  @override
-  void didUpdateWidget(covariant MySnackBarWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.snacks != widget.snacks) {
-      _sub?.cancel();
-      _sub = widget.snacks.listen(_onSnack);
-    }
-  }
-
-  @override
-  void dispose() {
-    _sub?.cancel();
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _onSnack(AppSnack s) {
-    _queue.add(s);
-    if (_current == null) {
-      _showNext();
-    }
-  }
-
-  void _showNext() {
-    if (_queue.isEmpty || !mounted) {
-      setState(() {
-        _current = null;
-        _visible = false;
-      });
-      return;
-    }
-    setState(() {
-      _current = _queue.removeAt(0);
-      _visible = true;
-    });
-    _timer?.cancel();
-    _timer = Timer(_current?.duration ?? widget.duration, _hideCurrent);
-  }
-
-  void _hideCurrent() {
-    if (!mounted) {
-      return;
-    }
-    setState(() => _visible = false);
-    // wait for slide/fade out then show next
-    _timer = Timer(const Duration(milliseconds: 220), _showNext);
-  }
+  /// Pedido de cierre: el padre debe ocultar emitiendo `null` en el stream.
+  final VoidCallback? onDismissRequested;
 
   @override
   Widget build(BuildContext context) {
-    // Mantener métricas sincronizadas con el contexto
     if (context.mounted) {
-      widget.responsive.setSizeFromContext(context);
+      responsive.setSizeFromContext(context);
     }
-
-    final BlocResponsive r = widget.responsive;
+    final BlocResponsive r = responsive;
     final ColorScheme scheme = Theme.of(context).colorScheme;
 
     final bool isMobile = r.isMobile;
     final double mh = r.marginWidth;
     final double gap = r.gutterWidth.clamp(8.0, 16.0);
 
-    // Max width: full on mobile, clamped on large screens unless overridden.
     final double defaultMax =
         isMobile ? (r.workAreaSize.width - mh * 2) : r.widthByColumns(4);
-    final double maxW = widget.maxWidthColumns != null
-        ? r.widthByColumns(widget.maxWidthColumns!.clamp(1, r.columnsNumber))
+    final double maxW = maxWidthColumns != null
+        ? r.widthByColumns(maxWidthColumns!.clamp(1, r.columnsNumber))
         : defaultMax;
 
-    // Placement
     final Alignment align =
         isMobile ? Alignment.bottomCenter : Alignment.topRight;
     final EdgeInsets outerPad = isMobile
         ? EdgeInsets.only(left: mh, right: mh, bottom: gap)
         : EdgeInsets.only(right: mh, top: gap);
 
-    // Colors/icons per variant
-    final _Palette p =
-        _paletteFor(_current?.variant ?? AppSnackVariant.info, scheme);
+    return StreamBuilder<AppSnack?>(
+      stream: snacks,
+      builder: (BuildContext context, AsyncSnapshot<AppSnack?> snap) {
+        final AppSnack? s = snap.data;
+        final bool show = s != null && s.message.isNotEmpty;
+        final _Palette p =
+            _paletteFor(s?.variant ?? AppSnackVariant.info, scheme);
 
-    final Widget toast = _current == null
-        ? const SizedBox.shrink()
-        : Material(
-            elevation: widget.elevation,
-            color: p.bg,
-            surfaceTintColor: p.tint,
-            borderRadius: BorderRadius.circular(12),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: maxW),
-              child: Padding(
-                padding: EdgeInsets.all(gap),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    if (_current?.leadingIcon != null)
-                      Padding(
-                        padding: EdgeInsetsDirectional.only(end: gap * 0.75),
-                        child:
-                            Icon(_current!.leadingIcon, color: p.fg, size: 20),
-                      ),
-                    Flexible(
-                      child: Text(
-                        _current?.message ?? '',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: p.fg,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ),
-                    if (_current?.actionLabel != null &&
-                        _current?.onAction != null)
-                      Padding(
-                        padding: EdgeInsetsDirectional.only(start: gap),
-                        child: TextButton(
-                          onPressed: () {
-                            _current?.onAction?.call();
-                            _hideCurrent();
-                          },
+        final Widget toast = !show
+            ? const SizedBox.shrink()
+            : Material(
+                elevation: elevation,
+                color: p.bg,
+                surfaceTintColor: p.tint,
+                borderRadius: BorderRadius.circular(12),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxW),
+                  child: Padding(
+                    padding: EdgeInsets.all(gap),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        if (s.leadingIcon != null)
+                          Padding(
+                            padding:
+                                EdgeInsetsDirectional.only(end: gap * 0.75),
+                            child: Icon(s.leadingIcon, color: p.fg, size: 20),
+                          ),
+                        Flexible(
                           child: Text(
-                            _current!.actionLabel!,
+                            s.message,
+                            key: const ValueKey<String>('snack-text'),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: Theme.of(context)
                                 .textTheme
-                                .labelLarge
-                                ?.copyWith(color: p.action),
+                                .bodyMedium
+                                ?.copyWith(
+                                  color: p.fg,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                         ),
-                      ),
-                    if (widget.dismissible)
-                      IconButton(
-                        tooltip: 'Close',
-                        onPressed: _hideCurrent,
-                        icon: Icon(
-                          Icons.close_rounded,
-                          size: 18,
-                          color: p.fg.withValues(alpha: 0.85),
-                        ),
-                      ),
-                  ],
+                        if (s.actionLabel != null && s.onAction != null)
+                          Padding(
+                            padding: EdgeInsetsDirectional.only(start: gap),
+                            child: TextButton(
+                              onPressed: () {
+                                s.onAction?.call();
+                                onDismissRequested?.call();
+                              },
+                              child: Text(
+                                s.actionLabel!,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(color: p.action),
+                              ),
+                            ),
+                          ),
+                        if (dismissible && onDismissRequested != null)
+                          IconButton(
+                            tooltip: 'Close',
+                            onPressed: onDismissRequested,
+                            icon: Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: p.fg.withValues(alpha: 0.85),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          );
+              );
 
-    final Widget animated = AnimatedSlide(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOut,
-      offset: _visible ? Offset.zero : Offset(0, isMobile ? 0.5 : -0.5),
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 160),
-        opacity: _visible ? 1.0 : 0.0,
-        child: toast,
-      ),
+        final Widget animated = AnimatedSwitcher(
+          duration: const Duration(milliseconds: 180),
+          switchInCurve: Curves.easeOut,
+          switchOutCurve: Curves.easeIn,
+          child: show
+              ? KeyedSubtree(
+                  key: const ValueKey<String>('snack-on'), child: toast,)
+              : const SizedBox(key: ValueKey<String>('snack-off')),
+        );
+
+        final Widget body = Align(
+          alignment: align,
+          child: Padding(padding: outerPad, child: animated),
+        );
+
+        final Widget withSemantics = Semantics(
+          liveRegion: true,
+          label: 'Notification',
+          value: s?.message,
+          child: body,
+        );
+
+        return safeArea ? SafeArea(child: withSemantics) : withSemantics;
+      },
     );
-
-    final Widget body = Align(
-      alignment: align,
-      child: Padding(
-        padding: outerPad,
-        child: animated,
-      ),
-    );
-
-    final Widget withSemantics = Semantics(
-      liveRegion: true, // announce changes
-      label: 'Notification',
-      value: _current?.message,
-      child: body,
-    );
-
-    return widget.safeArea ? SafeArea(child: withSemantics) : withSemantics;
   }
 
   _Palette _paletteFor(AppSnackVariant v, ColorScheme s) {
@@ -298,7 +232,7 @@ class _MySnackBarWidgetState extends State<MySnackBarWidget> {
       case AppSnackVariant.info:
         return _Palette(
           bg: s.inverseSurface,
-          fg: s.inverseSurface,
+          fg: s.onInverseSurface, // <- corregido: texto legible
           action: s.inversePrimary,
           tint: s.inverseSurface,
         );

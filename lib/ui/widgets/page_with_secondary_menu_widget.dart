@@ -168,12 +168,16 @@ class PageWithSecondaryMenuWidget extends StatelessWidget {
       color: bg,
       width: double.infinity,
       height: double.infinity,
-      child: Center(
+      child: Align(
+        alignment: Alignment.topCenter,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: mh),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: ordered,
+          child: SizedBox(
+            width: maxW,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: ordered,
+            ),
           ),
         ),
       ),

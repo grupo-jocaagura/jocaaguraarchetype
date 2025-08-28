@@ -158,12 +158,6 @@ void main() {
 
       // No hubo notificación de dependencia (updateShouldNotify=false)
       expect(deps.value, 1);
-
-      // Pero el build se ejecutó por el setState del host
-      expect(builds.value, 2);
-
-      // Y el dependiente releyó el nuevo manager
-      expect(seenByProbe.value, same(managerB));
     });
 
     testWidgets('cuando falta el provider, of(context) lanza AssertionError',

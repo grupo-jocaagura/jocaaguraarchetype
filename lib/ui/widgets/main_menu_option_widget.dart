@@ -178,7 +178,7 @@ class _MainMenuOptionWidgetState extends State<MainMenuOptionWidget> {
         : <Widget>[
             if (leading != null) leading,
             if (leading != null) SizedBox(width: gap),
-            Expanded(child: label),
+            Flexible(child: label),
             if (trailing != null) ...<Widget>[
               SizedBox(width: gap),
               trailing,
@@ -235,7 +235,6 @@ class _MainMenuOptionWidgetState extends State<MainMenuOptionWidget> {
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                // left indicator
                 if (indicatorExtent > 0)
                   Container(
                     width: indicatorExtent,
@@ -247,7 +246,8 @@ class _MainMenuOptionWidgetState extends State<MainMenuOptionWidget> {
                       ),
                     ),
                   ),
-                Expanded(child: content),
+                // was: Expanded(child: content),
+                Flexible(child: content),
               ],
             ),
     );
@@ -280,11 +280,7 @@ class _MainMenuOptionWidgetState extends State<MainMenuOptionWidget> {
   }
 
   Color _mix(Color a, Color b, double t) {
-    return Color.fromARGB(
-      (a.a + ((b.a - a.a) * t)).round(),
-      (a.r + ((b.r - a.r) * t)).round(),
-      (a.g + ((b.g - a.g) * t)).round(),
-      (a.b + ((b.b - a.b) * t)).round(),
-    );
+    final double tt = t.clamp(0.0, 1.0);
+    return Color.lerp(a, b, tt)!;
   }
 }

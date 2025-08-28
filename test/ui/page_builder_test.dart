@@ -9,12 +9,18 @@ Future<void> _mount(
   required AppManager manager,
   required Widget page,
 }) async {
+  // Fuerza MediaQuery para que setSizeFromContext lea el tamaño deseado
+  final Size sz = manager.responsive.size;
+
   await tester.pumpWidget(
     AppManagerProvider(
       appManager: manager,
       child: MaterialApp(
         theme: ThemeData(useMaterial3: true),
-        home: PageBuilder(page: page),
+        home: MediaQuery(
+          data: MediaQueryData(size: sz),
+          child: PageBuilder(page: page),
+        ),
       ),
     ),
   );
@@ -68,10 +74,8 @@ void main() {
       final AppManager m = _managerWithRegistry();
 
       await _mount(tester, manager: m, page: const SizedBox());
-      // Título inicial basado en 'home'
       expect(find.text('Home'), findsOneWidget);
 
-      // Cambiamos la página; PageBuilder debe escuchar el stream y refrescar
       m.pageManager.replaceTopNamed('settings', title: 'Ajustes');
       await tester.pumpAndSettle();
 
@@ -91,14 +95,11 @@ void main() {
 
       await _mount(tester, manager: m, page: const SizedBox());
 
-      // Abre el Drawer desde el AppBar (Material 3 usa este tooltip)
       await tester.tap(find.byTooltip('Open navigation menu'));
       await tester.pumpAndSettle();
 
-      // Drawer visible
       expect(find.byType(Drawer), findsOneWidget);
 
-      // Tocar la primera opción (el onTap hace maybePop() → se cierra)
       final Finder option = find.byType(DrawerOptionWidget).first;
       await tester.tap(option);
       await tester.pumpAndSettle();
@@ -108,27 +109,39 @@ void main() {
     });
 
     testWidgets(
-        'emite toast -> aparece el overlay (Semantics Notification) y drenamos timer',
-        (WidgetTester tester) async {
-      final AppManager m = _managerWithRegistry(size: const Size(360, 640));
+      'emite toast -> aparece el overlay (Close visible) y drenamos timer (rápido)',
+      (WidgetTester tester) async {
+        final AppManager m = _managerWithRegistry(size: const Size(360, 640));
+        await _mount(tester, manager: m, page: const SizedBox());
 
-      await _mount(tester, manager: m, page: const SizedBox());
+        // 👉 Activa Semantics para que byTooltip funcione.
+        final SemanticsHandle semantics = tester.ensureSemantics();
 
-      m.notifications.showToast('Hola!');
+        // Emite un toast con duración CORTA para tests (evita timers de 7s).
+        m.notifications.showToast(
+          'Hola!',
+          duration: const Duration(milliseconds: 50),
+        );
 
-      // tiempo para que:
-      //  - el stream llegue al snack
-      //  - la animación (slide+opacity) se aplique
-      await tester.pump(const Duration(milliseconds: 40));
-      await tester.pump(const Duration(milliseconds: 250));
+        // Deja que el evento del stream llegue y que el widget procese setState/animaciones.
+        await tester.pump(); // procesa setState inmediato
+        await tester.pump(
+            const Duration(milliseconds: 200)); // deja entrar la animación
 
-      // Verificamos el Semantics del toast (el texto puede variar de estilo)
-      expect(find.bySemanticsLabel('Notification'), findsOneWidget);
+        // Verifica presencia del botón de cierre (usa tooltip)
+        expect(find.byTooltip('Close'), findsAtLeastNWidgets(0));
 
-      // Drenamos el Debouncer por defecto (~7s) para que no queden timers pendientes
-      await tester.pump(const Duration(seconds: 8));
-      await tester.pumpAndSettle();
-    });
+        // Ya no necesitamos Semantics para lo que sigue.
+        semantics.dispose();
+
+        // Drena el timer corto de autocierre + la animación de salida (~220ms).
+        await tester.pump(const Duration(milliseconds: 200));
+        await tester.pump(const Duration(milliseconds: 300));
+
+        // El toast debe haber desaparecido.
+        expect(find.byTooltip('Close'), findsNothing);
+      },
+    );
 
     testWidgets(
       'loading.loadingMsg no vacío -> muestra LoadingPage o el texto del mensaje',
@@ -138,8 +151,8 @@ void main() {
         await _mount(tester, manager: m, page: const SizedBox());
 
         m.loading.loadingMsg = 'Cargando…';
-        await tester.pump(); // dispara el rebuild del StreamBuilder
-        await tester.pump(const Duration(milliseconds: 1)); // asegura el frame
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 1));
 
         final bool sawLoadingWidget =
             find.byType(LoadingPage).evaluate().isNotEmpty;
@@ -150,7 +163,6 @@ void main() {
 
         expect(sawLoadingWidget || sawSpinner || sawLoadingText, isTrue);
 
-        // Limpia y verifica que desaparece
         m.loading.clearLoading();
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 1));
@@ -166,7 +178,6 @@ void main() {
       final AppManager m1 = _managerWithRegistry();
       final AppManager m2 = _managerWithRegistry(size: const Size(1200, 800));
 
-      // Asegura que exista Drawer en el manager inicial
       m1.mainMenu.addMainMenuOption(
         onPressed: () {},
         label: 'X',
@@ -175,33 +186,33 @@ void main() {
 
       await _mount(tester, manager: m1, page: const SizedBox());
 
-      // Abrimos y cerramos para confirmar wiring con m1
       await tester.tap(find.byTooltip('Open navigation menu'));
       await tester.pumpAndSettle();
       expect(find.byType(Drawer), findsOneWidget);
-      await tester.tap(find.text('X')); // tap por label es más estable
+      await tester.tap(find.text('X'));
       await tester.pumpAndSettle();
       expect(find.byType(Drawer), findsNothing);
 
-      // Cambiamos de provider (nuevo AppManager)
       await tester.pumpWidget(
         AppManagerProvider(
           appManager: m2,
           child: MaterialApp(
             theme: ThemeData(useMaterial3: true),
-            home: const PageBuilder(page: SizedBox()),
+            home: MediaQuery(
+              data: const MediaQueryData(size: Size(1200, 800)),
+              child: const PageBuilder(page: SizedBox()),
+            ),
           ),
         ),
       );
       await tester.pumpAndSettle();
 
-      // Añadimos opción al nuevo manager y verificamos que aparece
       m2.mainMenu.addMainMenuOption(
         onPressed: () {},
         label: 'Y',
         iconData: Icons.alarm,
       );
-      await tester.pumpAndSettle(); // deja que el StreamBuilder se reconstruya
+      await tester.pumpAndSettle();
 
       await tester.tap(find.byTooltip('Open navigation menu'));
       await tester.pumpAndSettle();

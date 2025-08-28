@@ -4,445 +4,331 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// --------- Fake BlocResponsive minimal, coherente con el resto de tests ---------
-class FakeBlocResponsive extends BlocResponsive {
-  FakeBlocResponsive({
-    required this.deviceType,
-    required this.workAreaSize,
-    required this.columnsNumber,
-    required this.marginWidth,
-    double? gutterWidth,
-  }) : _gutterOverride = gutterWidth;
-
-  @override
-  final ScreenSizeEnum deviceType;
-
-  @override
-  final Size workAreaSize;
-
-  @override
-  final int columnsNumber;
-
-  @override
-  final double marginWidth;
-
-  final double? _gutterOverride;
-
-  bool setFromCtxCalled = false;
-
-  @override
-  void setSizeFromContext(BuildContext context) {
-    setFromCtxCalled = true;
-  }
-
-  @override
-  bool get isMobile => deviceType == ScreenSizeEnum.mobile;
-
-  @override
-  double get gutterWidth =>
-      (_gutterOverride ?? ((marginWidth * 2) / columnsNumber)).floorToDouble();
-
-  int _numberOfGutters(int cols) => (cols <= 1) ? 0 : cols - 1;
-
-  @override
-  double get columnWidth {
-    double w = workAreaSize.width;
-    w = w - (marginWidth * 2);
-    w = w - (_numberOfGutters(columnsNumber) * gutterWidth);
-    w = w / columnsNumber;
-    return w.clamp(0.0, double.maxFinite).floorToDouble();
-  }
-
-  @override
-  double widthByColumns(int numberOfColumns) {
-    final int cols = numberOfColumns.abs().clamp(1, columnsNumber);
-    double w = columnWidth * cols;
-    if (cols > 1) {
-      w += gutterWidth * (cols - 1);
-    }
-    return w.floorToDouble();
-  }
-}
-
-/// ---------- Helpers ----------
-Future<void> _pump(
-  WidgetTester tester, {
-  required Widget child,
-  Size surface = const Size(800, 600),
-  ThemeData? theme,
-}) async {
-  await tester.pumpWidget(
-    MaterialApp(
-      theme: theme ?? ThemeData(useMaterial3: true),
-      home: MediaQuery(
-        data: MediaQueryData(size: surface),
-        child: Scaffold(body: child),
-      ),
-    ),
-  );
-  // No usamos pumpAndSettle por los timers/animaciones; bombeamos frames puntuales en cada test.
-  await tester.pump(const Duration(milliseconds: 1));
-}
-
-// Obtiene el Align específico dentro del widget (topRight/bottomCenter según dispositivo).
-Align _findAlignUnderSnack(WidgetTester tester) {
-  final Finder f = find.descendant(
-    of: find.byType(MySnackBarWidget),
-    matching: find.byType(Align),
-  );
-  return tester.widget<Align>(f.first);
-}
-
-// Busca el ConstrainedBox que el toast usa para limitar ancho y lo devuelve.
-ConstrainedBox _findToastConstrainedBox(WidgetTester tester) {
-  tester.widgetList(find.byType(ConstrainedBox));
-  // Elegimos el que vive bajo el Material del toast
-  final Finder materialFinder = find.byWidgetPredicate(
-    (Widget w) => w is Material && w.elevation == 8.0,
-  );
-  expect(materialFinder, findsOneWidget);
-  final Element materialEl = tester.element(materialFinder);
-  final ConstrainedBox cb =
-      materialEl.findAncestorWidgetOfExactType<ConstrainedBox>()!;
-  return cb;
-}
-
 void main() {
-  group('MySnackBarWidget - layout responsivo y sizing', () {
-    testWidgets('mobile: bottomCenter y maxWidth = workArea - 2*margin',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.mobile,
-        workAreaSize: const Size(360, 640),
-        columnsNumber: 4,
-        marginWidth: 16,
-        gutterWidth: 12, // gap=12
-      );
+  const Size mobileSize = Size(390, 844);
+  const Size desktopSize = Size(1280, 800);
 
-      final StreamController<AppSnack> ctrl = StreamController<AppSnack>();
-      final MySnackBarWidget w = MySnackBarWidget(
-        responsive: resp,
-        snacks: ctrl.stream,
-      );
+  BlocResponsive mobileResp() =>
+      BlocResponsive()..setSizeForTesting(mobileSize);
+  BlocResponsive desktopResp() =>
+      BlocResponsive()..setSizeForTesting(desktopSize);
 
-      await _pump(tester, child: w, surface: const Size(360, 640));
-      // Emitimos snack largo para forzar ancho máximo
-      ctrl.add(AppSnack.info('x' * 200));
-      await tester.pump(const Duration(milliseconds: 30)); // que se construya
-
-      // Align esperado
-      final Align a = _findAlignUnderSnack(tester);
-      expect(a.alignment, Alignment.bottomCenter);
-
-      // MaxWidth esperado
-      final double expectedMax =
-          resp.workAreaSize.width - resp.marginWidth * 2; // 360-32=328
-      final ConstrainedBox cb = _findToastConstrainedBox(tester);
-      expect(cb.constraints.maxWidth, expectedMax);
-
-      // setSizeFromContext() fue llamado
-      expect(resp.setFromCtxCalled, isTrue);
-
-      await ctrl.close();
-    });
-
-    testWidgets('desktop: topRight por defecto y maxWidth = widthByColumns(4)',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.desktop,
-        workAreaSize: const Size(1024, 700),
-        columnsNumber: 12,
-        marginWidth: 16,
-        gutterWidth: 10,
-      );
-
-      final StreamController<AppSnack> ctrl = StreamController<AppSnack>();
-      final MySnackBarWidget w = MySnackBarWidget(
-        responsive: resp,
-        snacks: ctrl.stream,
-      );
-
-      await _pump(tester, child: w, surface: const Size(1024, 700));
-      ctrl.add(AppSnack.info('mensaje muy largo ' * 20));
-      await tester.pump(const Duration(milliseconds: 30));
-
-      final Align a = _findAlignUnderSnack(tester);
-      expect(a.alignment, Alignment.topRight);
-
-      final double expectedMax = resp.widthByColumns(4);
-      final ConstrainedBox cb = _findToastConstrainedBox(tester);
-      expect(cb.constraints.maxWidth, expectedMax);
-
-      await ctrl.close();
-    });
-
-    testWidgets('maxWidthColumns sobrescribe el default',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.desktop,
-        workAreaSize: const Size(1200, 800),
-        columnsNumber: 12,
-        marginWidth: 20,
-        gutterWidth: 10,
-      );
-
-      final StreamController<AppSnack> ctrl = StreamController<AppSnack>();
-      final MySnackBarWidget w = MySnackBarWidget(
-        responsive: resp,
-        snacks: ctrl.stream,
-        maxWidthColumns: 6,
-      );
-
-      await _pump(tester, child: w, surface: const Size(1200, 800));
-      ctrl.add(AppSnack.info('x' * 300));
-      await tester.pump(const Duration(milliseconds: 30));
-
-      final double expectedMax = resp.widthByColumns(6);
-      final ConstrainedBox cb = _findToastConstrainedBox(tester);
-      expect(cb.constraints.maxWidth, expectedMax);
-
-      await ctrl.close();
-    });
-
-    testWidgets('safeArea=false no envuelve con SafeArea',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.mobile,
-        workAreaSize: const Size(360, 640),
-        columnsNumber: 4,
-        marginWidth: 16,
-        gutterWidth: 12,
-      );
-
-      final StreamController<AppSnack> ctrl = StreamController<AppSnack>();
-      final MySnackBarWidget w = MySnackBarWidget(
-        responsive: resp,
-        snacks: ctrl.stream,
-        safeArea: false,
-      );
-
-      await _pump(tester, child: w, surface: const Size(360, 640));
-      ctrl.add(AppSnack.info('Hola'));
-      await tester.pump(const Duration(milliseconds: 30));
-
-      // No hay SafeArea bajo el widget
-      final Finder safe = find.descendant(
-        of: find.byType(MySnackBarWidget),
-        matching: find.byType(SafeArea),
-      );
-      expect(safe, findsNothing);
-
-      await ctrl.close();
-    });
-  });
-
-  group('MySnackBarWidget - cola, tiempos y auto-cierre', () {
-    testWidgets('muestra snack y auto-cierra después de su duración',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.mobile,
-        workAreaSize: const Size(360, 640),
-        columnsNumber: 4,
-        marginWidth: 16,
-        gutterWidth: 12,
-      );
-
-      final StreamController<AppSnack> ctrl = StreamController<AppSnack>();
-      final MySnackBarWidget w = MySnackBarWidget(
-        responsive: resp,
-        snacks: ctrl.stream,
-        duration:
-            const Duration(seconds: 5), // default alto para comprobar override
-      );
-
-      await _pump(tester, child: w);
-
-      ctrl.add(
-        AppSnack.info('auto', duration: const Duration(milliseconds: 120)),
-      );
-      await tester.pump(const Duration(milliseconds: 20));
-      expect(find.text('auto'), findsOneWidget);
-
-      // Esperamos a que expire + animación de salida (220ms)
-      await tester.pump(const Duration(milliseconds: 150));
-      await tester.pump(const Duration(milliseconds: 240));
-      expect(find.text('auto'), findsNothing);
-
-      await ctrl.close();
-    });
-
-    testWidgets('encola dos snacks y los muestra secuencialmente',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.desktop,
-        workAreaSize: const Size(900, 700),
-        columnsNumber: 12,
-        marginWidth: 16,
-        gutterWidth: 10,
-      );
-
-      final StreamController<AppSnack> ctrl = StreamController<AppSnack>();
-      final MySnackBarWidget w =
-          MySnackBarWidget(responsive: resp, snacks: ctrl.stream);
-
-      await _pump(tester, child: w);
-
-      ctrl.add(
-        AppSnack.info('uno', duration: const Duration(milliseconds: 100)),
-      );
-      ctrl.add(
-        AppSnack.info('dos', duration: const Duration(milliseconds: 100)),
-      );
-
-      await tester.pump(const Duration(milliseconds: 30));
-      expect(find.text('uno'), findsOneWidget);
-
-      // Deja que termine el primero
-      await tester.pump(const Duration(milliseconds: 130)); // oculta
-      await tester
-          .pump(const Duration(milliseconds: 230)); // show next tras 220ms
-      expect(find.text('uno'), findsNothing);
-      expect(find.text('dos'), findsOneWidget);
-
-      // Deja que termine el segundo
-      await tester.pump(const Duration(milliseconds: 130));
-      await tester.pump(const Duration(milliseconds: 230));
-      expect(find.text('dos'), findsNothing);
-
-      await ctrl.close();
-    });
-  });
-
-  group('MySnackBarWidget - acción y dismiss', () {
-    testWidgets('action dispara callback y oculta el snack',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.desktop,
-        workAreaSize: const Size(1024, 700),
-        columnsNumber: 12,
-        marginWidth: 16,
-        gutterWidth: 10,
-      );
-
-      int calls = 0;
-      final StreamController<AppSnack> ctrl = StreamController<AppSnack>();
-      final MySnackBarWidget w =
-          MySnackBarWidget(responsive: resp, snacks: ctrl.stream);
-
-      await _pump(tester, child: w);
-
-      ctrl.add(
-        AppSnack.success(
-          'ok',
-          actionLabel: 'UNDO',
-          onAction: () => calls++,
-          duration: const Duration(seconds: 10),
+  Future<void> pumpHost(
+    WidgetTester tester, {
+    required Size mediaSize,
+    required BlocResponsive r,
+    required Stream<AppSnack?> stream,
+    bool safeArea = true,
+    int? maxWidthColumns,
+    bool dismissible = true,
+    double elevation = 8.0,
+    VoidCallback? onDismissRequested,
+  }) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MediaQuery(
+          // <- fuerza el tamaño que leerá setSizeFromContext
+          data: MediaQueryData(size: mediaSize),
+          child: Scaffold(
+            body: Stack(
+              children: <Widget>[
+                const SizedBox.expand(),
+                MySnackBarWidget(
+                  responsive: r,
+                  snacks: stream,
+                  safeArea: safeArea,
+                  maxWidthColumns: maxWidthColumns,
+                  elevation: elevation,
+                  dismissible: dismissible,
+                  onDismissRequested: onDismissRequested,
+                ),
+              ],
+            ),
+          ),
         ),
-      );
-      await tester.pump(const Duration(milliseconds: 30));
-      expect(find.text('ok'), findsOneWidget);
-      expect(find.text('UNDO'), findsOneWidget);
+      ),
+    );
+    await tester.pump(); // frame inicial
+  }
 
-      await tester.tap(find.text('UNDO'));
-      await tester.pump(const Duration(milliseconds: 10));
-      expect(calls, 1);
+  testWidgets('muestra el mensaje cuando llega por el stream',
+      (WidgetTester tester) async {
+    final BlocResponsive r = mobileResp();
+    final StreamController<AppSnack?> ctrl =
+        StreamController<AppSnack?>.broadcast();
 
-      // Tras acción se oculta
-      await tester.pump(const Duration(milliseconds: 240));
-      expect(find.text('ok'), findsNothing);
+    await pumpHost(
+      tester,
+      mediaSize: mobileSize,
+      r: r,
+      stream: ctrl.stream,
+    );
 
-      await ctrl.close();
-    });
+    ctrl.add(AppSnack.info('Saved!'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
-    testWidgets('dismissible: botón Close oculta el snack',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.mobile,
-        workAreaSize: const Size(360, 640),
-        columnsNumber: 4,
-        marginWidth: 16,
-        gutterWidth: 12,
-      );
+    expect(find.text('Saved!'), findsOneWidget);
 
-      final StreamController<AppSnack> ctrl = StreamController<AppSnack>();
-      final MySnackBarWidget w =
-          MySnackBarWidget(responsive: resp, snacks: ctrl.stream);
-
-      await _pump(tester, child: w);
-
-      ctrl.add(
-        AppSnack.warning('cierra', duration: const Duration(seconds: 5)),
-      );
-      await tester.pump(const Duration(milliseconds: 30));
-      expect(find.text('cierra'), findsOneWidget);
-
-      // El IconButton tiene tooltip 'Close'
-      await tester.tap(find.byTooltip('Close'));
-      await tester.pump(const Duration(milliseconds: 20));
-      await tester.pump(const Duration(milliseconds: 240)); // salida
-      expect(find.text('cierra'), findsNothing);
-
-      await ctrl.close();
-    });
-
-    testWidgets('dismissible=false: no muestra botón Close',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.tablet,
-        workAreaSize: const Size(720, 640),
-        columnsNumber: 12,
-        marginWidth: 16,
-        gutterWidth: 10,
-      );
-
-      final StreamController<AppSnack> ctrl = StreamController<AppSnack>();
-      final MySnackBarWidget w = MySnackBarWidget(
-        responsive: resp,
-        snacks: ctrl.stream,
-        dismissible: false,
-      );
-
-      await _pump(tester, child: w);
-
-      ctrl.add(
-        AppSnack.error('sin close', duration: const Duration(seconds: 3)),
-      );
-      await tester.pump(const Duration(milliseconds: 30));
-
-      expect(find.byTooltip('Close'), findsNothing);
-      expect(find.text('sin close'), findsOneWidget);
-
-      await ctrl.close();
-    });
+    await ctrl.close();
   });
 
-  group('MySnackBarWidget - fábrica fromStringStream y Semantics', () {
-    testWidgets('fromStringStream mapea a AppSnack.info y lo muestra',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.desktop,
-        workAreaSize: const Size(900, 700),
-        columnsNumber: 12,
-        marginWidth: 16,
-        gutterWidth: 10,
-      );
+  testWidgets('colocación: bottom-center en mobile, top-right en desktop',
+      (WidgetTester tester) async {
+    // Mobile
+    final BlocResponsive rMob = mobileResp();
+    final StreamController<AppSnack?> mob =
+        StreamController<AppSnack?>.broadcast();
+    await pumpHost(
+      tester,
+      mediaSize: mobileSize,
+      r: rMob,
+      stream: mob.stream,
+    );
+    mob.add(AppSnack.info('Here!'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
-      final StreamController<String> ctrl = StreamController<String>();
-      final MySnackBarWidget w = MySnackBarWidget.fromStringStream(
-        responsive: resp,
-        toastStream: ctrl.stream,
-      );
+    final Finder txtMob = find.text('Here!');
+    expect(txtMob, findsOneWidget);
+    final Align mobAlign = find
+        .ancestor(of: txtMob, matching: find.byType(Align))
+        .evaluate()
+        .last
+        .widget as Align;
+    expect(mobAlign.alignment, Alignment.bottomCenter);
+    await mob.close();
 
-      await _pump(tester, child: w);
-      ctrl.add('hola string');
-      await tester.pump(const Duration(milliseconds: 30));
+    // Desktop
+    final BlocResponsive rDesk = desktopResp();
+    final StreamController<AppSnack?> desk =
+        StreamController<AppSnack?>.broadcast();
+    await pumpHost(
+      tester,
+      mediaSize: desktopSize,
+      r: rDesk,
+      stream: desk.stream,
+    );
+    desk.add(AppSnack.info('There!'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
-      expect(find.text('hola string'), findsOneWidget);
+    final Finder txtDesk = find.text('There!');
+    expect(txtDesk, findsOneWidget);
+    final Align deskAlign = find
+        .ancestor(of: txtDesk, matching: find.byType(Align))
+        .evaluate()
+        .last
+        .widget as Align;
+    expect(deskAlign.alignment, Alignment.topRight);
+    await desk.close();
+  });
 
-      // Semantics: existe un nodo con label 'Notification'
-      expect(find.bySemanticsLabel('Notification'), findsWidgets);
+  testWidgets('hace cola (controlada): A → (hide) → B',
+      (WidgetTester tester) async {
+    final BlocResponsive r = mobileResp();
+    final StreamController<AppSnack?> ctrl =
+        StreamController<AppSnack?>.broadcast();
 
-      await ctrl.close();
-    });
+    await pumpHost(
+      tester,
+      mediaSize: mobileSize,
+      r: r,
+      stream: ctrl.stream,
+    );
+
+    ctrl.add(AppSnack.info('A'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 250));
+    expect(find.text('A'), findsOneWidget);
+    expect(find.text('B'), findsNothing);
+
+    // Oculta (el padre emite null)
+    ctrl.add(null);
+    await tester.pumpAndSettle(const Duration(milliseconds: 250));
+    expect(find.text('A'), findsNothing);
+
+    // Muestra B
+    ctrl.add(AppSnack.info('B'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 250));
+    expect(find.text('B'), findsOneWidget);
+
+    await ctrl.close();
+  });
+
+  testWidgets('dismissible: pulsar Close llama onDismissRequested',
+      (WidgetTester tester) async {
+    final BlocResponsive r = mobileResp();
+    final StreamController<AppSnack?> ctrl =
+        StreamController<AppSnack?>.broadcast();
+    bool dismissed = false;
+
+    await pumpHost(
+      tester,
+      mediaSize: mobileSize,
+      r: r,
+      stream: ctrl.stream,
+      onDismissRequested: () => dismissed = true,
+    );
+
+    ctrl.add(AppSnack.info('Close me'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 250));
+
+    expect(find.text('Close me'), findsOneWidget);
+    final Finder closeBtn = find.byTooltip('Close');
+    expect(closeBtn, findsOneWidget);
+
+    await tester.tap(closeBtn);
+    await tester.pump(); // procesa el callback
+    expect(dismissed, isTrue);
+
+    await ctrl.close();
+  });
+
+  testWidgets('action: pulsa acción, ejecuta callback y pide dismiss',
+      (WidgetTester tester) async {
+    final BlocResponsive r = mobileResp();
+    final StreamController<AppSnack?> ctrl =
+        StreamController<AppSnack?>.broadcast();
+    int actions = 0;
+    bool dismissed = false;
+
+    await pumpHost(
+      tester,
+      mediaSize: mobileSize,
+      r: r,
+      stream: ctrl.stream,
+      onDismissRequested: () => dismissed = true,
+    );
+
+    ctrl.add(
+      AppSnack.success(
+        'Saved with action',
+        actionLabel: 'UNDO',
+        onAction: () => actions++,
+      ),
+    );
+    await tester.pumpAndSettle(const Duration(milliseconds: 250));
+
+    expect(find.text('Saved with action'), findsOneWidget);
+    expect(find.text('UNDO'), findsOneWidget);
+
+    await tester.tap(find.text('UNDO'));
+    await tester.pump();
+
+    expect(actions, 1);
+    expect(dismissed, isTrue);
+
+    await ctrl.close();
+  });
+
+  testWidgets('maxWidthColumns fija el maxWidth usando widthByColumns',
+      (WidgetTester tester) async {
+    final BlocResponsive r = desktopResp();
+    final StreamController<AppSnack?> ctrl =
+        StreamController<AppSnack?>.broadcast();
+    const int cols = 4;
+
+    await pumpHost(
+      tester,
+      mediaSize: desktopSize,
+      r: r,
+      stream: ctrl.stream,
+      maxWidthColumns: cols,
+    );
+
+    ctrl.add(AppSnack.info('Width test'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 250));
+
+    final Finder txt = find.text('Width test');
+    expect(txt, findsOneWidget);
+
+    final ConstrainedBox cbox = find
+        .ancestor(of: txt, matching: find.byType(ConstrainedBox))
+        .evaluate()
+        .last
+        .widget as ConstrainedBox;
+
+    final double expected = r.widthByColumns(cols.clamp(1, r.columnsNumber));
+    final double maxW = cbox.constraints.maxWidth;
+    expect((maxW - expected).abs() < 0.001, isTrue);
+
+    await ctrl.close();
+  });
+
+  testWidgets('factory fromStringStream: muestra el texto recibido',
+      (WidgetTester tester) async {
+    final BlocResponsive r = mobileResp();
+    final StreamController<String> ctrl = StreamController<String>.broadcast();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MediaQuery(
+          data: const MediaQueryData(size: mobileSize),
+          child: Scaffold(
+            body: Stack(
+              children: <Widget>[
+                const SizedBox.expand(),
+                MySnackBarWidget.fromStringStream(
+                  responsive: r,
+                  toastStream: ctrl.stream,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    ctrl.add('Hola string!');
+    await tester.pumpAndSettle(const Duration(milliseconds: 250));
+
+    expect(find.text('Hola string!'), findsOneWidget);
+
+    await ctrl.close();
+  });
+
+  testWidgets('safeArea: por defecto ON y se puede desactivar',
+      (WidgetTester tester) async {
+    // ON
+    final BlocResponsive rOn = mobileResp();
+    final StreamController<AppSnack?> on =
+        StreamController<AppSnack?>.broadcast();
+    await pumpHost(
+      tester,
+      mediaSize: mobileSize,
+      r: rOn,
+      stream: on.stream,
+    );
+    on.add(AppSnack.info('safe on'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 250));
+
+    final Finder onTxt = find.text('safe on');
+    expect(onTxt, findsOneWidget);
+    expect(
+      find.ancestor(of: onTxt, matching: find.byType(SafeArea)),
+      findsOneWidget,
+    );
+    await on.close();
+
+    // OFF
+    final BlocResponsive rOff = mobileResp();
+    final StreamController<AppSnack?> off =
+        StreamController<AppSnack?>.broadcast();
+    await pumpHost(
+      tester,
+      mediaSize: mobileSize,
+      r: rOff,
+      stream: off.stream,
+      safeArea: false,
+    );
+    off.add(AppSnack.info('safe off'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 250));
+
+    final Finder offTxt = find.text('safe off');
+    expect(offTxt, findsOneWidget);
+    expect(
+      find.ancestor(of: offTxt, matching: find.byType(SafeArea)),
+      findsNothing,
+    );
+
+    await off.close();
   });
 }

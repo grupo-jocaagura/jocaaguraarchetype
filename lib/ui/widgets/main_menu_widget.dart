@@ -117,6 +117,7 @@ class MainMenuWidget extends StatelessWidget {
 
     final Widget container = Semantics(
       container: true,
+      explicitChildNodes: true,
       label: semanticLabel,
       child: Container(
         color: backgroundColor,
@@ -386,12 +387,9 @@ class _CollapsedRailItemState extends State<_CollapsedRailItem> {
     );
   }
 
+// En _CollapsedRailItemState
   Color _mix(Color a, Color b, double t) {
-    return Color.fromARGB(
-      (a.a + ((b.a - a.a) * t)).round(),
-      (a.r + ((b.r - a.r) * t)).round(),
-      (a.g + ((b.g - a.g) * t)).round(),
-      (a.b + ((b.b - a.b) * t)).round(),
-    );
+    final double tt = t.clamp(0.0, 1.0);
+    return Color.lerp(a, b, tt)!;
   }
 }
