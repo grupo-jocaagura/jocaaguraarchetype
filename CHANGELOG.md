@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-## [3.0.0] - 2025-08-18
+## [3.0.0] - 2025-08-28
 ### ⚠️ Breaking Changes
 - Se eliminó la dependencia de `jocaagura_domain` y se ha vuelto a implementar la lógica de negocio dentro del paquete.
 - Se ha eliminado el `BlocSession` y `BlocConnectivity`, ya que ahora se manejan directamente desde `AppManager`.
@@ -22,6 +22,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ahora la libreria se puede utilizar como jocaaguraarchetype.
 - Se expone la sublibreria `jocaaguraarchetiped_domain` para facilitar la integración con jocaagura_domain.
 - Ahora los archivos cumplen con el formato part of `jocaaguraarchetype` para una mejor organización y claridad.
+
+#### Added
+
+* **README (Quick start):** ejemplo mínimo con `JocaaguraApp.dev`, `PageRegistry` y `OnboardingPage`.
+* **DartDoc con ejemplos** para 13 módulos clave (Theme Gateway/Repo/Service, páginas base, utils de color, blueprint widgets, etc.).
+* **Plantilla de issues** inicial (`plantilla de issues.txt`) para estandarizar reportes y tareas.
+* **Guía inicial de tema** (docs): “Configuración de Tema con JocaaguraArchetype” (cómo seed, M3, textScale, presets).
+
+#### Changed
+
+* **Alcance aclarado:** el arquetipo se centra en *UI Shell* y *navegación*; lo transversal vive en `jocaagura_domain` (aviso en README).
+* **Ejemplos y descripciones** de componentes responsive y `PageBuilder` (intención y uso típico).
+
+#### Deprecated
+
+* *N/A* (si en este ciclo anotamos alias/contratos antiguos del menú como `@Deprecated`, documentar aquí y planificar remoción para `1.28.0`).
+
+#### CI/CD
+
+* **Documentadas** las rutas de workflows recomendados para PRs a `develop` y `master` (validate PR).
+* **Rama `master`:** consolidado el flujo de automatización/documentación de publicación.
+* **Commits firmados:** guía para configurar firma del bot/miembros del repo.
+* **CodeQL:** lineamientos para ejecución en `develop` y `master`.
+
 ## [2.0.2] - 2025-07-27
 
 ### 🔒 Resolved master conflicts
