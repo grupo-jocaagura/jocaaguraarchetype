@@ -71,7 +71,9 @@ void main() {
           svc.schemeFromSeed(base.seed, Brightness.light);
       expect(t1.colorScheme.primary.toARGB32(), refLight.primary.toARGB32());
       expect(
-          t2.colorScheme.secondary.toARGB32(), refLight.secondary.toARGB32());
+        t2.colorScheme.secondary.toARGB32(),
+        refLight.secondary.toARGB32(),
+      );
     });
 
     test('ThemeMode.dark → ThemeData con Brightness.dark', () {

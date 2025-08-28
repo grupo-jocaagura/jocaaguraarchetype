@@ -21,16 +21,31 @@ void main() {
     });
 
     test('rechaza strings inválidos o longitudes incorrectas', () {
-      expect(ThemeColorUtils.validateHexColor('FFFFFF'), isFalse,
-          reason: 'sin #');
-      expect(ThemeColorUtils.validateHexColor('#FFF'), isFalse,
-          reason: '3 dígitos');
-      expect(ThemeColorUtils.validateHexColor('#FFFFF'), isFalse,
-          reason: '5 dígitos');
-      expect(ThemeColorUtils.validateHexColor('#FFFFFG'), isFalse,
-          reason: 'carácter fuera de [0-9A-Fa-f]');
-      expect(ThemeColorUtils.validateHexColor('#12 4AF'), isFalse,
-          reason: 'espacios');
+      expect(
+        ThemeColorUtils.validateHexColor('FFFFFF'),
+        isFalse,
+        reason: 'sin #',
+      );
+      expect(
+        ThemeColorUtils.validateHexColor('#FFF'),
+        isFalse,
+        reason: '3 dígitos',
+      );
+      expect(
+        ThemeColorUtils.validateHexColor('#FFFFF'),
+        isFalse,
+        reason: '5 dígitos',
+      );
+      expect(
+        ThemeColorUtils.validateHexColor('#FFFFFG'),
+        isFalse,
+        reason: 'carácter fuera de [0-9A-Fa-f]',
+      );
+      expect(
+        ThemeColorUtils.validateHexColor('#12 4AF'),
+        isFalse,
+        reason: 'espacios',
+      );
       expect(ThemeColorUtils.validateHexColor(''), isFalse);
     });
   });
@@ -64,14 +79,22 @@ void main() {
   group('ThemeColorUtils.getDarker / getLighter', () {
     test('asserts de amount fuera de rango lanzan AssertionError', () {
       const Color base = Color(0xFF6699CC);
-      expect(() => ThemeColorUtils.getDarker(base, amount: 0),
-          throwsAssertionError);
-      expect(() => ThemeColorUtils.getDarker(base, amount: 1),
-          throwsAssertionError);
-      expect(() => ThemeColorUtils.getLighter(base, amount: 0),
-          throwsAssertionError);
-      expect(() => ThemeColorUtils.getLighter(base, amount: 1),
-          throwsAssertionError);
+      expect(
+        () => ThemeColorUtils.getDarker(base, amount: 0),
+        throwsAssertionError,
+      );
+      expect(
+        () => ThemeColorUtils.getDarker(base, amount: 1),
+        throwsAssertionError,
+      );
+      expect(
+        () => ThemeColorUtils.getLighter(base, amount: 0),
+        throwsAssertionError,
+      );
+      expect(
+        () => ThemeColorUtils.getLighter(base, amount: 1),
+        throwsAssertionError,
+      );
     });
 
     test('variar lightness en LAB produce colores más oscuros/claros', () {
@@ -121,12 +144,18 @@ void main() {
 
   group('ThemeColorUtils.materialColorFromRGB', () {
     test('asserts en canales fuera de rango', () {
-      expect(() => ThemeColorUtils.materialColorFromRGB(-1, 0, 0),
-          throwsAssertionError);
-      expect(() => ThemeColorUtils.materialColorFromRGB(0, 256, 0),
-          throwsAssertionError);
-      expect(() => ThemeColorUtils.materialColorFromRGB(0, 0, 999),
-          throwsAssertionError);
+      expect(
+        () => ThemeColorUtils.materialColorFromRGB(-1, 0, 0),
+        throwsAssertionError,
+      );
+      expect(
+        () => ThemeColorUtils.materialColorFromRGB(0, 256, 0),
+        throwsAssertionError,
+      );
+      expect(
+        () => ThemeColorUtils.materialColorFromRGB(0, 0, 999),
+        throwsAssertionError,
+      );
     });
 
     test('estructura del MaterialColor y consistencia del tono 500', () {
@@ -146,7 +175,7 @@ void main() {
         600,
         700,
         800,
-        900
+        900,
       ];
       for (final int k in keys) {
         expect(mc[k], isA<Color>(), reason: 'Debe tener shade $k');
@@ -160,13 +189,19 @@ void main() {
 
       for (final int k in <int>[50, 100, 200, 300, 400]) {
         final double l = ThemeColorUtils.convertToLab(mc[k]!).lightness;
-        expect(l, greaterThan(l500),
-            reason: 'shade $k debería ser más claro que 500');
+        expect(
+          l,
+          greaterThan(l500),
+          reason: 'shade $k debería ser más claro que 500',
+        );
       }
       for (final int k in <int>[600, 700, 800, 900]) {
         final double l = ThemeColorUtils.convertToLab(mc[k]!).lightness;
-        expect(l, lessThan(l500),
-            reason: 'shade $k debería ser más oscuro que 500');
+        expect(
+          l,
+          lessThan(l500),
+          reason: 'shade $k debería ser más oscuro que 500',
+        );
       }
     });
   });

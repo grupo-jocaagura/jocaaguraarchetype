@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
@@ -59,7 +60,8 @@ void main() {
       final List<int> rgbUp =
           LabColor.labToColor(lab0[0] + 10.0, lab0[1], lab0[2]);
       final List<double> labUp = LabColor.colorToLab(
-          Color.fromARGB(255, rgbUp[0], rgbUp[1], rgbUp[2]));
+        Color.fromARGB(255, rgbUp[0], rgbUp[1], rgbUp[2]),
+      );
 
       expect(labUp[0], greaterThan(lab0[0]));
     });
@@ -71,7 +73,8 @@ void main() {
       final List<int> rgbDown =
           LabColor.labToColor(lab0[0] - 10.0, lab0[1], lab0[2]);
       final List<double> labDown = LabColor.colorToLab(
-          Color.fromARGB(255, rgbDown[0], rgbDown[1], rgbDown[2]));
+        Color.fromARGB(255, rgbDown[0], rgbDown[1], rgbDown[2]),
+      );
 
       expect(labDown[0], lessThan(lab0[0]));
     });
