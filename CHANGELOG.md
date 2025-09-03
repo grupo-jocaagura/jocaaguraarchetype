@@ -4,6 +4,32 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [3.1.0] - 2025-09-03
+### Added
+- **AppConfig**
+    - Nuevo método `T requireFirstModule<T>()` que expone el primer `BlocModule` encontrado en `blocModuleList`.
+    - Nuevo método `T requireModuleByKey<T>(String key)` que devuelve el `BlocModule` correspondiente a la `key` establecida, validando tipo.
+    - Ambos métodos lanzan error si no encuentran el módulo, asegurando integridad en fase de desarrollo.
+
+- **AppManager**
+    - Exposición de los métodos `requireFirstModule<T>()` y `requireModuleByKey<T>(String key)` para centralizar el acceso a módulos desde el manager.
+
+- **Tests**
+    - Se añadieron pruebas unitarias para validar el comportamiento de los nuevos métodos tanto en `AppConfig` como en `AppManager`.
+- **AppManager**
+    - Nuevos métodos de navegación basados en `PageModel`:
+        - `goToModel(PageModel model)`
+        - `pushModel(PageModel model, {bool allowDuplicate = true})`
+        - `pushOnceModel(PageModel model)`
+        - `replaceTopModel(PageModel model, {bool allowNoop = false})`
+    - Estos métodos complementan la navegación existente por `String`, permitiendo aprovechar directamente los `PageModel` definidos por cada página.
+
+### Changed
+- Ajuste de la suite de pruebas para incluir validaciones de errores al no encontrar módulos en `blocModuleList`.
+- Suite de pruebas ampliada para validar la nueva API de navegación en `AppManager`.
+- Documentación (`DartDoc`) actualizada con ejemplos de uso de los nuevos métodos.
+
 ## [3.0.0] - 2025-08-28
 ### ⚠️ Breaking Changes
 - Se eliminó la dependencia de `jocaagura_domain` y se ha vuelto a implementar la lógica de negocio dentro del paquete.

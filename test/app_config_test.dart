@@ -125,6 +125,16 @@ PageRegistry _dummyRegistry() {
   return const PageRegistry(<String, PageWidgetBuilder>{});
 }
 
+class _DummyModuleA extends BlocModule {
+  @override
+  void dispose() {}
+}
+
+class _DummyModuleB extends BlocModule {
+  @override
+  void dispose() {}
+}
+
 void main() {
   group('AppConfig.dev · construcción y wiring', () {
     test('sin onboardingSteps conserva totalSteps = 0 y crea módulos core',
@@ -286,6 +296,123 @@ void main() {
       expect(onboarding.disposedCalled, isTrue);
       expect(pageManager.disposedCalled, isTrue);
       expect(extra.disposedCalled, isTrue);
+    });
+  });
+  group('AppConfig · require* helpers (dev wiring)', () {
+    late AppConfig base;
+
+    setUp(() {
+      // Config base mínima. Usamos .dev para no rearmar todos los core a mano.
+      base = AppConfig.dev(registry: _dummyRegistry());
+    });
+
+    test('requireModuleOfType<T> retorna el primero del tipo solicitado', () {
+      final AppConfig cfg = AppConfig(
+        blocTheme: base.blocTheme,
+        blocUserNotifications: base.blocUserNotifications,
+        blocLoading: base.blocLoading,
+        blocMainMenuDrawer: base.blocMainMenuDrawer,
+        blocSecondaryMenuDrawer: base.blocSecondaryMenuDrawer,
+        blocResponsive: base.blocResponsive,
+        blocOnboarding: base.blocOnboarding,
+        pageManager: base.pageManager,
+        blocModuleList: <String, BlocModule>{
+          'a': _DummyModuleA(),
+          'b': _DummyModuleB(),
+          'a2': _DummyModuleA(), // si hubiera más de uno, toma el primero
+        },
+      );
+
+      final _DummyModuleA a = cfg.requireModuleOfType<_DummyModuleA>();
+      expect(a, isA<_DummyModuleA>());
+
+      final _DummyModuleB b = cfg.requireModuleOfType<_DummyModuleB>();
+      expect(b, isA<_DummyModuleB>());
+    });
+
+    test('requireModuleOfType<T> lanza cuando no hay un módulo del tipo', () {
+      final AppConfig cfg = AppConfig(
+        blocTheme: base.blocTheme,
+        blocUserNotifications: base.blocUserNotifications,
+        blocLoading: base.blocLoading,
+        blocMainMenuDrawer: base.blocMainMenuDrawer,
+        blocSecondaryMenuDrawer: base.blocSecondaryMenuDrawer,
+        blocResponsive: base.blocResponsive,
+        blocOnboarding: base.blocOnboarding,
+        pageManager: base.pageManager,
+        blocModuleList: <String, BlocModule>{
+          'onlyA': _DummyModuleA(),
+        },
+      );
+
+      expect(
+        () => cfg.requireModuleOfType<_DummyModuleB>(),
+        throwsA(isA<UnimplementedError>()),
+      );
+    });
+
+    test('requireModuleByKey<T> resuelve case-insensitive y tipado correcto',
+        () {
+      final AppConfig cfg = AppConfig(
+        blocTheme: base.blocTheme,
+        blocUserNotifications: base.blocUserNotifications,
+        blocLoading: base.blocLoading,
+        blocMainMenuDrawer: base.blocMainMenuDrawer,
+        blocSecondaryMenuDrawer: base.blocSecondaryMenuDrawer,
+        blocResponsive: base.blocResponsive,
+        blocOnboarding: base.blocOnboarding,
+        pageManager: base.pageManager,
+        blocModuleList: <String, BlocModule>{
+          'Canvas': _DummyModuleA(),
+        },
+      );
+
+      final _DummyModuleA m1 = cfg.requireModuleByKey<_DummyModuleA>('canvas');
+      final _DummyModuleA m2 = cfg.requireModuleByKey<_DummyModuleA>('CANVAS');
+
+      expect(m1, isA<_DummyModuleA>());
+      expect(identical(m1, m2), isTrue);
+    });
+
+    test('requireModuleByKey<T> lanza cuando la key no existe', () {
+      final AppConfig cfg = AppConfig(
+        blocTheme: base.blocTheme,
+        blocUserNotifications: base.blocUserNotifications,
+        blocLoading: base.blocLoading,
+        blocMainMenuDrawer: base.blocMainMenuDrawer,
+        blocSecondaryMenuDrawer: base.blocSecondaryMenuDrawer,
+        blocResponsive: base.blocResponsive,
+        blocOnboarding: base.blocOnboarding,
+        pageManager: base.pageManager,
+      );
+
+      expect(
+        () => cfg.requireModuleByKey<_DummyModuleA>('missing'),
+        throwsA(isA<UnimplementedError>()),
+      );
+    });
+
+    test(
+        'requireModuleByKey<T> lanza si el tipo T no coincide con el registrado',
+        () {
+      final AppConfig cfg = AppConfig(
+        blocTheme: base.blocTheme,
+        blocUserNotifications: base.blocUserNotifications,
+        blocLoading: base.blocLoading,
+        blocMainMenuDrawer: base.blocMainMenuDrawer,
+        blocSecondaryMenuDrawer: base.blocSecondaryMenuDrawer,
+        blocResponsive: base.blocResponsive,
+        blocOnboarding: base.blocOnboarding,
+        pageManager: base.pageManager,
+        blocModuleList: <String, BlocModule>{
+          'canvas': _DummyModuleA(),
+        },
+      );
+
+      expect(
+        () => cfg.requireModuleByKey<_DummyModuleB>('canvas'),
+        throwsA(isA<UnimplementedError>()),
+      );
     });
   });
 }
