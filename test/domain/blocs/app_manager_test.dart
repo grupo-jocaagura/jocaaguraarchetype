@@ -15,6 +15,15 @@ bool _routeEquals(PageModel a, PageModel b) {
 /// -----------------------------
 /// Spies / Fakes
 /// -----------------------------
+class _DummyModuleA extends BlocModule {
+  @override
+  void dispose() {}
+}
+
+class _DummyModuleB extends BlocModule {
+  @override
+  void dispose() {}
+}
 
 class _SpyPageManager extends PageManager {
   _SpyPageManager()
@@ -431,6 +440,237 @@ void main() {
       expect(m.isDisposed, isFalse);
       await m.dispose();
       expect(m.isDisposed, isTrue);
+    });
+  });
+  group('AppManager · desarrollo: requireModule* expuestos', () {
+    test('requireModuleOfType<T>() expone el primero del tipo', () {
+      final _SpyPageManager pm = _SpyPageManager();
+
+      final AppConfig cfg = AppConfig(
+        blocTheme: _SpyThemeBloc(),
+        blocUserNotifications: _SpyUserNotifications(),
+        blocLoading: _SpyLoading(),
+        blocMainMenuDrawer: _SpyMainMenuDrawer(),
+        blocSecondaryMenuDrawer: _SpySecondaryMenuDrawer(),
+        blocResponsive: BlocResponsive(),
+        blocOnboarding: BlocOnboarding(),
+        pageManager: pm,
+        blocModuleList: <String, BlocModule>{
+          'a': _DummyModuleA(),
+          'b': _DummyModuleB(),
+          'a2': _DummyModuleA(), // si hubiera más de uno, retorna el primero
+        },
+      );
+
+      final AppManager m = AppManager(cfg);
+
+      final _DummyModuleA a = m.requireModuleOfType<_DummyModuleA>();
+      expect(a, isA<_DummyModuleA>());
+
+      final _DummyModuleB b = m.requireModuleOfType<_DummyModuleB>();
+      expect(b, isA<_DummyModuleB>());
+
+      m.dispose();
+    });
+
+    test('requireModuleOfType<T>() lanza si no existe un módulo de ese tipo',
+        () async {
+      final _SpyPageManager pm = _SpyPageManager();
+
+      final AppConfig cfg = AppConfig(
+        blocTheme: _SpyThemeBloc(),
+        blocUserNotifications: _SpyUserNotifications(),
+        blocLoading: _SpyLoading(),
+        blocMainMenuDrawer: _SpyMainMenuDrawer(),
+        blocSecondaryMenuDrawer: _SpySecondaryMenuDrawer(),
+        blocResponsive: BlocResponsive(),
+        blocOnboarding: BlocOnboarding(),
+        pageManager: pm,
+        blocModuleList: <String, BlocModule>{
+          'onlyA': _DummyModuleA(),
+        },
+      );
+
+      final AppManager m = AppManager(cfg);
+
+      expect(
+        () => m.requireModuleOfType<_DummyModuleB>(),
+        throwsA(isA<UnimplementedError>()),
+      );
+
+      await m.dispose();
+    });
+
+    test('requireModuleByKey<T>() resuelve case-insensitive y valida tipo',
+        () async {
+      final _SpyPageManager pm = _SpyPageManager();
+
+      final AppConfig cfg = AppConfig(
+        blocTheme: _SpyThemeBloc(),
+        blocUserNotifications: _SpyUserNotifications(),
+        blocLoading: _SpyLoading(),
+        blocMainMenuDrawer: _SpyMainMenuDrawer(),
+        blocSecondaryMenuDrawer: _SpySecondaryMenuDrawer(),
+        blocResponsive: BlocResponsive(),
+        blocOnboarding: BlocOnboarding(),
+        pageManager: pm,
+        blocModuleList: <String, BlocModule>{
+          'Canvas': _DummyModuleA(),
+        },
+      );
+
+      final AppManager m = AppManager(cfg);
+
+      final _DummyModuleA m1 = m.requireModuleByKey<_DummyModuleA>('canvas');
+      final _DummyModuleA m2 = m.requireModuleByKey<_DummyModuleA>('CANVAS');
+
+      expect(m1, isA<_DummyModuleA>());
+      expect(identical(m1, m2), isTrue);
+
+      await m.dispose();
+    });
+
+    test('requireModuleByKey<T>() lanza si la key no existe', () async {
+      final _SpyPageManager pm = _SpyPageManager();
+
+      final AppConfig cfg = AppConfig(
+        blocTheme: _SpyThemeBloc(),
+        blocUserNotifications: _SpyUserNotifications(),
+        blocLoading: _SpyLoading(),
+        blocMainMenuDrawer: _SpyMainMenuDrawer(),
+        blocSecondaryMenuDrawer: _SpySecondaryMenuDrawer(),
+        blocResponsive: BlocResponsive(),
+        blocOnboarding: BlocOnboarding(),
+        pageManager: pm,
+      );
+
+      final AppManager m = AppManager(cfg);
+
+      expect(
+        () => m.requireModuleByKey<_DummyModuleA>('missing'),
+        throwsA(isA<UnimplementedError>()),
+      );
+
+      await m.dispose();
+    });
+
+    test(
+        'requireModuleByKey<T>() lanza si el tipo no coincide con el registrado',
+        () async {
+      final _SpyPageManager pm = _SpyPageManager();
+
+      final AppConfig cfg = AppConfig(
+        blocTheme: _SpyThemeBloc(),
+        blocUserNotifications: _SpyUserNotifications(),
+        blocLoading: _SpyLoading(),
+        blocMainMenuDrawer: _SpyMainMenuDrawer(),
+        blocSecondaryMenuDrawer: _SpySecondaryMenuDrawer(),
+        blocResponsive: BlocResponsive(),
+        blocOnboarding: BlocOnboarding(),
+        pageManager: pm,
+        blocModuleList: <String, BlocModule>{
+          'canvas': _DummyModuleA(),
+        },
+      );
+
+      final AppManager m = AppManager(cfg);
+
+      expect(
+        () => m.requireModuleByKey<_DummyModuleB>('canvas'),
+        throwsA(isA<UnimplementedError>()),
+      );
+
+      await m.dispose();
+    });
+  });
+  group('AppManager · navegación con PageModel', () {
+    test('goToModel delega a PageManager.resetTo(model)', () {
+      final _SpyPageManager pm = _SpyPageManager();
+      final AppManager m = AppManager(_makeConfigWithSpies(pm));
+
+      const PageModel model = PageModel(
+        name: 'profile',
+        segments: <String>['profile'],
+        query: <String, String>{'tab': 'info'},
+      );
+
+      m.goToModel(model);
+
+      expect(pm.lastResetTo, isNotNull);
+      expect(pm.lastResetTo!.name, 'profile');
+      expect(pm.lastResetTo!.segments, <String>['profile']);
+      expect(pm.lastResetTo!.query['tab'], 'info');
+
+      m.dispose();
+    });
+
+    test('pushModel delega a PageManager.push(model) respetando allowDuplicate',
+        () {
+      final _SpyPageManager pm = _SpyPageManager();
+      final AppManager m = AppManager(_makeConfigWithSpies(pm));
+
+      const PageModel first = PageModel(
+        name: 'orders',
+        segments: <String>['orders', '123'],
+      );
+
+      m.pushModel(first); // por defecto allowDuplicate = true
+      expect(pm.lastPush, isNotNull);
+      expect(pm.lastPush!.segments, <String>['orders', '123']);
+      expect(pm.lastPushAllowDuplicate, isTrue);
+
+      const PageModel second = PageModel(
+        name: 'orders',
+        segments: <String>['orders', '456'],
+      );
+
+      m.pushModel(second, allowDuplicate: false);
+      expect(pm.lastPush, isNotNull);
+      expect(pm.lastPush!.segments, <String>['orders', '456']);
+      expect(pm.lastPushAllowDuplicate, isFalse);
+
+      m.dispose();
+    });
+
+    test('pushOnceModel delega a PageManager.pushOnce(model)', () {
+      final _SpyPageManager pm = _SpyPageManager();
+      final AppManager m = AppManager(_makeConfigWithSpies(pm));
+
+      const PageModel model = PageModel(
+        name: 'cart',
+        segments: <String>['cart'],
+      );
+
+      m.pushOnceModel(model);
+
+      expect(pm.lastPushOnce, isNotNull);
+      expect(pm.lastPushOnce!.name, 'cart');
+      expect(pm.lastPushOnce!.segments, <String>['cart']);
+
+      m.dispose();
+    });
+
+    test(
+        'replaceTopModel delega a PageManager.replaceTop(model) respetando allowNoop',
+        () {
+      final _SpyPageManager pm = _SpyPageManager();
+      final AppManager m = AppManager(_makeConfigWithSpies(pm));
+
+      const PageModel model = PageModel(
+        name: 'search',
+        segments: <String>['search'],
+        query: <String, String>{'q': 'shoes'},
+      );
+
+      m.replaceTopModel(model, allowNoop: true);
+
+      expect(pm.lastReplaceTop, isNotNull);
+      expect(pm.lastReplaceTop!.name, 'search');
+      expect(pm.lastReplaceTop!.segments, <String>['search']);
+      expect(pm.lastReplaceTop!.query['q'], 'shoes');
+      expect(pm.lastReplaceTopAllowNoop, isTrue);
+
+      m.dispose();
     });
   });
 }

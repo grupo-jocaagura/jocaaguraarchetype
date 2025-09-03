@@ -106,4 +106,59 @@ class AppConfig {
       module.dispose();
     }
   }
+
+  /// Returns the **first** registered module in [blocModuleList] that matches type [T].
+  ///
+  /// Intended for **development-time** wiring to ensure configuration integrity.
+  /// Throws [UnimplementedError] if no module of type [T] is found.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final MyFeatureModule mod = appConfig.requireModuleOfType<MyFeatureModule>();
+  /// ```
+  T requireModuleOfType<T extends BlocModule>() {
+    for (final BlocModule module in blocModuleList.values) {
+      if (module is T) {
+        return module;
+      }
+    }
+    throw UnimplementedError(
+      'No BlocModule of type $T was registered in blocModuleList. '
+      'This helper is intended for development-only configuration checks.',
+    );
+  }
+
+  /// Returns the module registered under [key] and **checks** it matches type [T].
+  ///
+  /// Lookup is **case-insensitive**. Throws [UnimplementedError] if:
+  /// - No module is registered under [key], or
+  /// - The registered module does not match the requested type [T].
+  ///
+  /// This is meant for **development-time** configuration checks and should not
+  /// be used as a dynamic service locator in production flows.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final CanvasModule canvas =
+  ///     appConfig.requireModuleByKey<CanvasModule>('Canvas'); // case-insensitive
+  /// ```
+  T requireModuleByKey<T extends BlocModule>(String key) {
+    final String target = key.toLowerCase();
+    for (final MapEntry<String, BlocModule> entry in blocModuleList.entries) {
+      if (entry.key.toLowerCase() == target) {
+        final BlocModule mod = entry.value;
+        if (mod is T) {
+          return mod;
+        }
+        throw UnimplementedError(
+          'BlocModule registered under key "$key" is ${mod.runtimeType}, '
+          'but $T was requested. Check your development wiring.',
+        );
+      }
+    }
+    throw UnimplementedError(
+      'No BlocModule was registered under key "$key" in blocModuleList. '
+      'This helper is intended for development-only configuration checks.',
+    );
+  }
 }

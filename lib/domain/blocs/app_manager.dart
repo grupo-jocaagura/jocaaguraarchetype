@@ -170,6 +170,42 @@ class AppManager {
     _config.dispose(); // si AppConfig es dueño de los blocs, libera allí
   }
 
+  // Dentro de AppManager
+
+  /// Returns the **first** registered module in [AppConfig.blocModuleList]
+  /// that matches type [T]. Intended for development-time wiring.
+  /// Throws [UnimplementedError] if not found.
+  ///
+  /// ### Example
+  /// ```dart
+  /// final MyFeatureModule mod = appManager.requireModuleOfType<MyFeatureModule>();
+  /// ```
+  T requireModuleOfType<T extends BlocModule>() {
+    return _config.requireModuleOfType<T>();
+  }
+
+  /// Returns the module registered under [key] and **checks** it matches [T].
+  /// Lookup is **case-insensitive**. Throws [UnimplementedError] if:
+  ///  - no module is registered under [key], or
+  ///  - the registered module does not match type [T].
+  ///
+  /// ### Example
+  /// ```dart
+  /// final CanvasModule canvas =
+  ///   appManager.requireModuleByKey<CanvasModule>('Canvas'); // case-insensitive
+  /// ```
+  T requireModuleByKey<T extends BlocModule>(String key) {
+    return _config.requireModuleByKey<T>(key);
+  }
+
+  /// Navigation by PageModel
+  void goToModel(PageModel model) => pageManager.resetTo(model);
+  void pushModel(PageModel model, {bool allowDuplicate = true}) =>
+      pageManager.push(model, allowDuplicate: allowDuplicate);
+  void pushOnceModel(PageModel model) => pageManager.pushOnce(model);
+  void replaceTopModel(PageModel model, {bool allowNoop = false}) =>
+      pageManager.replaceTop(model, allowNoop: allowNoop);
+
   @visibleForTesting
   void debugSetPendingRouteChain(String? chain) {
     if (_pendingRouteChain != chain) {
