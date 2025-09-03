@@ -3,7 +3,7 @@ description: >
   Paquete base para inicializar rápidamente proyectos Flutter usando Jocaagura Clean Architecture.
   ⚠️ Este paquete podría ser deprecado. Se recomienda usar directamente jocaagura_domain para una mejor mantenibilidad.
 
-version: 3.0.0
+version: 3.1.0
 
 homepage: https://github.com/jocaagura/jocaaguraarchetype
 repository: https://github.com/jocaagura/jocaaguraarchetype
