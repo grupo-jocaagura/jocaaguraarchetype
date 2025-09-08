@@ -9,9 +9,11 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
     required PageRegistry registry,
     required PageManager pageManager,
     bool projectorMode = false,
+    void Function(Page<Object?> removedPage)? onPageRemoved,
   })  : _registry = registry,
         _pageManager = pageManager,
-        _projectorMode = projectorMode {
+        _projectorMode = projectorMode,
+        _onPageRemoved = onPageRemoved {
     _sub = _pageManager.stackStream.listen((_) => notifyListeners());
   }
 
@@ -19,6 +21,7 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
   PageRegistry _registry;
   PageManager _pageManager;
   bool _projectorMode;
+  void Function(Page<Object?> removedPage)? _onPageRemoved;
 
   StreamSubscription<NavStackModel>? _sub;
 
@@ -60,6 +63,7 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
     PageRegistry? registry,
     PageManager? pageManager,
     bool? projectorMode,
+    void Function(Page<Object?> removedPage)? onPageRemoved,
   }) {
     bool changed = false;
 
@@ -84,6 +88,9 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
       _projectorMode = projectorMode;
       changed = true;
     }
+    if (onPageRemoved != null && !identical(onPageRemoved, _onPageRemoved)) {
+      _onPageRemoved = onPageRemoved;
+    }
 
     if (changed) {
       notifyListeners();
@@ -102,7 +109,9 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
         pages: <Page<dynamic>>[
           _registry.toPage(stackNav.top, position: topIndex),
         ],
-        onDidRemovePage: (Page<Object?> page) {},
+        onDidRemovePage: (Page<Object?> page) {
+          _onPageRemoved?.call(page);
+        },
       );
     }
     final List<Page<dynamic>> pages = _projectorMode
@@ -115,7 +124,9 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
     return Navigator(
       key: navigatorKey,
       pages: pages,
-      onDidRemovePage: (Page<Object?> page) {},
+      onDidRemovePage: (Page<Object?> page) {
+        _onPageRemoved?.call(page);
+      },
     );
   }
 
