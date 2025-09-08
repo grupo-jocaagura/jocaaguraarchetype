@@ -63,7 +63,6 @@ class _TestSessionBloc implements BlocSession {
     await _ctrl.close();
   }
 
-  // ---- Satisfacer el linter si BlocSession tiene más miembros en tu repo ----
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -95,7 +94,7 @@ void main() {
       final _TestSessionBloc session = _TestSessionBloc();
 
       final SessionNavCoordinator coord = SessionNavCoordinator(
-        page: pm,
+        pageManager: pm,
         sessionBloc: session,
         loginPage: login,
         homePage: home,
@@ -122,7 +121,7 @@ void main() {
       final _TestSessionBloc session = _TestSessionBloc();
 
       final SessionNavCoordinator coord = SessionNavCoordinator(
-        page: pm,
+        pageManager: pm,
         sessionBloc: session,
         loginPage: login,
         homePage: home,
@@ -145,7 +144,7 @@ void main() {
       final _TestSessionBloc session = _TestSessionBloc();
 
       final SessionNavCoordinator coord = SessionNavCoordinator(
-        page: pm,
+        pageManager: pm,
         sessionBloc: session,
         loginPage: login,
         homePage: home,
@@ -170,7 +169,7 @@ void main() {
       final _TestSessionBloc session = _TestSessionBloc(authed: true);
 
       final SessionNavCoordinator coord = SessionNavCoordinator(
-        page: pm,
+        pageManager: pm,
         sessionBloc: session,
         loginPage: login,
         homePage: home,
@@ -193,7 +192,7 @@ void main() {
       final _TestSessionBloc session = _TestSessionBloc(authed: true);
 
       final SessionNavCoordinator coord = SessionNavCoordinator(
-        page: pm,
+        pageManager: pm,
         sessionBloc: session,
         loginPage: login,
         homePage: home,
@@ -217,7 +216,7 @@ void main() {
       final _TestSessionBloc session = _TestSessionBloc();
 
       final SessionNavCoordinator coord = SessionNavCoordinator(
-        page: pm,
+        pageManager: pm,
         sessionBloc: session,
         loginPage: login,
         homePage: home,
@@ -246,7 +245,7 @@ void main() {
       final _TestSessionBloc session = _TestSessionBloc(authed: true);
 
       final SessionNavCoordinator coord = SessionNavCoordinator(
-        page: pm,
+        pageManager: pm,
         sessionBloc: session,
         loginPage: login,
         homePage: home,
@@ -272,7 +271,7 @@ void main() {
       final _TestSessionBloc session = _TestSessionBloc();
 
       final SessionNavCoordinator coord = SessionNavCoordinator(
-        page: pm,
+        pageManager: pm,
         sessionBloc: session,
         loginPage: login,
         homePage: home,
