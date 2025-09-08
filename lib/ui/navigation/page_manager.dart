@@ -10,7 +10,7 @@ enum ModulePostDisposePolicy {
 
 class PageManager extends BlocModule {
   PageManager({
-    required NavStackModel initial,
+    required this.initial,
     this.postDisposePolicy = ModulePostDisposePolicy.throwStateError,
   }) : _stack = BlocGeneral<NavStackModel>(initial);
 
@@ -18,7 +18,7 @@ class PageManager extends BlocModule {
 
   final BlocGeneral<NavStackModel> _stack;
   final ModulePostDisposePolicy postDisposePolicy;
-
+  final NavStackModel initial;
   bool _isDisposed = false;
 
   // ---- Guard genérico (similar a BlocSession._guard) ------------------------
@@ -101,6 +101,8 @@ class PageManager extends BlocModule {
       throw StateError('PageManager has been disposed');
     }
     if (stack.isRoot) {
+      setStack(initial);
+
       return;
     }
     setStack(stack.resetTo(stack.pages.first));
@@ -122,7 +124,7 @@ class PageManager extends BlocModule {
   bool pop() {
     if (_isDisposed || _stack.isClosed) {
       if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
-        return false; // comportamiento seguro
+        return false;
       }
       throw StateError('PageManager has been disposed');
     }
@@ -215,12 +217,36 @@ class PageManager extends BlocModule {
   }
 
   // ---- Helpers (URI/chain) ----
+  /// Navega por una location ("/foo/bar?x=1").
+  /// Por defecto **agrega** una entrada al stack (push),
+  /// para que Back vuelva al estado anterior.
+  /// Usa `replaceTop: true` solo para redirects o reemplazos explícitos.
   void navigateToLocation(
     String location, {
     String? name,
     PageKind kind = PageKind.material,
+    bool mustReplaceTop = false,
+    bool allowDuplicate = false,
   }) {
-    replaceTop(PageModel.fromUri(Uri.parse(location), name: name, kind: kind));
+    final PageModel page =
+        PageModel.fromUri(Uri.parse(location), name: name, kind: kind);
+
+    if (mustReplaceTop) {
+      replaceTop(page, allowNoop: true);
+    } else {
+      push(page, allowDuplicate: allowDuplicate);
+    }
+  }
+
+  /// Útil para deep-link inicial o cambios “duros” de contexto.
+  void goToLocation(
+    String location, {
+    String? name,
+    PageKind kind = PageKind.material,
+  }) {
+    final PageModel root =
+        PageModel.fromUri(Uri.parse(location), name: name, kind: kind);
+    resetTo(root);
   }
 
   void setFromRouteChain(String chain) =>

@@ -80,8 +80,9 @@ class PageRegistry {
   /// Builds a materialized `Page` from a [PageModel] using [PageKind].
   Page<dynamic> toPage(PageModel page, {int? position}) {
     Widget child(BuildContext ctx) => build(ctx, page);
+    final String pos = position == null ? '' : '$position:';
     final LocalKey key = ValueKey<String>(
-      'pg:${position ?? 0}:${page.name}:${page.segments.join('/')}:'
+      'pg:$pos${page.name}:${page.segments.join('/')}:'
       '${page.query.hashCode}:${page.kind}:${page.requiresAuth}',
     );
     switch (page.kind) {

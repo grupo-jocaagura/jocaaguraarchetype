@@ -35,7 +35,7 @@ class JocaaguraApp extends StatefulWidget {
   const JocaaguraApp({
     required this.appManager,
     required this.registry,
-    this.ownsManager = false, // 👈 nuevo flag
+    this.ownsManager = false,
     super.key,
     this.projectorMode = true,
     this.initialLocation = '/home',
@@ -59,7 +59,7 @@ class JocaaguraApp extends StatefulWidget {
       registry: registry,
       projectorMode: projectorMode,
       initialLocation: initialLocation,
-      ownsManager: true, // 👈 en factory sí es dueño
+      ownsManager: true,
     );
   }
 
@@ -81,8 +81,6 @@ class _JocaaguraAppState extends State<JocaaguraApp>
   late final MyAppRouterDelegate _delegate;
   late final PlatformRouteInformationProvider _routeInfoProvider;
 
-  // Propiedad de AppManager: true si este widget lo creó (factory .dev).
-
   @override
   void initState() {
     super.initState();
@@ -96,7 +94,6 @@ class _JocaaguraAppState extends State<JocaaguraApp>
       projectorMode: widget.projectorMode,
     );
 
-    // ¡Instancia única! Evita reset tras hot reload/rebuild.
     _routeInfoProvider = PlatformRouteInformationProvider(
       initialRouteInformation: RouteInformation(
         uri: Uri.parse(widget.initialLocation),
@@ -107,7 +104,6 @@ class _JocaaguraAppState extends State<JocaaguraApp>
   @override
   void didUpdateWidget(covariant JocaaguraApp oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     final bool managerChanged =
         !identical(oldWidget.appManager, widget.appManager);
     final bool registryChanged =
@@ -115,7 +111,6 @@ class _JocaaguraAppState extends State<JocaaguraApp>
     final bool projectorChanged =
         oldWidget.projectorMode != widget.projectorMode;
 
-    // Enfoque mínimo: si tu delegate soporta actualización, úsala.
     if (managerChanged || registryChanged || projectorChanged) {
       if (_delegate case final MyAppRouterDelegate d) {
         d.update(
@@ -154,7 +149,6 @@ class _JocaaguraAppState extends State<JocaaguraApp>
             debugShowCheckedModeBanner: false,
             routerDelegate: _delegate,
             routeInformationParser: _parser,
-            // Instancia única y persistente:
             routeInformationProvider: _routeInfoProvider,
             theme: const BuildThemeData()
                 .fromState(s.copyWith(mode: ThemeMode.light)),

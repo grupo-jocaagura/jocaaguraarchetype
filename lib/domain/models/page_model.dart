@@ -221,4 +221,8 @@ class PageModel extends Model {
     }
     return h;
   }
+
+  @override
+  String toString() =>
+      'PageModel(name: $name, segments: $segments, query: $query, fragment: $fragment, kind: $kind, requiresAuth: $requiresAuth, state: $state)';
 }
