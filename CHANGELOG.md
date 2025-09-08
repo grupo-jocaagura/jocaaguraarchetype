@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.1] - 2025-09-07
+
+### Refactor
+- Consolidated all example files into a single `example/lib/main.dart` for a minimal, self-contained demo.
+- Simplified `RepositoryThemeImpl` and `GatewayThemeImpl` to use `const DefaultErrorMapper()`.
+
+### CI
+- Added GitHub Actions workflow `validate_commits_and_lints.yaml`:
+    - Verifies signed commits.
+    - Sets up Flutter and runs `flutter doctor`.
+    - Runs `flutter pub get` for all pubspecs.
+    - Disallows `dependency_overrides` in pubspec.yaml.
+    - Enforces formatting with `dart format`.
+    - Runs static analysis with `dart analyze --fatal-infos --fatal-warnings`.
+
+### Chore
+- Bumped `jocaagura_domain` dependency to `^1.26.0`.
+- Updated package description in `pubspec.yaml` to comply with pub.dev scoring guidelines.
+
+---
+
+✅ This patch release simplifies the example app structure, strengthens CI with commit and lint validations, and ensures alignment with the latest `jocaagura_domain` release.
+
+
 ## [3.1.0] - 2025-09-03
 ### Added
 - **AppConfig**
