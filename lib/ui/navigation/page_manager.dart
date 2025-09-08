@@ -1,36 +1,78 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-class PageManager extends BlocModule {
-  PageManager({required NavStackModel initial})
-      : _stack = BlocGeneral<NavStackModel>(initial);
+enum ModulePostDisposePolicy {
+  /// Estricto: cualquier acceso tras `dispose()` lanza StateError.
+  throwStateError,
 
-  /// Consistencia con el resto de módulos: minúsculas.
+  /// Tolerante: getters devuelven último snapshot; mutadores son no-op.
+  returnLastSnapshotNoop,
+}
+
+class PageManager extends BlocModule {
+  PageManager({
+    required NavStackModel initial,
+    this.postDisposePolicy = ModulePostDisposePolicy.throwStateError,
+  }) : _stack = BlocGeneral<NavStackModel>(initial);
+
   static const String name = 'pageManager';
 
   final BlocGeneral<NavStackModel> _stack;
+  final ModulePostDisposePolicy postDisposePolicy;
 
-  /// True when there is at least one page to pop (stack length > 1).
-  bool get canPop => !stack.isRoot;
+  bool _isDisposed = false;
 
-  /// Reactive version for UI bindings.
-  Stream<bool> get canPopStream => stackStream
-      .map((NavStackModel navStackModel) => !navStackModel.isRoot)
-      .distinct();
+  // ---- Guard genérico (similar a BlocSession._guard) ------------------------
+  T _guard<T>({
+    required T Function() body,
+    required T Function() lastSnapshot,
+  }) {
+    if (!_isDisposed && !_stack.isClosed) {
+      return body();
+    }
+    switch (postDisposePolicy) {
+      case ModulePostDisposePolicy.throwStateError:
+        throw StateError('PageManager has been disposed');
+      case ModulePostDisposePolicy.returnLastSnapshotNoop:
+        return lastSnapshot();
+    }
+  }
 
-  Stream<NavStackModel> get stackStream => _stack.stream;
-  NavStackModel get stack => _stack.value;
+  // ---- Lecturas seguras -----------------------------------------------------
   bool get isClosed => _stack.isClosed;
 
-  void setStack(
-    NavStackModel next, {
-    bool allowDuplicate = false,
-  }) {
-    NavStackModel sanitized;
-    if (allowDuplicate) {
-      sanitized = next;
-    } else {
-      sanitized = _dedupConsecutive(next);
+  bool get canPop => _guard<bool>(
+        body: () => !stack.isRoot,
+        lastSnapshot: () {
+          // Si ya está cerrado, seguimos respondiendo con el último valor.
+          return !_stack.value.isRoot;
+        },
+      );
+
+  Stream<bool> get canPopStream =>
+      stackStream.map((NavStackModel s) => !s.isRoot).distinct();
+
+  Stream<NavStackModel> get stackStream => _guard<Stream<NavStackModel>>(
+        body: () => _stack.stream,
+        lastSnapshot: () =>
+            _stack.stream, // stream ya cerrado, re-emite y completa
+      );
+
+  NavStackModel get stack => _guard<NavStackModel>(
+        body: () => _stack.value,
+        lastSnapshot: () => _stack.value,
+      );
+
+  // ---- Mutaciones con no-op en leniente ------------------------------------
+  void setStack(NavStackModel next, {bool allowDuplicate = false}) {
+    if (_isDisposed || _stack.isClosed) {
+      if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
+        return; // no-op
+      }
+      throw StateError('PageManager has been disposed');
     }
+
+    final NavStackModel sanitized =
+        allowDuplicate ? next : _dedupConsecutive(next);
 
     if (identical(sanitized, _stack.value) || sanitized == _stack.value) {
       return;
@@ -38,8 +80,13 @@ class PageManager extends BlocModule {
     _stack.value = sanitized;
   }
 
-  // ---- Mutations base ----
   void push(PageModel page, {bool allowDuplicate = false}) {
+    if (_isDisposed || _stack.isClosed) {
+      if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
+        return; // no-op
+      }
+      throw StateError('PageManager has been disposed');
+    }
     if (!allowDuplicate && _sameTarget(stack.top, page)) {
       return;
     }
@@ -47,6 +94,12 @@ class PageManager extends BlocModule {
   }
 
   void goHome() {
+    if (_isDisposed || _stack.isClosed) {
+      if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
+        return;
+      }
+      throw StateError('PageManager has been disposed');
+    }
     if (stack.isRoot) {
       return;
     }
@@ -54,6 +107,12 @@ class PageManager extends BlocModule {
   }
 
   void replaceTop(PageModel page, {bool allowNoop = false}) {
+    if (_isDisposed || _stack.isClosed) {
+      if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
+        return;
+      }
+      throw StateError('PageManager has been disposed');
+    }
     if (!allowNoop && _sameTarget(stack.top, page)) {
       return;
     }
@@ -61,6 +120,12 @@ class PageManager extends BlocModule {
   }
 
   bool pop() {
+    if (_isDisposed || _stack.isClosed) {
+      if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
+        return false; // comportamiento seguro
+      }
+      throw StateError('PageManager has been disposed');
+    }
     if (stack.isRoot) {
       return false;
     }
@@ -68,9 +133,15 @@ class PageManager extends BlocModule {
     return true;
   }
 
-  void resetTo(PageModel root) => setStack(stack.resetTo(root));
-
-  // ---- Ergonomía: named helpers (reemplazan al adaptador viejo) ----
+  void resetTo(PageModel root) {
+    if (_isDisposed || _stack.isClosed) {
+      if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
+        return;
+      }
+      throw StateError('PageManager has been disposed');
+    }
+    setStack(stack.resetTo(root));
+  }
 
   /// Push by name. Optional [title] stored in `state['title']`.
   void pushNamed(
@@ -168,8 +239,6 @@ class PageManager extends BlocModule {
     _isDisposed = true;
     _stack.dispose();
   }
-
-  bool _isDisposed = false;
 
   String _titleOf(PageModel p) {
     // 1) explícito en state['title']

@@ -1,0 +1,168 @@
+name: Validate commits (signed) & linters
+
+on:
+  push:
+    branches: ['**']
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate commits
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 1) Firmas de todos los commits (push y PR)
+      - name: Check commit signatures (all commits)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update -y && sudo apt-get install -y jq
+          fi
+
+          OWNER="${{ github.repository_owner }}"
+          REPO="${{ github.event.repository.name }}"
+          EVENT="${{ github.event_name }}"
+
+          get_commit_shas_push() {
+            local before="${{ github.event.before }}"
+            local after="${{ github.event.after }}"
+
+            # 1) Caso normal: compare entre before y after (cuando before != 0000...)
+            if [[ -n "$before" && -n "$after" && ! "$before" =~ ^0+$ ]]; then
+              curl -sSf -H "Authorization: Bearer ${GH_TOKEN}" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/${OWNER}/${REPO}/compare/${before}...${after}" \
+                | jq -r '.commits[].sha'
+              return 0
+            fi
+
+            # 2) Primer push a la rama (before = 0000…): usar commits del payload
+            local payload_commits
+            payload_commits="$(jq -r '.commits // [] | .[].id' "$GITHUB_EVENT_PATH" | sed '/^$/d')"
+            if [[ -n "${payload_commits//[$'\t\r\n ']/}" ]]; then
+              printf "%s\n" "$payload_commits"
+              return 0
+            fi
+
+            # 3) Último recurso: usar el SHA de after
+            if [[ -n "$after" ]]; then
+              printf "%s\n" "$after"
+              return 0
+            fi
+
+            return 1
+          }
+
+          get_commit_shas_pr() {
+            local pr="${{ github.event.pull_request.number }}"
+            if [[ -n "$pr" ]]; then
+              curl -sSf -H "Authorization: Bearer ${GH_TOKEN}" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/${OWNER}/${REPO}/pulls/${pr}/commits" \
+                | jq -r '.[].sha'
+            fi
+          }
+
+          SHAS=""
+          if [[ "$EVENT" == "pull_request" ]]; then
+            SHAS="$(get_commit_shas_pr || true)"
+          else
+            SHAS="$(get_commit_shas_push || true)"
+          fi
+
+          if [[ -z "${SHAS//[$'\t\r\n ']/}" ]]; then
+            echo "::error title=No commits found::No se identificaron commits para verificar."
+            exit 1
+          fi
+
+          fail=false
+          failed_count=0
+          while read -r SHA; do
+            [[ -z "$SHA" ]] && continue
+            RESP="$(curl -sSf \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${OWNER}/${REPO}/commits/${SHA}")" || {
+                echo "::error title=API error::Failed to fetch commit ${SHA}"
+                fail=true; ((failed_count++)) || true; continue;
+              }
+            VERIFIED="$(echo "$RESP" | jq -r '.commit.verification.verified')"
+            REASON="$(echo "$RESP" | jq -r '.commit.verification.reason')"
+            if [[ "$VERIFIED" != "true" ]]; then
+              echo "::error title=Unsigned/Unverified commit::${SHA} verified=false (reason=${REASON})"
+              fail=true; ((failed_count++)) || true
+            else
+              echo "✓ ${SHA} verified (signed)"
+            fi
+          done <<< "$SHAS"
+
+          if [[ "$fail" == "true" ]]; then
+            echo "::error title=Commit signature check failed::${failed_count} commit(s) unsigned/unverified."
+            exit 1
+          fi
+
+      # 2) Flutter toolchain
+      - name: Setup Flutter
+        uses: flutter-actions/setup-flutter@v4
+        with:
+          channel: stable
+          cache: true
+          cache-sdk: true
+
+
+      - name: Flutter doctor (sanity)
+        run: flutter doctor -v
+
+      - name: Cache pub
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock', '**/pubspec.yaml') }}
+          restore-keys: ${{ runner.os }}-pub-
+
+      # 3) Pub get (monorepo o single package)
+      - name: Pub get (all packages)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # todos los pubspec.yaml versionados, excluyendo rutas generadas
+          mapfile -t PUBS < <(git ls-files | grep -E '/?pubspec\.yaml$' | grep -Ev '(^|/)(build|\.dart_tool)/')
+          for f in "${PUBS[@]}"; do
+            d="$(dirname "$f")"
+            echo ">> flutter pub get in $d"
+            (cd "$d" && flutter pub get)
+          done
+
+      # 4) Bloquear dependency_overrides
+      - name: Check dependency_overrides
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R --include="pubspec.yaml" -nE '^[[:space:]]*dependency_overrides:' . ; then
+            echo "::error title=dependency_overrides detectado::El repo no debe incluir dependency_overrides en pubspec.yaml"
+            exit 1
+          fi
+          echo "✓ No se encontraron dependency_overrides"
+
+      # 5) Formato estricto
+      - name: Enforce dart format
+        run: dart format --output=none --set-exit-if-changed .
+
+      # 6) Análisis estático (fatal en infos/warnings)
+      - name: Dart analyze (fatal on infos/warnings)
+        run: dart analyze --fatal-infos --fatal-warnings .

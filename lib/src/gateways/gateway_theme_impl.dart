@@ -13,7 +13,7 @@ class GatewayThemeImpl implements GatewayTheme {
     ErrorMapper? errorMapper,
     Map<String, dynamic>? initial,
   })  : _theme = themeService ?? const FakeServiceJocaaguraArchetypeTheme(),
-        _mapper = errorMapper ?? DefaultErrorMapper(),
+        _mapper = errorMapper ?? const DefaultErrorMapper(),
         _doc = initial == null ? null : Map<String, dynamic>.from(initial);
 
   final ServiceTheme _theme;

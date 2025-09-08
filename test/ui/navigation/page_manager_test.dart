@@ -339,21 +339,6 @@ void main() {
       expect(pm.isClosed, isTrue);
     });
 
-    test(
-        'tras dispose, nuevos listeners reciben cierre inmediato (con o sin último valor)',
-        () async {
-      final PageManager pm =
-          PageManager(initial: _stack(<PageModel>[_p('home')]));
-      await Future<void>.sync(pm.dispose);
-      expect(pm.isClosed, isTrue);
-
-      // Un listener creado después del dispose debe completarse enseguida.
-      await expectLater(
-        pm.stackStream,
-        closesOptionallyAfterOneValue<NavStackModel>(),
-      );
-    });
-
     test('dos suscriptores observan el cierre del stream', () async {
       final PageManager pm =
           PageManager(initial: _stack(<PageModel>[_p('home')]));
@@ -372,6 +357,153 @@ void main() {
       await Future.wait(<Future<void>>[f1, f2]);
 
       expect(pm.isClosed, isTrue);
+    });
+  });
+  group('PageManager - post-dispose policy (strict vs lenient)', () {
+    group('STRICT (ModulePostDisposePolicy.throwStateError)', () {
+      test('getters lanzan StateError después de dispose', () {
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[_p('home')]),
+          // default policy is strict
+        );
+
+        pm.dispose();
+        expect(pm.isClosed, isTrue);
+
+        // Los getters deben lanzar después de dispose
+        expect(() => pm.stack, throwsA(isA<StateError>()));
+        expect(() => pm.canPop, throwsA(isA<StateError>()));
+        expect(() => pm.stackStream, throwsA(isA<StateError>()));
+      });
+
+      test('mutators lanzan StateError después de dispose', () {
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[_p('home')]),
+        );
+        pm.dispose();
+        expect(pm.isClosed, isTrue);
+
+        expect(
+          () => pm.setStack(_stack(<PageModel>[_p('x')])),
+          throwsA(isA<StateError>()),
+        );
+        expect(() => pm.push(_p('x')), throwsA(isA<StateError>()));
+        expect(() => pm.replaceTop(_p('x')), throwsA(isA<StateError>()));
+        expect(() => pm.resetTo(_p('x')), throwsA(isA<StateError>()));
+        expect(() => pm.goHome(), throwsA(isA<StateError>()));
+
+        // pop retorna bool; en modo estricto debe lanzar también
+        expect(() => pm.pop(), throwsA(isA<StateError>()));
+      });
+
+      test('dispose es idempotente en estricto', () {
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[_p('home')]),
+        );
+        pm.dispose();
+        expect(pm.isClosed, isTrue);
+
+        // llamadas repetidas no deben lanzar
+        pm.dispose();
+        pm.dispose();
+        expect(pm.isClosed, isTrue);
+      });
+    });
+
+    group('LENIENT (ModulePostDisposePolicy.returnLastSnapshotNoop)', () {
+      test('getters devuelven último snapshot, mutators son no-op', () async {
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[_p('home')]),
+          postDisposePolicy: ModulePostDisposePolicy.returnLastSnapshotNoop,
+        );
+
+        // cambiamos el stack antes del dispose para tener un snapshot interesante
+        pm.push(_p('a'));
+        pm.push(_p('b'));
+        final NavStackModel beforeDispose = pm.stack;
+        expect(
+          beforeDispose.pages.map((PageModel e) => e.name).toList(),
+          <String>['home', 'a', 'b'],
+        );
+
+        // Cerrar
+        pm.dispose();
+        expect(pm.isClosed, isTrue);
+
+        // Getters NO lanzan: entregan el último snapshot
+        final NavStackModel afterDisposeStack = pm.stack;
+        expect(afterDisposeStack, beforeDispose);
+        expect(pm.canPop, isTrue); // el snapshot tenía 3 páginas
+
+        // stackStream: puede reemitir último valor y cerrarse o sólo cerrarse
+        await expectLater(
+          pm.stackStream,
+          closesOptionallyAfterOneValue<NavStackModel>(),
+        );
+
+        // Mutadores NO lanzan y son NO-OP
+        pm.push(_p('c'));
+        pm.replaceTop(_p('x'));
+        pm.resetTo(_p('login'));
+        pm.goHome();
+        final bool popped = pm.pop(); // en lenient, pop devuelve false
+        expect(popped, isFalse);
+
+        // El stack se mantiene igual al snapshot previo al dispose
+        expect(pm.stack, beforeDispose);
+        expect(
+          pm.stack.pages.map((PageModel e) => e.name).toList(),
+          <String>['home', 'a', 'b'],
+        );
+      });
+
+      test('lenient: setStack es no-op tras dispose y no rompe streams',
+          () async {
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[_p('root')]),
+          postDisposePolicy: ModulePostDisposePolicy.returnLastSnapshotNoop,
+        );
+
+        // Suscriptor que debería ver (opcional) un valor y luego done
+        final Future<void> doneFuture =
+            expectLater(pm.stackStream, closesOptionallyAfterOneValue());
+
+        pm.dispose();
+        await doneFuture;
+        expect(pm.isClosed, isTrue);
+
+        final NavStackModel snapshot = pm.stack;
+
+        // Intento de mutación tras dispose → no-op
+        pm.setStack(_stack(<PageModel>[_p('x')]));
+        expect(pm.stack, snapshot);
+        expect(
+          pm.stack.pages.map((PageModel e) => e.name).toList(),
+          <String>['root'],
+        );
+      });
+
+      test(
+          'lenient: múltiples dispose no lanzan y mantienen snapshot accesible',
+          () {
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[_p('home')]),
+          postDisposePolicy: ModulePostDisposePolicy.returnLastSnapshotNoop,
+        );
+        pm.push(_p('a'));
+        final NavStackModel before = pm.stack;
+
+        pm.dispose();
+        pm.dispose(); // idempotente
+        pm.dispose();
+
+        // snapshot aún accesible
+        expect(pm.stack, before);
+        expect(
+          pm.stack.pages.map((PageModel e) => e.name).toList(),
+          <String>['home', 'a'],
+        );
+      });
     });
   });
 }

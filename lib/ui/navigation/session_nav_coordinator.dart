@@ -18,71 +18,163 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// See policy in class docs of previous version (unchanged).
 class SessionNavCoordinator {
   SessionNavCoordinator({
-    required this.page,
+    required this.pageManager,
     required this.sessionBloc,
     required this.loginPage,
     required this.homePage,
     this.goHomeWhenAuthenticatedOnLogin = true,
+    this.pageEquals = _routeEquals,
   }) {
-    _last = sessionBloc.stateOrDefault; // snapshot inicial (extensión shim)
-    _sessionSub = sessionBloc.stream.listen((SessionState s) {
+    try {
+      _last = sessionBloc.stateOrDefault;
+    } catch (_) {
+      try {
+        _last = sessionBloc.isAuthenticated
+            ? Authenticated(sessionBloc.currentUser)
+            : const Unauthenticated();
+      } catch (_) {
+        _last = const Unauthenticated();
+      }
+    }
+
+    Stream<SessionState> stream;
+    try {
+      stream = sessionBloc.stream;
+    } catch (_) {
+      try {
+        stream = sessionBloc.sessionStream;
+      } catch (_) {
+        stream = Stream<SessionState>.value(_last);
+      }
+    }
+
+    _lastTop = pageManager.stack.top;
+
+    _sessionSub = stream.listen((SessionState s) {
       _last = s;
-      _enforcePolicy(page.stack, _last);
+      // Opcional: _prevTopForGoHome = null;  // si buscas “olvidar” rebotes tras evento de sesión
+      _enforcePolicy(pageManager.stack, _last);
     });
-    _stackSub = page.stackStream.listen((NavStackModel stack) {
+
+    _stackSub = pageManager.stackStream.listen((NavStackModel stack) {
+      final PageModel prevTop = _lastTop ?? stack.top;
+      _lastTop = stack.top;
+
+      if (!_isAuthed(_last) && _isLogin(prevTop) && !_isLogin(stack.top)) {
+        _pending = null;
+      }
+
+      _prevTopForGoHome = prevTop;
+
       _enforcePolicy(stack, _last);
+
+      // NO lo limpies aquí.
     });
-    _enforcePolicy(page.stack, _last);
+
+    _enforcePolicy(pageManager.stack, _last);
   }
 
-  final PageManager page;
+  final PageManager pageManager;
   final BlocSession sessionBloc;
   final PageModel loginPage;
   final PageModel homePage;
   final bool goHomeWhenAuthenticatedOnLogin;
+  final PageEquals pageEquals;
 
   StreamSubscription<SessionState>? _sessionSub;
   StreamSubscription<NavStackModel>? _stackSub;
 
   NavStackModel? _pending;
   SessionState _last = const Unauthenticated();
+
+  PageModel? _lastTop;
+  PageModel? _prevTopForGoHome;
+
   bool _disposed = false;
 
-  // ---- State helpers ----
   bool _isAuthed(SessionState s) => s is Authenticated || s is Refreshing;
   bool _isProtected(PageModel p) => p.requiresAuth;
-  bool _isLogin(PageModel p) => p.name == loginPage.name;
+  bool _isLogin(PageModel p) => pageEquals(p, loginPage);
+  bool _isSameTop(NavStackModel stack, PageModel target) =>
+      pageEquals(stack.top, target);
+
+  NavStackModel _cloneStack(NavStackModel s) =>
+      s.copyWith(pages: List<PageModel>.from(s.pages));
+
+  bool canApplyGoHome(NavStackModel stack) {
+    if (!goHomeWhenAuthenticatedOnLogin) {
+      return false;
+    }
+    if (!_isAuthed(_last)) {
+      return false;
+    }
+    if (!_isLogin(stack.top)) {
+      return false;
+    }
+    if (_pending != null) {
+      return false;
+    }
+
+    // Si este enforce viene de un evento de stack y el top previo NO era login,
+    // es un rebote; no aplicar (C).
+    final PageModel? prev = _prevTopForGoHome;
+    if (prev != null && !_isLogin(prev)) {
+      return false;
+    }
+
+    return true;
+  }
 
   void _enforcePolicy(NavStackModel stack, SessionState s) {
     if (_disposed) {
       return;
     }
+
     final PageModel top = stack.top;
 
-    // Not authed on protected → go login (remember intent)
-    if (!_isAuthed(s) && _isProtected(top) && !_isLogin(top)) {
-      _pending = stack;
-      page.resetTo(loginPage);
+    // (A) No authed en protegida → ir a login (recordando intención)
+    final bool needRedirectToLogin =
+        !_isAuthed(s) && _isProtected(top) && !_isLogin(top);
+
+    if (needRedirectToLogin) {
+      _pending ??= _cloneStack(stack);
+      if (!_isSameTop(stack, loginPage)) {
+        pageManager.resetTo(loginPage);
+      }
       return;
     }
 
-    // Authed and have pending → restore
+    // (B) Authed y existe intención → restaurar
     if (_isAuthed(s) && _pending != null) {
-      final NavStackModel target = _pending!;
+      NavStackModel target = _pending!;
       _pending = null;
-      page.setStack(target);
+
+      // Si el pending termina en login, evitamos quedarnos en login.
+      if (_isLogin(target.top)) {
+        if (target.pages.length > 1) {
+          final List<PageModel> pruned = List<PageModel>.from(target.pages);
+          pruned.removeLast(); // quita login final
+          target = target.copyWith(pages: pruned);
+        } else {
+          // Solo login: caer a home
+          if (!_isSameTop(stack, homePage)) {
+            pageManager.resetTo(homePage);
+          }
+          return;
+        }
+      }
+
+      if (stack != target) {
+        pageManager.setStack(target);
+      }
       return;
     }
 
-    // Unauthed while on protected → enforce login
-    if (!_isAuthed(s) && _isProtected(top) && !_isLogin(top)) {
-      page.resetTo(loginPage);
-      return;
-    }
-
-    // Optional UX: authed on login → go home
-    if (_isAuthed(s) && _isLogin(top) && goHomeWhenAuthenticatedOnLogin) {
-      page.resetTo(homePage);
+    // (C) Authed en login → ir a home (solo cuando aplica)
+    if (canApplyGoHome(stack)) {
+      if (!_isSameTop(stack, homePage)) {
+        pageManager.resetTo(homePage);
+      }
     }
   }
 
@@ -96,36 +188,6 @@ class SessionNavCoordinator {
     _sessionSub = null;
     _stackSub = null;
     _pending = null;
-  }
-}
-
-// --- Drop-in shim until jocaagura_domain adds official getters ---
-
-/// Temporary snapshot & alias helpers for [BlocSession].
-///
-/// - `stream` mirrors `sessionStream` to keep a uniform API
-///   (e.g., other blocs expose `.stream`).
-/// - `stateOrDefault` gives a *best-effort* synchronous snapshot:
-///   * `Authenticated(currentUser)` if `isAuthenticated`
-///   * `Unauthenticated()` otherwise
-///
-/// ⚠️ Caveat:
-/// This cannot reflect transitional states like `Authenticating`,
-/// `Refreshing`, or `SessionError` because the internal subject
-/// is not publicly exposed. Use it only to *seed* coordinators;
-/// they will then rely on `stream` for precise state updates.
-extension BlocSessionSnapshotX on BlocSession {
-  /// Canonical alias so consumers can use `session.stream`.
-  Stream<SessionState> get stream => sessionStream;
-
-  /// Synchronous best-effort snapshot.
-  ///
-  /// Until the core exposes a true snapshot getter, we map the
-  /// public read-only helpers to a reasonable default.
-  SessionState get stateOrDefault {
-    if (isAuthenticated) {
-      return Authenticated(currentUser);
-    }
-    return const Unauthenticated();
+    _lastTop = null;
   }
 }
