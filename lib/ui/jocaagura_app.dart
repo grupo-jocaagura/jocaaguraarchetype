@@ -35,12 +35,12 @@ class JocaaguraApp extends StatefulWidget {
   const JocaaguraApp({
     required this.appManager,
     required this.registry,
+    this.ownsManager = false, // 👈 nuevo flag
     super.key,
     this.projectorMode = true,
     this.initialLocation = '/home',
   });
 
-  /// Factory for DEV flavour using archetype defaults.
   factory JocaaguraApp.dev({
     required PageRegistry registry,
     required bool projectorMode,
@@ -59,43 +59,55 @@ class JocaaguraApp extends StatefulWidget {
       registry: registry,
       projectorMode: projectorMode,
       initialLocation: initialLocation,
+      ownsManager: true, // 👈 en factory sí es dueño
     );
   }
 
-  /// Fully built manager (theme, loading, notifications, pageManager, etc.).
   final AppManager appManager;
-
-  /// Page registry used by the RouterDelegate to build pages from slugs.
   final PageRegistry registry;
-
-  /// Enables projector-specific behaviors in the RouterDelegate.
   final bool projectorMode;
-
-  /// First location to load when the app starts (defaults to '/home').
   final String initialLocation;
+
+  /// Whether this widget is responsible for disposing [appManager].
+  final bool ownsManager;
 
   @override
   State<JocaaguraApp> createState() => _JocaaguraAppState();
 }
 
-class _JocaaguraAppState extends State<JocaaguraApp> {
-  late MyRouteInformationParser _parser;
-  late MyAppRouterDelegate _delegate;
+class _JocaaguraAppState extends State<JocaaguraApp>
+    with WidgetsBindingObserver {
+  late final MyRouteInformationParser _parser;
+  late final MyAppRouterDelegate _delegate;
+  late final PlatformRouteInformationProvider _routeInfoProvider;
+
+  // Propiedad de AppManager: true si este widget lo creó (factory .dev).
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     _parser = const MyRouteInformationParser();
+
     _delegate = MyAppRouterDelegate(
       registry: widget.registry,
       pageManager: widget.appManager.pageManager,
       projectorMode: widget.projectorMode,
+    );
+
+    // ¡Instancia única! Evita reset tras hot reload/rebuild.
+    _routeInfoProvider = PlatformRouteInformationProvider(
+      initialRouteInformation: RouteInformation(
+        uri: Uri.parse(widget.initialLocation),
+      ),
     );
   }
 
   @override
   void didUpdateWidget(covariant JocaaguraApp oldWidget) {
     super.didUpdateWidget(oldWidget);
+
     final bool managerChanged =
         !identical(oldWidget.appManager, widget.appManager);
     final bool registryChanged =
@@ -103,15 +115,30 @@ class _JocaaguraAppState extends State<JocaaguraApp> {
     final bool projectorChanged =
         oldWidget.projectorMode != widget.projectorMode;
 
+    // Enfoque mínimo: si tu delegate soporta actualización, úsala.
     if (managerChanged || registryChanged || projectorChanged) {
-      // recrea el delegate con las nuevas dependencias
-      _delegate = MyAppRouterDelegate(
-        registry: widget.registry,
-        pageManager: widget.appManager.pageManager,
-        projectorMode: widget.projectorMode,
-      );
-      setState(() {});
+      if (_delegate case final MyAppRouterDelegate d) {
+        d.update(
+          registry: widget.registry,
+          pageManager: widget.appManager.pageManager,
+          projectorMode: widget.projectorMode,
+        );
+      }
     }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    widget.appManager.onAppLifecycleChanged?.call(state);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    if (widget.ownsManager) {
+      widget.appManager.dispose();
+    }
+    super.dispose();
   }
 
   @override
@@ -127,11 +154,8 @@ class _JocaaguraAppState extends State<JocaaguraApp> {
             debugShowCheckedModeBanner: false,
             routerDelegate: _delegate,
             routeInformationParser: _parser,
-            routeInformationProvider: PlatformRouteInformationProvider(
-              initialRouteInformation: RouteInformation(
-                uri: Uri.parse(widget.initialLocation),
-              ),
-            ),
+            // Instancia única y persistente:
+            routeInformationProvider: _routeInfoProvider,
             theme: const BuildThemeData()
                 .fromState(s.copyWith(mode: ThemeMode.light)),
             darkTheme: const BuildThemeData()
