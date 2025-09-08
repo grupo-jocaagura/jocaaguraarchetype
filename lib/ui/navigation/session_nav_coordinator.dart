@@ -25,17 +25,34 @@ class SessionNavCoordinator {
     this.goHomeWhenAuthenticatedOnLogin = true,
     this.pageEquals = _routeEquals,
   }) {
+    // --- 1) Snapshot inicial robusto ----------------------------------------
     try {
+      // Prefer exact collapse from BlocSession real
       _last = sessionBloc.stateOrDefault;
     } catch (_) {
-      _last = const Unauthenticated();
+      // Compat: colapsa usando isAuthenticated/currentUser cuando no hay stateOrDefault
+      try {
+        _last = sessionBloc.isAuthenticated
+            ? Authenticated(sessionBloc.currentUser)
+            : const Unauthenticated();
+      } catch (_) {
+        _last = const Unauthenticated();
+      }
     }
 
+    // --- 2) Selección de stream compatible ----------------------------------
     Stream<SessionState> stream;
     try {
+      // BlocSession real (alias de sessionStream)
       stream = sessionBloc.stream;
     } catch (_) {
-      stream = Stream<SessionState>.value(_last);
+      try {
+        // Stubs antiguos que solo exponen sessionStream
+        stream = sessionBloc.sessionStream;
+      } catch (_) {
+        // Fallback: un solo valor (no perderemos test si el stub emite)
+        stream = Stream<SessionState>.value(_last);
+      }
     }
 
     _sessionSub = stream.listen((SessionState s) {
@@ -81,19 +98,15 @@ class SessionNavCoordinator {
   NavStackModel _cloneStack(NavStackModel s) => s.copyWith(
         pages: List<PageModel>.from(s.pages),
       );
+
   void _enforcePolicy(NavStackModel stack, SessionState s) {
-    if (_disposed) {
-      return;
-    }
+    if (_disposed) return;
 
     final PageModel top = stack.top;
 
     // (A) No authed en protegida → ir a login (recordando intención)
     if (!_isAuthed(s) && _isProtected(top) && !_isLogin(top)) {
-      // Guarda intención solo si aún no existe; clona para evitar efectos colaterales.
       _pending ??= _cloneStack(stack);
-
-      // Idempotencia: evita reset si ya estás en login.
       if (!_isSameTop(stack, loginPage)) {
         pageManager.resetTo(loginPage);
       }
@@ -104,11 +117,8 @@ class SessionNavCoordinator {
     if (_isAuthed(s) && _pending != null) {
       final NavStackModel target = _pending!;
       _pending = null;
-
-      // Idempotencia: evita setStack si el stack ya coincide (== sobre NavStackModel ya compara páginas).
       if (stack != target) {
-        pageManager
-            .setStack(target); // dedups ya aplican en PageManager.setStack
+        pageManager.setStack(target);
       }
       return;
     }
@@ -122,9 +132,7 @@ class SessionNavCoordinator {
   }
 
   void dispose() {
-    if (_disposed) {
-      return;
-    }
+    if (_disposed) return;
     _disposed = true;
     _sessionSub?.cancel();
     _stackSub?.cancel();
