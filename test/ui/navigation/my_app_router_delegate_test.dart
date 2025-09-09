@@ -20,7 +20,7 @@ void main() {
   group('MyAppRouterDelegate.build()', () {
     testWidgets('projectorMode=false: materializa todas las pages del stack',
         (WidgetTester tester) async {
-      const PageRegistry reg = PageRegistry(<String, PageWidgetBuilder>{
+      final PageRegistry reg = PageRegistry(const <String, PageWidgetBuilder>{
         'home': _w,
         'profile': _w,
       });
@@ -46,7 +46,7 @@ void main() {
 
     testWidgets('projectorMode=true: sólo renderiza el top del stack',
         (WidgetTester tester) async {
-      const PageRegistry reg = PageRegistry(<String, PageWidgetBuilder>{
+      final PageRegistry reg = PageRegistry(const <String, PageWidgetBuilder>{
         'home': _w,
         'profile': _w,
       });
@@ -73,8 +73,8 @@ void main() {
 
   group('MyAppRouterDelegate acciones', () {
     test('push/pop delegan en PageManager', () {
-      const PageRegistry reg = PageRegistry(
-        <String, PageWidgetBuilder>{'home': _w, 'a': _w, 'b': _w},
+      final PageRegistry reg = PageRegistry(
+        const <String, PageWidgetBuilder>{'home': _w, 'a': _w, 'b': _w},
       );
       final PageManager pm = PageManager(
         initial: NavStackModel.single(_p('home')),
@@ -109,8 +109,8 @@ void main() {
     });
 
     test('setNewRoutePath sustituye el stack completo', () async {
-      const PageRegistry reg = PageRegistry(
-        <String, PageWidgetBuilder>{'home': _w, 'x': _w, 'y': _w},
+      final PageRegistry reg = PageRegistry(
+        const <String, PageWidgetBuilder>{'home': _w, 'x': _w, 'y': _w},
       );
       final PageManager pm = PageManager(
         initial: NavStackModel.single(_p('home')),

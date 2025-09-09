@@ -8,29 +8,30 @@ typedef PageWidgetBuilder = Widget Function(
 typedef NotFoundBuilder = Widget? Function(BuildContext context, PageModel req);
 
 class PageRegistry {
-  const PageRegistry(
-    this._builders, {
+  PageRegistry(
+    Map<String, PageWidgetBuilder> builders, {
     this.notFoundBuilder,
     this.defaultPage,
     this.defaultStack,
-  });
+  }) : _builders = Map<String, PageWidgetBuilder>.unmodifiable(
+          Map<String, PageWidgetBuilder>.from(builders),
+        );
+
   PageRegistry.fromDefs(
     List<PageDef> defs, {
     this.notFoundBuilder,
     this.defaultPage,
     this.defaultStack,
-  }) : _builders =
-            Map<String, PageWidgetBuilder>.unmodifiable(<dynamic, dynamic>{
-          for (final PageDef pageDef in defs)
-            pageDef.model.name: pageDef.builder,
-        });
+  }) : _builders = Map<String, PageWidgetBuilder>.unmodifiable(
+          <String, PageWidgetBuilder>{
+            for (final PageDef pageDef in defs)
+              pageDef.model.name: pageDef.builder,
+          },
+        );
 
   final Map<String, PageWidgetBuilder> _builders;
-
   final NotFoundBuilder? notFoundBuilder;
-
   final PageModel? defaultPage;
-
   final NavStackModel? defaultStack;
 
   bool contains(String name) => _builders.containsKey(name);
@@ -126,14 +127,26 @@ class _RegistryRedirect extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final PageManager pm = context.appManager.pageManager;
+      final AppManager? am = AppManagerProvider.maybeOf(context);
+      if (am == null) {
+        assert(() {
+          debugPrint(
+            '[PageRegistry] No AppManager found in context during redirect. '
+            'Wrap the widget tree with AppManagerProvider / FakeAppManager in tests.',
+          );
+          return true;
+        }());
+        return;
+      }
+
+      final PageManager pm = am.pageManager;
+
       if (stack != null) {
         pm.setStack(stack!);
       } else if (page != null) {
         pm.replaceTop(page!);
       }
     });
-    // Render nothing while redirecting.
     return const SizedBox.shrink();
   }
 }

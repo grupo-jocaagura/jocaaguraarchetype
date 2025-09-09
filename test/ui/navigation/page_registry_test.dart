@@ -54,7 +54,8 @@ void main() {
     });
 
     test('cuando no hay notFound/defaults → devuelve 404 por defecto', () {
-      const PageRegistry reg = PageRegistry(<String, PageWidgetBuilder>{});
+      final PageRegistry reg =
+          PageRegistry(const <String, PageWidgetBuilder>{});
       final Widget w = reg.build(const _Ctx(), _p('missing'));
       expect(w.runtimeType.toString(), contains('DefaultNotFoundPage'));
     });
@@ -62,7 +63,7 @@ void main() {
 
   group('PageRegistry.toPage()', () {
     test('material produce MaterialPage', () {
-      const PageRegistry reg = PageRegistry(<String, PageWidgetBuilder>{
+      final PageRegistry reg = PageRegistry(const <String, PageWidgetBuilder>{
         'home': _txt,
       });
       final Page<dynamic> pg = reg.toPage(_p('home'));
@@ -73,7 +74,7 @@ void main() {
     });
 
     test('cupertino produce CupertinoPage', () {
-      const PageRegistry reg = PageRegistry(<String, PageWidgetBuilder>{
+      final PageRegistry reg = PageRegistry(const <String, PageWidgetBuilder>{
         'ios': _txt,
       });
       final Page<dynamic> pg = reg.toPage(_p('ios', kind: PageKind.cupertino));
@@ -82,7 +83,7 @@ void main() {
     });
 
     test('fullScreenDialog produce MaterialPage(fullscreenDialog: true)', () {
-      const PageRegistry reg = PageRegistry(<String, PageWidgetBuilder>{
+      final PageRegistry reg = PageRegistry(const <String, PageWidgetBuilder>{
         'fsd': _txt,
       });
       final MaterialPage<dynamic> pg =
@@ -93,7 +94,7 @@ void main() {
 
     testWidgets('dialog produce DialogPage y crea DialogRoute',
         (WidgetTester tester) async {
-      const PageRegistry reg = PageRegistry(<String, PageWidgetBuilder>{
+      final PageRegistry reg = PageRegistry(const <String, PageWidgetBuilder>{
         'dlg': _txt,
       });
       final Page<dynamic> pg = reg.toPage(_p('dlg', kind: PageKind.dialog));

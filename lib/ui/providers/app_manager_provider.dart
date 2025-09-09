@@ -76,6 +76,13 @@ class AppManagerProvider extends InheritedWidget {
   /// no dependents need to be rebuilt.
   @override
   bool updateShouldNotify(AppManagerProvider oldWidget) => false;
+
+  /// Versión "segura": no assertea; devuelve null si no existe el provider.
+  static AppManager? maybeOf(BuildContext context) {
+    final AppManagerProvider? result =
+        context.dependOnInheritedWidgetOfExactType<AppManagerProvider>();
+    return result?.appManager;
+  }
 }
 
 /// Extension on `BuildContext` for convenient access to the `AppManager`.
