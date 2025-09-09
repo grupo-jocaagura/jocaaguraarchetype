@@ -556,4 +556,115 @@ void main() {
       );
     });
   });
+
+  group('NavStackModel.copyWith', () {
+    test(
+        'Given stack inicial When copyWith(null) Then retorna la misma instancia (identical)',
+        () {
+      // Arrange
+      final NavStackModel base =
+          NavStackModel.single(const PageModel(name: 'home'));
+
+      // Act
+      final NavStackModel out = base.copyWith();
+
+      // Assert
+      expect(identical(out, base), isTrue,
+          reason: 'Debe devolver this cuando pages == null');
+    });
+
+    test(
+        'Given stack inicial When copyWith([]) Then retorna defaultNavStackModel y preserva invariante no-vacío',
+        () {
+      // Arrange
+      final NavStackModel base =
+          NavStackModel.single(const PageModel(name: 'home'));
+
+      // Act
+      final NavStackModel out = base.copyWith(pages: <PageModel>[]);
+
+      // Assert
+      expect(identical(out, base), isFalse,
+          reason: 'No debe ser la misma instancia');
+      expect(out, equals(defaultNavStackModel),
+          reason: 'Debe delegar al factory y regresar el default');
+      expect(out.pages.isNotEmpty, isTrue,
+          reason: 'Invariante no-vacío debe mantenerse');
+      expect(out.isRoot, isTrue, reason: 'Default es una sola página');
+      expect(out.top.name, equals(NavStackModel.defaultName),
+          reason: 'Default usa el nombre "notFound"');
+    });
+
+    test(
+        'Given stack inicial When copyWith(lista no vacía) Then crea nueva pila inmutable con top correcto',
+        () {
+      // Arrange
+      final NavStackModel base =
+          NavStackModel.single(const PageModel(name: 'home'));
+      final List<PageModel> nueva = <PageModel>[
+        const PageModel(name: 'home'),
+        const PageModel(name: 'details', segments: <String>['products', '42']),
+      ];
+
+      // Act
+      final NavStackModel out = base.copyWith(pages: nueva);
+
+      // Assert
+      expect(identical(out, base), isFalse,
+          reason: 'Debe ser una nueva instancia');
+      expect(out.pages.length, equals(2));
+      expect(out.top.name, equals('details'));
+
+      // La lista interna debe ser inmodificable
+      expect(
+        () => out.pages.add(const PageModel(name: 'x')),
+        throwsA(isA<UnsupportedError>()),
+        reason: 'pages debe ser List.unmodifiable',
+      );
+    });
+
+    test(
+        'Given pila resultado inmodificable When re-aplico copyWith(pages: out.pages) Then sigue siendo igual y estable',
+        () {
+      // Arrange
+      final NavStackModel base =
+          NavStackModel.single(const PageModel(name: 'home'));
+      final NavStackModel a = base.copyWith(
+        pages: <PageModel>[
+          const PageModel(name: 'a'),
+          const PageModel(name: 'b'),
+        ],
+      );
+
+      // Act
+      final NavStackModel b = a.copyWith(pages: a.pages);
+
+      // Assert
+      expect(b == a, isTrue,
+          reason: 'Contenido igual según == de NavStackModel');
+      // No garantizamos identidad; lo importante es la igualdad estructural y la inmutabilidad.
+      expect(
+        () => b.pages.removeLast(),
+        throwsA(isA<UnsupportedError>()),
+        reason: 'Debe permanecer inmutable al re-aplicar copyWith',
+      );
+    });
+
+    test(
+        'Given stack inicial When copyWith(lista con mismo contenido) Then es igual pero no necesariamente identical',
+        () {
+      // Arrange
+      final NavStackModel base =
+          NavStackModel.single(const PageModel(name: 'home'));
+      final List<PageModel> misma = <PageModel>[const PageModel(name: 'home')];
+
+      // Act
+      final NavStackModel out = base.copyWith(pages: misma);
+
+      // Assert
+      expect(out == base, isTrue, reason: 'Igualdad estructural por contenido');
+      expect(identical(out, base), isFalse,
+          reason: 'Puede crear una nueva instancia aun con mismo contenido');
+    });
+  });
 }

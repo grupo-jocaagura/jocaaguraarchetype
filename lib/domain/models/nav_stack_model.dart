@@ -247,10 +247,9 @@ class NavStackModel extends Model {
 
   @override
   NavStackModel copyWith({List<PageModel>? pages}) {
-    final List<PageModel> next = pages ?? this.pages;
-    return NavStackModel(
-      List<PageModel>.unmodifiable(next),
-    );
+    if (pages == null) return this;
+
+    return NavStackModel(pages);
   }
 
   @override
