@@ -41,7 +41,7 @@ class PageModel extends Model {
   /// Creates an immutable [PageModel].
   const PageModel({
     required this.name,
-    required this.segments,
+    this.segments = const <String>[],
     this.query = const <String, String>{},
     this.fragment,
     this.kind = PageKind.material,
