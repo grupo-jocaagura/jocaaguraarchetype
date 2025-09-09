@@ -2,9 +2,9 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 typedef PageEquals = bool Function(PageModel a, PageModel b);
 
-/// Compara por destino de ruta (name + segments + query + kind + requiresAuth).
+/// Compara dos [PageModel] por destino de ruta (`name + segments + query + kind + requiresAuth`).
 ///
-/// Útil como estrategia por defecto para evitar duplicados lógicos en el stack./// Compara por destino de ruta (name + segments + query + kind + requiresAuth).
+/// Útil como estrategia por defecto para evitar duplicados lógicos en la pila.
 bool routeEquals(PageModel a, PageModel b) {
   return a.name == b.name &&
       listEquals(a.segments, b.segments) &&
@@ -15,19 +15,19 @@ bool routeEquals(PageModel a, PageModel b) {
 
 const NavStackModel defaultNavStackModel = NavStackModel.notFound;
 
-/// Modelo inmutable de pila de [PageModel] para navegación.
+/// Representa una pila inmutable de [PageModel] para navegación.
 ///
-/// Garantiza **al menos una página** en cada momento (invariante de no-vacío).
-/// Provee operaciones puras que devuelven nuevas instancias sin mutar el estado:
-/// - [push], [pushDistinctTop], [pushOnce], [replaceTop], [pop], [resetTo],
-///   [dedupAll], [moveToTopOrPush].
+/// Mantiene la invariante de **no-vacío** (siempre existe al menos una página).
+/// Expone operaciones puras que generan nuevas instancias sin mutar estado:
+/// [push], [pushDistinctTop], [pushOnce], [replaceTop], [pop], [resetTo],
+/// [dedupAll], [moveToTopOrPush].
 ///
 /// ### Contratos
-/// - Invariante: `pages.isNotEmpty == true`.
-/// - `pop()` en raíz devuelve la misma instancia (no lanza).
-/// - `replaceTop()` asume pila no vacía (garantizada por la clase).
+/// - `pages.isNotEmpty == true` siempre.
+/// - `pop()` en raíz retorna la misma instancia (no lanza).
+/// - `replaceTop()` asume pila no vacía (garantizado por la clase).
 ///
-/// ### Ejemplo mínimo
+/// ### Ejemplo funcional
 /// ```dart
 /// void main() {
 ///   NavStackModel stack = NavStackModel.single(const PageModel(name: 'home'));
@@ -47,10 +47,11 @@ class NavStackModel extends Model {
     );
   }
 
-  /// Creates a stack with a single page.
+  /// Crea una pila con una única página raíz.
   factory NavStackModel.single(PageModel page) =>
       NavStackModel(<PageModel>[page]);
 
+  /// Restaura la pila a partir de un JSON serializado.
   factory NavStackModel.fromJson(Map<String, dynamic> json) {
     final List<dynamic> raw = json['pages'] as List<dynamic>? ?? <dynamic>[];
     final List<PageModel> parsed = raw
@@ -68,30 +69,29 @@ class NavStackModel extends Model {
 
   const NavStackModel._internal(this.pages);
 
+  /// Instancia especial que representa una ruta no encontrada.
   static const NavStackModel notFound =
       NavStackModel._internal(<PageModel>[PageModel(name: defaultName)]);
 
   static const String defaultName = 'notFound';
   static const String pagesKey = 'pages';
 
-  /// Back stack, bottom→top.
+  /// Páginas de la pila, ordenadas de raíz a tope.
   final List<PageModel> pages;
 
-  /// Top-most page (current).
+  /// Página superior de la pila (actual).
   PageModel get top => pages.isEmpty ? defaultNavStackModel.top : pages.last;
 
-  /// Back stack, bottom→top.
-
-  /// True when stack has only one page.
+  /// Indica si la pila contiene solo una página raíz.
   bool get isRoot => pages.length == 1;
 
-  /// Push a page.
+  /// Empuja una nueva página al tope.
   NavStackModel push(PageModel page) {
     final List<PageModel> next = List<PageModel>.from(pages)..add(page);
     return NavStackModel(next);
   }
 
-  /// Replace top with [page].
+  /// Reemplaza la página superior por [page].
   NavStackModel replaceTop(PageModel page) {
     if (pages.isEmpty) {
       return defaultNavStackModel;
@@ -102,7 +102,7 @@ class NavStackModel extends Model {
     return NavStackModel(next);
   }
 
-  /// Pop one page. If root, returns same instance.
+  /// Retira la página superior. Si es raíz, retorna la misma instancia.
   NavStackModel pop() {
     if (pages.isEmpty) {
       return defaultNavStackModel;
@@ -114,10 +114,8 @@ class NavStackModel extends Model {
     return NavStackModel(next);
   }
 
-  /// Clear and set a new single root.
+  /// Limpia la pila y la reinicia con una nueva raíz.
   NavStackModel resetTo(PageModel root) => NavStackModel.single(root);
-
-  // ---- Model API ----
 
   @override
   Map<String, dynamic> toJson() {
@@ -126,23 +124,19 @@ class NavStackModel extends Model {
     };
   }
 
-  // Meta-param reservado para preservar el name cuando difiere de los segments.
   static const String _kNameMeta = '__n';
 
   static String _routeFromPage(PageModel p) {
-    // path
     final List<String> segs =
         p.segments.isNotEmpty ? p.segments : <String>[p.name];
     final String path = '/${segs.join('/')}';
 
-    // query (sin el meta por si venía de antes)
     final Map<String, String> q = <String, String>{};
     q.addAll(
       p.query.map((String k, String v) => MapEntry<String, String>(k, v)),
     );
     q.remove(_kNameMeta);
 
-    // Si el name no coincide con el primer segmento, añadimos meta `__n`.
     final bool needsNameMeta = segs.isNotEmpty && segs.first != p.name;
     if (needsNameMeta) {
       q[_kNameMeta] = p.name;
@@ -156,7 +150,6 @@ class NavStackModel extends Model {
           ).join('&')}';
     }
 
-    // fragment
     final String fragStr = (p.fragment == null || p.fragment!.isEmpty)
         ? ''
         : '#${Uri.encodeComponent(p.fragment!)}';
@@ -164,9 +157,10 @@ class NavStackModel extends Model {
     return '$path$queryStr$fragStr';
   }
 
-  /// Codifica la pila como rutas separadas por `;`.
-  /// Si `toUriString()` es vacío o sin path, se reconstruye; además, cuando
-  /// `name != first(segments)` se inyecta `__n=<name>` para asegurar reversibilidad.
+  /// Codifica la pila como cadena de rutas separadas por `;`.
+  ///
+  /// Reconstruye el path si `toUriString()` está vacío, y añade meta `__n=<name>`
+  /// cuando `name != first(segments)` para asegurar reversibilidad.
   String encodeAsRouteChain() {
     if (pages.isEmpty) {
       return '';
@@ -177,15 +171,12 @@ class NavStackModel extends Model {
       final PageModel p = pages[i];
       String raw = p.toUriString().trim();
 
-      // falta path => reconstruimos y añadimos meta si hace falta
       final bool missingPath =
           raw.isEmpty || raw.startsWith('?') || raw.startsWith('#');
 
       if (missingPath) {
         raw = _routeFromPage(p);
       } else {
-        // Si vino un path válido, aún así garantizamos meta si corresponde.
-        // (ej: alguien implementó toUriString sin preservar name).
         final bool needsNameMeta =
             p.segments.isNotEmpty && p.segments.first != p.name;
         if (needsNameMeta) {
@@ -207,7 +198,7 @@ class NavStackModel extends Model {
     return routes.join(';');
   }
 
-  /// Decodifica la cadena y restaura `name` cuando exista el meta `__n`.
+  /// Decodifica una cadena de rutas y restaura nombres cuando exista meta `__n`.
   static NavStackModel decodeRouteChain(String chain) {
     final String input = chain.trim();
     if (input.isEmpty) {
@@ -228,10 +219,8 @@ class NavStackModel extends Model {
     for (final String token in tokens) {
       final Uri uri = Uri.parse(token);
 
-      // Primero construimos la página desde la URI.
       PageModel page = PageModel.fromUri(uri);
 
-      // Si viene meta de nombre, lo aplicamos y limpiamos del query.
       final String? metaName = uri.queryParameters[_kNameMeta];
       if (metaName != null && metaName.isNotEmpty && metaName != page.name) {
         final Map<String, String> q = <String, String>{};
@@ -245,10 +234,12 @@ class NavStackModel extends Model {
     return out.isEmpty ? defaultNavStackModel : NavStackModel(out);
   }
 
+  /// Crea una copia con nuevas [pages]. Mantiene la invariante de no-vacío.
   @override
   NavStackModel copyWith({List<PageModel>? pages}) {
-    if (pages == null) return this;
-
+    if (pages == null) {
+      return this;
+    }
     return NavStackModel(pages);
   }
 
@@ -287,9 +278,9 @@ class NavStackModel extends Model {
     return h;
   }
 
-  /// Empuja [page] **evitando duplicado consecutivo** según [equals] (por defecto [routeEquals]).
+  /// Empuja [page] evitando duplicado consecutivo según [equals] (por defecto [routeEquals]).
   ///
-  /// Retorna `this` si `top` ya es "igual" a [page]; en otro caso, una nueva pila.
+  /// Retorna `this` si el tope ya es "igual"; en otro caso, crea una nueva pila.
   NavStackModel pushDistinctTop(
     PageModel page, {
     PageEquals equals = routeEquals,
@@ -300,9 +291,9 @@ class NavStackModel extends Model {
     return equals(top, page) ? this : push(page);
   }
 
-  /// Empuja [page] garantizando que **solo exista una** instancia "igual" (según [equals]).
+  /// Empuja [page] garantizando que solo exista una instancia "igual" según [equals].
   ///
-  /// Si ya existe en el stack, se remueve la previa y se agrega [page] al top.
+  /// Si ya existe en la pila, la remueve y agrega [page] al tope.
   NavStackModel pushOnce(
     PageModel page, {
     PageEquals equals = routeEquals,
@@ -320,9 +311,9 @@ class NavStackModel extends Model {
     return NavStackModel(next);
   }
 
-  /// Deduplica el stack completo conservando la **primera** ocurrencia según [equals].
+  /// Elimina duplicados conservando la primera ocurrencia según [equals].
   ///
-  /// Nunca devuelve una pila vacía (respeta la invariante de no-vacío).
+  /// Respeta la invariante de no-vacío.
   NavStackModel dedupAll({PageEquals equals = routeEquals}) {
     if (pages.isEmpty) {
       return defaultNavStackModel;
@@ -338,7 +329,7 @@ class NavStackModel extends Model {
     return out.isEmpty ? this : NavStackModel(out);
   }
 
-  /// Busca una página "igual" y la **mueve al top** (si no existe, hace push).
+  /// Busca una página "igual" y la mueve al tope. Si no existe, hace push.
   NavStackModel moveToTopOrPush(
     PageModel page, {
     PageEquals equals = routeEquals,

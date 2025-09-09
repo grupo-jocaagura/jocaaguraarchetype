@@ -569,8 +569,11 @@ void main() {
       final NavStackModel out = base.copyWith();
 
       // Assert
-      expect(identical(out, base), isTrue,
-          reason: 'Debe devolver this cuando pages == null');
+      expect(
+        identical(out, base),
+        isTrue,
+        reason: 'Debe devolver this cuando pages == null',
+      );
     });
 
     test(
@@ -584,15 +587,27 @@ void main() {
       final NavStackModel out = base.copyWith(pages: <PageModel>[]);
 
       // Assert
-      expect(identical(out, base), isFalse,
-          reason: 'No debe ser la misma instancia');
-      expect(out, equals(defaultNavStackModel),
-          reason: 'Debe delegar al factory y regresar el default');
-      expect(out.pages.isNotEmpty, isTrue,
-          reason: 'Invariante no-vacío debe mantenerse');
+      expect(
+        identical(out, base),
+        isFalse,
+        reason: 'No debe ser la misma instancia',
+      );
+      expect(
+        out,
+        equals(defaultNavStackModel),
+        reason: 'Debe delegar al factory y regresar el default',
+      );
+      expect(
+        out.pages.isNotEmpty,
+        isTrue,
+        reason: 'Invariante no-vacío debe mantenerse',
+      );
       expect(out.isRoot, isTrue, reason: 'Default es una sola página');
-      expect(out.top.name, equals(NavStackModel.defaultName),
-          reason: 'Default usa el nombre "notFound"');
+      expect(
+        out.top.name,
+        equals(NavStackModel.defaultName),
+        reason: 'Default usa el nombre "notFound"',
+      );
     });
 
     test(
@@ -610,8 +625,11 @@ void main() {
       final NavStackModel out = base.copyWith(pages: nueva);
 
       // Assert
-      expect(identical(out, base), isFalse,
-          reason: 'Debe ser una nueva instancia');
+      expect(
+        identical(out, base),
+        isFalse,
+        reason: 'Debe ser una nueva instancia',
+      );
       expect(out.pages.length, equals(2));
       expect(out.top.name, equals('details'));
 
@@ -640,8 +658,11 @@ void main() {
       final NavStackModel b = a.copyWith(pages: a.pages);
 
       // Assert
-      expect(b == a, isTrue,
-          reason: 'Contenido igual según == de NavStackModel');
+      expect(
+        b == a,
+        isTrue,
+        reason: 'Contenido igual según == de NavStackModel',
+      );
       // No garantizamos identidad; lo importante es la igualdad estructural y la inmutabilidad.
       expect(
         () => b.pages.removeLast(),
@@ -663,8 +684,11 @@ void main() {
 
       // Assert
       expect(out == base, isTrue, reason: 'Igualdad estructural por contenido');
-      expect(identical(out, base), isFalse,
-          reason: 'Puede crear una nueva instancia aun con mismo contenido');
+      expect(
+        identical(out, base),
+        isFalse,
+        reason: 'Puede crear una nueva instancia aun con mismo contenido',
+      );
     });
   });
 }
