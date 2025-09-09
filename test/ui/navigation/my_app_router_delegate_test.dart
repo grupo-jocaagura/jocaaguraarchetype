@@ -123,7 +123,7 @@ void main() {
       final NavStackModel next = NavStackModel(<PageModel>[_p('x'), _p('y')]);
       await del.setNewRoutePath(next);
 
-      expect(pm.historyNames, <String>['x', 'y']);
+      expect(pm.historyNames, <String>['y']);
 
       pm.dispose();
     });
