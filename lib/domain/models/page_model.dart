@@ -235,14 +235,21 @@ class PageModel extends Model {
     bool? requiresAuth,
     Map<String, dynamic>? state,
   }) {
+    final List<String>? segImmutable =
+        (segments == null) ? null : List<String>.unmodifiable(segments);
+    final Map<String, String>? queryImmutable =
+        (query == null) ? null : Map<String, String>.unmodifiable(query);
+    final Map<String, dynamic>? stateImmutable =
+        (state == null) ? null : Map<String, dynamic>.unmodifiable(state);
+
     return PageModel(
       name: name ?? this.name,
-      segments: segments ?? this.segments,
-      query: query ?? this.query,
+      segments: segImmutable ?? this.segments,
+      query: queryImmutable ?? this.query,
       fragment: fragment ?? this.fragment,
       kind: kind ?? this.kind,
       requiresAuth: requiresAuth ?? this.requiresAuth,
-      state: state ?? this.state,
+      state: stateImmutable ?? this.state,
     );
   }
 
@@ -301,15 +308,14 @@ class PageModel extends Model {
         kind.hashCode ^
         (fragment?.hashCode ?? 0) ^
         requiresAuth.hashCode;
+
     for (final String s in segments) {
       h = 0x1fffffff & (h ^ s.hashCode);
     }
-    for (final MapEntry<String, String> e in query.entries) {
-      h = 0x1fffffff & (h ^ e.key.hashCode ^ e.value.hashCode);
-    }
-    for (final MapEntry<String, dynamic> e in state.entries) {
-      h = 0x1fffffff & (h ^ e.key.hashCode ^ (e.value?.hashCode ?? 0));
-    }
+
+    h = hashUnorderedStringMap(query, h);
+    h = hashUnorderedDynamicMap(state, h);
+
     return h;
   }
 
@@ -331,6 +337,59 @@ class PageModel extends Model {
       }
     }
     return out;
+  }
+
+  static int hashUnorderedStringMap(Map<String, String> map, int seed) {
+    final List<String> keys = List<String>.from(map.keys)..sort();
+    int h = seed;
+    for (final String k in keys) {
+      final String v = map[k]!;
+      h = 0x1fffffff & (h ^ k.hashCode ^ v.hashCode);
+    }
+    return h;
+  }
+
+// Usa una constante "salt" para null (golden ratio 32-bit).
+  static const int _kNullSalt = 0x9e3779b9;
+
+  /// Stable, order-insensitive hash for Map<String, dynamic>.
+  /// - Ordenamos las claves para estabilidad.
+  /// - Mezclamos cada entrada incluyendo el tipo del valor para evitar colisiones
+  ///   comunes (e.g., 0 vs 0.0 vs false).
+  /// - `null` usa un salt dedicado.
+  static int hashUnorderedDynamicMap(Map<String, dynamic> map, int seed) {
+    final List<String> keys = map.keys.map((dynamic k) => k.toString()).toList()
+      ..sort();
+    int h = seed;
+    for (final String k in keys) {
+      final dynamic v = map[k];
+      final int valueHash = _valueHash(v);
+      h = 0x1fffffff & (h ^ k.hashCode ^ valueHash);
+    }
+    return h;
+  }
+
+  /// Hash de valor que discrimina por tipo y evita colisiones triviales:
+  /// - `null` -> salt dedicado.
+  /// - valor != null -> `hashCode ^ runtimeType.hashCode`.
+  static int _valueHash(dynamic v) {
+    if (v == null) {
+      return _kNullSalt;
+    }
+    return 0x1fffffff & (v.hashCode ^ v.runtimeType.hashCode);
+  }
+
+  /// Hash de identidad de ruta (excluye `state`).
+  int routeHash(PageModel m) {
+    int h = m.name.hashCode ^
+        m.kind.hashCode ^
+        (m.fragment?.hashCode ?? 0) ^
+        m.requiresAuth.hashCode;
+    for (final String s in m.segments) {
+      h = 0x1fffffff & (h ^ s.hashCode);
+    }
+    h = hashUnorderedStringMap(m.query, h);
+    return h;
   }
 
   /// Convierte un mapa dinámico a `Map<String, String>` stringificando claves/valores.
