@@ -19,11 +19,11 @@ class _PageWithText extends StatelessWidget {
 PageRegistry _registry() {
   return PageRegistry.fromDefs(<PageDef>[
     PageDef(
-      model: const PageModel(name: 'home', segments: <String>[]),
+      model: const PageModel(name: 'home'),
       builder: (BuildContext _, PageModel __) => const _PageWithText('home'),
     ),
     PageDef(
-      model: const PageModel(name: 'details', segments: <String>[]),
+      model: const PageModel(name: 'details'),
       builder: (BuildContext _, PageModel __) => const _PageWithText('details'),
     ),
   ]);
@@ -53,7 +53,7 @@ void main() {
 
     setUp(() {
       final NavStackModel initial = NavStackModel(
-        const <PageModel>[PageModel(name: 'home', segments: <String>[])],
+        const <PageModel>[PageModel(name: 'home')],
       );
       pm = PageManager(initial: initial);
       reg = _registry();
@@ -138,7 +138,7 @@ void main() {
 
       final PageManager pm2 = PageManager(
         initial: NavStackModel(
-          const <PageModel>[PageModel(name: 'home', segments: <String>[])],
+          const <PageModel>[PageModel(name: 'home')],
         ),
       );
       delegate.update(pageManager: pm2);

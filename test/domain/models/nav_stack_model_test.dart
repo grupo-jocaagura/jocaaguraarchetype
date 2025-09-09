@@ -99,7 +99,7 @@ void main() {
       final NavStackModel emptyParsed =
           NavStackModel.fromJson(const <String, dynamic>{'pages': <dynamic>[]});
       expect(emptyParsed.pages.length, 1);
-      expect(emptyParsed.top.name, 'root');
+      expect(emptyParsed.top.name, NavStackModel.defaultName);
       expect(emptyParsed.top.segments, isEmpty);
     });
   });
@@ -134,7 +134,7 @@ void main() {
     test('decodeRouteChain con string vacío → root default', () {
       final NavStackModel r = NavStackModel.decodeRouteChain('   ');
       expect(r.pages.length, 1);
-      expect(r.top.name, 'root');
+      expect(r.top.name, NavStackModel.defaultName);
       expect(r.top.segments, isEmpty);
     });
   });
@@ -328,6 +328,232 @@ void main() {
       expect(str.contains('home'), isTrue);
       expect(str.contains('a'), isTrue);
       expect(str.contains('b'), isTrue);
+    });
+  });
+  group('NavStackModel - invariantes', () {
+    test('Given ctor with empty list When created Then normaliza a root', () {
+      final NavStackModel s = NavStackModel(const <PageModel>[]);
+      expect(s.pages, isNotEmpty);
+      expect(s.top.name, NavStackModel.defaultName);
+      expect(s.isRoot, isTrue);
+    });
+
+    test('Given copyWith([]) When applied Then normaliza a root', () {
+      final NavStackModel base =
+          NavStackModel.single(const PageModel(name: 'home'));
+      final NavStackModel s = base.copyWith(pages: <PageModel>[]);
+      expect(s.pages, isNotEmpty);
+      expect(s.top.name, NavStackModel.defaultName);
+    });
+  });
+
+  group('push/pop/replaceTop/resetTo', () {
+    test('Given root When push Then top cambia y tamaño +1', () {
+      NavStackModel s = NavStackModel.single(const PageModel(name: 'home'));
+      s = s.push(const PageModel(name: 'details'));
+      expect(s.top.name, 'details');
+      expect(s.pages.length, 2);
+    });
+
+    test('Given stack When replaceTop Then sustituye sin cambiar tamaño', () {
+      NavStackModel s = NavStackModel(const <PageModel>[
+        PageModel(name: 'home'),
+        PageModel(name: 'a'),
+      ]);
+      s = s.replaceTop(const PageModel(name: 'b'));
+      expect(s.pages.length, 2);
+      expect(s.top.name, 'b');
+    });
+
+    test('Given root When pop Then retorna misma instancia', () {
+      final NavStackModel root =
+          NavStackModel.single(const PageModel(name: 'home'));
+      final NavStackModel popped = root.pop();
+      expect(identical(root, popped), isTrue);
+    });
+
+    test('Given stack(2) When pop Then top regresa al anterior', () {
+      NavStackModel s = NavStackModel.single(const PageModel(name: 'home'));
+      s = s.push(const PageModel(name: 'details'));
+      s = s.pop();
+      expect(s.top.name, 'home');
+      expect(s.pages.length, 1);
+    });
+
+    test('Given stack When resetTo Then queda single con root dado', () {
+      NavStackModel s = NavStackModel(const <PageModel>[
+        PageModel(name: 'home'),
+        PageModel(name: 'x'),
+      ]);
+      s = s.resetTo(const PageModel(name: 'rooted'));
+      expect(s.isRoot, isTrue);
+      expect(s.top.name, 'rooted');
+    });
+  });
+
+  group('estrategias de deduplicación', () {
+    test('pushDistinctTop evita duplicado consecutivo por routeEquals', () {
+      NavStackModel s = NavStackModel.single(
+        const PageModel(name: 'home', segments: <String>['home']),
+      );
+      const PageModel p = PageModel(name: 'home', segments: <String>['home']);
+      s = s.pushDistinctTop(p);
+      expect(s.pages.length, 1); // no duplicó
+    });
+
+    test('pushOnce deja solo una instancia "igual" y la mueve al top', () {
+      NavStackModel s = NavStackModel(const <PageModel>[
+        PageModel(name: 'home', segments: <String>['home']),
+        PageModel(name: 'profile', segments: <String>['u', '1']),
+      ]);
+      s = s.pushOnce(const PageModel(name: 'home', segments: <String>['home']));
+      expect(s.pages.where((PageModel p) => p.name == 'home').length, 1);
+      expect(s.top.name, 'home');
+    });
+
+    test('dedupAll conserva primera ocurrencia', () {
+      final NavStackModel s = NavStackModel(const <PageModel>[
+        PageModel(name: 'home'),
+        PageModel(name: 'home'), // duplicado
+        PageModel(name: 'a'),
+        PageModel(name: 'home'), // duplicado
+      ]).dedupAll();
+      expect(
+        s.pages.map((PageModel e) => e.name).toList(),
+        <String>['home', 'a'],
+      );
+    });
+
+    test('moveToTopOrPush quita las previas y sube la nueva', () {
+      final NavStackModel s = NavStackModel(const <PageModel>[
+        PageModel(name: 'x'),
+        PageModel(name: 'home'),
+      ]).moveToTopOrPush(const PageModel(name: 'home'));
+      expect(s.top.name, 'home');
+      expect(s.pages.where((PageModel p) => p.name == 'home').length, 1);
+    });
+  });
+
+  group('round-trips JSON/URI', () {
+    test('toJson/fromJson conservan pila (no vacía)', () {
+      final NavStackModel s = NavStackModel(const <PageModel>[
+        PageModel(name: 'home', segments: <String>['home']),
+        PageModel(name: 'details', segments: <String>['products', '42']),
+      ]);
+      final Map<String, dynamic> json = s.toJson();
+      final NavStackModel r = NavStackModel.fromJson(json);
+      expect(r, equals(s));
+    });
+
+    test('encodeAsRouteChain/decodeRouteChain conserva orden', () {
+      final NavStackModel s = NavStackModel(const <PageModel>[
+        PageModel(name: 'home', segments: <String>['home']),
+        PageModel(
+          name: 'details',
+          segments: <String>['products', '42'],
+          query: <String, String>{'ref': 'home'},
+        ),
+      ]);
+      final String chain = s.encodeAsRouteChain();
+      final NavStackModel r = NavStackModel.decodeRouteChain(chain);
+      expect(r.pages.length, 2);
+      expect(r.top.name, 'details');
+      expect(r.pages.first.name, 'home');
+    });
+
+    test('decodeRouteChain con cadena vacía produce root', () {
+      final NavStackModel s = NavStackModel.decodeRouteChain('   ');
+      expect(s.isRoot, isTrue);
+      expect(s.top.name, NavStackModel.defaultName);
+    });
+  });
+
+  group('igualdad y hashCode', () {
+    test('== y hashCode coherentes para pilas iguales', () {
+      final NavStackModel a = NavStackModel(const <PageModel>[
+        PageModel(name: 'home'),
+        PageModel(name: 'a'),
+      ]);
+      final NavStackModel b = NavStackModel(const <PageModel>[
+        PageModel(name: 'home'),
+        PageModel(name: 'a'),
+      ]);
+      expect(a == b, isTrue);
+      expect(a.hashCode, equals(b.hashCode));
+    });
+
+    test('== detecta diferencias de orden', () {
+      final NavStackModel a = NavStackModel(const <PageModel>[
+        PageModel(name: 'home'),
+        PageModel(name: 'a'),
+      ]);
+      final NavStackModel b = NavStackModel(const <PageModel>[
+        PageModel(name: 'a'),
+        PageModel(name: 'home'),
+      ]);
+      expect(a == b, isFalse);
+    });
+  });
+  group('Route chain encode/decode', () {
+    test('Round-trip simple (sin query)', () {
+      final NavStackModel original = NavStackModel(const <PageModel>[
+        PageModel(name: 'home', segments: <String>['home']),
+        PageModel(name: 'details', segments: <String>['products', '42']),
+      ]);
+
+      final String chain = original.encodeAsRouteChain();
+      final NavStackModel back = NavStackModel.decodeRouteChain(chain);
+
+      expect(
+        Iterable<int>.generate(original.pages.length)
+            .every((int i) => routeEquals(original.pages[i], back.pages[i])),
+        isTrue,
+      );
+    });
+
+    test('Round-trip con query y espacios', () {
+      final NavStackModel original = NavStackModel(const <PageModel>[
+        PageModel(
+          name: 'search',
+          segments: <String>['q'],
+          query: <String, String>{'text': 'hello world', 'tags': 'a;b;c'},
+        ),
+      ]);
+
+      final String chain = original.encodeAsRouteChain();
+      // Verifica que los ';' internos fueron escapados y no rompen el split
+      expect(chain.contains(';a;b;c'), isFalse);
+
+      final NavStackModel back = NavStackModel.decodeRouteChain(chain);
+      expect(listEquals(original.pages, back.pages), isTrue);
+    });
+
+    test('decode("") normaliza a default', () {
+      final NavStackModel back = NavStackModel.decodeRouteChain('');
+      expect(back.pages.isNotEmpty, isTrue);
+      expect(back.top.name, defaultNavStackModel.top.name);
+    });
+
+    test('fromJson([]) normaliza a default', () {
+      final NavStackModel back = NavStackModel.fromJson(const <String, dynamic>{
+        'pages': <Map<String, dynamic>>[],
+      });
+      expect(back.pages.isNotEmpty, isTrue);
+      expect(back.top.name, defaultNavStackModel.top.name);
+    });
+
+    test('Round-trip encode(decode(x)) estable', () {
+      // Cadenas con caracteres complicados; ; debe quedar escapado
+      const String chain =
+          '/home;/products/42?ref=home;/q?text=a%3Bb%3Bc&space=x+y';
+      final NavStackModel back = NavStackModel.decodeRouteChain(chain);
+      final String again = back.encodeAsRouteChain();
+      expect(
+        again,
+        chain,
+        reason:
+            'encode(decode(chain)) debe ser estable si PageModel.toUriString() es determinista',
+      );
     });
   });
 }

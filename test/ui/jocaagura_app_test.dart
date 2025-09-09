@@ -51,15 +51,15 @@ class _ProfilePage extends StatelessWidget {
 PageRegistry _registryA(ValueNotifier<AppManager?> cap) {
   return PageRegistry.fromDefs(<PageDef>[
     PageDef(
-      model: const PageModel(name: 'home', segments: <String>[]),
+      model: const PageModel(name: 'home'),
       builder: (BuildContext ctx, PageModel p) => _CaptureHome('A', cap),
     ),
     PageDef(
-      model: const PageModel(name: 'details', segments: <String>[]),
+      model: const PageModel(name: 'details'),
       builder: (BuildContext ctx, PageModel p) => const _SimplePage('details'),
     ),
     PageDef(
-      model: const PageModel(name: 'profile', segments: <String>[]),
+      model: const PageModel(name: 'profile'),
       builder: (BuildContext ctx, PageModel p) => _ProfilePage(p),
     ),
   ]);
@@ -68,15 +68,15 @@ PageRegistry _registryA(ValueNotifier<AppManager?> cap) {
 PageRegistry _registryB(ValueNotifier<AppManager?> cap) {
   return PageRegistry.fromDefs(<PageDef>[
     PageDef(
-      model: const PageModel(name: 'home', segments: <String>[]),
+      model: const PageModel(name: 'home'),
       builder: (BuildContext ctx, PageModel p) => _CaptureHome('B', cap),
     ),
     PageDef(
-      model: const PageModel(name: 'details', segments: <String>[]),
+      model: const PageModel(name: 'details'),
       builder: (BuildContext ctx, PageModel p) => const _SimplePage('details'),
     ),
     PageDef(
-      model: const PageModel(name: 'profile', segments: <String>[]),
+      model: const PageModel(name: 'profile'),
       builder: (BuildContext ctx, PageModel p) => _ProfilePage(p),
     ),
   ]);

@@ -319,12 +319,12 @@ class PageManager extends BlocModule {
   }
 
   /// Push evitando duplicado consecutivo (no-op si el top es igual).
-  void pushDistinctTop(PageModel page, {PageEquals equals = _routeEquals}) {
+  void pushDistinctTop(PageModel page, {PageEquals equals = routeEquals}) {
     setStack(stack.pushDistinctTop(page, equals: equals));
   }
 
   /// Push garantizando unicidad en el stack completo (remueve iguales antes).
-  void pushOnce(PageModel page, {PageEquals equals = _routeEquals}) {
+  void pushOnce(PageModel page, {PageEquals equals = routeEquals}) {
     setStack(stack.pushOnce(page, equals: equals));
   }
 
@@ -338,7 +338,7 @@ class PageManager extends BlocModule {
     PageKind kind = PageKind.material,
     bool requiresAuth = false,
     Map<String, dynamic>? state,
-    PageEquals equals = _routeEquals, // o _nameEquals si prefieres
+    PageEquals equals = routeEquals, // o _nameEquals si prefieres
   }) {
     final PageModel page = PageModel(
       name: name,
@@ -362,7 +362,7 @@ class PageManager extends BlocModule {
     bool requiresAuth = false,
     Map<String, dynamic>? state,
     PageEquals equals =
-        _routeEquals, // cambia a _nameEquals si tu clave es el name
+        routeEquals, // cambia a _nameEquals si tu clave es el name
   }) {
     final PageModel page = PageModel(
       name: name,

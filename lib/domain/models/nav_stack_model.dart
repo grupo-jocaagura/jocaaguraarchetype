@@ -3,7 +3,9 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 typedef PageEquals = bool Function(PageModel a, PageModel b);
 
 /// Compara por destino de ruta (name + segments + query + kind + requiresAuth).
-bool _routeEquals(PageModel a, PageModel b) {
+///
+/// Útil como estrategia por defecto para evitar duplicados lógicos en el stack./// Compara por destino de ruta (name + segments + query + kind + requiresAuth).
+bool routeEquals(PageModel a, PageModel b) {
   return a.name == b.name &&
       listEquals(a.segments, b.segments) &&
       mapEquals(a.query, b.query) &&
@@ -11,22 +13,39 @@ bool _routeEquals(PageModel a, PageModel b) {
       a.requiresAuth == b.requiresAuth;
 }
 
-/// Immutable back stack of [PageModel] used by the RouterDelegate.
+const NavStackModel defaultNavStackModel = NavStackModel.notFound;
+
+/// Modelo inmutable de pila de [PageModel] para navegación.
 ///
-/// Provides pure push/pop/replace operations and JSON/URI round-trips.
+/// Garantiza **al menos una página** en cada momento (invariante de no-vacío).
+/// Provee operaciones puras que devuelven nuevas instancias sin mutar el estado:
+/// - [push], [pushDistinctTop], [pushOnce], [replaceTop], [pop], [resetTo],
+///   [dedupAll], [moveToTopOrPush].
 ///
-/// ### Example
+/// ### Contratos
+/// - Invariante: `pages.isNotEmpty == true`.
+/// - `pop()` en raíz devuelve la misma instancia (no lanza).
+/// - `replaceTop()` asume pila no vacía (garantizada por la clase).
+///
+/// ### Ejemplo mínimo
 /// ```dart
-/// NavStackModel stack = NavStackModel.single(PageModel(name: 'home', segments: <String>['home']));
-/// stack = stack.push(PageModel(name: 'details', segments: <String>['products','42']));
-/// assert(stack.top.name == 'details');
-/// stack = stack.pop();
-/// assert(stack.top.name == 'home');
+/// void main() {
+///   NavStackModel stack = NavStackModel.single(const PageModel(name: 'home'));
+///   stack = stack.push(const PageModel(name: 'details', segments: <String>['products','42']));
+///   assert(stack.top.name == 'details');
+///   stack = stack.pop();
+///   assert(stack.isRoot && stack.top.name == 'home');
+/// }
 /// ```
 @immutable
 class NavStackModel extends Model {
-  const NavStackModel(this.pages)
-      : assert(pages.length >= 1, 'Stack must not be empty');
+  factory NavStackModel(List<PageModel> pages) {
+    return NavStackModel._internal(
+      pages.isEmpty
+          ? defaultNavStackModel.pages
+          : List<PageModel>.unmodifiable(pages),
+    );
+  }
 
   /// Creates a stack with a single page.
   factory NavStackModel.single(PageModel page) =>
@@ -42,24 +61,29 @@ class NavStackModel extends Model {
         .map<PageModel>(PageModel.fromJson)
         .toList(growable: false);
     if (parsed.isEmpty) {
-      return NavStackModel.single(
-        const PageModel(name: 'root', segments: <String>[]),
-      );
+      return defaultNavStackModel;
     }
     return NavStackModel(parsed);
   }
 
-  static const String rootName = 'root';
+  const NavStackModel._internal(this.pages);
+
+  static const NavStackModel notFound =
+      NavStackModel._internal(<PageModel>[PageModel(name: defaultName)]);
+
+  static const String defaultName = 'notFound';
   static const String pagesKey = 'pages';
 
   /// Back stack, bottom→top.
   final List<PageModel> pages;
 
   /// Top-most page (current).
-  PageModel get top => pages.last;
+  PageModel get top => pages.isEmpty ? defaultNavStackModel.top : pages.last;
+
+  /// Back stack, bottom→top.
 
   /// True when stack has only one page.
-  bool get isRoot => pages.length <= 1;
+  bool get isRoot => pages.length == 1;
 
   /// Push a page.
   NavStackModel push(PageModel page) {
@@ -69,6 +93,9 @@ class NavStackModel extends Model {
 
   /// Replace top with [page].
   NavStackModel replaceTop(PageModel page) {
+    if (pages.isEmpty) {
+      return defaultNavStackModel;
+    }
     final List<PageModel> next = List<PageModel>.from(pages);
     next.removeLast();
     next.add(page);
@@ -77,6 +104,9 @@ class NavStackModel extends Model {
 
   /// Pop one page. If root, returns same instance.
   NavStackModel pop() {
+    if (pages.isEmpty) {
+      return defaultNavStackModel;
+    }
     if (isRoot) {
       return this;
     }
@@ -96,18 +126,19 @@ class NavStackModel extends Model {
     };
   }
 
-  /// Encode to a route-like chain joining pages with ';'
-  /// Example: `/home;/products/42?ref=home`
+  /// Codifica la pila como cadena de rutas separada por `;`.
+  ///
+  /// Ejemplo: `/home;/products/42?ref=home`
   String encodeAsRouteChain() {
     return pages.map((PageModel p) => p.toUriString()).join(';');
   }
 
-  /// Decode route chain produced by [encodeAsRouteChain].
+  /// Decodifica una cadena producida por [encodeAsRouteChain].
+  ///
+  /// Si la cadena está vacía o sin páginas válidas, retorna una pila con [`rootName`].
   static NavStackModel decodeRouteChain(String chain) {
     if (chain.trim().isEmpty) {
-      return NavStackModel.single(
-        const PageModel(name: rootName, segments: <String>[]),
-      );
+      return defaultNavStackModel;
     }
     final List<PageModel> parsed = chain
         .split(';')
@@ -116,11 +147,7 @@ class NavStackModel extends Model {
         .map<PageModel>(PageModel.fromUri)
         .toList(growable: false);
 
-    return NavStackModel(
-      parsed.isEmpty
-          ? <PageModel>[const PageModel(name: rootName, segments: <String>[])]
-          : parsed,
-    );
+    return parsed.isEmpty ? defaultNavStackModel : NavStackModel(parsed);
   }
 
   @override
@@ -162,33 +189,29 @@ class NavStackModel extends Model {
     return h;
   }
 
-  /// Push pero **evitando duplicado consecutivo** (no-op si la top es "igual").
-  /// Útil cuando quieres permitir repetidos en el stack, pero no dos iguales seguidos.
+  /// Empuja [page] **evitando duplicado consecutivo** según [equals] (por defecto [routeEquals]).
+  ///
+  /// Retorna `this` si `top` ya es "igual" a [page]; en otro caso, una nueva pila.
   NavStackModel pushDistinctTop(
     PageModel page, {
-    PageEquals equals = _routeEquals,
+    PageEquals equals = routeEquals,
   }) {
-    if (equals(top, page)) {
-      return this;
+    if (pages.isEmpty) {
+      return NavStackModel.single(page);
     }
-    return push(page);
+    return equals(top, page) ? this : push(page);
   }
 
-  /// Garantiza que **solo exista una** instancia "igual" a [page] en el stack:
-  /// si ya existe, la remueve y agrega la nueva al top.
+  /// Empuja [page] garantizando que **solo exista una** instancia "igual" (según [equals]).
   ///
-  /// Por defecto la comparación es por "ruta" (_routeEquals). Puedes pasar [equals]
-  /// para comparar solo por name (_nameEquals) u otra estrategia.
-  ///
-  /// Ejemplo:
-  /// ```dart
-  /// stack = stack.pushOnce(PageModel(name:'home', segments:['home']));
-  /// stack = stack.pushOnce(PageModel(name:'home', segments:['home'])); // no duplica
-  /// ```
+  /// Si ya existe en el stack, se remueve la previa y se agrega [page] al top.
   NavStackModel pushOnce(
     PageModel page, {
-    PageEquals equals = _routeEquals,
+    PageEquals equals = routeEquals,
   }) {
+    if (pages.isEmpty) {
+      return NavStackModel.single(page);
+    }
     final List<PageModel> next = <PageModel>[];
     for (final PageModel p in pages) {
       if (!equals(p, page)) {
@@ -199,9 +222,14 @@ class NavStackModel extends Model {
     return NavStackModel(next);
   }
 
-  /// Deduplica **el stack completo** conservando el primer encontrado
-  /// (elimina subsecuentes "iguales" según [equals]).
-  NavStackModel dedupAll({PageEquals equals = _routeEquals}) {
+  /// Deduplica el stack completo conservando la **primera** ocurrencia según [equals].
+  ///
+  /// Nunca devuelve una pila vacía (respeta la invariante de no-vacío).
+  NavStackModel dedupAll({PageEquals equals = routeEquals}) {
+    if (pages.isEmpty) {
+      return defaultNavStackModel;
+    }
+
     final List<PageModel> out = <PageModel>[];
     for (final PageModel p in pages) {
       final bool already = out.any((PageModel q) => equals(q, p));
@@ -209,15 +237,17 @@ class NavStackModel extends Model {
         out.add(p);
       }
     }
-    // Asegura siempre al menos 1
     return out.isEmpty ? this : NavStackModel(out);
   }
 
   /// Busca una página "igual" y la **mueve al top** (si no existe, hace push).
   NavStackModel moveToTopOrPush(
     PageModel page, {
-    PageEquals equals = _routeEquals,
+    PageEquals equals = routeEquals,
   }) {
+    if (pages.isEmpty) {
+      return NavStackModel.single(page);
+    }
     final List<PageModel> next = <PageModel>[];
     for (final PageModel p in pages) {
       if (!equals(p, page)) {
@@ -230,5 +260,5 @@ class NavStackModel extends Model {
 
   @override
   String toString() =>
-      'NavStackModel(pages: [${pages.map((PageModel pageModel) => pageModel.name).join(', ')}])';
+      'NavStackModel(pages: [${pages.map((PageModel pageModel) => pageModel.toString()).join(', ')}])';
 }
