@@ -1,9 +1,9 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// JSON keys for [PageModel] (stable serialization contract).
+/// Claves JSON para [PageModel] (contrato de serialización estable).
 ///
-/// Using enum names avoids magic strings spread across the codebase and
-/// provides compile-time safety for maintainers.
+/// Usar nombres de `enum` evita *magic strings* repartidas por el código y
+/// brinda seguridad en compilación para mantenedores.
 enum PageModelEnum {
   name,
   segments,
@@ -21,36 +21,47 @@ enum PageKind {
   fullScreenDialog,
 }
 
+/// Describe de forma inmutable una intención de ruta/página dentro de la app.
+///
+/// El modelo permite **ida y vuelta** con JSON y URI, y es tolerante a entradas
+/// levemente mal formadas al construirse desde JSON gracias a coerciones de `Utils`.
+///
+/// ### Contratos
+/// **Identidad (== y hashCode)**: incluye `name`, `segments` (orden-sensible),
+/// `query` (pares clave→valor), `fragment`, `kind`, `requiresAuth` y `state`.
+///
+/// **Mutabilidad**: las colecciones (`segments`, `query`, `state`) se exponen
+/// tal cual fueron provistas. Si se modifican desde afuera, se altera la
+/// identidad del objeto. Se recomienda **no mutarlas** tras construir la instancia.
+///
+/// ### Ejemplo mínimo ejecutable
+/// ```dart
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+///
+/// void main() {
+///   final PageModel page = PageModel(
+///     name: 'product',
+///     segments: <String>['products', '42'],
+///     query: <String, String>{'ref': 'home'},
+///     kind: PageKind.material,
+///     requiresAuth: true,
+///     state: <String, dynamic>{'highlight': true},
+///   );
+///
+///   // Round-trip JSON
+///   final Map<String, dynamic> json = page.toJson();
+///   final PageModel same = PageModel.fromJson(json);
+///   assert(same == page);
+///
+///   // Round-trip URI (ruta + query + fragment)
+///   final String uri = page.toUriString();
+///   final PageModel fromUri = PageModel.fromUri(Uri.parse(uri), name: page.name, kind: page.kind);
+///   assert(fromUri.segments.join('/') == page.segments.join('/'));
+///   assert(fromUri.query.toString() == page.query.toString());
+/// }
+/// ```
 @immutable
 class PageModel extends Model {
-  /// Immutable description of a route/page intention within the app.
-  ///
-  /// The model is JSON/URI round-trippable and resilient to slightly malformed
-  /// inputs when constructed from JSON thanks to `Utils` coercions.
-  ///
-  /// ### Example
-  /// ```dart
-  /// // Create a page and serialize to JSON
-  /// final PageModel page = PageModel(
-  ///   name: 'product',
-  ///   segments: <String>['products', '42'],
-  ///   query: <String, String>{'ref': 'home'},
-  ///   kind: PageKind.material,
-  ///   requiresAuth: true,
-  ///   state: <String, dynamic>{'highlight': true},
-  /// );
-  /// final Map<String, dynamic> json = page.toJson();
-  ///
-  /// // Deserialize back (round-trip)
-  /// final PageModel same = PageModel.fromJson(json);
-  /// assert(same == page);
-  ///
-  /// // URI round-trip (path + query + fragment only)
-  /// final String uri = page.toUriString();
-  /// final PageModel fromUri = PageModel.fromUri(Uri.parse(uri), name: page.name, kind: page.kind);
-  /// assert(fromUri.segments.join('/') == page.segments.join('/'));
-  /// assert(fromUri.query.toString() == page.query.toString());
-  /// ```
   const PageModel({
     required this.name,
     this.segments = const <String>[],
@@ -61,11 +72,14 @@ class PageModel extends Model {
     this.state = const <String, dynamic>{},
   });
 
-  /// Creates a [PageModel] from an absolute or relative [Uri].
+  /// Crea un [PageModel] a partir de un [Uri] absoluto o relativo.
   ///
-  /// * `name`: optional logical page name; when omitted, it defaults to the
-  ///   first non-empty segment or `'root'` if the path is empty.
-  /// * `kind`: optional page kind (defaults to [PageKind.material]).
+  /// - `name`: nombre lógico opcional; si se omite, usa el primer segmento
+  ///   no vacío o `'root'` cuando el path esté vacío.
+  /// - `kind`: tipo de página (por defecto [PageKind.material]).
+  ///
+  /// **Postcondición**: `toUriString()` de la instancia resultante produce una
+  /// ruta equivalente (path + query + fragment) al `uri` de entrada.
   factory PageModel.fromUri(
     Uri uri, {
     String? name,
@@ -85,13 +99,17 @@ class PageModel extends Model {
     );
   }
 
-  /// Deserializes a JSON map into a [PageModel] with defensive coercions.
+  /// Deserializa un mapa JSON a [PageModel] con **coerciones defensivas**.
   ///
-  /// - Unknown or invalid `"kind"` falls back to [PageKind.material].
-  /// - `"segments"` tolerates non-string entries by coercing via `Utils.getStringFromDynamic`.
-  /// - `"query"` is coerced to `Map<String, String>`; non-string keys/values are stringified.
-  /// - `"state"` is coerced to `Map<String, dynamic>` safely.
-  /// - Missing booleans default to `false`, missing strings to `''` (unless documented).
+  /// - `"kind"` desconocido/ inválido ⇒ [PageKind.material].
+  /// - `"segments"`: elementos no string se convierten con `Utils.getStringFromDynamic`.
+  /// - `"query"`: se fuerza a `Map<String, String>`; claves/valores no string se stringifican.
+  /// - `"state"`: se fuerza a `Map<String, dynamic>` seguro.
+  /// - Booleans ausentes ⇒ `false`; `fragment` vacío ⇒ `null`;
+  ///   `name` vacío ⇒ `'root'`.
+  ///
+  /// **Precondición**: `json` no debe ser `null`.
+  /// **Postcondición**: la instancia respeta el contrato de identidad descrito.
   factory PageModel.fromJson(Map<String, dynamic> json) {
     final Map<String, dynamic> safe = Utils.mapFromDynamic(json);
 
@@ -142,31 +160,38 @@ class PageModel extends Model {
     );
   }
 
-  /// Logical page name (e.g., `'home'`, `'product'`).
+  /// Nombre lógico de la página (p. ej., `'home'`, `'product'`).
   final String name;
 
-  /// Path segments of the location (decoded). Example: `['products', '42']`.
+  /// Segmentos del path (decodificados). Ej.: `['products', '42']`.
+  ///
+  /// **Nota**: el orden importa en la identidad.
   final List<String> segments;
 
-  /// Query parameters as string pairs. Example: `{'ref':'home'}`.
+  /// Parámetros de consulta como pares `String→String`. Ej.: `{'ref':'home'}`.
   final Map<String, String> query;
 
-  /// Optional URL fragment (without `#`). Empty/blank is treated as `null`.
+  /// Fragmento de URL opcional (sin `#`). Vacío equivale a `null`.
   final String? fragment;
 
-  /// Rendering kind (Material, Cupertino, Dialog, Full-screen Dialog).
+  /// Pista de renderizado (Material, Cupertino, Diálogo, Diálogo de pantalla completa).
   final PageKind kind;
 
-  /// Whether this page requires an authenticated session.
+  /// Indica si la página requiere sesión autenticada.
   final bool requiresAuth;
 
-  /// Arbitrary page-local state for UI hints, transitions, etc.
+  /// Estado arbitrario y serializable, local a la página (hints de UI, transiciones, etc.).
+  ///
+  /// **Advertencia**: forma parte de la identidad; cambios aquí cambian `==`/`hashCode`.
   final Map<String, dynamic> state;
 
-  /// Encodes `segments`, `query`, and `fragment` as a compact URI string.
+  /// Codifica `segments`, `query` y `fragment` como un string `Uri` compacto.
   ///
-  /// Note: `name`, `kind`, `requiresAuth`, and `state` are **not** included in
-  /// the URI; those are part of the JSON contract only.
+  /// **No** incluye `name`, `kind`, `requiresAuth` ni `state`; estos pertenecen
+  /// únicamente al contrato JSON.
+  ///
+  /// **Postcondición**: los `segments` se codifican con `Uri.encodeComponent`,
+  /// `query` se omite si está vacío y `fragment` se omite si es `null`/vacío.
   String toUriString() {
     final String path = '/${segments.map(Uri.encodeComponent).join('/')}';
     final Uri uri = Uri(
@@ -177,7 +202,11 @@ class PageModel extends Model {
     return uri.toString();
   }
 
-  /// Serializes this [PageModel] into a JSON map using stable enum keys.
+  /// Serializa este [PageModel] a un mapa JSON usando claves estables del enum.
+  ///
+  /// **Garantías**:
+  /// - Las listas/mapas se copian (`from(...)`) para evitar aliasing accidental.
+  /// - `kind` se serializa por nombre (`enum.name`).
   @override
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -191,7 +220,11 @@ class PageModel extends Model {
     };
   }
 
-  /// Creates a copy with selectively overridden fields.
+  /// Crea una copia con los campos provistos sobrescritos.
+  ///
+  /// **Nota**: las colecciones copiadas se mantienen **mutables** (misma semántica
+  /// que el constructor); evita modificarlas si usas la instancia como clave de mapa
+  /// o elemento en sets.
   @override
   PageModel copyWith({
     String? name,
@@ -213,7 +246,11 @@ class PageModel extends Model {
     );
   }
 
-  /// Deep equality across all properties (order-sensitive for segments).
+  /// Igualdad profunda sobre todas las propiedades (orden-sensible en `segments`).
+  ///
+  /// - `segments`: compara longitud y cada elemento en orden.
+  /// - `query`/`state`: compara por contenido clave→valor.
+  /// - Incluye `requiresAuth` y `fragment` (nullable-aware).
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
@@ -252,7 +289,12 @@ class PageModel extends Model {
     return true;
   }
 
-  /// Stable hash using a fold over collections.
+  /// Hash estable combinando propiedades escalares y colecciones.
+  ///
+  /// **Nota**: el hash de `query`/`state` depende del orden de iteración del mapa.
+  /// Para claves/valores idénticos insertados en distinto orden, el hash puede
+  /// variar aun cuando `==` sea `true`. Evita usarse como clave si el orden de
+  /// inserción puede cambiar en tiempo de vida del objeto.
   @override
   int get hashCode {
     int h = name.hashCode ^
@@ -275,9 +317,11 @@ class PageModel extends Model {
   String toString() =>
       'PageModel(name: $name, segments: $segments, query: $query, fragment: $fragment, kind: $kind, requiresAuth: $requiresAuth, state: $state)';
 
-  // ----- Private helpers -----------------------------------------------------
+  // ----- Helpers privados -----------------------------------------------------
 
-  /// Coerces a dynamic list into `List<String>` using `Utils.getStringFromDynamic`.
+  /// Convierte una lista dinámica a `List<String>` usando `Utils.getStringFromDynamic`.
+  ///
+  /// Entradas vacías se descartan; espacios se recortan.
   static List<String> coerceStringList(List<dynamic> items) {
     final List<String> out = <String>[];
     for (final dynamic it in items) {
@@ -289,7 +333,9 @@ class PageModel extends Model {
     return out;
   }
 
-  /// Coerces a dynamic map into `Map<String, String>` by stringifying keys/values.
+  /// Convierte un mapa dinámico a `Map<String, String>` stringificando claves/valores.
+  ///
+  /// Claves vacías se omiten; valores nulos se convierten a `''`.
   static Map<String, String> coerceStringMap(Map<String, dynamic> map) {
     final Map<String, String> out = <String, String>{};
     map.forEach((String k, dynamic v) {
