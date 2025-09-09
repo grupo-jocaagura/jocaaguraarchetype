@@ -1,20 +1,12 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// Signature for building a widget given a [PageModel].
 typedef PageWidgetBuilder = Widget Function(
   BuildContext context,
   PageModel page,
 );
 
-/// Optional handler when a page name is not found.
-/// - Return a Widget to show (custom 404).
-/// - Or return `null` to let registry use default fallback/redirect if provided.
 typedef NotFoundBuilder = Widget? Function(BuildContext context, PageModel req);
 
-/// Registry mapping `PageModel.name` to a widget builder.
-/// Can optionally handle unknown routes with:
-///  - [notFoundBuilder] → renders a custom UI, or
-///  - [defaultPage] / [defaultStack] → redirects the navigation (post-frame).
 class PageRegistry {
   const PageRegistry(
     this._builders, {
@@ -35,14 +27,10 @@ class PageRegistry {
 
   final Map<String, PageWidgetBuilder> _builders;
 
-  /// Custom UI when name is not found (has priority over redirects).
   final NotFoundBuilder? notFoundBuilder;
 
-  /// If provided and name is unknown, we replaceTop with this page.
   final PageModel? defaultPage;
 
-  /// If provided and name is unknown, we replace the whole stack with this one.
-  /// (Takes precedence over [defaultPage]).
   final NavStackModel? defaultStack;
 
   bool contains(String name) => _builders.containsKey(name);
@@ -53,27 +41,22 @@ class PageRegistry {
       return b(context, page);
     }
 
-    // 1) Custom not found UI (caller decides visual behaviour)
     final Widget? custom = notFoundBuilder?.call(context, page);
     if (custom != null) {
       return custom;
     }
 
-    // 2) Redirect by replacing stack (strongest)
     if (defaultStack != null) {
       return _RegistryRedirect(stack: defaultStack);
     }
 
-    // 3) Redirect by replacing ONLY the top
     if (defaultPage != null) {
       return _RegistryRedirect(page: defaultPage);
     }
 
-    // 4) Built-in 404 (safe default)
     return _DefaultNotFoundPage(location: page.toUriString());
   }
 
-  /// Builds a materialized `Page` from a [PageModel] using [PageKind].
   Page<dynamic> toPage(PageModel page, {int? position}) {
     Widget child(BuildContext ctx) => build(ctx, page);
 
@@ -118,7 +101,6 @@ class PageRegistry {
   }
 }
 
-/// Minimal fallback "Not Found" page.
 class _DefaultNotFoundPage extends StatelessWidget {
   const _DefaultNotFoundPage({required this.location});
   final String location;
@@ -136,9 +118,6 @@ class _DefaultNotFoundPage extends StatelessWidget {
   }
 }
 
-/// Small helper that performs a post-frame navigation redirect.
-/// - If [stack] provided → `setStack(stack)`
-/// - Else if [page] provided → `replaceTop(page)`
 class _RegistryRedirect extends StatelessWidget {
   const _RegistryRedirect({this.page, this.stack});
   final PageModel? page;
@@ -159,7 +138,6 @@ class _RegistryRedirect extends StatelessWidget {
   }
 }
 
-/// Simple dialog page wrapper to support [PageKind.dialog] without boilerplate.
 class DialogPage<T> extends Page<T> {
   const DialogPage({required this.builder, super.key, super.name});
   final WidgetBuilder builder;
