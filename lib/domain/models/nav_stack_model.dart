@@ -126,33 +126,132 @@ class NavStackModel extends Model {
     };
   }
 
-  /// Codifica la pila como cadena de rutas separada por `;`.
-  ///
-  /// Ejemplo: `/home;/products/42?ref=home`
-  String encodeAsRouteChain() {
-    return pages.map((PageModel p) => p.toUriString()).join(';');
+  // Meta-param reservado para preservar el name cuando difiere de los segments.
+  static const String _kNameMeta = '__n';
+
+  static String _routeFromPage(PageModel p) {
+    // path
+    final List<String> segs =
+        p.segments.isNotEmpty ? p.segments : <String>[p.name];
+    final String path = '/${segs.join('/')}';
+
+    // query (sin el meta por si venía de antes)
+    final Map<String, String> q = <String, String>{};
+    q.addAll(
+      p.query.map((String k, String v) => MapEntry<String, String>(k, v)),
+    );
+    q.remove(_kNameMeta);
+
+    // Si el name no coincide con el primer segmento, añadimos meta `__n`.
+    final bool needsNameMeta = segs.isNotEmpty && segs.first != p.name;
+    if (needsNameMeta) {
+      q[_kNameMeta] = p.name;
+    }
+
+    String queryStr = '';
+    if (q.isNotEmpty) {
+      queryStr = '?${q.entries.map(
+            (MapEntry<String, String> e) =>
+                '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}',
+          ).join('&')}';
+    }
+
+    // fragment
+    final String fragStr = (p.fragment == null || p.fragment!.isEmpty)
+        ? ''
+        : '#${Uri.encodeComponent(p.fragment!)}';
+
+    return '$path$queryStr$fragStr';
   }
 
-  /// Decodifica una cadena producida por [encodeAsRouteChain].
-  ///
-  /// Si la cadena está vacía o sin páginas válidas, retorna una pila con [`rootName`].
+  /// Codifica la pila como rutas separadas por `;`.
+  /// Si `toUriString()` es vacío o sin path, se reconstruye; además, cuando
+  /// `name != first(segments)` se inyecta `__n=<name>` para asegurar reversibilidad.
+  String encodeAsRouteChain() {
+    if (pages.isEmpty) {
+      return '';
+    }
+
+    final List<String> routes = <String>[];
+    for (int i = 0; i < pages.length; i += 1) {
+      final PageModel p = pages[i];
+      String raw = p.toUriString().trim();
+
+      // falta path => reconstruimos y añadimos meta si hace falta
+      final bool missingPath =
+          raw.isEmpty || raw.startsWith('?') || raw.startsWith('#');
+
+      if (missingPath) {
+        raw = _routeFromPage(p);
+      } else {
+        // Si vino un path válido, aún así garantizamos meta si corresponde.
+        // (ej: alguien implementó toUriString sin preservar name).
+        final bool needsNameMeta =
+            p.segments.isNotEmpty && p.segments.first != p.name;
+        if (needsNameMeta) {
+          final Uri u = Uri.parse(raw);
+          final Map<String, String> q = <String, String>{};
+          q.addAll(u.queryParameters);
+          q[_kNameMeta] = p.name;
+
+          raw = Uri(
+            path: u.path.isEmpty ? '/${p.segments.join('/')}' : u.path,
+            queryParameters: q.isEmpty ? null : q,
+            fragment: u.fragment.isEmpty ? null : u.fragment,
+          ).toString();
+        }
+      }
+
+      routes.add(raw);
+    }
+    return routes.join(';');
+  }
+
+  /// Decodifica la cadena y restaura `name` cuando exista el meta `__n`.
   static NavStackModel decodeRouteChain(String chain) {
-    if (chain.trim().isEmpty) {
+    final String input = chain.trim();
+    if (input.isEmpty) {
       return defaultNavStackModel;
     }
-    final List<PageModel> parsed = chain
+
+    final List<String> tokens = input
         .split(';')
+        .map((String s) => s.trim())
         .where((String s) => s.isNotEmpty)
-        .map<Uri>(Uri.parse)
-        .map<PageModel>(PageModel.fromUri)
         .toList(growable: false);
 
-    return parsed.isEmpty ? defaultNavStackModel : NavStackModel(parsed);
+    if (tokens.isEmpty) {
+      return defaultNavStackModel;
+    }
+
+    final List<PageModel> out = <PageModel>[];
+    for (final String token in tokens) {
+      final Uri uri = Uri.parse(token);
+
+      // Primero construimos la página desde la URI.
+      PageModel page = PageModel.fromUri(uri);
+
+      // Si viene meta de nombre, lo aplicamos y limpiamos del query.
+      final String? metaName = uri.queryParameters[_kNameMeta];
+      if (metaName != null && metaName.isNotEmpty && metaName != page.name) {
+        final Map<String, String> q = <String, String>{};
+        q.addAll(page.query);
+        q.remove(_kNameMeta);
+        page = page.copyWith(name: metaName, query: q);
+      }
+
+      out.add(page);
+    }
+    return out.isEmpty ? defaultNavStackModel : NavStackModel(out);
   }
 
   @override
-  NavStackModel copyWith({List<PageModel>? pages}) =>
-      NavStackModel(pages ?? this.pages);
+  NavStackModel copyWith({List<PageModel>? pages}) {
+    final List<PageModel> next = pages ?? this.pages;
+    return NavStackModel(
+      List<PageModel>.unmodifiable(next),
+    );
+  }
 
   @override
   bool operator ==(Object other) {
