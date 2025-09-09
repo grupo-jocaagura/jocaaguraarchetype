@@ -70,21 +70,28 @@ class PageRegistry {
     }
 
     // 4) Built-in 404 (safe default)
-    debugPrint(
-      '[PageRegistry] 404 for name="${page.name}", '
-      'segments=${page.segments}, known=${_builders.keys.toList()}',
-    );
     return _DefaultNotFoundPage(location: page.toUriString());
   }
 
   /// Builds a materialized `Page` from a [PageModel] using [PageKind].
   Page<dynamic> toPage(PageModel page, {int? position}) {
     Widget child(BuildContext ctx) => build(ctx, page);
+
     final String pos = position == null ? '' : '$position:';
+    final String segs = page.segments.join('/');
+
+    final String canonicalQuery = () {
+      if (page.query.isEmpty) {
+        return '';
+      }
+      final List<String> ks = page.query.keys.toList()..sort();
+      return ks.map((String k) => '$k=${page.query[k]}').join('&');
+    }();
+
     final LocalKey key = ValueKey<String>(
-      'pg:$pos${page.name}:${page.segments.join('/')}:'
-      '${page.query.hashCode}:${page.kind}:${page.requiresAuth}',
+      'pg:$pos${page.kind}:${page.name}:$segs:$canonicalQuery:${page.requiresAuth}',
     );
+
     switch (page.kind) {
       case PageKind.cupertino:
         return CupertinoPage<dynamic>(

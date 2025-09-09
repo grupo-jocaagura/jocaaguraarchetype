@@ -62,6 +62,8 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
       changed = true;
     }
     if (changed) {
+      _prevSnapshot = _pageManager.stack;
+      _expectedRemovals = 0;
       notifyListeners();
     }
   }
