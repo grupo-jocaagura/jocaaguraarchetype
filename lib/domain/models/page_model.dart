@@ -92,8 +92,8 @@ class PageModel extends Model {
     final Map<String, String> q = Map<String, String>.from(uri.queryParameters);
     return PageModel(
       name: name ?? (segs.isEmpty ? 'root' : segs.first),
-      segments: segs,
-      query: q,
+      segments: List<String>.unmodifiable(segs),
+      query: Map<String, String>.unmodifiable(q),
       fragment: (uri.fragment.isEmpty) ? null : uri.fragment,
       kind: kind,
     );
@@ -151,13 +151,13 @@ class PageModel extends Model {
 
     return PageModel(
       name: name,
-      segments: segments,
-      query: query,
+      segments: List<String>.unmodifiable(segments),
+      query: Map<String, String>.unmodifiable(query),
       fragment: fragment,
       kind: k,
       requiresAuth: requiresAuth,
-      state: state,
-    );
+      state: Map<String, dynamic>.unmodifiable(state),
+    ).copyWith();
   }
 
   /// Nombre lógico de la página (p. ej., `'home'`, `'product'`).
