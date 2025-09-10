@@ -4,27 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-class _PageWithText extends StatelessWidget {
-  const _PageWithText(this.label);
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(child: Text(label, key: ValueKey<String>('txt-$label'))),
-    );
-  }
-}
-
 PageRegistry _registry() {
   return PageRegistry.fromDefs(<PageDef>[
     PageDef(
       model: const PageModel(name: 'home'),
-      builder: (BuildContext _, PageModel __) => const _PageWithText('home'),
+      builder: (_, __) => const Scaffold(
+        body: Center(child: Text('HOME', key: Key('txt-home'))),
+      ),
     ),
     PageDef(
       model: const PageModel(name: 'details'),
-      builder: (BuildContext _, PageModel __) => const _PageWithText('details'),
+      builder: (_, __) => const Scaffold(
+        body: Center(child: Text('DETAILS', key: Key('txt-details'))),
+      ),
     ),
   ]);
 }
@@ -115,6 +107,11 @@ void main() {
 
       pm.pushNamed('details');
       await t.pumpAndSettle();
+      expect(
+        reg.contains('details'),
+        isTrue,
+        reason: 'Falta registrar builder para "details"',
+      );
 
       // solo top
       expect(find.byKey(const ValueKey<String>('txt-details')), findsOneWidget);

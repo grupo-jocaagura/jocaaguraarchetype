@@ -145,8 +145,7 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
       } else {
         if (prev.pages.length > curr.pages.length) {
           _expectedRemovals = 1;
-        } else if (prev.pages.length == curr.pages.length &&
-            prev.top != curr.top) {
+        } else if (prev.top != curr.top) {
           _expectedRemovals = 1;
         } else {
           _expectedRemovals = 0;

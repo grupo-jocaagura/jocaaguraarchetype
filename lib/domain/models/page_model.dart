@@ -192,9 +192,16 @@ class PageModel extends Model {
   ///
   /// **Postcondición**: los `segments` se codifican con `Uri.encodeComponent`,
   /// `query` se omite si está vacío y `fragment` se omite si es `null`/vacío.
+  /// Codifica `segments`, `query` y `fragment` como un string `Uri` compacto.
+  ///
+  /// - Si [segments] está vacío, produce `"/"`.
+  /// - Si [segments] no está vacío, el path siempre comienza con `/`.
+  /// - `query` y `fragment` se incluyen solo si no están vacíos.
+  /// - `name`, `kind`, `requiresAuth` y `state` no forman parte del URI.
   String toUriString() {
-    final String path =
-        segments.isEmpty ? '' : segments.map(Uri.encodeComponent).join('/');
+    final String path = segments.isEmpty
+        ? '/' // raíz explícita
+        : '/${segments.map(Uri.encodeComponent).join('/')}';
 
     final Uri uri = Uri(
       path: path,

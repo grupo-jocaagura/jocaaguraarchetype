@@ -126,7 +126,7 @@ class NavStackModel extends Model {
 
   static const String _kNameMeta = '__n';
 
-  static String _routeFromPage(PageModel p) {
+  static String routeFromPage(PageModel p) {
     final List<String> segs =
         p.segments.isNotEmpty ? p.segments : <String>[p.name];
     final String path = '/${segs.join('/')}';
@@ -169,7 +169,9 @@ class NavStackModel extends Model {
   /// Reconstruye el path si `toUriString()` está vacío, y añade meta `__n=<name>`
   /// cuando `name != first(segments)` para asegurar reversibilidad.
   String encodeAsRouteChain() {
-    if (pages.isEmpty) return '';
+    if (pages.isEmpty) {
+      return '';
+    }
 
     final List<String> routes = <String>[];
     for (int i = 0; i < pages.length; i += 1) {
@@ -181,7 +183,7 @@ class NavStackModel extends Model {
 
       if (missingPath) {
         // Reconstrucción completa: siempre sale con "/"
-        raw = _routeFromPage(p);
+        raw = routeFromPage(p);
       } else {
         final Uri u = Uri.parse(raw);
 
