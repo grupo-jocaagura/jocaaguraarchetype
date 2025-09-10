@@ -72,9 +72,18 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
   NavStackModel? _prevSnapshot;
   int _expectedRemovals = 0;
 
-  /// Maneja back (sistema/gestos) reenviando a `pop()`.
+  bool _popInitiatedByDelegate = false;
+  bool _navigatorSyncedOnce = false;
   @override
-  Future<bool> popRoute() async => pop();
+  Future<bool> popRoute() async {
+    _popInitiatedByDelegate = true;
+    final bool ok = pop();
+    if (!ok) {
+      // Si no hubo pop (ya en root), revertimos el flag.
+      _popInitiatedByDelegate = false;
+    }
+    return ok;
+  }
 
   /// Actualiza dependencias opcionales; re-vincula el listener cuando cambia `PageManager`.
   /// Si hubo cambios, reinicia el snapshot para el cómputo de removals.
@@ -143,16 +152,32 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
             curr.pages.length,
             (int i) => _registry.toPage(curr.pages[i], position: i),
           );
+    if (!_navigatorSyncedOnce) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _navigatorSyncedOnce = true;
+      });
+    }
 
     return Navigator(
       key: navigatorKey,
       pages: pages,
       onDidRemovePage: (Page<Object?> removed) {
-        if (_expectedRemovals > 0) {
-          _expectedRemovals -= 1;
+        // Consideramos "esperado" si lo calculamos o si lo inició popRoute().
+        final bool expected = _expectedRemovals > 0 || _popInitiatedByDelegate;
+        if (!expected && !_navigatorSyncedOnce) {
           _onPageRemoved?.call(removed);
           return;
         }
+        if (expected) {
+          if (_expectedRemovals > 0) {
+            _expectedRemovals -= 1;
+          }
+          _popInitiatedByDelegate = false; // consumimos el flag
+          _onPageRemoved?.call(removed);
+          return; // no reenvíes a pm.pop()
+        }
+
+        // Removal iniciado por el Navigator (gesto/usuario) -> reenviar a modelo
         if (_pageManager.canPop) {
           _pageManager.pop();
         }
