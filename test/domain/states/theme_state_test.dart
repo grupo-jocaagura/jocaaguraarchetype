@@ -441,12 +441,11 @@ void main() {
     test('Given HEX seed When toJson/fromJson Then roundtrip mantiene canónico',
         () {
       // Arrange
-      final ThemeState original = ThemeState(
+      const ThemeState original = ThemeState(
         mode: ThemeMode.light,
-        seed: const Color(0xFF0061A4),
+        seed: Color(0xFF0061A4),
         useMaterial3: true,
         textScale: 1.25,
-        preset: 'brand',
       );
 
       // Act
@@ -456,7 +455,9 @@ void main() {
       // Assert
       expect(json[ThemeEnum.seed.name], '#FF0061A4');
       expect(
-          round, original); // createdAt no está => igualdad estricta por campos
+        round,
+        original,
+      ); // createdAt no está => igualdad estricta por campos
     });
 
     test('Given ARGB int legacy When fromJson Then toJson normaliza a HEX', () {
@@ -485,12 +486,9 @@ void main() {
         mode: ThemeMode.dark,
         seed: const Color(0xFF112233),
         useMaterial3: false,
-        textScale: 1.0,
-        preset: 'brand',
-        createdAt: DateTime.utc(2024, 1, 1),
+        createdAt: DateTime.utc(2024),
       );
-      final ThemeState other =
-          base.copyWith(createdAt: DateTime.utc(2030, 1, 1));
+      final ThemeState other = base.copyWith(createdAt: DateTime.utc(2030));
 
       // Assert (Given/When/Then implícitos)
       expect(base, other);
