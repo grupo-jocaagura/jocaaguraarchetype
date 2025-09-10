@@ -38,28 +38,45 @@ enum ColorSchemeEnum {
   inversePrimary,
 }
 
-/// Immutable theme state model with canonical JSON serialization.
+/// Modela un estado de tema **inmutable** con serialización JSON **canónica**.
 ///
-/// - Colors are **always** serialized as HEX `#AARRGGBB` (uppercase) to ensure
-///   round-trip determinism.
-/// - `fromJson` accepts legacy ARGB integers for backward compatibility but
-///   re-serializes to HEX on `toJson`.
-/// - Optional `createdAt` is serialized as UTC ISO8601 if present; it is
-///   treated as metadata and **excluded** from equality and hashing.
+/// - Los colores se serializan **siempre** como `#AARRGGBB` en mayúsculas para
+///   garantizar determinismo de round-trip (`toJson` → `fromJson` → `toJson`).
+/// - `fromJson` acepta enteros ARGB heredados por compatibilidad, pero
+///   re-serializa a HEX canónico en `toJson`.
+/// - `createdAt` (opcional) se serializa en ISO8601 UTC si está presente y se
+///   trata como **metadata**: queda **excluido** de `==` y `hashCode`.
 ///
-/// ### Example
+/// ### Contratos
+/// - `textScale` debe ser finito (`isFinite`). En caso contrario lanza
+///   `FormatException('ThemeState.textScale invalid')`.
+/// - Si `mode` está ausente, vacío o inválido, se usa `ThemeMode.system`.
+///
+/// ### Ejemplo mínimo
 /// ```dart
-/// final ThemeState s = ThemeState.defaults.copyWith(
-///   mode: ThemeMode.dark,
-///   seed: const Color(0xFF0061A4),
-///   createdAt: DateTime.now().toUtc(),
-/// );
-/// final Map<String, dynamic> json = s.toJson();
-/// final ThemeState round = ThemeState.fromJson(json);
-/// assert(s == round); // createdAt ignored for equality
+/// void main() {
+///   final ThemeState s = ThemeState.defaults.copyWith(
+///     mode: ThemeMode.dark,
+///     seed: const Color(0xFF0061A4),
+///     createdAt: DateTime.now().toUtc(),
+///   );
+///   final Map<String, dynamic> json = s.toJson();
+///   final ThemeState round = ThemeState.fromJson(json);
+///   // createdAt es metadata: no participa en igualdad/hashing.
+///   assert(s == round);
+/// }
 /// ```
 @immutable
 class ThemeState {
+  /// Crea una instancia inmutable de [ThemeState].
+  ///
+  /// - [mode]: Modo de tema (system/light/dark).
+  /// - [seed]: Color semilla para generar paletas.
+  /// - [useMaterial3]: `true` si se habilita Material 3.
+  /// - [textScale]: Escala tipográfica (por defecto `1.0`, debe ser finita).
+  /// - [preset]: Nombre del preset (por defecto `'brand'` si falta/está vacío en JSON).
+  /// - [overrides]: Sobrescrituras de `ColorScheme` por tema claro/oscuro.
+  /// - [createdAt]: Marca de tiempo en UTC ISO8601 (metadata, no afecta igualdad).
   const ThemeState({
     required this.mode,
     required this.seed,
@@ -70,6 +87,16 @@ class ThemeState {
     this.createdAt,
   });
 
+  /// Deserializa un [ThemeState] desde JSON con reglas de **retrocompatibilidad**.
+  ///
+  /// Acepta `mode` como `system|light|dark`. Si está ausente, vacío o no coincide,
+  /// se usa `ThemeMode.system` (vía `orElse`).
+  ///
+  /// - `seed` admite `int` ARGB legado o `String` HEX. Se normaliza a HEX.
+  /// - `useM3` y `textScale` se leen estrictamente; `textScale` debe ser finito.
+  /// - `preset` vacío se normaliza a `'brand'`.
+  /// - `overrides` se mapea con [ThemeOverrides.fromJson] si está presente.
+  /// - `createdAt` se interpreta como instante UTC si existe.
   factory ThemeState.fromJson(Map<String, dynamic> json) {
     final String modeName =
         UtilsForTheme.asStringOrEmpty(json, ThemeEnum.mode.name);
@@ -117,16 +144,28 @@ class ThemeState {
     );
   }
 
+  /// Modo de tema actual (system/light/dark).
   final ThemeMode mode;
+
+  /// Color semilla a partir del que se derivan esquemas de color.
   final Color seed;
+
+  /// Habilita o no Material 3.
   final bool useMaterial3;
+
+  /// Factor de escala tipográfica (debe ser finito).
   final double textScale;
+
+  /// Nombre del preset (por defecto `'brand'` si JSON lo omite o viene vacío).
   final String preset;
+
+  /// Sobrescrituras explícitas de esquema de color.
   final ThemeOverrides? overrides;
 
-  /// Optional UTC creation time (metadata, ignored for equality/hash).
+  /// Marca de tiempo opcional en UTC (metadata; se ignora en `==` y `hashCode`).
   final DateTime? createdAt;
 
+  /// Crea una copia con cambios puntuales manteniendo inmutabilidad.
   ThemeState copyWith({
     ThemeMode? mode,
     Color? seed,
@@ -146,6 +185,10 @@ class ThemeState {
         createdAt: createdAt ?? this.createdAt,
       );
 
+  /// Serializa el estado a JSON en formato canónico.
+  ///
+  /// - `seed` se emite como `#AARRGGBB`.
+  /// - `createdAt` (si existe) se emite como ISO8601 en UTC.
   Map<String, dynamic> toJson() => <String, dynamic>{
         ThemeEnum.mode.name: mode.name,
         ThemeEnum.seed.name: UtilsForTheme.colorToHex(seed),
@@ -157,6 +200,7 @@ class ThemeState {
           ThemeEnum.createdAt.name: createdAt!.toUtc().toIso8601String(),
       };
 
+  /// Estado por defecto.
   static const ThemeState defaults = ThemeState(
     mode: ThemeMode.system,
     seed: Color(0xFF6750A4),

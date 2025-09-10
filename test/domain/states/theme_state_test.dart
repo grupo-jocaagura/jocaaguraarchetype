@@ -367,4 +367,169 @@ void main() {
       expect(a.hashCode, equals(b.hashCode));
     });
   });
+
+  group('ThemeState.fromJson - modo (orElse => ThemeMode.system)', () {
+    test('Given JSON sin mode When fromJson Then usa ThemeMode.system', () {
+      // Arrange
+      final Map<String, dynamic> json = <String, dynamic>{
+        ThemeEnum.seed.name: '#FF6750A4',
+        ThemeEnum.useM3.name: true,
+        ThemeEnum.textScale.name: 1.0,
+        ThemeEnum.preset.name: 'brand',
+      };
+
+      // Act
+      final ThemeState state = ThemeState.fromJson(json);
+
+      // Assert
+      expect(state.mode, ThemeMode.system);
+    });
+
+    test('Given mode vacío When fromJson Then usa ThemeMode.system', () {
+      // Arrange
+      final Map<String, dynamic> json = <String, dynamic>{
+        ThemeEnum.mode.name: '',
+        ThemeEnum.seed.name: 0xFF6750A4, // entero ARGB legado
+        ThemeEnum.useM3.name: true,
+        ThemeEnum.textScale.name: 1.0,
+        ThemeEnum.preset.name: 'brand',
+      };
+
+      // Act
+      final ThemeState state = ThemeState.fromJson(json);
+
+      // Assert
+      expect(state.mode, ThemeMode.system);
+    });
+
+    test('Given mode inválido When fromJson Then usa ThemeMode.system', () {
+      // Arrange
+      final Map<String, dynamic> json = <String, dynamic>{
+        ThemeEnum.mode.name: 'sepia', // inválido
+        ThemeEnum.seed.name: '#FF6750A4',
+        ThemeEnum.useM3.name: false,
+        ThemeEnum.textScale.name: 1.0,
+        ThemeEnum.preset.name: 'brand',
+      };
+
+      // Act
+      final ThemeState state = ThemeState.fromJson(json);
+
+      // Assert
+      expect(state.mode, ThemeMode.system);
+    });
+
+    test('Given mode válido When fromJson Then respeta el valor', () {
+      // Arrange
+      final Map<String, dynamic> json = <String, dynamic>{
+        ThemeEnum.mode.name: 'dark',
+        ThemeEnum.seed.name: '#FF0061A4',
+        ThemeEnum.useM3.name: true,
+        ThemeEnum.textScale.name: 1.0,
+        ThemeEnum.preset.name: 'brand',
+      };
+
+      // Act
+      final ThemeState state = ThemeState.fromJson(json);
+
+      // Assert
+      expect(state.mode, ThemeMode.dark);
+    });
+  });
+
+  group('ThemeState - roundtrip y contratos', () {
+    test('Given HEX seed When toJson/fromJson Then roundtrip mantiene canónico',
+        () {
+      // Arrange
+      final ThemeState original = ThemeState(
+        mode: ThemeMode.light,
+        seed: const Color(0xFF0061A4),
+        useMaterial3: true,
+        textScale: 1.25,
+        preset: 'brand',
+      );
+
+      // Act
+      final Map<String, dynamic> json = original.toJson();
+      final ThemeState round = ThemeState.fromJson(json);
+
+      // Assert
+      expect(json[ThemeEnum.seed.name], '#FF0061A4');
+      expect(
+          round, original); // createdAt no está => igualdad estricta por campos
+    });
+
+    test('Given ARGB int legacy When fromJson Then toJson normaliza a HEX', () {
+      // Arrange
+      final Map<String, dynamic> json = <String, dynamic>{
+        ThemeEnum.mode.name: 'light',
+        ThemeEnum.seed.name: 0xFF123456, // entero ARGB
+        ThemeEnum.useM3.name: true,
+        ThemeEnum.textScale.name: 1.0,
+        ThemeEnum.preset.name: 'brand',
+      };
+
+      // Act
+      final ThemeState state = ThemeState.fromJson(json);
+      final Map<String, dynamic> out = state.toJson();
+
+      // Assert
+      expect(out[ThemeEnum.seed.name], '#FF123456');
+    });
+
+    test(
+        'Given createdAt distinto When equality Then se ignora en == y hashCode',
+        () {
+      // Arrange
+      final ThemeState base = ThemeState(
+        mode: ThemeMode.dark,
+        seed: const Color(0xFF112233),
+        useMaterial3: false,
+        textScale: 1.0,
+        preset: 'brand',
+        createdAt: DateTime.utc(2024, 1, 1),
+      );
+      final ThemeState other =
+          base.copyWith(createdAt: DateTime.utc(2030, 1, 1));
+
+      // Assert (Given/When/Then implícitos)
+      expect(base, other);
+      expect(base.hashCode, other.hashCode);
+    });
+
+    test('Given textScale no finito When fromJson Then lanza FormatException',
+        () {
+      // Arrange
+      final Map<String, dynamic> json = <String, dynamic>{
+        ThemeEnum.mode.name: 'system',
+        ThemeEnum.seed.name: '#FF6750A4',
+        ThemeEnum.useM3.name: true,
+        ThemeEnum.textScale.name: double.infinity, // no finito
+        ThemeEnum.preset.name: 'brand',
+      };
+
+      // Assert
+      expect(
+        () => ThemeState.fromJson(json),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('Given preset vacío When fromJson Then se normaliza a "brand"', () {
+      // Arrange
+      final Map<String, dynamic> json = <String, dynamic>{
+        ThemeEnum.mode.name: 'system',
+        ThemeEnum.seed.name: '#FF6750A4',
+        ThemeEnum.useM3.name: true,
+        ThemeEnum.textScale.name: 1.0,
+        ThemeEnum.preset.name: '', // vacío
+      };
+
+      // Act
+      final ThemeState state = ThemeState.fromJson(json);
+
+      // Assert
+      expect(state.preset, 'brand');
+    });
+  });
 }
