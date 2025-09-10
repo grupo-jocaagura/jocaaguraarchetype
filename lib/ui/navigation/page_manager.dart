@@ -43,7 +43,6 @@ class PageManager extends BlocModule {
   bool get canPop => _guard<bool>(
         body: () => !stack.isRoot,
         lastSnapshot: () {
-          // Si ya está cerrado, seguimos respondiendo con el último valor.
           return !_stack.value.isRoot;
         },
       );
@@ -266,20 +265,26 @@ class PageManager extends BlocModule {
     _stack.dispose();
   }
 
+  // Dentro de PageManager
+
+  String _asNonEmptyString(dynamic v) {
+    return (v is String && v.trim().isNotEmpty) ? v : '';
+  }
+
   String _titleOf(PageModel p) {
-    // 1) explícito en state['title']
-    final String? fromState = p.state['title'] as String?;
-    if (fromState != null && fromState.isNotEmpty) {
+    // 1) explícito en state['title'] (solo si es String no vacía)
+    final String fromState = _asNonEmptyString(p.state['title']);
+    if (fromState.isNotEmpty) {
       return fromState;
     }
 
-    // 2) fallback por query (útil para deep-links)
-    final String? fromQuery = p.query['title'];
-    if (fromQuery != null && fromQuery.isNotEmpty) {
+    // 2) fallback por query['title'] (solo si es String no vacía)
+    final String fromQuery = _asNonEmptyString(p.query['title']);
+    if (fromQuery.isNotEmpty) {
       return fromQuery;
     }
 
-    // 3) último segmento o el name
+    // 3) último segmento o el name (humanizado)
     if (p.segments.isNotEmpty) {
       return _humanize(p.segments.last);
     }
