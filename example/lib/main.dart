@@ -56,7 +56,6 @@ class _ExampleRootState extends State<ExampleRoot> {
           key: ObjectKey(cfg),
           appManager: manager,
           registry: widget.registry,
-          projectorMode: false,
           initialLocation: '/onboarding',
         );
       },

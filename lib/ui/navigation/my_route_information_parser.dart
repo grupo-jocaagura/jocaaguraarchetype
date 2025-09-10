@@ -24,7 +24,6 @@ class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {
       return NavStackModel.single(
         PageModel(
           name: defaultRouteName,
-          segments: const <String>[],
         ),
       );
     }

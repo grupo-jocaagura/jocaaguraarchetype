@@ -23,7 +23,7 @@ class SessionNavCoordinator {
     required this.loginPage,
     required this.homePage,
     this.goHomeWhenAuthenticatedOnLogin = true,
-    this.pageEquals = _routeEquals,
+    this.pageEquals = routeEquals,
   }) {
     try {
       _last = sessionBloc.stateOrDefault;

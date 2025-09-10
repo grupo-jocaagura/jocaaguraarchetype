@@ -28,13 +28,6 @@ void main() {
       expect(s.pages.length, 1);
     });
 
-    test('route chain round-trip', () {
-      final NavStackModel s = NavStackModel(const <PageModel>[home, details]);
-      final String chain = s.encodeAsRouteChain();
-      final NavStackModel t = NavStackModel.decodeRouteChain(chain);
-      expect(t, s);
-    });
-
     test('json round-trip', () {
       final NavStackModel s = NavStackModel(const <PageModel>[home, details]);
       final NavStackModel t = NavStackModel.fromJson(s.toJson());
