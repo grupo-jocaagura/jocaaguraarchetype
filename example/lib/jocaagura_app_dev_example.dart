@@ -47,8 +47,6 @@ void main() {
       registry: registry,
       projectorMode:
           false, // top-only; cambia a false para ver el stack completo
-      initialLocation: '/home',
-      onboardingSteps: const <OnboardingStep>[], // opcional
     ),
   );
 }

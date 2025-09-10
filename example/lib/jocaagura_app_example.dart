@@ -60,8 +60,6 @@ void main() {
       registry: registry,
       projectorMode:
           true, // top-only rendering; pon false para ver stack completo
-      initialLocation: '/home', // semilla de localización
-      ownsManager: false, // en esta variante NO cede el dispose al widget
     ),
   );
 }
