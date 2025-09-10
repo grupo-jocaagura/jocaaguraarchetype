@@ -157,14 +157,19 @@ class NavStackModel extends Model {
     return '$path$queryStr$fragStr';
   }
 
+  static String ensureLeadingSlash(String path) {
+    if (path.isEmpty) {
+      return '/';
+    }
+    return path.startsWith('/') ? path : '/$path';
+  }
+
   /// Codifica la pila como cadena de rutas separadas por `;`.
   ///
   /// Reconstruye el path si `toUriString()` está vacío, y añade meta `__n=<name>`
   /// cuando `name != first(segments)` para asegurar reversibilidad.
   String encodeAsRouteChain() {
-    if (pages.isEmpty) {
-      return '';
-    }
+    if (pages.isEmpty) return '';
 
     final List<String> routes = <String>[];
     for (int i = 0; i < pages.length; i += 1) {
@@ -175,22 +180,29 @@ class NavStackModel extends Model {
           raw.isEmpty || raw.startsWith('?') || raw.startsWith('#');
 
       if (missingPath) {
+        // Reconstrucción completa: siempre sale con "/"
         raw = _routeFromPage(p);
       } else {
+        final Uri u = Uri.parse(raw);
+
         final bool needsNameMeta =
             p.segments.isNotEmpty && p.segments.first != p.name;
-        if (needsNameMeta) {
-          final Uri u = Uri.parse(raw);
-          final Map<String, String> q = <String, String>{};
-          q.addAll(u.queryParameters);
-          q[_kNameMeta] = p.name;
 
-          raw = Uri(
-            path: u.path.isEmpty ? '/${p.segments.join('/')}' : u.path,
-            queryParameters: q.isEmpty ? null : q,
-            fragment: u.fragment.isEmpty ? null : u.fragment,
-          ).toString();
+        final Map<String, String> q = <String, String>{}
+          ..addAll(u.queryParameters);
+        if (needsNameMeta) {
+          q[_kNameMeta] = p.name;
         }
+
+        final String computedPath = u.path.isEmpty
+            ? '/${p.segments.join('/')}'
+            : ensureLeadingSlash(u.path);
+
+        raw = Uri(
+          path: computedPath,
+          queryParameters: q.isEmpty ? null : q,
+          fragment: u.fragment.isEmpty ? null : u.fragment,
+        ).toString();
       }
 
       routes.add(raw);
