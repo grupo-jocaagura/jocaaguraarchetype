@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.4] - 2025-09-10
+
+### Added
+- **Testing:** `FakeServiceTheme` para pruebas determinísticas de `ServiceTheme` (usado en `service_theme_test.dart`).
+
+### Changed
+- **GatewayThemeImpl:** `normalize()` ahora acepta semilla como `int` (ARGB32), `String` (HEX `#AARRGGBB`) o `Color`. Se persiste internamente como `int`.
+- **Serialización de tema:** `ThemeState`/`ThemeOverrides` emiten JSON canónico:
+  - Colores en HEX `#AARRGGBB` (mayúsculas).
+  - `fromJson` acepta ints ARGB legados, pero `toJson` normaliza a HEX.
+  - `createdAt` es `DateTime?` y se serializa en ISO8601 UTC si existe; se ignora en `==`/`hashCode`.
+- **Estructura:** `ThemeOverrides` y `ThemePatch` movidos a archivos propios (`theme_overrides.dart`, `theme_patch.dart`).
+- **Utilidades:** `UtilsForTheme` para parseo/formateo de color y acceso JSON estricto.
+
+### Fixed
+- **ThemePatch.applyOn:** maneja `textScale` no finito y cae de forma segura al valor base.
+
+### Docs
+- **ServiceTheme:** DartDoc ampliado (contratos de pureza, idempotencia, pre/post-condiciones).
+
+### Tests
+- **GatewayThemeImpl:** casos para entradas en HEX y `Color`.
+- **ThemeUsecases:** pruebas de propagación de errores (read/write), verificación de HEX canónico en `ThemeState.toJson()` y fallback a defaults en `ERR_NOT_FOUND`.
+- **RepositoryThemeImpl:** corrección de nombre de archivo de pruebas  
+  `repository_teme_impl_test.dart` → `repository_theme_impl_test.dart`.
+
+### CI
+- **Workflow:** `validate_commits_and_lints.yaml` ignora pushes a `master` y `develop` (ramas protegidas con merge controlado).
+
+> **Notas:** No hay cambios incompatibles. La salida JSON ahora es canónica; si tienes snapshots de tests sobre JSON de tema, puede que requieran actualizarse al formato HEX en mayúsculas.
+
 ## [3.1.3] - 2025-09-10
 
 ### Added
