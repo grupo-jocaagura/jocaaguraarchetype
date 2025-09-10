@@ -1,5 +1,11 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Controla el comportamiento del módulo después de `dispose()`.
+///
+/// - [throwStateError] (estricto): cualquier acceso tras `dispose()`
+///   lanza [StateError].
+/// - [returnLastSnapshotNoop] (tolerante): getters devuelven el último
+///   snapshot conocido y los mutadores se convierten en **no-op**.
 enum ModulePostDisposePolicy {
   /// Estricto: cualquier acceso tras `dispose()` lanza StateError.
   throwStateError,
@@ -8,20 +14,63 @@ enum ModulePostDisposePolicy {
   returnLastSnapshotNoop,
 }
 
+/// Gestiona el **stack de navegación** como un BLoC de alto nivel.
+///
+/// Mantiene un [NavStackModel] interno y expone operaciones declarativas
+/// para **push/pop/replace/reset**, además de utilidades por nombre/URI.
+/// Su estado se publica mediante [stackStream] y derivadas (p. ej. [canPopStream]).
+///
+/// ### Políticas post-dispose
+/// El comportamiento posterior a `dispose()` se rige por [postDisposePolicy]:
+/// - **Estricto**: lanza [StateError] en cualquier acceso.
+/// - **Tolerante**: los getters usan el último snapshot; mutadores son **no-op**.
+///
+/// ### Ejemplo mínimo
+/// ```dart
+/// void main() {
+///   final NavStackModel initial = NavStackModel(<PageModel>[
+///     PageModel.material('home'),
+///   ]);
+///
+///   final PageManager pm = PageManager(initial: initial);
+///   pm.pushNamed('details', query: <String, String>{'id': '42'});
+///   // pm.stack.top.name == 'details'
+///   // pm.canPop == true
+///
+///   pm.pop(); // vuelve a 'home'
+/// }
+/// ```
+///
+/// ### Contratos
+/// - **Precondición**: [initial] debe describir un stack **válido**.
+/// - **Postcondición**: todas las mutaciones preservan la coherencia del stack
+///   (p. ej. sin duplicados consecutivos cuando `allowDuplicate == false`).
+/// - **Post-dispose**: ver [postDisposePolicy].
 class PageManager extends BlocModule {
+  /// Crea un gestor de navegación con un [initial] stack.
+  ///
+  /// - [postDisposePolicy] define el contrato de acceso luego de `dispose()`.
   PageManager({
     required this.initial,
     this.postDisposePolicy = ModulePostDisposePolicy.throwStateError,
   }) : _stack = BlocGeneral<NavStackModel>(initial);
 
+  /// Nombre simbólico del módulo para registro/DI.
   static const String name = 'pageManager';
 
+  /// BLoC interno que mantiene el stack de navegación.
   final BlocGeneral<NavStackModel> _stack;
+
+  /// Política de acceso tras `dispose()`. Ver [ModulePostDisposePolicy].
   final ModulePostDisposePolicy postDisposePolicy;
+
+  /// Stack inicial usado por [goHome] cuando ya se está en root.
   final NavStackModel initial;
+
   bool _isDisposed = false;
 
-  // ---- Guard genérico (similar a BlocSession._guard) ------------------------
+  /// Ejecuta [body] si el módulo **no** está `disposed`; de lo contrario
+  /// aplica la [postDisposePolicy] usando [lastSnapshot] o lanzando error.
   T _guard<T>({
     required T Function() body,
     required T Function() lastSnapshot,
@@ -37,9 +86,13 @@ class PageManager extends BlocModule {
     }
   }
 
-  // ---- Lecturas seguras -----------------------------------------------------
+  /// Indica si el BLoC interno ha sido cerrado.
   bool get isClosed => _stack.isClosed;
 
+  /// `true` si existe al menos una página para hacer `pop`.
+  ///
+  /// - **Estricto**: tras `dispose()` lanza [StateError].
+  /// - **Tolerante**: calcula a partir del último snapshot.
   bool get canPop => _guard<bool>(
         body: () => !stack.isRoot,
         lastSnapshot: () {
@@ -47,22 +100,38 @@ class PageManager extends BlocModule {
         },
       );
 
+  /// Stream derivado que emite `true/false` según el stack **no** esté en root.
   Stream<bool> get canPopStream =>
       stackStream.map((NavStackModel s) => !s.isRoot).distinct();
+
+  /// Referencia al stream del BLoC interno (inmutable).
   late final Stream<NavStackModel> _stackStreamRef = _stack.stream;
 
+  /// Stream del stack de navegación.
+  ///
+  /// En modo tolerante, se devuelve la misma instancia aunque se haya cerrado.
   Stream<NavStackModel> get stackStream => _guard<Stream<NavStackModel>>(
         body: () => _stackStreamRef,
         lastSnapshot: () =>
             _stackStreamRef, // misma instancia, aunque ya esté cerrado
       );
 
+  /// Snapshot actual del stack de navegación.
+  ///
+  /// En modo tolerante, devuelve el último valor conocido.
   NavStackModel get stack => _guard<NavStackModel>(
         body: () => _stack.value,
         lastSnapshot: () => _stack.value,
       );
 
   // ---- Mutaciones con no-op en leniente ------------------------------------
+
+  /// Reemplaza el stack completo por [next].
+  ///
+  /// - Cuando [allowDuplicate] es `false`, elimina duplicados **consecutivos**
+  ///   de destino (ver [_dedupConsecutive]).
+  /// - **Estricto**: tras `dispose()` lanza [StateError].
+  /// - **Tolerante**: **no-op** tras `dispose()`.
   void setStack(NavStackModel next, {bool allowDuplicate = false}) {
     if (_isDisposed || _stack.isClosed) {
       if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
@@ -80,6 +149,11 @@ class PageManager extends BlocModule {
     _stack.value = sanitized;
   }
 
+  /// Hace `push` de [page] sobre el top.
+  ///
+  /// - Evita duplicar el **mismo destino** si [allowDuplicate] es `false`.
+  /// - **Estricto**: tras `dispose()` lanza [StateError].
+  /// - **Tolerante**: **no-op** tras `dispose()`.
   void push(PageModel page, {bool allowDuplicate = false}) {
     if (_isDisposed || _stack.isClosed) {
       if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
@@ -93,6 +167,9 @@ class PageManager extends BlocModule {
     setStack(stack.push(page), allowDuplicate: allowDuplicate);
   }
 
+  /// Navega al **root** del flujo actual o al [initial] si ya está en root.
+  ///
+  /// Útil para “volver al inicio” del contexto vigente.
   void goHome() {
     if (_isDisposed || _stack.isClosed) {
       if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
@@ -102,12 +179,13 @@ class PageManager extends BlocModule {
     }
     if (stack.isRoot) {
       setStack(initial);
-
       return;
     }
     setStack(stack.resetTo(stack.pages.first));
   }
 
+  /// Reemplaza el top por [page]. Si [allowNoop] es `false`, evita
+  /// reemplazar por el mismo destino.
   void replaceTop(PageModel page, {bool allowNoop = false}) {
     if (_isDisposed || _stack.isClosed) {
       if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
@@ -121,6 +199,11 @@ class PageManager extends BlocModule {
     setStack(stack.replaceTop(page));
   }
 
+  /// Intenta hacer `pop` del stack.
+  ///
+  /// Retorna `true` si el `pop` fue aplicado; `false` si ya estaba en root.
+  /// - **Estricto**: tras `dispose()` lanza [StateError].
+  /// - **Tolerante**: retorna `false` tras `dispose()`.
   bool pop() {
     if (_isDisposed || _stack.isClosed) {
       if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
@@ -135,6 +218,7 @@ class PageManager extends BlocModule {
     return true;
   }
 
+  /// Reinicia el stack a [root] como única página.
   void resetTo(PageModel root) {
     if (_isDisposed || _stack.isClosed) {
       if (postDisposePolicy == ModulePostDisposePolicy.returnLastSnapshotNoop) {
@@ -145,7 +229,11 @@ class PageManager extends BlocModule {
     setStack(stack.resetTo(root));
   }
 
-  /// Push by name. Optional [title] stored in `state['title']`.
+  /// `push` por nombre. Guarda [title] (si se provee) en `state['title']`.
+  ///
+  /// Parámetros clave:
+  /// - [segments]: si es `null` o vacío, se infiere `<name>`.
+  /// - [query], [kind], [requiresAuth], [state], [allowDuplicate].
   void pushNamed(
     String name, {
     String? title,
@@ -169,7 +257,9 @@ class PageManager extends BlocModule {
     push(page, allowDuplicate: allowDuplicate);
   }
 
-  /// Replace top using a name.
+  /// Reemplaza el top usando un nombre y metadatos equivalentes a [pushNamed].
+  ///
+  /// Si [allowNoop] es `false`, evita reemplazar por el mismo destino.
   void replaceTopNamed(
     String name, {
     String? title,
@@ -193,7 +283,7 @@ class PageManager extends BlocModule {
     replaceTop(page, allowNoop: allowNoop);
   }
 
-  /// Reset stack to a single named page.
+  /// Reinicia el stack a una sola página construida a partir del [name].
   void goNamed(
     String name, {
     String? title,
@@ -216,11 +306,10 @@ class PageManager extends BlocModule {
     resetTo(root);
   }
 
-  // ---- Helpers (URI/chain) ----
-  /// Navega por una location ("/foo/bar?x=1").
-  /// Por defecto **agrega** una entrada al stack (push),
-  /// para que Back vuelva al estado anterior.
-  /// Usa `replaceTop: true` solo para redirects o reemplazos explícitos.
+  /// Navega por una **location** (p. ej. `"/foo/bar?x=1"`).
+  ///
+  /// Por defecto hace `push` para conservar el historial. Usa
+  /// [mustReplaceTop] para realizar `replaceTop` (p. ej. redirects).
   void navigateToLocation(
     String location, {
     String? name,
@@ -238,7 +327,9 @@ class PageManager extends BlocModule {
     }
   }
 
-  /// Útil para deep-link inicial o cambios “duros” de contexto.
+  /// Cambia “duro” de contexto reemplazando el stack con la [location] dada.
+  ///
+  /// Útil para deep-links iniciales.
   void goToLocation(
     String location, {
     String? name,
@@ -249,14 +340,18 @@ class PageManager extends BlocModule {
     resetTo(root);
   }
 
+  /// Establece el stack decodificando una **chain** serializada.
   void setFromRouteChain(String chain) =>
       setStack(NavStackModel.decodeRouteChain(chain));
+
+  /// Devuelve la **chain** canónica del stack actual.
   String get routeChain => stack.encodeAsRouteChain();
 
-  /// Debug helper: list of page names in back stack.
+  /// Helper de depuración: lista inmutable de nombres de página en el historial.
   List<String> get historyNames =>
       stack.pages.map((PageModel p) => p.name).toList(growable: false);
 
+  /// Libera recursos del BLoC interno y aplica la política post-dispose.
   @override
   FutureOr<void> dispose() {
     if (_isDisposed) {
@@ -266,32 +361,32 @@ class PageManager extends BlocModule {
     _stack.dispose();
   }
 
-  // Dentro de PageManager
-
+  /// Normaliza a `String` no vacío; en otro caso devuelve `''`.
   String _asNonEmptyString(dynamic v) {
     return (v is String && v.trim().isNotEmpty) ? v : '';
   }
 
+  /// Obtiene un título “humano” para la página:
+  /// 1) `state['title']` explícito, 2) `query['title']`, 3) último segmento
+  /// o `name` humanizado.
   String _titleOf(PageModel p) {
-    // 1) explícito en state['title'] (solo si es String no vacía)
     final String fromState = _asNonEmptyString(p.state['title']);
     if (fromState.isNotEmpty) {
       return fromState;
     }
 
-    // 2) fallback por query['title'] (solo si es String no vacía)
     final String fromQuery = _asNonEmptyString(p.query['title']);
     if (fromQuery.isNotEmpty) {
       return fromQuery;
     }
 
-    // 3) último segmento o el name (humanizado)
     if (p.segments.isNotEmpty) {
       return _humanize(p.segments.last);
     }
     return _humanize(p.name);
   }
 
+  /// Humaniza una cadena básica: separa guiones/underscores y capitaliza.
   String _humanize(String s) {
     // muy simple: separa guiones/underscores y capitaliza la primera
     final String spaced = s.replaceAll(RegExp(r'[_\-]+'), ' ');
@@ -300,11 +395,14 @@ class PageManager extends BlocModule {
         : '${spaced[0].toUpperCase()}${spaced.substring(1)}';
   }
 
+  /// Título actual derivado del top del stack.
   String get currentTitle => _titleOf(stack.top);
+
+  /// Stream de títulos; emite el título del top cuando cambie el stack.
   Stream<String> get currentTitleStream =>
       stackStream.map((NavStackModel s) => _titleOf(s.top)).distinct();
 
-  // ---- helpers ----
+  /// Compara si dos [PageModel] apuntan al **mismo destino lógico**.
   bool _sameTarget(PageModel a, PageModel b) {
     return a.name == b.name &&
         listEquals(a.segments, b.segments) &&
@@ -313,6 +411,10 @@ class PageManager extends BlocModule {
         a.requiresAuth == b.requiresAuth;
   }
 
+  /// Remueve **duplicados consecutivos** de destino dentro del stack.
+  ///
+  /// Reconstruye el stack preservando orden y dejando un solo elemento
+  /// por cada corrida consecutiva de páginas equivalentes.
   NavStackModel _dedupConsecutive(NavStackModel s) {
     final List<PageModel> out = <PageModel>[];
     for (final PageModel p in s.pages) {
@@ -320,22 +422,21 @@ class PageManager extends BlocModule {
         out.add(p);
       }
     }
-    // reconstruye el stack con `out`
-    return NavStackModel(out); // o copyWith(pages: out) si lo tienes
+    return NavStackModel(out);
   }
 
-  /// Push evitando duplicado consecutivo (no-op si el top es igual).
+  /// `push` evitando duplicado **consecutivo** (no-op si el top es igual).
   void pushDistinctTop(PageModel page, {PageEquals equals = routeEquals}) {
     setStack(stack.pushDistinctTop(page, equals: equals));
   }
 
-  /// Push garantizando unicidad en el stack completo (remueve iguales antes).
+  /// `push` garantizando **unicidad global** en el stack
+  /// (remueve iguales previamente).
   void pushOnce(PageModel page, {PageEquals equals = routeEquals}) {
     setStack(stack.pushOnce(page, equals: equals));
   }
 
-  // --- helpers "named" coherentes ---
-
+  /// Versión *named* de [pushDistinctTop].
   void pushDistinctTopNamed(
     String name, {
     String? title,
@@ -359,6 +460,7 @@ class PageManager extends BlocModule {
     pushDistinctTop(page, equals: equals);
   }
 
+  /// Versión *named* de [pushOnce].
   void pushOnceNamed(
     String name, {
     String? title,
@@ -367,8 +469,7 @@ class PageManager extends BlocModule {
     PageKind kind = PageKind.material,
     bool requiresAuth = false,
     Map<String, dynamic>? state,
-    PageEquals equals =
-        routeEquals, // cambia a _nameEquals si tu clave es el name
+    PageEquals equals = routeEquals,
   }) {
     final PageModel page = PageModel(
       name: name,
