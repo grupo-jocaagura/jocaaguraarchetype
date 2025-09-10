@@ -543,7 +543,6 @@ void main() {
     });
 
     test('Round-trip encode(decode(x)) estable', () {
-      // Cadenas con caracteres complicados; ; debe quedar escapado
       const String chain =
           '/home;/products/42?ref=home;/q?text=a%3Bb%3Bc&space=x+y';
       final NavStackModel back = NavStackModel.decodeRouteChain(chain);

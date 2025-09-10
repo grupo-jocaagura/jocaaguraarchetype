@@ -164,7 +164,8 @@ class PageManager extends BlocModule {
     if (!allowDuplicate && _sameTarget(stack.top, page)) {
       return;
     }
-    setStack(stack.push(page), allowDuplicate: allowDuplicate);
+    final NavStackModel next = stack.push(page);
+    setStack(next, allowDuplicate: allowDuplicate);
   }
 
   /// Navega al **root** del flujo actual o al [initial] si ya está en root.

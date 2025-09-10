@@ -245,5 +245,35 @@ void main() {
         (ThemeState out) => expect(out.overrides, isNotNull),
       );
     });
+    test('GatewayThemeImpl.normalize accepts HEX and Color for seed', () async {
+      final GatewayThemeImpl gw = GatewayThemeImpl(
+        themeService: const FakeServiceJocaaguraArchetypeTheme(),
+      );
+
+      // Escribe HEX
+      final Either<ErrorItem, Map<String, dynamic>> r1 =
+          await gw.write(<String, dynamic>{
+        'mode': 'light',
+        'seed': '#FF0A1B2C',
+        'useM3': true,
+        'textScale': 1.0,
+        'preset': 'brand',
+      });
+      r1.when(
+        (ErrorItem e) => fail('write HEX failed: $e'),
+        (Map<String, dynamic> json) =>
+            expect(json['seed'], isA<int>()), // gateway persiste como int
+      );
+
+      // Lee y valida que ThemeState conserve el color correcto
+      final Either<ErrorItem, Map<String, dynamic>> r2 = await gw.read();
+      r2.when(
+        (ErrorItem e) => fail('read failed: $e'),
+        (Map<String, dynamic> json) {
+          final ThemeState s = ThemeState.fromJson(json);
+          expect(s.seed, const Color(0xFF0A1B2C));
+        },
+      );
+    });
   });
 }

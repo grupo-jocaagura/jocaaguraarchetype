@@ -126,7 +126,7 @@ class NavStackModel extends Model {
 
   static const String _kNameMeta = '__n';
 
-  static String _routeFromPage(PageModel p) {
+  static String routeFromPage(PageModel p) {
     final List<String> segs =
         p.segments.isNotEmpty ? p.segments : <String>[p.name];
     final String path = '/${segs.join('/')}';
@@ -157,6 +157,13 @@ class NavStackModel extends Model {
     return '$path$queryStr$fragStr';
   }
 
+  static String ensureLeadingSlash(String path) {
+    if (path.isEmpty) {
+      return '/';
+    }
+    return path.startsWith('/') ? path : '/$path';
+  }
+
   /// Codifica la pila como cadena de rutas separadas por `;`.
   ///
   /// Reconstruye el path si `toUriString()` está vacío, y añade meta `__n=<name>`
@@ -175,22 +182,29 @@ class NavStackModel extends Model {
           raw.isEmpty || raw.startsWith('?') || raw.startsWith('#');
 
       if (missingPath) {
-        raw = _routeFromPage(p);
+        // Reconstrucción completa: siempre sale con "/"
+        raw = routeFromPage(p);
       } else {
+        final Uri u = Uri.parse(raw);
+
         final bool needsNameMeta =
             p.segments.isNotEmpty && p.segments.first != p.name;
-        if (needsNameMeta) {
-          final Uri u = Uri.parse(raw);
-          final Map<String, String> q = <String, String>{};
-          q.addAll(u.queryParameters);
-          q[_kNameMeta] = p.name;
 
-          raw = Uri(
-            path: u.path.isEmpty ? '/${p.segments.join('/')}' : u.path,
-            queryParameters: q.isEmpty ? null : q,
-            fragment: u.fragment.isEmpty ? null : u.fragment,
-          ).toString();
+        final Map<String, String> q = <String, String>{}
+          ..addAll(u.queryParameters);
+        if (needsNameMeta) {
+          q[_kNameMeta] = p.name;
         }
+
+        final String computedPath = u.path.isEmpty
+            ? '/${p.segments.join('/')}'
+            : ensureLeadingSlash(u.path);
+
+        raw = Uri(
+          path: computedPath,
+          queryParameters: q.isEmpty ? null : q,
+          fragment: u.fragment.isEmpty ? null : u.fragment,
+        ).toString();
       }
 
       routes.add(raw);
