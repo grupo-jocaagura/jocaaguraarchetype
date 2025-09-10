@@ -2,7 +2,9 @@ name: Validate commits (signed) & linters
 
 on:
   push:
-    branches: ['**']
+    branches-ignore:
+      - develop
+      - master
 
 permissions:
   contents: read
