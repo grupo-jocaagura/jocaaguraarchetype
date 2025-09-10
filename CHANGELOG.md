@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.4] - 2025-09-10
+
+### Added
+- **JocaaguraApp** (nuevo widget de alto nivel)
+  - API pública *stateless* con *shell* interno stateful para estabilidad del router.
+  - `JocaaguraApp.dev()` para bootstrapping rápido (propiedad del `AppManager` por defecto).
+  - `AppManagerProvider` en la raíz y *wiring* de `MaterialApp.router`.
+  - Ejemplo mínimo de navegación (3 páginas) y documentación integrada.
+- **PageRegistry**
+  - Documentación exhaustiva y utilidades de 404/redirect.
+  - `toPage()` con claves canónicas estables y soporte de `DialogPage`.
+- **PageManager**
+  - **ModulePostDisposePolicy** para controlar el comportamiento *post-dispose*:
+    - `throwStateError` (estricto).
+    - `returnLastSnapshotNoop` (tolerante).
+  - Nuevos helpers y métodos de navegación nombrada (`pushDistinctTopNamed`, `pushOnceNamed`, etc.).
+- **CI**
+  - Workflow `validate_commits_and_lints.yaml` (commits firmados, lints, format, doctor).
+- **Example**
+  - Consolidación en `example/lib/main.dart` y simplificación del arquetipo de demo.
+
+### Changed
+- **MyAppRouterDelegate**
+  - Lógica de `pop` y conciliación de removals refinada para distinguir cambios del modelo vs. gestos del `Navigator`.
+  - `update()` para *hot reload* / cambios dinámicos de `PageManager`/`PageRegistry` sin recrear el delegate.
+  - Sincronización inicial protegida con `_navigatorSyncedOnce` para evitar reacciones prematuras.
+- **JocaaguraApp / Lifecycle**
+  - El *ownership* del `AppManager` se respeta mediante `ownsManager`.
+  - **Importante:** el `dispose()` del `AppManager` se **difiere** al cierre real de la app (p. ej. `AppLifecycleState.detached`) para evitar matar BLoCs en desmontajes no definitivos (hot reload, reparents, tests).
+- **PageModel / NavStackModel**
+  - Inmutabilidad reforzada (listas/mapas envueltos como unmodifiable).
+  - Hash/igualdad más estables y documentación modernizada.
+
+### Fixed
+- Cadena de rutas: se preserva correctamente `PageModel.name` en múltiples iteraciones (v1/v2/v3).
+- `setNewRoutePath`: limpieza correcta de historial al establecer una nueva ruta.
+- Eliminados *pops* fantasma durante el primer *build* del `Navigator` gracias a la sincronización diferida.
+
+### Docs & Tests
+- DartDoc ampliado para `MyAppRouterDelegate`, `PageRegistry` y `PageManager`, con ejemplos autocontenidos.
+- Cobertura de pruebas ampliada (post-dispose policy, títulos, historial, conciliación de removals, hooks de delegate).
+
+### Deprecations
+- **projectorMode**: el modo “proyector/top-only” queda **desaconsejado** y no se expone desde `JocaaguraApp` (el delegate trabaja con **stack completo**). Para flujos de “pantalla única”, usar navegación por `replaceTop*`.
+
+---
+
+**Notas de migración**
+- Si dependías de “proyector”, migra a **stack completo** y usa `replaceTop*` para transiciones tipo shell.
+- En tests que reconstruyen el árbol varias veces, si administras el `AppManager` externamente, dispónlo explícitamente en `tearDown()`.
+
+**Autores**
+- @Albert J. Jiménez P. (commits y refactors principales).
+
+## [3.1.3] - 2025-09-08
+- Verificacion de ramas en commits anteriores
+
 ## [3.1.2] - 2025-09-08
 
 ### Refactor

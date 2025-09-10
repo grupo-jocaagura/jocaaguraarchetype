@@ -260,35 +260,6 @@ void main() {
     });
 
     testWidgets(
-        'projectorMode=true: sólo materializa la top (details visible, home no existe ni offstage)',
-        (WidgetTester tester) async {
-      final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);
-      final PageRegistry reg = _registryA(cap);
-
-      final JocaaguraApp app = JocaaguraApp.dev(
-        registry: reg,
-        projectorMode: true,
-      );
-
-      await tester.pumpWidget(app);
-      await tester.pumpAndSettle();
-
-      final AppManager mgr = cap.value!;
-      mgr.pageManager.pushNamed('details');
-      await tester.pumpAndSettle();
-
-      expect(find.text('details'), findsOneWidget);
-
-      // En projectorMode la base no se materializa, ni siquiera offstage
-      final Finder homeOffstageFinder = find.byWidgetPredicate(
-        (Widget w) => w.key == const ValueKey<String>('home-A'),
-        description: 'home-A offstage',
-        skipOffstage: false,
-      );
-      expect(homeOffstageFinder, findsNothing);
-    });
-
-    testWidgets(
         'initialLocation por defecto es /home y no muestra el banner de debug',
         (WidgetTester tester) async {
       final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);

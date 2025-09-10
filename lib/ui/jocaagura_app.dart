@@ -1,46 +1,48 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// Jocaagura shell wiring around MaterialApp.router.
+/// Top-level application shell for Jocaagura apps.
 ///
-/// - Navigation source of truth: [PageManager] (from AppConfig).
-/// - Theme source of truth: [BlocTheme] -> emits [ThemeState].
-/// - UI builds ThemeData via [ThemeDataUtils] (UI-only).
-/// - Requires a [PageRegistry] to resolve slugs/builders.
-/// - `projectorMode` is required and passed to the RouterDelegate.
-/// - `initialLocation` is provided via RouteInformation (uri-based).
+/// This widget wires the domain-level [AppManager] to the Flutter routing stack
+/// using a custom `RouterDelegate` and a `RouteInformationParser`.
 ///
-/// ### Example (factory)
+/// ### Key points
+/// - Public API is **stateless**; internal state is encapsulated in a private
+///   shell to keep router instances stable.
+/// - When [ownsManager] is `true`, the app **disposes** the provided
+///   [appManager] on teardown to free resources.
+/// - App lifecycle changes are forwarded to [AppManager.handleLifecycle].
+///
+/// ### Example
 /// ```dart
-/// final registry = buildExampleRegistry();
-/// runApp(JocaaguraApp.dev(
-///   registry: registry,
-///   projectorMode: false,
-///   initialLocation: '/home',
-/// ));
-/// ```
+/// void main() {
+///   final PageRegistry registry = PageRegistry.fromDefs(<PageDef>[
+///     // ... your page defs here
+///   ]);
 ///
-/// ### Example (advanced)
-/// ```dart
-/// final registry = buildExampleRegistry();
-/// final cfg = AppConfig.dev(registry: registry);
-/// final manager = AppManager(cfg);
-/// runApp(JocaaguraApp(
-///   appManager: manager,
-///   registry: registry,
-///   projectorMode: true,
-///   initialLocation: '/settings',
-/// ));
+///   runApp(
+///     JocaaguraApp.dev(
+///       registry: registry,
+///       projectorMode: true,
+///       initialLocation: '/home',
+///     ),
+///   );
+/// }
 /// ```
-class JocaaguraApp extends StatefulWidget {
+class JocaaguraApp extends StatelessWidget {
+  /// Creates a Jocaagura app shell.
   const JocaaguraApp({
     required this.appManager,
     required this.registry,
     this.ownsManager = false,
-    super.key,
-    this.projectorMode = true,
+    this.projectorMode = false,
     this.initialLocation = '/home',
+    super.key,
   });
 
+  /// DEV factory using archetype defaults with in-memory theme gateway and a
+  /// minimal initial stack pointing to `/home`.
+  ///
+  /// The returned app **owns** the created [AppManager] and will dispose it.
   factory JocaaguraApp.dev({
     required PageRegistry registry,
     required bool projectorMode,
@@ -57,25 +59,65 @@ class JocaaguraApp extends StatefulWidget {
       key: key,
       appManager: manager,
       registry: registry,
-      projectorMode: projectorMode,
       initialLocation: initialLocation,
       ownsManager: true,
     );
   }
 
+  /// The domain-level app manager (theme, navigation, loading, etc.).
   final AppManager appManager;
+
+  /// Page registry to materialize widgets from [PageModel]s.
   final PageRegistry registry;
+
+  /// When `true`, only the top page is rendered (projector mode).
   final bool projectorMode;
+
+  /// Initial location used to seed the platform route information.
   final String initialLocation;
 
   /// Whether this widget is responsible for disposing [appManager].
   final bool ownsManager;
 
   @override
-  State<JocaaguraApp> createState() => _JocaaguraAppState();
+  Widget build(BuildContext context) {
+    // Share AppManager down the tree without rebuild churn.
+    return AppManagerProvider(
+      appManager: appManager,
+      child: _JocaaguraAppShell(
+        appManager: appManager,
+        registry: registry,
+        initialLocation: initialLocation,
+        ownsManager: ownsManager,
+      ),
+    );
+  }
 }
 
-class _JocaaguraAppState extends State<JocaaguraApp>
+/// Internal stateful shell that holds stable router instances and observes
+/// application lifecycle, disposing resources when needed.
+///
+/// This keeps the public API stateless while guaranteeing:
+/// - Single instances of delegate/parser/provider.
+/// - Proper `dispose()` calls.
+class _JocaaguraAppShell extends StatefulWidget {
+  const _JocaaguraAppShell({
+    required this.appManager,
+    required this.registry,
+    required this.initialLocation,
+    required this.ownsManager,
+  });
+
+  final AppManager appManager;
+  final PageRegistry registry;
+  final String initialLocation;
+  final bool ownsManager;
+
+  @override
+  State<_JocaaguraAppShell> createState() => _JocaaguraAppShellState();
+}
+
+class _JocaaguraAppShellState extends State<_JocaaguraAppShell>
     with WidgetsBindingObserver {
   late final MyRouteInformationParser _parser;
   late final MyAppRouterDelegate _delegate;
@@ -87,13 +129,10 @@ class _JocaaguraAppState extends State<JocaaguraApp>
     WidgetsBinding.instance.addObserver(this);
 
     _parser = const MyRouteInformationParser();
-
     _delegate = MyAppRouterDelegate(
       registry: widget.registry,
       pageManager: widget.appManager.pageManager,
-      projectorMode: widget.projectorMode,
     );
-
     _routeInfoProvider = PlatformRouteInformationProvider(
       initialRouteInformation: RouteInformation(
         uri: Uri.parse(widget.initialLocation),
@@ -102,62 +141,55 @@ class _JocaaguraAppState extends State<JocaaguraApp>
   }
 
   @override
-  void didUpdateWidget(covariant JocaaguraApp oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final bool managerChanged =
-        !identical(oldWidget.appManager, widget.appManager);
-    final bool registryChanged =
-        !identical(oldWidget.registry, widget.registry);
-    final bool projectorChanged =
-        oldWidget.projectorMode != widget.projectorMode;
-
-    if (managerChanged || registryChanged || projectorChanged) {
-      if (_delegate case final MyAppRouterDelegate d) {
-        d.update(
-          registry: widget.registry,
-          pageManager: widget.appManager.pageManager,
-          projectorMode: widget.projectorMode,
-        );
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    widget.appManager.handleLifecycle(state);
+    if (state == AppLifecycleState.detached) {
+      if (widget.ownsManager && !widget.appManager.isDisposed) {
+        widget.appManager.dispose();
       }
     }
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    widget.appManager.onAppLifecycleChanged?.call(state);
-  }
-
-  @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    if (widget.ownsManager) {
-      widget.appManager.dispose();
-    }
+    try {
+      _routeInfoProvider.dispose();
+    } catch (_) {}
+    try {
+      _delegate.dispose();
+    } catch (_) {}
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AppManagerProvider(
-      appManager: widget.appManager,
-      child: StreamBuilder<ThemeState>(
-        stream: widget.appManager.theme.stream,
-        initialData: widget.appManager.theme.stateOrDefault,
-        builder: (__, AsyncSnapshot<ThemeState> snap) {
-          final ThemeState s = snap.data ?? ThemeState.defaults;
-          return MaterialApp.router(
-            debugShowCheckedModeBanner: false,
-            routerDelegate: _delegate,
-            routeInformationParser: _parser,
-            routeInformationProvider: _routeInfoProvider,
-            theme: const BuildThemeData()
-                .fromState(s.copyWith(mode: ThemeMode.light)),
-            darkTheme: const BuildThemeData()
-                .fromState(s.copyWith(mode: ThemeMode.dark)),
-            themeMode: s.mode,
-          );
-        },
-      ),
+    final AppManager am = widget.appManager;
+
+    _delegate.update(
+      pageManager: am.pageManager,
+      registry: widget.registry,
+    );
+
+    return StreamBuilder<ThemeState>(
+      stream: am.theme.stream,
+      initialData: am.theme.stateOrDefault,
+      builder: (__, AsyncSnapshot<ThemeState> snap) {
+        final ThemeState s = snap.data ?? ThemeState.defaults;
+        return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          routerDelegate: _delegate,
+          routeInformationParser: _parser,
+          routeInformationProvider: _routeInfoProvider,
+          restorationScopeId: 'app',
+          theme: const BuildThemeData()
+              .fromState(s.copyWith(mode: ThemeMode.light)),
+          darkTheme: const BuildThemeData()
+              .fromState(s.copyWith(mode: ThemeMode.dark)),
+          themeMode: s.mode,
+        );
+      },
     );
   }
 }
