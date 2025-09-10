@@ -175,107 +175,196 @@ void main() {
     });
   });
 
-  group('ThemeState – serialización', () {
-    test('toJson usa enums como claves y mantiene overrides null por omisión',
-        () {
-      const ThemeState s = ThemeState.defaults;
+  group('ThemeState serialization', () {
+    test('Round-trip determinism (no overrides)', () {
+      final ThemeState s = ThemeState(
+        mode: ThemeMode.dark,
+        seed: const Color(0xFF0061A4),
+        useMaterial3: true,
+        textScale: 1.25,
+        createdAt: DateTime(2025, 9, 9, 12, 30).toUtc(),
+      );
+
       final Map<String, dynamic> json = s.toJson();
+      expect(json['seed'], isA<String>());
+      expect((json['seed'] as String).startsWith('#'), isTrue);
 
-      expect(json[ThemeEnum.mode.name], 'system');
-      expect(json[ThemeEnum.seed.name], s.seed.toARGB32());
-      expect(json[ThemeEnum.useM3.name], true);
-      expect(json[ThemeEnum.textScale.name], 1.0);
-      expect(json[ThemeEnum.preset.name], 'brand');
-      expect(json.containsKey(ThemeEnum.overrides.name), true);
-      expect(json[ThemeEnum.overrides.name], isNull);
+      final ThemeState r = ThemeState.fromJson(json);
+      expect(r, equals(s)); // createdAt ignored in equality
     });
 
-    test('roundtrip toJson/fromJson sin overrides', () {
-      const ThemeState original = ThemeState(
+    test('Round-trip with full overrides (light/dark)', () {
+      const Color seed = Color(0xFF6750A4);
+      final ThemeOverrides ov = ThemeOverrides(
+        light: ColorScheme.fromSeed(seedColor: seed),
+        dark:
+            ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.dark),
+      );
+      final ThemeState s = ThemeState(
         mode: ThemeMode.light,
-        seed: Color(0xFF334455),
+        seed: seed,
         useMaterial3: false,
-        textScale: 1.2,
-      );
-
-      final Map<String, dynamic> json = original.toJson();
-      final ThemeState parsed = ThemeState.fromJson(json);
-
-      expect(parsed.mode, ThemeMode.light);
-      expect(parsed.seed.toARGB32(), 0xFF334455);
-      expect(parsed.useMaterial3, false);
-      expect(parsed.textScale, 1.2);
-      expect(parsed.preset, 'brand');
-      expect(parsed.overrides, isNull);
-    });
-
-    test('roundtrip con overrides(light/dark)', () {
-      final ThemeOverrides overrides = ThemeOverrides(
-        light: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF8E4D2F),
-        ),
-        dark: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF8E4D2F),
-          brightness: Brightness.dark,
-        ),
-      );
-
-      final ThemeState original = ThemeState.defaults.copyWith(
-        overrides: overrides,
         preset: 'designer',
+        overrides: ov,
       );
 
-      final ThemeState parsed = ThemeState.fromJson(original.toJson());
+      final Map<String, dynamic> json = s.toJson();
+      // Ensure HEX strings in overrides
+      final Map<String, dynamic> light = (json['overrides']
+          as Map<String, dynamic>)['light'] as Map<String, dynamic>;
+      expect(light['primary'], isA<String>());
+      expect((light['primary'] as String).startsWith('#'), isTrue);
 
-      expect(parsed.preset, 'designer');
-      expect(parsed.overrides, isNotNull);
-      expect(parsed.overrides!.light!.brightness, Brightness.light);
-      expect(parsed.overrides!.dark!.brightness, Brightness.dark);
+      final ThemeState r = ThemeState.fromJson(json);
+      expect(r, equals(s));
     });
-  });
 
-  group('ThemeState – robustez/valores faltantes', () {
-    test('fromJson: modo inválido o faltante → ThemeMode.system', () {
-      final Map<String, dynamic> badMode = <String, dynamic>{
-        ThemeEnum.mode.name: 'weird',
+    test('Retro-compat: accepts ARGB int and normalizes to HEX', () {
+      final Map<String, dynamic> json = <String, dynamic>{
+        'mode': 'system',
+        'seed': 0xFF112233,
+        'useM3': true,
+        'textScale': 1.0,
+        'preset': 'brand',
+        'overrides': <String, Map<String, Object>>{
+          'light': <String, Object>{
+            'brightness': 'light',
+            'primary': 0xFF445566,
+            'onPrimary': 0xFFFFFFFF,
+            'secondary': 0xFF777777,
+            'onSecondary': 0xFF000000,
+            'tertiary': 0xFF123456,
+            'onTertiary': 0xFF654321,
+            'error': 0xFFB00020,
+            'onError': 0xFFFFFFFF,
+            'surface': 0xFFFFFFFF,
+            'onSurface': 0xFF000000,
+            'surfaceTint': 0xFF445566,
+            'outline': 0xFF888888,
+            'onSurfaceVariant': 0xFF999999,
+            'inverseSurface': 0xFF121212,
+            'inversePrimary': 0xFF336699,
+          },
+          'dark': <String, Object>{
+            'brightness': 'dark',
+            'primary': 0xFF445566,
+            'onPrimary': 0xFF000000,
+            'secondary': 0xFF777777,
+            'onSecondary': 0xFFFFFFFF,
+            'tertiary': 0xFF123456,
+            'onTertiary': 0xFF654321,
+            'error': 0xFFCF6679,
+            'onError': 0xFF000000,
+            'surface': 0xFF121212,
+            'onSurface': 0xFFFFFFFF,
+            'surfaceTint': 0xFF445566,
+            'outline': 0xFF888888,
+            'onSurfaceVariant': 0xFF999999,
+            'inverseSurface': 0xFFFFFFFF,
+            'inversePrimary': 0xFF336699,
+          },
+        },
       };
 
-      final ThemeState s = ThemeState.fromJson(badMode);
-      expect(s.mode, ThemeMode.system);
+      final ThemeState s = ThemeState.fromJson(json);
+      final Map<String, dynamic> out = s.toJson();
+      expect(out['seed'], equals('#FF112233'));
+
+      final Map<String, dynamic> light = (out['overrides']
+          as Map<String, dynamic>)['light'] as Map<String, dynamic>;
+      expect(light['primary'], equals('#FF445566'));
     });
 
-    test('fromJson: sin seed → usa 0xFF6750A4 (fallback)', () {
-      final ThemeState s = ThemeState.fromJson(const <String, dynamic>{});
-      expect(s.seed.toARGB32(), 0xFF6750A4);
+    test('createdAt is serialized as UTC ISO8601 and parsed as UTC', () {
+      final DateTime local = DateTime(2025, 9, 10, 8); // local naive
+      final ThemeState s = ThemeState(
+        mode: ThemeMode.system,
+        seed: const Color(0xFF6750A4),
+        useMaterial3: true,
+        createdAt: local.toUtc(),
+      );
+      final Map<String, dynamic> json = s.toJson();
+      final String iso = json['createdAt'] as String;
+      expect(iso.endsWith('Z'), isTrue);
+
+      final ThemeState r = ThemeState.fromJson(json);
+      expect(r.createdAt, isNotNull);
+      expect(r.createdAt!.isUtc, isTrue);
     });
 
-    test('fromJson: sin useM3 → false con Utils.getBoolFromDynamic', () {
-      final ThemeState s = ThemeState.fromJson(const <String, dynamic>{});
-      // Nota: tu Utils.getBoolFromDynamic retorna true solo si json == true;
-      // por tanto, sin clave → false.
-      expect(s.useMaterial3, false);
+    test('Validation errors', () {
+      // useM3 missing
+      expect(
+        () => ThemeState.fromJson(const <String, dynamic>{
+          'mode': 'system',
+          'seed': '#FF112233',
+          'textScale': 1.0,
+          'preset': 'brand',
+        }),
+        throwsA(isA<FormatException>()),
+      );
+
+      // useM3 wrong type
+      expect(
+        () => ThemeState.fromJson(const <String, dynamic>{
+          'mode': 'system',
+          'seed': '#FF112233',
+          'useM3': 'true',
+          'textScale': 1.0,
+          'preset': 'brand',
+        }),
+        throwsA(isA<FormatException>()),
+      );
+
+      // textScale invalid
+      expect(
+        () => ThemeState.fromJson(const <String, dynamic>{
+          'mode': 'system',
+          'seed': '#FF112233',
+          'useM3': true,
+          'textScale': 'big',
+          'preset': 'brand',
+        }),
+        throwsA(isA<FormatException>()),
+      );
+
+      // seed invalid hex
+      expect(
+        () => ThemeState.fromJson(const <String, dynamic>{
+          'mode': 'system',
+          'seed': '#XYZ',
+          'useM3': true,
+          'textScale': 1.0,
+          'preset': 'brand',
+        }),
+        throwsA(isA<FormatException>()),
+      );
+
+      // createdAt wrong type
+      expect(
+        () => ThemeState.fromJson(const <String, dynamic>{
+          'mode': 'system',
+          'seed': '#FF112233',
+          'useM3': true,
+          'textScale': 1.0,
+          'preset': 'brand',
+          'createdAt': 12345,
+        }),
+        throwsA(isA<FormatException>()),
+      );
     });
 
-    test('fromJson: sin textScale → 1.0 (default explícito)', () {
-      final ThemeState s = ThemeState.fromJson(const <String, dynamic>{});
-      expect(s.textScale.isNaN ? 1.0 : s.textScale, 1.0);
-    });
-
-    test('fromJson: sin preset → "brand"', () {
-      final ThemeState s = ThemeState.fromJson(const <String, dynamic>{});
-      expect(s.preset.isEmpty ? 'brand' : s.preset, 'brand');
-    });
-
-    test(
-        'fromJson: overrides como mapa vacío → overrides != null pero sin esquemas',
-        () {
-      final ThemeState s = ThemeState.fromJson(<String, dynamic>{
-        ThemeEnum.overrides.name: const <String, dynamic>{},
-      });
-      // Tu ThemeOverrides.fromJson devuelve ThemeOverrides con light/dark nulos si están ausentes.
-      expect(s.overrides, isNotNull);
-      expect(s.overrides!.light, isNull);
-      expect(s.overrides!.dark, isNull);
+    test('Equality ignores createdAt metadata', () {
+      final ThemeState a = ThemeState(
+        mode: ThemeMode.light,
+        seed: const Color(0xFF112233),
+        useMaterial3: true,
+        createdAt: DateTime.utc(2025, 9, 10, 10),
+      );
+      final ThemeState b =
+          a.copyWith(createdAt: DateTime.utc(2025, 9, 10, 10, 5));
+      expect(a, equals(b));
+      expect(a.hashCode, equals(b.hashCode));
     });
   });
 }
