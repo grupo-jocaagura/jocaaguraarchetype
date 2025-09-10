@@ -5,6 +5,164 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2025-09-10
+
+### Added
+- **JocaaguraApp:** widget de alto nivel con `AppManagerProvider` y factory `JocaaguraApp.dev()` para arranque rápido.
+- **UtilsForTheme:** utilidades para parseo/formateo de colores y acceso JSON estricto.
+- **Testing:** `FakeServiceTheme` para pruebas determinísticas de implementaciones de tema.
+
+### Changed
+- **PageRegistry / PageManager:** utilidades de rutas, políticas post-dispose, navegación nombrada y mayor estabilidad en hot reload.
+- **Navegación:** `MyAppRouterDelegate` mejora la conciliación de removals y refuerza la inmutabilidad en los modelos de navegación.
+- **Tema:**
+  - `GatewayThemeImpl.normalize()` acepta semilla como `int` (ARGB32), `String` (HEX `#AARRGGBB`) o `Color` (persistencia interna como `int`).
+  - JSON canónico en `ThemeState` y `ThemeOverrides`: colores en HEX mayúsculas `#AARRGGBB`; `fromJson` admite ARGB `int` legado pero normaliza en `toJson`.
+  - `createdAt` (`DateTime?`) serializado en ISO8601 UTC cuando existe y excluido de `==`/`hashCode`.
+
+### Docs
+- DartDoc ampliado en **ServiceTheme**, **PageRegistry** y **PageManager**, con ejemplos autocontenidos.
+
+### Tests
+- Casos adicionales para `GatewayThemeImpl`, `ThemeUsecases` y `RepositoryThemeImpl` (incluye verificación de normalización HEX y propagación de errores).
+
+### CI/CD
+- Workflows actualizados para **commits firmados**, análisis estático y **publicación en pub.dev**.
+
+> **Notas:** No hay cambios incompatibles. Si usas snapshots de JSON de tema en tests, podrían requerir actualización al formato HEX en mayúsculas.
+
+
+## [3.1.4] - 2025-09-10
+
+### Added
+- **Testing:** `FakeServiceTheme` para pruebas determinísticas de `ServiceTheme` (usado en `service_theme_test.dart`).
+
+### Changed
+- **GatewayThemeImpl:** `normalize()` ahora acepta semilla como `int` (ARGB32), `String` (HEX `#AARRGGBB`) o `Color`. Se persiste internamente como `int`.
+- **Serialización de tema:** `ThemeState`/`ThemeOverrides` emiten JSON canónico:
+  - Colores en HEX `#AARRGGBB` (mayúsculas).
+  - `fromJson` acepta ints ARGB legados, pero `toJson` normaliza a HEX.
+  - `createdAt` es `DateTime?` y se serializa en ISO8601 UTC si existe; se ignora en `==`/`hashCode`.
+- **Estructura:** `ThemeOverrides` y `ThemePatch` movidos a archivos propios (`theme_overrides.dart`, `theme_patch.dart`).
+- **Utilidades:** `UtilsForTheme` para parseo/formateo de color y acceso JSON estricto.
+
+### Fixed
+- **ThemePatch.applyOn:** maneja `textScale` no finito y cae de forma segura al valor base.
+
+### Docs
+- **ServiceTheme:** DartDoc ampliado (contratos de pureza, idempotencia, pre/post-condiciones).
+
+### Tests
+- **GatewayThemeImpl:** casos para entradas en HEX y `Color`.
+- **ThemeUsecases:** pruebas de propagación de errores (read/write), verificación de HEX canónico en `ThemeState.toJson()` y fallback a defaults en `ERR_NOT_FOUND`.
+- **RepositoryThemeImpl:** corrección de nombre de archivo de pruebas  
+  `repository_teme_impl_test.dart` → `repository_theme_impl_test.dart`.
+
+### CI
+- **Workflow:** `validate_commits_and_lints.yaml` ignora pushes a `master` y `develop` (ramas protegidas con merge controlado).
+
+> **Notas:** No hay cambios incompatibles. La salida JSON ahora es canónica; si tienes snapshots de tests sobre JSON de tema, puede que requieran actualizarse al formato HEX en mayúsculas.
+
+## [3.1.3] - 2025-09-10
+
+### Added
+- **JocaaguraApp** (nuevo widget de alto nivel)
+  - API pública *stateless* con *shell* interno stateful para estabilidad del router.
+  - `JocaaguraApp.dev()` para bootstrapping rápido (propiedad del `AppManager` por defecto).
+  - `AppManagerProvider` en la raíz y *wiring* de `MaterialApp.router`.
+  - Ejemplo mínimo de navegación (3 páginas) y documentación integrada.
+- **PageRegistry**
+  - Documentación exhaustiva y utilidades de 404/redirect.
+  - `toPage()` con claves canónicas estables y soporte de `DialogPage`.
+- **PageManager**
+  - **ModulePostDisposePolicy** para controlar el comportamiento *post-dispose*:
+    - `throwStateError` (estricto).
+    - `returnLastSnapshotNoop` (tolerante).
+  - Nuevos helpers y métodos de navegación nombrada (`pushDistinctTopNamed`, `pushOnceNamed`, etc.).
+- **CI**
+  - Workflow `validate_commits_and_lints.yaml` (commits firmados, lints, format, doctor).
+- **Example**
+  - Consolidación en `example/lib/main.dart` y simplificación del arquetipo de demo.
+
+### Changed
+- **MyAppRouterDelegate**
+  - Lógica de `pop` y conciliación de removals refinada para distinguir cambios del modelo vs. gestos del `Navigator`.
+  - `update()` para *hot reload* / cambios dinámicos de `PageManager`/`PageRegistry` sin recrear el delegate.
+  - Sincronización inicial protegida con `_navigatorSyncedOnce` para evitar reacciones prematuras.
+- **JocaaguraApp / Lifecycle**
+  - El *ownership* del `AppManager` se respeta mediante `ownsManager`.
+  - **Importante:** el `dispose()` del `AppManager` se **difiere** al cierre real de la app (p. ej. `AppLifecycleState.detached`) para evitar matar BLoCs en desmontajes no definitivos (hot reload, reparents, tests).
+- **PageModel / NavStackModel**
+  - Inmutabilidad reforzada (listas/mapas envueltos como unmodifiable).
+  - Hash/igualdad más estables y documentación modernizada.
+
+### Fixed
+- Cadena de rutas: se preserva correctamente `PageModel.name` en múltiples iteraciones (v1/v2/v3).
+- `setNewRoutePath`: limpieza correcta de historial al establecer una nueva ruta.
+- Eliminados *pops* fantasma durante el primer *build* del `Navigator` gracias a la sincronización diferida.
+
+### Docs & Tests
+- DartDoc ampliado para `MyAppRouterDelegate`, `PageRegistry` y `PageManager`, con ejemplos autocontenidos.
+- Cobertura de pruebas ampliada (post-dispose policy, títulos, historial, conciliación de removals, hooks de delegate).
+
+### Deprecations
+- **projectorMode**: el modo “proyector/top-only” queda **desaconsejado** y no se expone desde `JocaaguraApp` (el delegate trabaja con **stack completo**). Para flujos de “pantalla única”, usar navegación por `replaceTop*`.
+
+---
+
+**Notas de migración**
+- Si dependías de “proyector”, migra a **stack completo** y usa `replaceTop*` para transiciones tipo shell.
+- En tests que reconstruyen el árbol varias veces, si administras el `AppManager` externamente, dispónlo explícitamente en `tearDown()`.
+
+**Autores**
+- @Albert J. Jiménez P. (commits y refactors principales).
+
+
+## [3.1.2] - 2025-09-08
+
+### Refactor
+- **SessionNavCoordinator**: improved robustness and testability.
+    - Added `_prevTopFromStackEvent` tracking to better handle user navigation intents.
+    - Introduced `canApplyGoHome` predicate to centralize the conditions for (C) → *authed on login → go home*.
+    - Strengthened idempotency checks for login/home redirections.
+    - More resilient fallbacks when `BlocSession` or `PageManager` are already disposed.
+
+### Tests
+- Expanded coverage for session-aware navigation flows (unauth → login, auth → restore, refreshing, logout, etc.).
+- Verified compatibility with alternative `pageEquals` strategies (by name, by route).
+- Documented and temporarily disabled two failing tests related to **intention handling** (`prevTop` / `canApplyGoHome`).  
+  These are not in use yet and will be fully debugged in a future iteration.  
+  → See TODOs in test file and upcoming issue *“Depurar manejo de intenciones en SessionNavCoordinator”*.
+
+### Notes
+- Session management is confirmed to work as expected across supported flows.
+- The **intention management** code path is scaffolded but not yet active in production use.
+
+
+## [3.1.1] - 2025-09-07
+
+### Refactor
+- Consolidated all example files into a single `example/lib/main.dart` for a minimal, self-contained demo.
+- Simplified `RepositoryThemeImpl` and `GatewayThemeImpl` to use `const DefaultErrorMapper()`.
+
+### CI
+- Added GitHub Actions workflow `validate_commits_and_lints.yaml`:
+    - Verifies signed commits.
+    - Sets up Flutter and runs `flutter doctor`.
+    - Runs `flutter pub get` for all pubspecs.
+    - Disallows `dependency_overrides` in pubspec.yaml.
+    - Enforces formatting with `dart format`.
+    - Runs static analysis with `dart analyze --fatal-infos --fatal-warnings`.
+
+### Chore
+- Bumped `jocaagura_domain` dependency to `^1.26.0`.
+- Updated package description in `pubspec.yaml` to comply with pub.dev scoring guidelines.
+
+---
+
+✅ This patch release simplifies the example app structure, strengthens CI with commit and lint validations, and ensures alignment with the latest `jocaagura_domain` release.
+
+
 ## [3.1.0] - 2025-09-03
 ### Added
 - **AppConfig**

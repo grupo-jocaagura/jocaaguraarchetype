@@ -1,3 +1,4 @@
+// File: lib/src/theme_state.dart
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// JSON keys for ThemeState.
@@ -8,6 +9,7 @@ enum ThemeEnum {
   textScale,
   preset,
   overrides,
+  createdAt,
 }
 
 /// JSON keys for ThemeOverrides payload.
@@ -36,166 +38,45 @@ enum ColorSchemeEnum {
   inversePrimary,
 }
 
-@immutable
-class ThemeOverrides {
-  const ThemeOverrides({this.light, this.dark});
-
-  final ColorScheme? light;
-  final ColorScheme? dark;
-
-  ThemeOverrides copyWith({ColorScheme? light, ColorScheme? dark}) =>
-      ThemeOverrides(light: light ?? this.light, dark: dark ?? this.dark);
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        ThemeOverridesEnum.light.name:
-            light == null ? null : _schemeToMap(light!),
-        ThemeOverridesEnum.dark.name: dark == null ? null : _schemeToMap(dark!),
-      };
-
-  static ThemeOverrides? fromJson(Map<String, dynamic>? json) {
-    if (json == null) {
-      return null;
-    }
-    return ThemeOverrides(
-      light: _mapToScheme(
-        json[ThemeOverridesEnum.light.name] as Map<String, dynamic>?,
-      ),
-      dark: _mapToScheme(
-        json[ThemeOverridesEnum.dark.name] as Map<String, dynamic>?,
-      ),
-    );
-  }
-
-  static Map<String, dynamic> _schemeToMap(ColorScheme s) => <String, dynamic>{
-        ColorSchemeEnum.brightness.name: s.brightness.name,
-        ColorSchemeEnum.primary.name: s.primary.toARGB32(),
-        ColorSchemeEnum.onPrimary.name: s.onPrimary.toARGB32(),
-        ColorSchemeEnum.secondary.name: s.secondary.toARGB32(),
-        ColorSchemeEnum.onSecondary.name: s.onSecondary.toARGB32(),
-        ColorSchemeEnum.tertiary.name: s.tertiary.toARGB32(),
-        ColorSchemeEnum.onTertiary.name: s.onTertiary.toARGB32(),
-        ColorSchemeEnum.error.name: s.error.toARGB32(),
-        ColorSchemeEnum.onError.name: s.onError.toARGB32(),
-        ColorSchemeEnum.surface.name: s.surface.toARGB32(),
-        ColorSchemeEnum.onSurface.name: s.onSurface.toARGB32(),
-        ColorSchemeEnum.surfaceTint.name: s.surfaceTint.toARGB32(),
-        ColorSchemeEnum.outline.name: s.outline.toARGB32(),
-        ColorSchemeEnum.onSurfaceVariant.name: s.onSurfaceVariant.toARGB32(),
-        ColorSchemeEnum.inverseSurface.name: s.inverseSurface.toARGB32(),
-        ColorSchemeEnum.inversePrimary.name: s.inversePrimary.toARGB32(),
-      };
-
-  static ColorScheme? _mapToScheme(Map<String, dynamic>? m) {
-    if (m == null) {
-      return null;
-    }
-    final Brightness b = (m[ColorSchemeEnum.brightness.name] == 'dark')
-        ? Brightness.dark
-        : Brightness.light;
-    Color c(int v) => Color((v as num).toInt());
-    return ColorScheme(
-      brightness: b,
-      primary: c(Utils.getIntegerFromDynamic(m[ColorSchemeEnum.primary.name])),
-      onPrimary:
-          c(Utils.getIntegerFromDynamic(m[ColorSchemeEnum.onPrimary.name])),
-      secondary:
-          c(Utils.getIntegerFromDynamic(m[ColorSchemeEnum.secondary.name])),
-      onSecondary:
-          c(Utils.getIntegerFromDynamic(m[ColorSchemeEnum.onSecondary.name])),
-      tertiary:
-          c(Utils.getIntegerFromDynamic(m[ColorSchemeEnum.tertiary.name])),
-      onTertiary:
-          c(Utils.getIntegerFromDynamic(m[ColorSchemeEnum.onTertiary.name])),
-      error: c(Utils.getIntegerFromDynamic(m[ColorSchemeEnum.error.name])),
-      onError: c(Utils.getIntegerFromDynamic(m[ColorSchemeEnum.onError.name])),
-      surface: c(Utils.getIntegerFromDynamic(m[ColorSchemeEnum.surface.name])),
-      onSurface:
-          c(Utils.getIntegerFromDynamic(m[ColorSchemeEnum.onSurface.name])),
-      surfaceTint:
-          c(Utils.getIntegerFromDynamic(m[ColorSchemeEnum.surfaceTint.name])),
-      outline: c(Utils.getIntegerFromDynamic(m[ColorSchemeEnum.outline.name])),
-      onSurfaceVariant: c(
-        Utils.getIntegerFromDynamic(
-          m[ColorSchemeEnum.onSurfaceVariant.name],
-        ),
-      ),
-      inverseSurface: c(
-        Utils.getIntegerFromDynamic(m[ColorSchemeEnum.inverseSurface.name]),
-      ),
-      inversePrimary: c(
-        Utils.getIntegerFromDynamic(m[ColorSchemeEnum.inversePrimary.name]),
-      ),
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    if (other.runtimeType != runtimeType) {
-      return false;
-    } else if (other is ThemeOverrides) {
-      return _schemeEquals(light, other.light) &&
-          _schemeEquals(dark, other.dark);
-    }
-    return false;
-  }
-
-  @override
-  int get hashCode => _schemeHash(light) ^ (_schemeHash(dark) * 31);
-
-  static bool _schemeEquals(ColorScheme? a, ColorScheme? b) {
-    if (identical(a, b)) {
-      return true;
-    }
-    if (a == null || b == null) {
-      return a == b;
-    }
-    return a.brightness == b.brightness &&
-        a.primary == b.primary &&
-        a.onPrimary == b.onPrimary &&
-        a.secondary == b.secondary &&
-        a.onSecondary == b.onSecondary &&
-        a.tertiary == b.tertiary &&
-        a.onTertiary == b.onTertiary &&
-        a.error == b.error &&
-        a.onError == b.onError &&
-        a.surface == b.surface &&
-        a.onSurface == b.onSurface &&
-        a.surfaceTint == b.surfaceTint &&
-        a.outline == b.outline &&
-        a.onSurfaceVariant == b.onSurfaceVariant &&
-        a.inverseSurface == b.inverseSurface &&
-        a.inversePrimary == b.inversePrimary;
-  }
-
-  static int _schemeHash(ColorScheme? s) {
-    if (s == null) {
-      return 0;
-    }
-    int h = s.brightness.hashCode;
-    h = 0x1fffffff & (h ^ s.primary.hashCode);
-    h = 0x1fffffff & (h ^ s.onPrimary.hashCode);
-    h = 0x1fffffff & (h ^ s.secondary.hashCode);
-    h = 0x1fffffff & (h ^ s.onSecondary.hashCode);
-    h = 0x1fffffff & (h ^ s.tertiary.hashCode);
-    h = 0x1fffffff & (h ^ s.onTertiary.hashCode);
-    h = 0x1fffffff & (h ^ s.error.hashCode);
-    h = 0x1fffffff & (h ^ s.onError.hashCode);
-    h = 0x1fffffff & (h ^ s.surface.hashCode);
-    h = 0x1fffffff & (h ^ s.onSurface.hashCode);
-    h = 0x1fffffff & (h ^ s.surfaceTint.hashCode);
-    h = 0x1fffffff & (h ^ s.outline.hashCode);
-    h = 0x1fffffff & (h ^ s.onSurfaceVariant.hashCode);
-    h = 0x1fffffff & (h ^ s.inverseSurface.hashCode);
-    h = 0x1fffffff & (h ^ s.inversePrimary.hashCode);
-    return h;
-  }
-}
-
+/// Modela un estado de tema **inmutable** con serialización JSON **canónica**.
+///
+/// - Los colores se serializan **siempre** como `#AARRGGBB` en mayúsculas para
+///   garantizar determinismo de round-trip (`toJson` → `fromJson` → `toJson`).
+/// - `fromJson` acepta enteros ARGB heredados por compatibilidad, pero
+///   re-serializa a HEX canónico en `toJson`.
+/// - `createdAt` (opcional) se serializa en ISO8601 UTC si está presente y se
+///   trata como **metadata**: queda **excluido** de `==` y `hashCode`.
+///
+/// ### Contratos
+/// - `textScale` debe ser finito (`isFinite`). En caso contrario lanza
+///   `FormatException('ThemeState.textScale invalid')`.
+/// - Si `mode` está ausente, vacío o inválido, se usa `ThemeMode.system`.
+///
+/// ### Ejemplo mínimo
+/// ```dart
+/// void main() {
+///   final ThemeState s = ThemeState.defaults.copyWith(
+///     mode: ThemeMode.dark,
+///     seed: const Color(0xFF0061A4),
+///     createdAt: DateTime.now().toUtc(),
+///   );
+///   final Map<String, dynamic> json = s.toJson();
+///   final ThemeState round = ThemeState.fromJson(json);
+///   // createdAt es metadata: no participa en igualdad/hashing.
+///   assert(s == round);
+/// }
+/// ```
 @immutable
 class ThemeState {
+  /// Crea una instancia inmutable de [ThemeState].
+  ///
+  /// - [mode]: Modo de tema (system/light/dark).
+  /// - [seed]: Color semilla para generar paletas.
+  /// - [useMaterial3]: `true` si se habilita Material 3.
+  /// - [textScale]: Escala tipográfica (por defecto `1.0`, debe ser finita).
+  /// - [preset]: Nombre del preset (por defecto `'brand'` si falta/está vacío en JSON).
+  /// - [overrides]: Sobrescrituras de `ColorScheme` por tema claro/oscuro.
+  /// - [createdAt]: Marca de tiempo en UTC ISO8601 (metadata, no afecta igualdad).
   const ThemeState({
     required this.mode,
     required this.seed,
@@ -203,44 +84,88 @@ class ThemeState {
     this.textScale = 1.0,
     this.preset = 'brand',
     this.overrides,
+    this.createdAt,
   });
 
+  /// Deserializa un [ThemeState] desde JSON con reglas de **retrocompatibilidad**.
+  ///
+  /// Acepta `mode` como `system|light|dark`. Si está ausente, vacío o no coincide,
+  /// se usa `ThemeMode.system` (vía `orElse`).
+  ///
+  /// - `seed` admite `int` ARGB legado o `String` HEX. Se normaliza a HEX.
+  /// - `useM3` y `textScale` se leen estrictamente; `textScale` debe ser finito.
+  /// - `preset` vacío se normaliza a `'brand'`.
+  /// - `overrides` se mapea con [ThemeOverrides.fromJson] si está presente.
+  /// - `createdAt` se interpreta como instante UTC si existe.
   factory ThemeState.fromJson(Map<String, dynamic> json) {
-    final String modeName = Utils.getStringFromDynamic(
-      json[ThemeEnum.mode.name],
+    final String modeName =
+        UtilsForTheme.asStringOrEmpty(json, ThemeEnum.mode.name);
+    final ThemeMode parsedMode = ThemeMode.values.firstWhere(
+      (ThemeMode themeMode) =>
+          themeMode.name == (modeName.isNotEmpty ? modeName : 'system'),
+      orElse: () => ThemeMode.system,
     );
+
+    final dynamic seedRaw = json[ThemeEnum.seed.name];
+    final Color parsedSeed = seedRaw == null
+        ? const Color(0xFF6750A4)
+        : UtilsForTheme.parseColorCanonical(seedRaw, path: ThemeEnum.seed.name);
+
+    final bool parsedM3 =
+        UtilsForTheme.asBoolStrict(json, ThemeEnum.useM3.name);
+
+    final double parsedScale =
+        UtilsForTheme.asDoubleStrict(json, ThemeEnum.textScale.name, 1.0);
+    if (!parsedScale.isFinite) {
+      throw const FormatException('ThemeState.textScale invalid');
+    }
+
+    final String prevPreset =
+        UtilsForTheme.asStringOrEmpty(json, ThemeEnum.preset.name);
+    final String parsedPreset = prevPreset.isEmpty ? 'brand' : prevPreset;
+
+    final ThemeOverrides? ov = json[ThemeEnum.overrides.name] == null
+        ? null
+        : ThemeOverrides.fromJson(
+            UtilsForTheme.asMapStrict(json, ThemeEnum.overrides.name),
+          );
+
+    final DateTime? parsedCreatedAt =
+        UtilsForTheme.asUtcInstant(json, ThemeEnum.createdAt.name);
+
     return ThemeState(
-      mode: ThemeMode.values.firstWhere(
-        (ThemeMode e) => e.name == (modeName.isNotEmpty ? modeName : 'system'),
-        orElse: () => ThemeMode.system,
-      ),
-      seed: Color(
-        Utils.getIntegerFromDynamic(json[ThemeEnum.seed.name]) > 0
-            ? Utils.getIntegerFromDynamic(json[ThemeEnum.seed.name])
-            : 0xFF6750A4,
-      ),
-      useMaterial3: Utils.getBoolFromDynamic(json[ThemeEnum.useM3.name]),
-      textScale: Utils.getDouble(json[ThemeEnum.textScale.name], 1.0),
-      preset: (() {
-        final String p =
-            Utils.getStringFromDynamic(json[ThemeEnum.preset.name]);
-        return p.isEmpty ? 'brand' : p;
-      })(),
-      overrides: json[ThemeEnum.overrides.name] == null
-          ? null
-          : ThemeOverrides.fromJson(
-              Utils.mapFromDynamic(json[ThemeEnum.overrides.name]),
-            ),
+      mode: parsedMode,
+      seed: parsedSeed,
+      useMaterial3: parsedM3,
+      textScale: parsedScale,
+      preset: parsedPreset,
+      overrides: ov,
+      createdAt: parsedCreatedAt,
     );
   }
 
+  /// Modo de tema actual (system/light/dark).
   final ThemeMode mode;
+
+  /// Color semilla a partir del que se derivan esquemas de color.
   final Color seed;
+
+  /// Habilita o no Material 3.
   final bool useMaterial3;
+
+  /// Factor de escala tipográfica (debe ser finito).
   final double textScale;
+
+  /// Nombre del preset (por defecto `'brand'` si JSON lo omite o viene vacío).
   final String preset;
+
+  /// Sobrescrituras explícitas de esquema de color.
   final ThemeOverrides? overrides;
 
+  /// Marca de tiempo opcional en UTC (metadata; se ignora en `==` y `hashCode`).
+  final DateTime? createdAt;
+
+  /// Crea una copia con cambios puntuales manteniendo inmutabilidad.
   ThemeState copyWith({
     ThemeMode? mode,
     Color? seed,
@@ -248,6 +173,7 @@ class ThemeState {
     double? textScale,
     String? preset,
     ThemeOverrides? overrides,
+    DateTime? createdAt,
   }) =>
       ThemeState(
         mode: mode ?? this.mode,
@@ -256,22 +182,31 @@ class ThemeState {
         textScale: textScale ?? this.textScale,
         preset: preset ?? this.preset,
         overrides: overrides ?? this.overrides,
+        createdAt: createdAt ?? this.createdAt,
       );
 
+  /// Serializa el estado a JSON en formato canónico.
+  ///
+  /// - `seed` se emite como `#AARRGGBB`.
+  /// - `createdAt` (si existe) se emite como ISO8601 en UTC.
   Map<String, dynamic> toJson() => <String, dynamic>{
         ThemeEnum.mode.name: mode.name,
-        ThemeEnum.seed.name: seed.toARGB32(),
+        ThemeEnum.seed.name: UtilsForTheme.colorToHex(seed),
         ThemeEnum.useM3.name: useMaterial3,
         ThemeEnum.textScale.name: textScale,
         ThemeEnum.preset.name: preset,
         ThemeEnum.overrides.name: overrides?.toJson(),
+        if (createdAt != null)
+          ThemeEnum.createdAt.name: createdAt!.toUtc().toIso8601String(),
       };
 
+  /// Estado por defecto.
   static const ThemeState defaults = ThemeState(
     mode: ThemeMode.system,
     seed: Color(0xFF6750A4),
     useMaterial3: true,
   );
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) {
@@ -298,52 +233,5 @@ class ThemeState {
     h = 0x1fffffff & (h ^ preset.hashCode);
     h = 0x1fffffff & (h ^ (overrides?.hashCode ?? 0));
     return h;
-  }
-}
-
-/// Partial update intent for theme. Any non-null field will be applied on top
-/// of the current ThemeState in the repository.
-@immutable
-class ThemePatch {
-  const ThemePatch({
-    this.mode,
-    this.seed,
-    this.useMaterial3,
-    this.textScale,
-    this.preset,
-    this.overrides,
-  });
-
-  /// Target ThemeMode.
-  final ThemeMode? mode;
-
-  /// Seed color for ColorScheme.fromSeed (unless overridden by overrides).
-  final Color? seed;
-
-  /// Toggle for Material 3.
-  final bool? useMaterial3;
-
-  /// Text scale factor; will be clamped on apply.
-  final double? textScale;
-
-  /// Named preset (brand, designer, etc).
-  final String? preset;
-
-  /// Optional per-scheme overrides; if provided, it replaces current overrides.
-  final ThemeOverrides? overrides;
-
-  /// Applies this patch over [base] producing a new ThemeState.
-  ThemeState applyOn(ThemeState base) {
-    final double scale = textScale == null
-        ? base.textScale
-        : Utils.getDouble(textScale!.clamp(0.8, 1.6));
-    return base.copyWith(
-      mode: mode ?? base.mode,
-      seed: seed ?? base.seed,
-      useMaterial3: useMaterial3 ?? base.useMaterial3,
-      textScale: scale,
-      preset: preset ?? base.preset,
-      overrides: overrides ?? base.overrides,
-    );
   }
 }

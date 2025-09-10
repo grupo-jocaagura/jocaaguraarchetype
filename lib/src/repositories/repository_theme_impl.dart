@@ -18,7 +18,7 @@ class RepositoryThemeImpl implements RepositoryTheme {
     required GatewayTheme gateway,
     ErrorMapper? errorMapper,
   })  : _gw = gateway,
-        _mapper = errorMapper ?? DefaultErrorMapper();
+        _mapper = errorMapper ?? const DefaultErrorMapper();
 
   final GatewayTheme _gw;
   final ErrorMapper _mapper;

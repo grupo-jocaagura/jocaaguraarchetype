@@ -13,7 +13,7 @@ class GatewayThemeImpl implements GatewayTheme {
     ErrorMapper? errorMapper,
     Map<String, dynamic>? initial,
   })  : _theme = themeService ?? const FakeServiceJocaaguraArchetypeTheme(),
-        _mapper = errorMapper ?? DefaultErrorMapper(),
+        _mapper = errorMapper ?? const DefaultErrorMapper(),
         _doc = initial == null ? null : Map<String, dynamic>.from(initial);
 
   final ServiceTheme _theme;
@@ -74,21 +74,27 @@ class GatewayThemeImpl implements GatewayTheme {
       orElse: () => ThemeMode.system,
     );
 
-    // seed (int ARGB32)
-    final int seedInt = switch (json['seed']) {
-      final int v => v,
+    // seed: admitir int ARGB32, String HEX '#AARRGGBB', o Color
+    final dynamic rawSeed = json['seed'];
+    final int seedInt = switch (rawSeed) {
+      final int v => v & 0xFFFFFFFF,
+      final String s => _parseHexARGB32Safe(s) ?? 0xFF6750A4,
+      final Color c => c.toARGB32() & 0xFFFFFFFF,
       _ => 0xFF6750A4,
     };
-    final Color seed = Color(seedInt & 0xFFFFFFFF);
+    final Color seed = Color(seedInt);
 
     // useM3
     final bool useM3 = (json['useM3'] ??= true) == true;
 
+    // textScale
     final double textScale =
         ((json['textScale'] as num?)?.toDouble() ?? 1.0).clamp(0.8, 1.6);
 
+    // preset
     final String preset = (json['preset'] as String?) ?? 'brand';
 
+    // overrides
     final dynamic rawOverrides = json['overrides'];
     Map<String, dynamic>? overrides;
     if (rawOverrides is ThemeOverrides) {
@@ -101,12 +107,25 @@ class GatewayThemeImpl implements GatewayTheme {
 
     return <String, dynamic>{
       'mode': mode.name,
-      'seed': seed.toARGB32(),
+      // El gateway persiste como entero ARGB32 (su formato interno)
+      'seed': seed.toARGB32() & 0xFFFFFFFF,
       'useM3': useM3,
       'textScale': textScale,
       'preset': preset,
-      if (overrides != null) 'overrides': overrides, // 👈 mantenerlo
+      if (overrides != null) 'overrides': overrides,
     };
+  }
+
+  int? _parseHexARGB32Safe(String s) {
+    final String hex = s.startsWith('#') ? s.substring(1) : s;
+    if (hex.length != 8) {
+      return null;
+    }
+    try {
+      return int.parse(hex, radix: 16) & 0xFFFFFFFF;
+    } catch (_) {
+      return null;
+    }
   }
 
   void _smokeTest(Map<String, dynamic> json) {

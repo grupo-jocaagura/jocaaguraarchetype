@@ -4,8 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// Registry mínimo para usar AppConfig.dev
-PageRegistry _dummyRegistry() =>
-    const PageRegistry(<String, PageWidgetBuilder>{});
+PageRegistry _dummyRegistry() => PageRegistry(<String, PageWidgetBuilder>{});
 
 /// Construye un AppConfig.dev listo para pruebas.
 AppConfig _makeDev({List<OnboardingStep> steps = const <OnboardingStep>[]}) {

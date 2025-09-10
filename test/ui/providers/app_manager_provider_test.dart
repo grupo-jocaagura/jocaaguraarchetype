@@ -73,7 +73,7 @@ class _DependentProbeState extends State<_DependentProbe> {
 }
 
 final AppConfig appConfig =
-    AppConfig.dev(registry: const PageRegistry(<String, PageWidgetBuilder>{}));
+    AppConfig.dev(registry: PageRegistry(<String, PageWidgetBuilder>{}));
 
 void main() {
   group('AppManagerProvider / AppManagerExtension', () {

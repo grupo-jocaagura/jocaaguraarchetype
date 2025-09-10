@@ -122,7 +122,7 @@ ThemeUsecases _ucsOk() => ThemeUsecases(
 PageRegistry _dummyRegistry() {
   // Un registry mínimo para satisfacer AppConfig.dev; implementa lo que uses.
   // Aquí asumimos que PageRegistry tiene ctor vacío o de conveniencia.
-  return const PageRegistry(<String, PageWidgetBuilder>{});
+  return PageRegistry(<String, PageWidgetBuilder>{});
 }
 
 class _DummyModuleA extends BlocModule {
