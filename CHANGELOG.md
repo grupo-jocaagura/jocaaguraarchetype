@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2025-09-10
+
+### Added
+- **JocaaguraApp:** widget de alto nivel con `AppManagerProvider` y factory `JocaaguraApp.dev()` para arranque rápido.
+- **UtilsForTheme:** utilidades para parseo/formateo de colores y acceso JSON estricto.
+- **Testing:** `FakeServiceTheme` para pruebas determinísticas de implementaciones de tema.
+
+### Changed
+- **PageRegistry / PageManager:** utilidades de rutas, políticas post-dispose, navegación nombrada y mayor estabilidad en hot reload.
+- **Navegación:** `MyAppRouterDelegate` mejora la conciliación de removals y refuerza la inmutabilidad en los modelos de navegación.
+- **Tema:**
+  - `GatewayThemeImpl.normalize()` acepta semilla como `int` (ARGB32), `String` (HEX `#AARRGGBB`) o `Color` (persistencia interna como `int`).
+  - JSON canónico en `ThemeState` y `ThemeOverrides`: colores en HEX mayúsculas `#AARRGGBB`; `fromJson` admite ARGB `int` legado pero normaliza en `toJson`.
+  - `createdAt` (`DateTime?`) serializado en ISO8601 UTC cuando existe y excluido de `==`/`hashCode`.
+
+### Docs
+- DartDoc ampliado en **ServiceTheme**, **PageRegistry** y **PageManager**, con ejemplos autocontenidos.
+
+### Tests
+- Casos adicionales para `GatewayThemeImpl`, `ThemeUsecases` y `RepositoryThemeImpl` (incluye verificación de normalización HEX y propagación de errores).
+
+### CI/CD
+- Workflows actualizados para **commits firmados**, análisis estático y **publicación en pub.dev**.
+
+> **Notas:** No hay cambios incompatibles. Si usas snapshots de JSON de tema en tests, podrían requerir actualización al formato HEX en mayúsculas.
+
+
 ## [3.1.4] - 2025-09-10
 
 ### Added
