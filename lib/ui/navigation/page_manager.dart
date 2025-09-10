@@ -49,11 +49,12 @@ class PageManager extends BlocModule {
 
   Stream<bool> get canPopStream =>
       stackStream.map((NavStackModel s) => !s.isRoot).distinct();
+  late final Stream<NavStackModel> _stackStreamRef = _stack.stream;
 
   Stream<NavStackModel> get stackStream => _guard<Stream<NavStackModel>>(
-        body: () => _stack.stream,
+        body: () => _stackStreamRef,
         lastSnapshot: () =>
-            _stack.stream, // stream ya cerrado, re-emite y completa
+            _stackStreamRef, // misma instancia, aunque ya esté cerrado
       );
 
   NavStackModel get stack => _guard<NavStackModel>(
