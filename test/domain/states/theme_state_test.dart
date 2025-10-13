@@ -530,4 +530,130 @@ void main() {
       expect(state.preset, 'brand');
     });
   });
+  group('ThemeState.textOverrides – roundtrip', () {
+    test(
+        'Given light/dark TextThemeOverrides '
+        'When toJson/fromJson '
+        'Then ThemeState equals and styles are preserved', () {
+      // Arrange
+      const TextThemeOverrides txt = TextThemeOverrides(
+        light: TextTheme(
+          bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, height: 1.2),
+          titleLarge: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        dark: TextTheme(
+          bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, height: 1.2),
+          titleLarge: TextStyle(fontWeight: FontWeight.w700),
+        ),
+      );
+
+      final ThemeState original = ThemeState.defaults.copyWith(
+        mode: ThemeMode.dark,
+        seed: const Color(0xFF0061A4),
+        textOverrides: txt,
+      );
+
+      // Act
+      final Map<String, dynamic> json = original.toJson();
+      final ThemeState restored = ThemeState.fromJson(json);
+
+      // Assert (objeto completo)
+      expect(restored, equals(original));
+      expect(restored.hashCode == original.hashCode, isTrue);
+
+      // Assert (payload JSON contiene la sección 'textOverrides')
+      expect(json.containsKey(ThemeEnum.textOverrides.name), isTrue);
+      expect(json[ThemeEnum.textOverrides.name], isA<Map<String, dynamic>>());
+
+      // Assert (propiedades internas preservadas)
+      final TextThemeOverrides restoredTxt = restored.textOverrides!;
+      expect(restoredTxt.light!.bodyMedium!.fontFamily, 'Inter');
+      expect(restoredTxt.light!.bodyMedium!.fontSize, 14);
+      expect(restoredTxt.dark!.titleLarge!.fontWeight, FontWeight.w700);
+    });
+
+    test(
+        'Given partial TextThemeOverrides (only light) '
+        'When roundtrip '
+        'Then preserves provided styles and null dark', () {
+      const TextThemeOverrides txt = TextThemeOverrides(
+        light: TextTheme(
+          labelSmall: TextStyle(fontFamily: 'Roboto', letterSpacing: 0.5),
+        ),
+      );
+
+      final ThemeState original =
+          ThemeState.defaults.copyWith(textOverrides: txt);
+
+      final ThemeState restored = ThemeState.fromJson(original.toJson());
+
+      expect(restored, equals(original));
+      expect(restored.textOverrides, isNotNull);
+      expect(restored.textOverrides!.light!.labelSmall!.letterSpacing, 0.5);
+      expect(restored.textOverrides!.dark, isNull);
+    });
+
+    test(
+        'Given null textOverrides '
+        'When roundtrip '
+        'Then remains null', () {
+      final ThemeState original = ThemeState.defaults; // sin textOverrides
+      final ThemeState restored = ThemeState.fromJson(original.toJson());
+
+      expect(restored.textOverrides, isNull);
+      expect(restored, equals(original));
+    });
+
+    test(
+        'Given copyWith with textOverrides '
+        'When copying '
+        'Then copy holds provided overrides', () {
+      final ThemeState base = ThemeState.defaults;
+
+      const TextThemeOverrides txt = TextThemeOverrides(
+        light: TextTheme(
+          bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 13),
+        ),
+      );
+
+      final ThemeState withTxt = base.copyWith(textOverrides: txt);
+
+      expect(withTxt.textOverrides, isNotNull);
+      expect(withTxt.textOverrides!.light!.bodyMedium!.fontSize, 13);
+
+      // Roundtrip también debe preservarlo.
+      final ThemeState round = ThemeState.fromJson(withTxt.toJson());
+      expect(round, equals(withTxt));
+    });
+
+    test(
+        'Given ThemeOverrides (colors) AND TextThemeOverrides (typography) '
+        'When roundtrip '
+        'Then both are preserved and equal', () {
+      final ThemeOverrides theme = ThemeOverrides(
+        light: ColorScheme.fromSeed(seedColor: const Color(0xFF6750A4)),
+        dark: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF6750A4),
+          brightness: Brightness.dark,
+        ),
+      );
+      const TextThemeOverrides text = TextThemeOverrides(
+        light:
+            TextTheme(bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14)),
+        dark:
+            TextTheme(bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14)),
+      );
+
+      final ThemeState original = ThemeState.defaults.copyWith(
+        overrides: theme,
+        textOverrides: text,
+      );
+
+      final ThemeState restored = ThemeState.fromJson(original.toJson());
+
+      expect(restored, equals(original));
+      expect(restored.overrides, equals(theme));
+      expect(restored.textOverrides, equals(text));
+    });
+  });
 }

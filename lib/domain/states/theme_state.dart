@@ -1,4 +1,3 @@
-// File: lib/src/theme_state.dart
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// JSON keys for ThemeState.
@@ -8,7 +7,8 @@ enum ThemeEnum {
   useM3,
   textScale,
   preset,
-  overrides,
+  overrides, // ColorScheme overrides
+  textOverrides, // <-- NEW: TextThemeOverrides
   createdAt,
 }
 
@@ -38,45 +38,42 @@ enum ColorSchemeEnum {
   inversePrimary,
 }
 
-/// Modela un estado de tema **inmutable** con serialización JSON **canónica**.
+/// Immutable Theme state with canonical JSON serialization.
 ///
-/// - Los colores se serializan **siempre** como `#AARRGGBB` en mayúsculas para
-///   garantizar determinismo de round-trip (`toJson` → `fromJson` → `toJson`).
-/// - `fromJson` acepta enteros ARGB heredados por compatibilidad, pero
-///   re-serializa a HEX canónico en `toJson`.
-/// - `createdAt` (opcional) se serializa en ISO8601 UTC si está presente y se
-///   trata como **metadata**: queda **excluido** de `==` y `hashCode`.
+/// - Colors are always serialized as `#AARRGGBB` uppercase for round-trip determinism.
+/// - `fromJson` accepts legacy ARGB ints for backward compatibility but re-serializes to HEX.
+/// - `createdAt` is metadata (UTC ISO8601) and excluded from equality/hashCode.
 ///
-/// ### Contratos
-/// - `textScale` debe ser finito (`isFinite`). En caso contrario lanza
-///   `FormatException('ThemeState.textScale invalid')`.
-/// - Si `mode` está ausente, vacío o inválido, se usa `ThemeMode.system`.
+/// ### Contracts
+/// - `textScale` must be finite (`isFinite`) or a `FormatException` is thrown.
+/// - Missing/invalid `mode` falls back to `ThemeMode.system`.
 ///
-/// ### Ejemplo mínimo
+/// ### Example
 /// ```dart
-/// void main() {
-///   final ThemeState s = ThemeState.defaults.copyWith(
-///     mode: ThemeMode.dark,
-///     seed: const Color(0xFF0061A4),
-///     createdAt: DateTime.now().toUtc(),
-///   );
-///   final Map<String, dynamic> json = s.toJson();
-///   final ThemeState round = ThemeState.fromJson(json);
-///   // createdAt es metadata: no participa en igualdad/hashing.
-///   assert(s == round);
-/// }
+/// final ThemeState s = ThemeState.defaults.copyWith(
+///   mode: ThemeMode.dark,
+///   seed: const Color(0xFF0061A4),
+///   textOverrides: const TextThemeOverrides(
+///     light: TextTheme(bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14)),
+///   ),
+///   createdAt: DateTime.now().toUtc(),
+/// );
+/// final Map<String, dynamic> json = s.toJson();
+/// final ThemeState round = ThemeState.fromJson(json);
+/// assert(s == round); // createdAt is metadata
 /// ```
 @immutable
 class ThemeState {
-  /// Crea una instancia inmutable de [ThemeState].
+  /// Creates an immutable [ThemeState].
   ///
-  /// - [mode]: Modo de tema (system/light/dark).
-  /// - [seed]: Color semilla para generar paletas.
-  /// - [useMaterial3]: `true` si se habilita Material 3.
-  /// - [textScale]: Escala tipográfica (por defecto `1.0`, debe ser finita).
-  /// - [preset]: Nombre del preset (por defecto `'brand'` si falta/está vacío en JSON).
-  /// - [overrides]: Sobrescrituras de `ColorScheme` por tema claro/oscuro.
-  /// - [createdAt]: Marca de tiempo en UTC ISO8601 (metadata, no afecta igualdad).
+  /// - [mode]: Theme mode (system/light/dark).
+  /// - [seed]: Seed color for palettes.
+  /// - [useMaterial3]: Whether Material 3 is enabled.
+  /// - [textScale]: Typography scale factor (default `1.0`, must be finite).
+  /// - [preset]: Preset name (defaults to `'brand'` when empty/missing in JSON).
+  /// - [overrides]: Per-scheme `ColorScheme` overrides (light/dark).
+  /// - [textOverrides]: Per-scheme `TextTheme` overrides (light/dark).
+  /// - [createdAt]: UTC ISO8601 timestamp (metadata; excluded from equality).
   const ThemeState({
     required this.mode,
     required this.seed,
@@ -84,19 +81,11 @@ class ThemeState {
     this.textScale = 1.0,
     this.preset = 'brand',
     this.overrides,
+    this.textOverrides,
     this.createdAt,
   });
 
-  /// Deserializa un [ThemeState] desde JSON con reglas de **retrocompatibilidad**.
-  ///
-  /// Acepta `mode` como `system|light|dark`. Si está ausente, vacío o no coincide,
-  /// se usa `ThemeMode.system` (vía `orElse`).
-  ///
-  /// - `seed` admite `int` ARGB legado o `String` HEX. Se normaliza a HEX.
-  /// - `useM3` y `textScale` se leen estrictamente; `textScale` debe ser finito.
-  /// - `preset` vacío se normaliza a `'brand'`.
-  /// - `overrides` se mapea con [ThemeOverrides.fromJson] si está presente.
-  /// - `createdAt` se interpreta como instante UTC si existe.
+  /// Deserializes [ThemeState] from JSON with backward-compat rules.
   factory ThemeState.fromJson(Map<String, dynamic> json) {
     final String modeName =
         UtilsForTheme.asStringOrEmpty(json, ThemeEnum.mode.name);
@@ -130,6 +119,12 @@ class ThemeState {
             UtilsForTheme.asMapStrict(json, ThemeEnum.overrides.name),
           );
 
+    final TextThemeOverrides? tov = json[ThemeEnum.textOverrides.name] == null
+        ? null
+        : TextThemeOverrides.fromJson(
+            UtilsForTheme.asMapStrict(json, ThemeEnum.textOverrides.name),
+          );
+
     final DateTime? parsedCreatedAt =
         UtilsForTheme.asUtcInstant(json, ThemeEnum.createdAt.name);
 
@@ -140,32 +135,36 @@ class ThemeState {
       textScale: parsedScale,
       preset: parsedPreset,
       overrides: ov,
+      textOverrides: tov,
       createdAt: parsedCreatedAt,
     );
   }
 
-  /// Modo de tema actual (system/light/dark).
+  /// Current theme mode.
   final ThemeMode mode;
 
-  /// Color semilla a partir del que se derivan esquemas de color.
+  /// Seed color.
   final Color seed;
 
-  /// Habilita o no Material 3.
+  /// Enables Material 3.
   final bool useMaterial3;
 
-  /// Factor de escala tipográfica (debe ser finito).
+  /// Typography scale factor (must be finite).
   final double textScale;
 
-  /// Nombre del preset (por defecto `'brand'` si JSON lo omite o viene vacío).
+  /// Preset name.
   final String preset;
 
-  /// Sobrescrituras explícitas de esquema de color.
+  /// Explicit ColorScheme overrides.
   final ThemeOverrides? overrides;
 
-  /// Marca de tiempo opcional en UTC (metadata; se ignora en `==` y `hashCode`).
+  /// Explicit TextTheme overrides (light/dark).
+  final TextThemeOverrides? textOverrides;
+
+  /// Optional UTC timestamp (metadata; ignored in equality/hashCode).
   final DateTime? createdAt;
 
-  /// Crea una copia con cambios puntuales manteniendo inmutabilidad.
+  /// Returns a copy with selected changes.
   ThemeState copyWith({
     ThemeMode? mode,
     Color? seed,
@@ -173,6 +172,7 @@ class ThemeState {
     double? textScale,
     String? preset,
     ThemeOverrides? overrides,
+    TextThemeOverrides? textOverrides,
     DateTime? createdAt,
   }) =>
       ThemeState(
@@ -182,13 +182,11 @@ class ThemeState {
         textScale: textScale ?? this.textScale,
         preset: preset ?? this.preset,
         overrides: overrides ?? this.overrides,
+        textOverrides: textOverrides ?? this.textOverrides,
         createdAt: createdAt ?? this.createdAt,
       );
 
-  /// Serializa el estado a JSON en formato canónico.
-  ///
-  /// - `seed` se emite como `#AARRGGBB`.
-  /// - `createdAt` (si existe) se emite como ISO8601 en UTC.
+  /// Serializes to canonical JSON.
   Map<String, dynamic> toJson() => <String, dynamic>{
         ThemeEnum.mode.name: mode.name,
         ThemeEnum.seed.name: UtilsForTheme.colorToHex(seed),
@@ -196,11 +194,12 @@ class ThemeState {
         ThemeEnum.textScale.name: textScale,
         ThemeEnum.preset.name: preset,
         ThemeEnum.overrides.name: overrides?.toJson(),
+        ThemeEnum.textOverrides.name: textOverrides?.toJson(),
         if (createdAt != null)
           ThemeEnum.createdAt.name: createdAt!.toUtc().toIso8601String(),
       };
 
-  /// Estado por defecto.
+  /// Default state.
   static const ThemeState defaults = ThemeState(
     mode: ThemeMode.system,
     seed: Color(0xFF6750A4),
@@ -212,18 +211,17 @@ class ThemeState {
     if (identical(this, other)) {
       return true;
     }
-    if (other.runtimeType != runtimeType) {
+    if (other.runtimeType != runtimeType || other is! ThemeState) {
       return false;
     }
-    if (other is ThemeState) {
-      return mode == other.mode &&
-          seed == other.seed &&
-          useMaterial3 == other.useMaterial3 &&
-          textScale == other.textScale &&
-          preset == other.preset &&
-          overrides == other.overrides;
-    }
-    return false;
+
+    return mode == other.mode &&
+        seed == other.seed &&
+        useMaterial3 == other.useMaterial3 &&
+        textScale == other.textScale &&
+        preset == other.preset &&
+        overrides == other.overrides &&
+        textOverrides == other.textOverrides;
   }
 
   @override
@@ -232,6 +230,8 @@ class ThemeState {
     h = 0x1fffffff & (h ^ textScale.hashCode);
     h = 0x1fffffff & (h ^ preset.hashCode);
     h = 0x1fffffff & (h ^ (overrides?.hashCode ?? 0));
+    h = 0x1fffffff &
+        (h ^ (textOverrides?.hashCode ?? 0)); // include textOverrides
     return h;
   }
 }
