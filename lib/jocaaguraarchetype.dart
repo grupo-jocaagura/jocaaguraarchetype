@@ -47,6 +47,7 @@ part 'ui/pages/onboarding_page.dart';
 part 'ui/pages/page_404_widget.dart';
 part 'ui/pages/test_page_builder_page.dart';
 part 'ui/providers/app_manager_provider.dart';
+part 'ui/theme/text_theme_overrides.dart';
 part 'ui/theme/theme_overrides.dart';
 part 'ui/theme/utils_for_theme.dart';
 part 'ui/widgets/aspect_layout_router.dart';
