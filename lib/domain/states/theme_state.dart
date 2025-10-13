@@ -7,8 +7,8 @@ enum ThemeEnum {
   useM3,
   textScale,
   preset,
-  overrides, // ColorScheme overrides
-  textOverrides, // <-- NEW: TextThemeOverrides
+  overrides,
+  textOverrides,
   createdAt,
 }
 
@@ -62,6 +62,10 @@ enum ColorSchemeEnum {
 /// final ThemeState round = ThemeState.fromJson(json);
 /// assert(s == round); // createdAt is metadata
 /// ```
+/// Notes:
+/// - `createdAt` is metadata and is **excluded** from equality and `hashCode`.
+/// - `copyWith` does not support nulling fields such as `overrides`, `textOverrides`,
+///   or `createdAt` (passing `null` keeps the previous value).
 @immutable
 class ThemeState {
   /// Creates an immutable [ThemeState].

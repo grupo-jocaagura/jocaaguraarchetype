@@ -597,7 +597,7 @@ void main() {
         'Given null textOverrides '
         'When roundtrip '
         'Then remains null', () {
-      final ThemeState original = ThemeState.defaults; // sin textOverrides
+      const ThemeState original = ThemeState.defaults; // sin textOverrides
       final ThemeState restored = ThemeState.fromJson(original.toJson());
 
       expect(restored.textOverrides, isNull);
@@ -608,7 +608,7 @@ void main() {
         'Given copyWith with textOverrides '
         'When copying '
         'Then copy holds provided overrides', () {
-      final ThemeState base = ThemeState.defaults;
+      const ThemeState base = ThemeState.defaults;
 
       const TextThemeOverrides txt = TextThemeOverrides(
         light: TextTheme(
