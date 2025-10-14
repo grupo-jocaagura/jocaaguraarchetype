@@ -224,3 +224,14 @@ class SetTextThemeOverrides with _ThemeUpdate {
   Future<Either<ErrorItem, ThemeState>> call(TextThemeOverrides? next) =>
       update(repo, (ThemeState s) => s.copyWith(textOverrides: next));
 }
+
+/// Streams theme updates from the repository.
+///
+/// Emits Either<ErrorItem, ThemeState> so the consumer can handle errors
+/// without closing the stream.
+class WatchTheme {
+  const WatchTheme(this.repo);
+  final RepositoryThemeReact repo;
+
+  Stream<Either<ErrorItem, ThemeState>> call() => repo.watch();
+}
