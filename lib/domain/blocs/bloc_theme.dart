@@ -1,5 +1,47 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
-
+/// Manages [ThemeState] with clear state/error streams and side-effectful use cases.
+/// UI subscribes to [stream] for state and optionally to [error$] for errors.
+///
+/// ## Prefer the reactive bloc
+/// If your app can expose a reactive source of truth (e.g. repository `watch()`),
+/// prefer using [BlocThemeReact], which extends this class and subscribes to a
+/// `WatchTheme` use case on construction. This keeps the same imperative API
+/// (setters like [setMode], [setSeed], etc.) while updating state from the
+/// repository's stream:
+///
+/// ```dart
+/// final repo   = RepositoryThemeReactImpl(gateway: gateway);
+/// final ucs    = ThemeUsecases.fromRepo(repo);
+/// final watch  = WatchTheme(repo);
+/// final bloc   = BlocThemeReact(themeUsecases: ucs, watchTheme: watch);
+///
+/// // UI
+/// StreamBuilder<ThemeState>(
+///   stream: bloc.stream,
+///   initialData: bloc.stateOrDefault,
+///   builder: (_, snap) => MaterialApp(theme: bloc.themeData()),
+/// );
+/// ```
+///
+/// ## When to use this class
+/// Use [BlocTheme] if you only need imperative updates (no repository stream)
+/// and want a simple, push-style state manager:
+///
+/// ```dart
+/// final repo = RepositoryThemeImpl(gateway: gw);
+/// final ucs  = ThemeUsecases.fromRepo(repo);
+/// final bloc = BlocTheme(themeUsecases: ucs);
+///
+/// await bloc.setMode(ThemeMode.dark);
+/// ```
+///
+/// ## Contracts
+/// - [ThemeState] is the single source-of-truth for theming.
+/// - Mutations run a `read → transform → save` cycle via use cases.
+/// - Errors are emitted on [error$] without altering the last good state.
+/// - [themeData] builds a `ThemeData` consistently from the current state.
+///
+/// See also: [BlocThemeReact] for fully reactive flows.
 class BlocTheme extends BlocModule {
   BlocTheme({required this.themeUsecases})
       : _state = BlocGeneral<ThemeState>(ThemeState.defaults),

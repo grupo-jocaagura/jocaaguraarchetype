@@ -39,10 +39,17 @@ class AppConfig {
     );
 
     // BlocTheme wired to ThemeUsecases → RepositoryThemeImpl → GatewayThemeImpl
-    final BlocTheme themeBloc = BlocTheme(
-      themeUsecases: ThemeUsecases.fromRepo(
-        RepositoryThemeImpl(gateway: GatewayThemeImpl()),
+    final RepositoryThemeReact repo = RepositoryThemeReactImpl(
+      gateway: GatewayThemeReactImpl(
+        service: FakeServiceThemeReact(),
       ),
+    );
+
+    final BlocTheme themeBloc = BlocThemeReact(
+      themeUsecases: ThemeUsecases.fromRepo(
+        repo,
+      ),
+      watchTheme: WatchTheme(repo),
     );
 
     // jocaagura_domain BlocOnboarding with optional configured steps
