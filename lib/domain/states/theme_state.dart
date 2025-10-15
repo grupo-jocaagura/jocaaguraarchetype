@@ -38,34 +38,57 @@ enum ColorSchemeEnum {
   inversePrimary,
 }
 
-/// Immutable Theme state with canonical JSON serialization.
+/// Immutable theme state with canonical JSON serialization.
 ///
-/// - Colors are always serialized as `#AARRGGBB` uppercase for round-trip determinism.
-/// - `fromJson` accepts legacy ARGB ints for backward compatibility but re-serializes to HEX.
-/// - `createdAt` is metadata (UTC ISO8601) and excluded from equality/hashCode.
+/// ## Behavior
+/// - Colors are serialized as uppercase `#AARRGGBB` for deterministic round trips.
+/// - `fromJson` accepts legacy ARGB integers for `seed` and re-serializes to HEX.
+/// - `createdAt` is metadata (UTC ISO-8601) and **excluded** from equality and `hashCode`.
 ///
-/// ### Contracts
-/// - `textScale` must be finite (`isFinite`) or a `FormatException` is thrown.
-/// - Missing/invalid `mode` falls back to `ThemeMode.system`.
+/// ## Contracts
+/// - `textScale` must be finite (`isFinite`); otherwise a [FormatException] is thrown.
+/// - Missing or invalid `mode` falls back to [ThemeMode.system].
+/// - If provided, `createdAt` is normalized to UTC on `toJson()`.
 ///
-/// ### Example
+/// ## Caveats
+/// - `copyWith` does not support nulling optional fields (`overrides`, `textOverrides`, `createdAt`);
+///   passing `null` keeps the previous value.
+/// - The behavior when `useMaterial3` is **absent** in JSON depends on `UtilsForTheme.asBoolStrict`.
+///   Consumers should ensure the key is present or provide a migration step.
+///
+/// ## Functional example
 /// ```dart
-/// final ThemeState s = ThemeState.defaults.copyWith(
-///   mode: ThemeMode.dark,
-///   seed: const Color(0xFF0061A4),
-///   textOverrides: const TextThemeOverrides(
-///     light: TextTheme(bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14)),
-///   ),
-///   createdAt: DateTime.now().toUtc(),
-/// );
-/// final Map<String, dynamic> json = s.toJson();
-/// final ThemeState round = ThemeState.fromJson(json);
-/// assert(s == round); // createdAt is metadata
+/// import 'package:flutter/material.dart';
+///
+/// void main() {
+///   // Given an initial theme state
+///   final ThemeState initial = ThemeState.defaults.copyWith(
+///     mode: ThemeMode.dark,
+///     seed: const Color(0xFF0061A4),
+///     textScale: 1.0,
+///     // Optional text overrides example (light only shown here)
+///     textOverrides: const TextThemeOverrides(
+///       light: TextTheme(bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14)),
+///     ),
+///     createdAt: DateTime.now().toUtc(),
+///   );
+///
+///   // When serialized to JSON
+///   final Map<String, dynamic> json = initial.toJson();
+///
+///   // Then deserializing produces an equal value (metadata excluded from equality)
+///   final ThemeState roundTrip = ThemeState.fromJson(json);
+///   assert(initial == roundTrip);
+///
+///   // And changing only createdAt keeps equality true (metadata)
+///   final ThemeState changedMeta = initial.copyWith(createdAt: DateTime.now().toUtc());
+///   assert(initial == changedMeta);
+/// }
 /// ```
-/// Notes:
-/// - `createdAt` is metadata and is **excluded** from equality and `hashCode`.
-/// - `copyWith` does not support nulling fields such as `overrides`, `textOverrides`,
-///   or `createdAt` (passing `null` keeps the previous value).
+///
+/// See also:
+/// - [ThemeOverrides] for color-scheme overrides.
+/// - [TextThemeOverrides] for per-scheme text overrides.
 @immutable
 class ThemeState {
   /// Creates an immutable [ThemeState].
