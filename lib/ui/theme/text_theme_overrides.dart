@@ -1,31 +1,45 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// Holds per-scheme typography overrides (light/dark) for `TextTheme`,
-/// serialized as JSON maps of `TextStyle` fields.
+/// Per-scheme text overrides (`light`/`dark`) with JSON round-trip helpers.
 ///
-/// Scope:
-/// - Serializes a curated subset of `TextStyle`: `fontFamily`, `fontSize`,
-///   `fontWeight` (numeric), `letterSpacing`, and `height`.
-/// - Does NOT serialize `color` (colors belong to `ColorScheme`).
-/// - `light` and/or `dark` can be `null`.
+/// ## Behavior
+/// - `light` and `dark` can be `null` independently to override only one side.
+/// - Serialization preserves `null` styles; non-null `TextStyle` fields include:
+///   `fontFamily`, `fontSize`, `fontWeight` (numeric 100..900), `letterSpacing`, `height`.
+/// - `fontName` is an optional label (e.g., for analytics or bundle awareness).
 ///
-/// Equality & hashing:
-/// - Structural equality based on every included `TextStyle` field.
+/// ## Contracts
+/// - `fromJson` preserves `null` themes and styles as-is.
+/// - `fontWeight` numeric values map to `FontWeight.w100..w900` using
+///   `((value ~/ 100) - 1).clamp(0, 8)`. Out-of-range values are **clamped**.
+/// - Non-numeric values for size/spacing/height are unsupported and will throw at runtime.
 ///
-/// Example:
+/// ## copyWith semantics
+/// - Pass `clearLight/clearDark/clearFontName` to explicitly null/clear fields.
+/// - Passing `null` in `light/dark/fontName` without `clear*` keeps the previous value.
+///
+/// ## Example
 /// ```dart
+/// import 'package:flutter/material.dart';
+///
 /// void main() {
-///   final TextThemeOverrides ov = TextThemeOverrides(
+///   final TextThemeOverrides base = TextThemeOverrides(
 ///     light: const TextTheme(
-///       bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, height: 1.2),
+///       bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, fontWeight: FontWeight.w400),
 ///     ),
 ///     dark: const TextTheme(
-///       bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, height: 1.2),
+///       bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, fontWeight: FontWeight.w400),
 ///     ),
+///     fontName: 'Inter',
 ///   );
-///   final Map<String, dynamic> json = ov.toJson();
-///   final TextThemeOverrides r = TextThemeOverrides.fromJson(json)!;
-///   assert(ov == r);
+///
+///   final Map<String, dynamic> json = base.toJson();
+///   final TextThemeOverrides restored = TextThemeOverrides.fromJson(json)!;
+///   assert(base == restored);
+///
+///   // Explicitly clear the dark overrides and keep font name.
+///   final TextThemeOverrides onlyLight = base.copyWith(clearDark: true);
+///   assert(onlyLight.dark == null && onlyLight.light != null);
 /// }
 /// ```
 @immutable
