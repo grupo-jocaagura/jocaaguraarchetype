@@ -1,22 +1,35 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// Per-scheme color overrides (light/dark) using canonical HEX serialization.
+/// Per-scheme color overrides (light/dark) using canonical HEX `#AARRGGBB`.
 ///
-/// Each `ColorScheme` is serialized field-by-field with HEX `#AARRGGBB`.
-/// Omitted fields are not allowed; provide complete schemes for determinism.
+/// ## Serialization
+/// - When a scheme (`light` or `dark`) is present, it is serialized with **all**
+///   supported keys. Colors are emitted as uppercase `#AARRGGBB`.
+/// - Either scheme may be `null` to override only one side.
+/// - Parsing requires that **all fields** of a present scheme exist in JSON;
+///   otherwise parsing will throw (typically a [FormatException]).
 ///
-/// ### Example
+/// ## Equality & Hashing
+/// - Two instances are equal iff both `light` and `dark` schemes are equal
+///   field-by-field. Hashing is consistent with equality.
+///
+/// ## Brightness handling
+/// - Any non-`"dark"` value in `brightness` falls back to [Brightness.light].
+///
+/// ## Example
 /// ```dart
-/// final ThemeOverrides ov = ThemeOverrides(
-///   light: ColorScheme.fromSeed(seedColor: const Color(0xFF6750A4)),
-///   dark: ColorScheme.fromSeed(
-///     seedColor: const Color(0xFF6750A4),
-///     brightness: Brightness.dark,
-///   ),
-/// );
-/// final Map<String, dynamic> m = ov.toJson();
-/// final ThemeOverrides r = ThemeOverrides.fromJson(m)!;
-/// assert(ov == r);
+/// import 'package:flutter/material.dart';
+///
+/// void main() {
+///   final ThemeOverrides ov = ThemeOverrides(
+///     light: ColorScheme.fromSeed(seedColor: const Color(0xFF6750A4)),
+///     dark: ColorScheme.fromSeed(
+///       seedColor: const Color(0xFF6750A4), brightness: Brightness.dark),
+///   );
+///   final Map<String, dynamic> json = ov.toJson();
+///   final ThemeOverrides restored = ThemeOverrides.fromJson(json)!;
+///   assert(ov == restored);
+/// }
 /// ```
 @immutable
 class ThemeOverrides {

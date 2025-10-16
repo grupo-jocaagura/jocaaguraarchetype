@@ -1,58 +1,68 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// Contrato para construir temas de la aplicación a partir de un [ThemeState].
+/// Contract for building application themes from a [ThemeState].
 ///
-/// Implementaciones típicas deben ser **puras** (sin efectos colaterales) e
-/// **idempotentes**: el mismo `state` y `platformBrightness` deben producir el
-/// mismo resultado.
+/// Implementations should be **pure** and **idempotent**: for the same
+/// `[state]` and `platformBrightness`, `ThemeData` output must be identical.
 ///
-/// Recomendación:
-/// - `toThemeData` debe delegar en [lightTheme] o [darkTheme] según
-///   [platformBrightness] o reglas propias del `state`.
-/// - [schemeFromSeed] debe derivar un [ColorScheme] a partir de un color
-///   semilla y un [Brightness] concreto.
-/// - [colorRandom] existe para **demos/tests**; en un Fake puede hacerse
-///   determinista.
+/// Guidance
+/// - `toThemeData` should delegate to [lightTheme] or [darkTheme] based on
+///   `platformBrightness` and/or rules encoded in `state` (e.g. explicit mode).
+/// - [schemeFromSeed] must derive a [ColorScheme] from a seed [Color] and a
+///   concrete [Brightness].
+/// - [colorRandom] exists for **demos/tests**. Production implementations
+///   should avoid randomness in critical code paths to keep reproducibility.
 ///
-/// Las implementaciones **no** deben lanzar excepciones en casos normales;
-/// validaciones de negocio deben ocurrir antes de invocar el servicio.
+/// Business validation should happen **before** calling this service; normal
+/// usage should not throw.
+///
+/// Implementers are responsible for honoring `state.overrides` and
+/// `state.textOverrides` when composing the final `ThemeData`.
 abstract class ServiceTheme {
-  /// Crea un contrato de servicio de temas.
+  /// Creates a theme service contract.
   const ServiceTheme();
 
-  /// Construye un [ThemeData] a partir de [state], considerando el brillo de
-  /// la plataforma ([platformBrightness]).
+  /// Builds a [ThemeData] from [state], considering the ambient brightness
+  /// of the platform ([platformBrightness]).
   ///
-  /// **Contratos:**
-  /// - Debe ser **puro** e **idempotente** para los mismos parámetros.
-  /// - No debe mutar [state].
+  /// Contracts
+  /// - Must be **pure** and **idempotent** given the same inputs.
+  /// - Must not mutate [state] or perform side effects.
+  /// - Should internally delegate to [lightTheme] or [darkTheme].
   ThemeData toThemeData(
     ThemeState state, {
     required Brightness platformBrightness,
   });
 
-  /// Retorna el tema claro para el [state] dado.
+  /// Returns the light theme for the given [state].
   ///
-  /// Debe ser **puro** e **idempotente**.
+  /// Contracts
+  /// - Must be **pure** and **idempotent**.
+  /// - Should apply `state.overrides` / `state.textOverrides` if present.
   ThemeData lightTheme(ThemeState state);
 
-  /// Retorna el tema oscuro para el [state] dado.
+  /// Returns the dark theme for the given [state].
   ///
-  /// Debe ser **puro** e **idempotente**.
+  /// Contracts
+  /// - Must be **pure** and **idempotent**.
+  /// - Should apply `state.overrides` / `state.textOverrides` if present.
   ThemeData darkTheme(ThemeState state);
 
-  /// Deriva un [ColorScheme] a partir de un color semilla [seed] y el
-  /// [brightness] deseado.
+  /// Derives a [ColorScheme] from a seed [Color] and the desired [brightness].
   ///
-  /// **Precondición:** [seed] válido (ARGB/HEX correcto).
-  /// **Postcondición:** `result.brightness == brightness`.
+  /// Precondition:
+  /// - [seed] is a valid ARGB color.
+  ///
+  /// Postconditions:
+  /// - `result.brightness == brightness`.
+  /// - The scheme is suitable for building `ThemeData` consistently with
+  ///   the implementation’s palette strategy.
   ColorScheme schemeFromSeed(Color seed, Brightness brightness);
 
-  /// Devuelve un color pseudoaleatorio.
+  /// Returns a pseudo-random, opaque color.
   ///
-  /// Útil para **demos/tests**. En Fakes de prueba puede implementarse de forma
-  /// determinista. Evitar su uso en rutas críticas de producción para mantener
-  /// reproducibilidad.
+  /// Intended for **demos/tests**. Test doubles may implement this deterministically.
+  /// Avoid using randomness in production-critical paths to preserve reproducibility.
   Color colorRandom() {
     final Random rnd = Random();
     return Color.fromRGBO(
