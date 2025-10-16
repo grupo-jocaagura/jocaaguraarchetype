@@ -1,55 +1,43 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// Demo/dev reactive provider that seeds the theme JSON bus with default
-/// light/dark payloads and (optionally) text typography overrides, and can
-/// auto-toggle between both every [period].
+/// light/dark payloads and can auto-toggle between them.
 ///
-/// Notes
-/// - It pushes raw JSON into the [ServiceThemeReact] bus. Canonicalization and
-///   validation are handled downstream by `GatewayThemeReactImpl` and `Repository`.
-/// - If you omit `lightJson`/`darkJson`, it builds minimal payloads based on
-///   `ThemeState.defaults` with `mode: light/dark`.
-/// - If `textOverridesJson` is provided, it is merged into both light/dark
-///   payloads under the `textOverrides` key (non-destructive).
+/// ## Behavior
+/// - On construction, seeds the bus with the **light** payload.
+/// - Ensures a `mode` key is present in both payloads (`'light'` / `'dark'`).
+/// - If `textOverridesJson` is provided, it is **non-destructively** merged
+///   under `textOverrides` only when that key is absent in the payload.
+/// - `startAutoToggle(period)` begins a periodic toggle; calling it again
+///   restarts the timer (optionally with a new period). `stopAutoToggle()`
+///   cancels the timer.
+/// - `setLightJson`/`setDarkJson` update the internal payloads and **immediately
+///   reflect** the change on the bus if the current mode matches.
 ///
-/// Example
+/// ## Notes
+/// - This service pushes raw JSON. Canonicalization/validation happens downstream
+///   (e.g. in `GatewayThemeReactImpl` / Repository).
+/// - Accessors `lightJson` / `darkJson` return **defensive copies**.
+/// - `dispose()` stops the timer and releases base resources.
+///
+/// ## Example
 /// ```dart
-/// final service = FakeServiceThemeReact(
-///   lightJson: {
-///     'mode': 'light',
-///     'seed': '#FF6750A4',
-///     'useM3': true,
-///     'textScale': 1.0,
-///     'preset': 'brand',
-///   },
-///   darkJson: {
-///     'mode': 'dark',
-///     'seed': '#FF6750A4',
-///     'useM3': true,
-///     'textScale': 1.0,
-///     'preset': 'brand',
-///   },
+/// void main() {
+/// final FakeServiceThemeReact service = FakeServiceThemeReact(
 ///   textOverridesJson: const TextThemeOverrides(
-///     light: TextTheme(
-///       bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14),
-///     ),
-///     dark: TextTheme(
-///       bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14),
-///     ),
+///     light: TextTheme(bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14)),
+///     dark:  TextTheme(bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14)),
 ///   ).toJson(),
-///   autoStart: true,                     // start auto toggling now
-///   period: Duration(seconds: 10),       // toggle every 10s
+///   autoStart: true,
+///   period: const Duration(seconds: 10),
 /// );
 ///
-/// // Later, you can stop:
+/// // Later...
 /// service.stopAutoToggle();
-/// // Or start again with a different period:
 /// service.startAutoToggle(period: const Duration(seconds: 5));
+/// service.dispose();
+/// }
 /// ```
-///
-/// Tip
-/// - Downstream, use `GatewayThemeReactImpl.watch()` → `RepositoryThemeImplReact.watch()`
-///   → `BlocThemeReact` to visualize the reactivity.
 class FakeServiceThemeReact extends ServiceThemeReact {
   FakeServiceThemeReact({
     Map<String, dynamic>? lightJson,

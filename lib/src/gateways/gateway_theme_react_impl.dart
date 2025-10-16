@@ -1,11 +1,34 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// Reactive Gateway: normalizes JSON, validates (smokeTest) and exposes watch().
+/// Reactive gateway that normalizes, smoke-tests and routes theme JSON.
 ///
-/// Contracts:
-/// - read(): snapshot (normalized)
-/// - write(json): normalize+validate, persist and broadcast via service.updateTheme()
-/// - watch(): stream of normalized Right/Left (errors do not close the stream)
+/// ## Behavior
+/// - `read()`: grabs the current JSON from the service bus, **normalizes** it,
+///   runs a smoke test, and returns `Right(normalizedJson)`.
+/// - `write(json)`: **normalizes** and smoke-tests the input, **broadcasts the
+///   normalized JSON** to the service bus, and returns `Right(normalizedJson)`.
+/// - `watch()`: listens to the raw service stream; for each event, normalizes
+///   and smoke-tests, yielding `Right(normalizedJson)`, or `Left(error)` on failure.
+///
+/// ## Normalization
+/// - `mode`: unknown/missing → `ThemeMode.system`.
+/// - `seed`: accepts `int` ARGB32, `'#AARRGGBB'` or `Color`; output is **`int` ARGB32**.
+/// - `useM3`: defaults to `true`.
+/// - `textScale`: clamped to `[0.8, 1.6]`.
+/// - `preset`: defaults to `'brand'`.
+/// - `overrides` / `textOverrides`: accept either domain objects or `Map` and
+///   are re-serialized via their `toJson()`.
+///
+/// ## Validation
+/// - A lightweight smoke test is performed by constructing a [ThemeState] from
+///   the normalized JSON and calling both `_theme.lightTheme()` and
+///   `_theme.darkTheme()`. Any exception is mapped to an [ErrorItem] via
+///   [ErrorMapper].
+///
+/// ## Notes
+/// - Normalization may **write default values** (e.g., `useM3=true`) into the
+///   provided map if the key is missing.
+/// - Output `seed` is an `int` (ARGB32), not `'#AARRGGBB'`.
 class GatewayThemeReactImpl implements GatewayThemeReact {
   GatewayThemeReactImpl({
     required ServiceThemeReact service,

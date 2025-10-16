@@ -8,6 +8,8 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// ### Example
 /// ```dart
+/// void main() {
+///
 /// final service = FakeServiceThemeReact(autoStart: true);
 /// final gateway = GatewayThemeReactImpl(service: service);
 /// final repo    = RepositoryThemeReactImpl(gateway: gateway);
@@ -22,6 +24,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///     return MaterialApp(theme: bloc.themeData());
 ///   },
 /// );
+/// }
 /// ```
 ///
 /// ### Notes
