@@ -1,5 +1,34 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Builds a `ThemeData` from a domain `ThemeState`.
+///
+/// ## Behavior
+/// - Derives a base [ColorScheme] from `ThemeState.seed` using
+///   `ColorScheme.fromSeed` and the brightness resolved from `ThemeMode`.
+/// - Applies per-scheme color overrides (light/dark) **field by field**.
+/// - Uses the provided `baseTextTheme` if any; otherwise falls back to the
+///   `ThemeData` default text theme.
+/// - Scales text **only** for styles with a non-null `fontSize`. A factor of
+///   `1.0` or `NaN` leaves the text theme unchanged.
+/// - Always sets `visualDensity` to [VisualDensity.standard].
+///
+/// ## Notes
+/// - No deep-merge for typography is performed. Provide a fully-formed
+///   `baseTextTheme` when custom text styles are required.
+/// - If new fields are added to [ColorScheme] in the SDK, `_mergeOverrides`
+///   should be extended accordingly.
+///
+/// ## Example
+/// ```dart
+/// final BuildThemeData builder = BuildThemeData();
+/// final ThemeData theme = builder.fromState(
+///   ThemeState.defaults.copyWith(textScale: 1.2),
+///   baseTextTheme: const TextTheme(
+///     bodyMedium: TextStyle(fontSize: 14),
+///   ),
+/// );
+/// // Result: bodyMedium becomes 16.8 (scaled), other null font sizes remain unchanged.
+/// ```
 class BuildThemeData {
   const BuildThemeData();
 

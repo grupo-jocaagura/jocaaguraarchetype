@@ -2,16 +2,62 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// Default implementation of [RepositoryTheme].
 ///
-/// Responsibilities:
-/// * Read/write JSON via [GatewayTheme].
-/// * Validate/normalize payloads.
-/// * Map I/O or parsing issues into [ErrorItem]s.
+/// Responsibilities
+/// - Read/write theme payloads through a [GatewayTheme] abstraction.
+/// - Decode/encode [ThemeState] using canonical JSON (`ThemeState.fromJson` / `toJson`).
+/// - Normalize and validate payloads (delegates field rules to the gateway + `ThemeState`).
+/// - Map I/O or parsing issues into [ErrorItem] via an [ErrorMapper].
 ///
-/// ### Example
+/// Behavior & Contracts
+/// - `read()`:
+///   - On success (`Right<Map>`): checks for business errors with `errorMapper.fromPayload`.
+///     If any, returns `Left<ErrorItem>`. Otherwise returns `Right<ThemeState>`
+///     built from the payload (`ThemeState.fromJson`).
+///   - On gateway `ERR_NOT_FOUND`: returns `Right(ThemeState.defaults)`.
+///   - On any other error: returns `Left<ErrorItem>` with `meta.location = "RepositoryTheme.read"`.
+/// - `save(next)`:
+///   - Writes `next.toJson()` to the gateway.
+///   - On success: validates business errors with `fromPayload`; otherwise returns the
+///     normalized `ThemeState` from the echoed payload.
+///   - On error: returns `Left<ErrorItem>` with `meta.location = "RepositoryTheme.save"`.
+///
+/// Notes
+/// - This repository is transport-agnostic: persistence rules live in [GatewayTheme].
+/// - The provided [ErrorMapper] is used for both exception mapping and business-payload mapping.
+/// - `ThemeState.defaults` is the standard fallback when no persisted theme exists.
+///
+/// Example
 /// ```dart
-/// final RepositoryTheme repo = RepositoryThemeImpl(gateway: InMemoryGatewayTheme());
-/// final Either<ErrorItem, ThemeState> loaded = await repo.load();
-/// await repo.save(loaded.getOrElse(() => const ThemeState.light()));
+/// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+///
+/// Future<void> main() async {
+///   // In-memory gateway suitable for dev/examples.
+///   final GatewayTheme gateway = GatewayThemeImpl();
+///   final RepositoryTheme repo = RepositoryThemeImpl(gateway: gateway);
+///
+///   // Read (falls back to ThemeState.defaults if not found)
+///   final eitherLoaded = await repo.read();
+///   final ThemeState state = eitherLoaded.fold(
+///     (err) {
+///       // handle error
+///       throw StateError('read failed: ${err.code}');
+///     },
+///     (ok) => ok,
+///   );
+///
+///   // Save a modified state (echoes back normalized payload)
+///   final ThemeState next = state.copyWith(
+///     mode: ThemeMode.dark,
+///   );
+///   final eitherSaved = await repo.save(next);
+///   final ThemeState persisted = eitherSaved.fold(
+///     (err) => throw StateError('save failed: ${err.code}'),
+///     (ok) => ok,
+///   );
+///
+///   // persisted is guaranteed to be the normalized state echoed by the gateway
+///   print('Theme saved: mode=${persisted.mode}');
+/// }
 /// ```
 class RepositoryThemeImpl implements RepositoryTheme {
   RepositoryThemeImpl({

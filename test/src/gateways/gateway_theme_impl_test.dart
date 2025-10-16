@@ -276,4 +276,254 @@ void main() {
       );
     });
   });
+  group('GatewayThemeImpl · textOverrides (TextTheme)', () {
+    test('write acepta instancia directa de ThemeOverrides (branch toJson)',
+        () async {
+      final GatewayThemeImpl gw = GatewayThemeImpl();
+
+      final ThemeOverrides ov = ThemeOverrides(
+        light: ColorScheme.fromSeed(seedColor: const Color(0xFFAA5500)),
+        dark: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFAA5500),
+          brightness: Brightness.dark,
+        ),
+      );
+
+      // Pasa la INSTANCIA directa, no el mapa.
+      final Either<ErrorItem, Map<String, dynamic>> w =
+          await gw.write(<String, dynamic>{
+        'mode': 'light',
+        'seed': 0xFF334455,
+        'useM3': true,
+        'textScale': 1.0,
+        'preset': 'brand',
+        'overrides': ov, // <-- dispara overrides = rawOverrides.toJson();
+      });
+
+      w.when(
+        (_) => fail('Se esperaba Right (map normalizado)'),
+        (Map<String, dynamic> jsonW) async {
+          // El gateway debe haber normalizado a MAP
+          expect(jsonW.containsKey('overrides'), isTrue);
+          expect(jsonW['overrides'], isA<Map<String, dynamic>>());
+
+          // Roundtrip con ThemeState para validar estructura canónica
+          final ThemeState s = ThemeState.fromJson(jsonW);
+          expect(s.overrides, isNotNull);
+          expect(s.overrides!.light!.brightness, Brightness.light);
+          expect(s.overrides!.dark!.brightness, Brightness.dark);
+
+          // Adicional: volver a leer del gateway y comprobar equivalencia
+          final Either<ErrorItem, Map<String, dynamic>> r = await gw.read();
+          r.when(
+            (ErrorItem e) => fail('read falló: $e'),
+            (Map<String, dynamic> jsonR) {
+              expect(jsonR['overrides'], isA<Map<String, dynamic>>());
+              final ThemeOverrides restored = ThemeOverrides.fromJson(
+                Utils.mapFromDynamic(jsonR['overrides']),
+              )!;
+              expect(restored, equals(ov));
+            },
+          );
+        },
+      );
+    });
+
+    test('write con textOverrides (MAP) → normaliza y preserva en read',
+        () async {
+      final GatewayThemeImpl gw = GatewayThemeImpl();
+
+      const TextThemeOverrides txt = TextThemeOverrides(
+        light: TextTheme(
+          bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, height: 1.2),
+          titleLarge: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        dark: TextTheme(
+          bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, height: 1.2),
+          titleLarge: TextStyle(fontWeight: FontWeight.w700),
+        ),
+      );
+
+      final Either<ErrorItem, Map<String, dynamic>> w =
+          await gw.write(<String, dynamic>{
+        'mode': 'dark',
+        'seed': 0xFF112233,
+        'useM3': true,
+        'textScale': 1.0,
+        'preset': 'brand',
+        'textOverrides': txt.toJson(), // <-- como mapa
+      });
+
+      w.when(
+        (_) => fail('Se esperaba Right (map normalizado)'),
+        (Map<String, dynamic> jsonW) async {
+          // Gateway debe devolver sección textOverrides
+          expect(jsonW.containsKey('textOverrides'), isTrue);
+          expect(jsonW['textOverrides'], isA<Map<String, dynamic>>());
+
+          // read posterior preserva el contenido
+          final Either<ErrorItem, Map<String, dynamic>> r = await gw.read();
+          r.when(
+            (_) => fail('Se esperaba Right'),
+            (Map<String, dynamic> jsonR) {
+              final ThemeState s = ThemeState.fromJson(jsonR);
+              expect(s.mode, ThemeMode.dark);
+              expect(s.textOverrides, isNotNull);
+              expect(s.textOverrides!.light!.bodyMedium!.fontFamily, 'Inter');
+              expect(
+                s.textOverrides!.dark!.titleLarge!.fontWeight,
+                FontWeight.w700,
+              );
+            },
+          );
+        },
+      );
+    });
+
+    test('write acepta instancia directa de TextThemeOverrides', () async {
+      final GatewayThemeImpl gw = GatewayThemeImpl();
+
+      const TextThemeOverrides txt = TextThemeOverrides(
+        light: TextTheme(
+          labelSmall: TextStyle(letterSpacing: 0.75),
+        ),
+      );
+
+      final Either<ErrorItem, Map<String, dynamic>> w =
+          await gw.write(<String, dynamic>{
+        'mode': 'system',
+        'seed': const Color(0xFF6750A4), // también acepta Color
+        'useM3': true,
+        'textScale': 1.0,
+        'preset': 'brand',
+        'textOverrides': txt, // <-- instancia directa
+      });
+
+      w.when(
+        (_) => fail('Se esperaba Right (map normalizado)'),
+        (Map<String, dynamic> jsonW) async {
+          // La normalización conserva textOverrides
+          final ThemeState s = ThemeState.fromJson(jsonW);
+          expect(s.textOverrides, isNotNull);
+          expect(s.textOverrides!.light!.labelSmall!.letterSpacing, 0.75);
+          // dark no se envió → debe permanecer null
+          expect(s.textOverrides!.dark, isNull);
+        },
+      );
+    });
+
+    test('read con initial que incluye textOverrides → Right(normalizado)',
+        () async {
+      const TextThemeOverrides txt = TextThemeOverrides(
+        light: TextTheme(
+          bodyMedium: TextStyle(fontFamily: 'Roboto', fontSize: 13),
+        ),
+        dark: TextTheme(
+          bodyMedium: TextStyle(fontFamily: 'Roboto', fontSize: 13),
+        ),
+      );
+
+      final GatewayThemeImpl gw = GatewayThemeImpl(
+        initial: <String, dynamic>{
+          'mode': 'light',
+          'seed': '#FF778899',
+          'useM3': true,
+          'textScale': 1.1,
+          'preset': 'brand',
+          'textOverrides': txt.toJson(), // initial como mapa válido
+        },
+      );
+
+      final Either<ErrorItem, Map<String, dynamic>> r = await gw.read();
+      r.when(
+        (ErrorItem e) => fail('No debía fallar, error: $e'),
+        (Map<String, dynamic> json) {
+          expect(json['mode'], 'light');
+          expect(json.containsKey('textOverrides'), isTrue);
+
+          final ThemeState s = ThemeState.fromJson(json);
+          expect(s.textOverrides, isNotNull);
+          expect(s.textOverrides!.light!.bodyMedium!.fontFamily, 'Roboto');
+          expect(s.textOverrides!.dark!.bodyMedium!.fontSize, 13);
+        },
+      );
+    });
+
+    test('roundtrip parcial (solo light) preserva null en dark', () async {
+      final GatewayThemeImpl gw = GatewayThemeImpl();
+
+      const TextThemeOverrides partial = TextThemeOverrides(
+        light: TextTheme(
+          titleSmall: TextStyle(fontFamily: 'SpaceGrotesk', height: 1.1),
+        ),
+      );
+
+      final Either<ErrorItem, Map<String, dynamic>> w =
+          await gw.write(<String, dynamic>{
+        'mode': 'dark',
+        'seed': 0xFF0A1B2C,
+        'useM3': true,
+        'textScale': 1.0,
+        'preset': 'brand',
+        'textOverrides': partial.toJson(),
+      });
+
+      w.when(
+        (_) => fail('Se esperaba Right'),
+        (Map<String, dynamic> jsonW) async {
+          final Either<ErrorItem, Map<String, dynamic>> r = await gw.read();
+          r.when(
+            (_) => fail('Se esperaba Right'),
+            (Map<String, dynamic> jsonR) {
+              final ThemeState s = ThemeState.fromJson(jsonR);
+              expect(s.textOverrides, isNotNull);
+              expect(
+                s.textOverrides!.light!.titleSmall!.fontFamily,
+                'SpaceGrotesk',
+              );
+              expect(s.textOverrides!.dark, isNull); // <-- preserva null
+            },
+          );
+        },
+      );
+    });
+
+    test('RepositoryThemeImpl.save/read mantiene textOverrides', () async {
+      final GatewayThemeImpl gw = GatewayThemeImpl();
+      final RepositoryThemeImpl repo = RepositoryThemeImpl(gateway: gw);
+
+      const TextThemeOverrides txt = TextThemeOverrides(
+        light: TextTheme(
+          bodyLarge: TextStyle(fontFamily: 'Inter', fontSize: 16),
+        ),
+        dark: TextTheme(
+          bodyLarge: TextStyle(fontFamily: 'Inter', fontSize: 16, height: 1.3),
+        ),
+      );
+
+      final ThemeState s = ThemeState.defaults.copyWith(
+        mode: ThemeMode.dark,
+        textScale: 1.05,
+        preset: 'designer',
+        textOverrides: txt,
+      );
+
+      final Either<ErrorItem, ThemeState> saved = await repo.save(s);
+      saved.when(
+        (_) => fail('No debía fallar al guardar'),
+        (ThemeState out) {
+          expect(out.textOverrides, equals(txt));
+        },
+      );
+
+      final Either<ErrorItem, ThemeState> loaded = await repo.read();
+      loaded.when(
+        (_) => fail('No debía fallar al leer'),
+        (ThemeState out) {
+          expect(out.textOverrides, isNotNull);
+          expect(out.textOverrides!.dark!.bodyLarge!.height, 1.3);
+        },
+      );
+    });
+  });
 }
