@@ -1,4 +1,5 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+
 /// Manages [ThemeState] with clear state/error streams and side-effectful use cases.
 /// UI subscribes to [stream] for state and optionally to [error$] for errors.
 ///
