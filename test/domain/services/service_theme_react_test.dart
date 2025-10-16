@@ -25,7 +25,7 @@ void main() {
       final _FakeService s = _FakeService();
       final List<Map<String, dynamic>> events = <Map<String, dynamic>>[];
       final StreamSubscription<Map<String, dynamic>> sub =
-          s.themeStream.listen(events.add);
+          s.themeStream.skip(1).listen(events.add);
 
       // Primer update con la misma referencia del valor actual
       final Map<String, dynamic> sameRef = s.themeStateJson;
@@ -50,7 +50,7 @@ void main() {
       final _FakeService s = _FakeService();
       final List<Map<String, dynamic>> events = <Map<String, dynamic>>[];
       final StreamSubscription<Map<String, dynamic>> sub =
-          s.themeStream.listen(events.add);
+          s.themeStream.skip(1).listen(events.add);
 
       // Clonar el JSON actual (contenido igual, instancia diferente)
       final Map<String, dynamic> clone =
@@ -117,10 +117,11 @@ void main() {
       s.deleteFunctionToProcessValueOnStream(
         'mark',
       );
-
+      await Future<void>.delayed(const Duration(milliseconds: 10));
       // Segunda emisión: ya no debe venir marcado
-      final Map<String, dynamic> b = Map<String, dynamic>.from(events.last)
-        ..['preset'] = 'p2';
+      final Map<String, dynamic> b =
+          Map<String, dynamic>.from(ThemeState.defaults.toJson())
+            ..['preset'] = 'p2';
       s.updateTheme(b);
       await Future<void>.delayed(const Duration(milliseconds: 10));
       expect(events.last['__mark'], isNull);
