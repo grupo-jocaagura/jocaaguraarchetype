@@ -40,13 +40,19 @@ abstract class ServiceThemeReact {
   final BlocGeneral<Map<String, dynamic>> _themeStateJson =
       BlocGeneral<Map<String, dynamic>>(ThemeState.defaults.toJson());
 
+  bool _disposed = false;
+
   Stream<Map<String, dynamic>> get themeStream => _themeStateJson.stream;
   Map<String, dynamic> get themeStateJson => _themeStateJson.value;
 
   void updateTheme(Map<String, dynamic> json) {
-    if (themeStateJson != json) {
-      _themeStateJson.value = json;
+    if (_disposed) {
+      return;
     }
+    if (identical(themeStateJson, json)) {
+      return;
+    }
+    _themeStateJson.value = json;
   }
 
   void addFunctionToProcessValueOnStream(
@@ -64,6 +70,10 @@ abstract class ServiceThemeReact {
   }
 
   void dispose() {
+    if (_disposed) {
+      return;
+    }
+    _disposed = true;
     _themeStateJson.dispose();
   }
 }
