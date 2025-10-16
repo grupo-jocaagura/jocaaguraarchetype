@@ -175,8 +175,8 @@ class _JocaaguraAppShellState extends State<_JocaaguraAppShell>
     return StreamBuilder<ThemeState>(
       stream: am.theme.stream,
       initialData: am.theme.stateOrDefault,
-      builder: (__, AsyncSnapshot<ThemeState> snap) {
-        final ThemeState s = snap.data ?? ThemeState.defaults;
+      builder: (_, __) {
+        final ThemeState s = am.theme.stateOrDefault;
         return MaterialApp.router(
           debugShowCheckedModeBanner: false,
           routerDelegate: _delegate,

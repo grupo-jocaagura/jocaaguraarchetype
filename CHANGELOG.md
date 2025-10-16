@@ -5,6 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2025-10-15
+
+### Added
+- **Typography – `TextThemeOverrides`:**
+  - Clase **serializable** para definir/persistir overrides tipográficos (light/dark).
+  - Serializa un subconjunto curado de `TextStyle`: `fontFamily`, `fontSize`, `fontWeight`, `letterSpacing`, `height`.
+  - Igualdad/`hashCode` robustos e `immutability` vía `copyWith`.
+  - Exportada desde `jocaaguraarchetype.dart`.
+- **ThemeState:**
+  - Nuevo campo `textOverrides` para personalizar `TextTheme` de forma **independiente** a colores (light/dark).
+  - Soporte completo en `fromJson`, `toJson`, `copyWith`, `==`, `hashCode`.
+- **Arquitectura reactiva de tema:**
+  - **Contratos:** `ServiceThemeReact` (stream de JSON canónico), `GatewayThemeReact` (normaliza/valida), `RepositoryThemeReact` (mapea a `Stream<Either<ErrorItem, ThemeState>>`), y **use case** `WatchTheme`.
+  - **Implementaciones:** `FakeServiceThemeReact` (auto-toggle configurable), `GatewayThemeReactImpl`, `RepositoryThemeReactImpl`.
+  - **BLoC:** `BlocThemeReact` suscrito a `WatchTheme` para actualizaciones automáticas.
+  - **Demo:** `main_reactive_demo.dart` mostrando service → gateway → repository → bloc → UI.
+- **Docs & utilidades:**
+  - Documentación y pruebas para `BuildThemeData` (derivación de `ColorScheme`, overrides, `TextTheme`, text scaling).
+
+### Changed
+- **BlocTheme / BlocThemeReact:**
+  - `BlocThemeReact` ahora **hereda** de `BlocTheme` (el API imperativo se mantiene; el estado se alimenta desde el stream del repositorio).
+  - `app_config.dart`: configuración por defecto actualizada a `BlocThemeReact` con `RepositoryThemeReactImpl` y servicio *fake*.
+  - `jocaagura_app.dart`: `StreamBuilder` simplificado usando `am.theme.stateOrDefault`.
+- **Separación de responsabilidades:**
+  - `TextThemeOverrides` **excluye colores** (responsabilidad de `ThemeOverrides`/`ColorScheme`).
+
+### Docs
+- **ThemeState:** secciones nuevas (“Behavior”, “Contracts”, “Caveats”, “Functional example”), aclaraciones sobre formato HEX `#AARRGGBB`, compatibilidad ARGB int y exclusión de `createdAt` en igualdad.
+- **ThemeOverrides / TextThemeOverrides:** DartDoc ampliado (serialización, `copyWith` con *clear flags*, *clamping* de `fontWeight`, ejemplos más completos).
+- **Capa reactiva:** DartDocs detallados en todos los componentes; guía `docs/theme-doc.md` con arquitectura, cableado, uso y estrategia de pruebas.
+
+### Tests
+- **TextThemeOverrides:** *round-trip* JSON, igualdad, casos borde e integración con `ThemeOverrides`.
+- **ThemeState:** casos para `textOverrides` (light+dark, solo light, nulo); convivencia con `ThemeOverrides`.
+- **Capa reactiva:** `reactive_theme_watch_test.dart` valida `watch()` extremo a extremo (auto-toggle, normalización, manejo de errores, `TextThemeOverrides`).
+
+### Dependencies
+- **`jocaagura_domain` → `^1.31.0`** para soportar la arquitectura reactiva de temas.
+
+### Migration notes
+- Si persistes tema en JSON:
+  - Añade/acepta el nuevo nodo `textOverrides` (opcional; *backward compatible*).
+  - Mantén colores en `ThemeOverrides` y tipografías en `TextThemeOverrides` (sin mezclar responsabilidades).
+- Para adoptar el flujo reactivo:
+  - Usa `BlocThemeReact` + `WatchTheme` y un repositorio reactivo (`RepositoryThemeReactImpl`).
+  - En UI, lee el estado con `am.theme.stateOrDefault` o suscríbete al BLoC.
+
+> **Notas:** Cambio **no rompiente**. La arquitectura reactiva y `TextThemeOverrides` son opt-in y conviven con la configuración imperativa existente.
+
 ## [3.2.0] - 2025-09-10
 
 ### Added
