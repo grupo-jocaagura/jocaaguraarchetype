@@ -3,7 +3,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// Repository that maps storage payloads to [ThemeState] and back.
 ///
 /// This layer translates I/O concerns and malformed payloads into domain
-/// results (Either<ErrorItem, ThemeState>), never exposing raw maps to usecases.
+/// results (`Either<ErrorItem, ThemeState>`), never exposing raw maps to usecases.
 ///
 /// ### Example
 /// ```dart
