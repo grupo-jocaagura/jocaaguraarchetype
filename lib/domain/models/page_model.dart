@@ -361,7 +361,7 @@ class PageModel extends Model {
 // Usa una constante "salt" para null (golden ratio 32-bit).
   static const int _kNullSalt = 0x9e3779b9;
 
-  /// Stable, order-insensitive hash for Map<String, dynamic>.
+  /// Stable, order-insensitive hash for `Map<String, dynamic>`.
   /// - Ordenamos las claves para estabilidad.
   /// - Mezclamos cada entrada incluyendo el tipo del valor para evitar colisiones
   ///   comunes (e.g., 0 vs 0.0 vs false).
