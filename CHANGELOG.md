@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.2] - 2025-11-03
+### Added
+* **Flavors (logical-only) por `--dart-define`:**
+    * `lib/env/app_mode.dart`: `enum AppMode { dev, qa, prod }` y `parseAppMode(String)`.
+    * `lib/env/env.dart`: `Env` base mínima (extensible por proyecto) con `mode`, `isQa`, `isProd`.
+    * `lib/env/app_config_builder.dart`: `AppConfigBuilder.byMode(...)` para despachar `AppConfig` por entorno.
+    * `lib/env/deferred_steps.dart`: helper `deferredStep(...)` para **cargas diferidas** durante Onboarding (timeouts, manejo de error y retry vía `Left/Right`).
+* **Exports** en `lib/jocaaguraarchetype.dart` para exponer las nuevas utilidades.
+* **Documentación**: `doc/env-doc.md` con:
+    * Ejemplo Flutter de un solo archivo (contador + `AnyService` simulado).
+    * Guía de ejecución por modo `--dart-define=APP_MODE=dev|qa|prod`.
+    * Sugerencia de estrategia Android para **ID/label** por modo sin productFlavors.
+
+### Changed
+* Estructura interna del paquete para centralizar lectura de modo y facilitar integración de Onboarding con imports diferidos.
+### Notes (migración rápida)
+* No hay breaking changes.
+* En proyectos que usen el arquetipo:
+    1. Extiende `Env` en la app para tus propias variables (`class MyEnv extends Env { ... }`).
+    2. Construye `AppConfig` con `AppConfigBuilder.byMode(mode: Env.mode, ...)`.
+    3. Mueve inicializaciones pesadas al Onboarding usando `deferredStep(...)`.
+    4. Ejecuta por modo:
+       ```bash
+       flutter run --dart-define=APP_MODE=dev|qa|prod
+       ```
+
 ## [3.3.1] - 2025-11-03
 
 ### Added
