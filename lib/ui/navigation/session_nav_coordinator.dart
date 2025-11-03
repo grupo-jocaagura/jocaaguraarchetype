@@ -15,7 +15,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// Pure/controller-only (no Widgets).
 /// Coordinates session-aware navigation over PageManager + BlocSession.
 ///
-/// See policy in class docs of previous version (unchanged).
+/// See policy in class doc of previous version (unchanged).
 class SessionNavCoordinator {
   SessionNavCoordinator({
     required this.pageManager,
