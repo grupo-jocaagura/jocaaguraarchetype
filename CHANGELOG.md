@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.0] - 2025-11-03
+
+> Versión **acumulada** que integra las entregas **3.3.2** (flavors lógicos por `--dart-define`) y **3.3.1** (página y web de Política de Privacidad, y estructura legal unificada). No introduce cambios adicionales fuera de lo ya incluido.
+
+### Added
+- **Flavors lógicos por `--dart-define`:**
+    - `lib/env/app_mode.dart`: `enum AppMode { dev, qa, prod }` + `parseAppMode(String)`.
+    - `lib/env/env.dart`: `Env` base (extensible) con `mode`, `isQa`, `isProd`.
+    - `lib/env/app_config_builder.dart`: `AppConfigBuilder.byMode(...)` para despachar `AppConfig` por entorno.
+    - `lib/env/deferred_steps.dart`: `deferredStep(...)` para cargas diferidas en Onboarding (timeouts, manejo de error y *retry* con `Left/Right`).
+    - **Exports** en `lib/jocaaguraarchetype.dart`.
+    - **Doc:** `doc/env-doc.md` con:
+        - Ejemplo Flutter de un solo archivo (contador + `AnyService` simulado).
+        - Guía de ejecución por modo `--dart-define=APP_MODE=dev|qa|prod`.
+        - Estrategia Android sugerida para ID/label por modo sin `productFlavors`.
+
+### Changed
+- **Env/Onboarding:** centralización de lectura de modo y mejoras para integrar Onboarding con imports diferidos.
+- **Legal:** refactor a **estructura unificada** para centralizar contenidos y componentes.
+
+### Removed
+- `TermsAndConditionsProdPage` (reemplazada por la estructura legal unificada).
+
+### Migration notes
+- **No hay breaking changes.**
+- En apps que usan el arquetipo:
+    1. Extiende `Env` para tus variables (`class MyEnv extends Env { ... }`).
+    2. Construye `AppConfig` con `AppConfigBuilder.byMode(mode: Env.mode, ...)`.
+    3. Mueve inicializaciones pesadas al Onboarding con `deferredStep(...)`.
+    4. Ejecuta por modo:
+       ```bash
+       flutter run --dart-define=APP_MODE=dev|qa|prod
+       ```
+
+
 ## [3.3.2] - 2025-11-03
 ### Added
 * **Flavors (logical-only) por `--dart-define`:**
