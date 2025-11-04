@@ -1,7 +1,7 @@
 name: jocaaguraarchetype
 description: Starter archetype for Flutter apps with Jocaagura Clean Architecture, cross-cutting BLoCs, theming, and navigation setup.
 
-version: 3.4.0
+version: 3.4.1
 
 homepage: https://github.com/jocaagura/jocaaguraarchetype
 repository: https://github.com/jocaagura/jocaaguraarchetype
@@ -14,7 +14,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  jocaagura_domain: ^1.31.0
+  jocaagura_domain: ^1.32.0
 
 dev_dependencies:
   flutter_test:
