@@ -152,7 +152,7 @@ class PageBuilder extends StatelessWidget {
                           ),
                           MySnackBarWidget.fromStringStream(
                             responsive: r,
-                            toastStream: app.notifications.toastStream,
+                            toastStream: app.notifications.textStream,
                           ),
                         ],
                       ),

@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [3.4.1] - 2025-11-04
+
+### Fixed
+- **Lints / Docs:**
+    - Corrige advertencia _“Angle brackets will be interpreted as HTML”_ en DartDoc (`theme_usecases.dart`) escapando o envolviendo con código para tipos genéricos (`Either<ErrorItem, ThemeState>`).
+- **UI (deprecations):**
+    - Reemplazo de `toastStream` **deprecated** en `page_builder.dart`:
+        - Ahora se usa `textStream` (solo texto) **o** `stream<ToastMessage>` según el caso, eliminando la dependencia de la API obsoleta.
+
+### Changed
+- **env (DI/testability)** — `hotfix(env): refactor Env for improved DI and testability`
+    - `Env` pasa de diseño estático a **modelo basado en instancias**:
+        - Convertido a `abstract class`; `isQa`, `isProd`, `mode` ahora son **getters de instancia**.
+        - La variable de compilación `_mode` continúa siendo `static`, pero se **encapsula** detrás de la instancia.
+    - **`DefaultEnv`**: implementación estándar por defecto.
+    - **Testing:** se añade `modeTest` opcional para **forzar modo** en pruebas.
+- **AppManager**
+    - Ahora **recibe un `Env`** en el constructor (por defecto, `DefaultEnv`).
+    - `appMode`, `isQa`, `isProd` delegan al `Env` **inyectado** (no más accesores estáticos).
+
+### Docs
+- Actualizada la documentación de `Env` y ejemplo práctico de uso con DI.
+- Notas en `page_builder.dart` sobre el uso de `textStream`/`ToastMessage` en lugar de `toastStream`.
+
+### Migration notes
+- **Casi sin rompimientos**:
+    - Si no pasas `Env`, **no debes cambiar nada** (usa `DefaultEnv`).
+    - Para pruebas o entornos custom, inyecta tu instancia:
+      ```dart
+      final Env env = DefaultEnv(modeTest: AppMode.qa); // o tu implementación
+      final AppManager am = AppManager(env: env);
+      ```
+    - Si tu UI usaba `toastStream` directamente, migra a:
+        - `textStream` (cuando solo necesitas texto), o
+        - un `Stream<ToastMessage>` si manejas tipos enriquecidos.
+
 ## [3.4.0] - 2025-11-03
 
 > Versión **acumulada** que integra las entregas **3.3.2** (flavors lógicos por `--dart-define`) y **3.3.1** (página y web de Política de Privacidad, y estructura legal unificada). No introduce cambios adicionales fuera de lo ya incluido.

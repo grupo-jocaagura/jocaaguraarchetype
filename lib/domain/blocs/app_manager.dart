@@ -15,9 +15,15 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// - `home` behaves as singleTop via [clearAndGoHome].
 /// - Pages may set `requiresAuth`; coordinator redirects to `/login`.
 class AppManager {
-  AppManager(this._config, {this.onAppLifecycleChanged});
+  AppManager(
+    this._config, {
+    this.onAppLifecycleChanged,
+    this.env = defaultEnv,
+  });
   AppConfig _config;
   bool _disposed = false;
+
+  final Env env;
   final void Function(AppLifecycleState state)? onAppLifecycleChanged;
   // ---- Read-only accessors to core blocs ----
   BlocTheme get theme => _config.blocTheme;
@@ -45,6 +51,13 @@ class AppManager {
   void handleLifecycle(AppLifecycleState state) {
     onAppLifecycleChanged?.call(state);
   }
+
+  // --------------------------------------------------------------------------
+  // Enviroment -
+  // --------------------------------------------------------------------------
+  AppMode get appMode => env.mode;
+  bool get isQa => env.isQa;
+  bool get isProd => env.isProd;
 
   // --------------------------------------------------------------------------
   // Navigation API (String-based; internamente PageModel.fromUri)
