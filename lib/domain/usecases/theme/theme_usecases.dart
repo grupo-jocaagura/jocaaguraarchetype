@@ -227,7 +227,7 @@ class SetTextThemeOverrides with _ThemeUpdate {
 
 /// Streams theme updates from the repository.
 ///
-/// Emits Either<ErrorItem, ThemeState> so the consumer can handle errors
+/// Emits `Either<ErrorItem, ThemeState>` so the consumer can handle errors
 /// without closing the stream.
 class WatchTheme {
   const WatchTheme(this.repo);
