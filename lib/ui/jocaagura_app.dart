@@ -29,26 +29,26 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// }
 /// ```
 class JocaaguraApp extends StatelessWidget {
-  /// Creates a Jocaagura app shell.
   const JocaaguraApp({
     required this.appManager,
     required this.registry,
     this.ownsManager = false,
     this.projectorMode = false,
     this.initialLocation = '/home',
+    this.seedInitialFromPageManager = false, // <— NUEVO
+    this.splashOverlayBuilder, // <— NUEVO (opcional)
     super.key,
   });
 
-  /// DEV factory using archetype defaults with in-memory theme gateway and a
-  /// minimal initial stack pointing to `/home`.
-  ///
-  /// The returned app **owns** the created [AppManager] and will dispose it.
   factory JocaaguraApp.dev({
     required PageRegistry registry,
     required bool projectorMode,
     Key? key,
     String initialLocation = '/home',
     List<OnboardingStep> onboardingSteps = const <OnboardingStep>[],
+    bool seedInitialFromPageManager = false, // <— NUEVO
+    Widget Function(BuildContext, OnboardingState)?
+        splashOverlayBuilder, // <— NUEVO
   }) {
     final AppConfig config = AppConfig.dev(
       registry: registry,
@@ -61,27 +61,28 @@ class JocaaguraApp extends StatelessWidget {
       registry: registry,
       initialLocation: initialLocation,
       ownsManager: true,
+      seedInitialFromPageManager: seedInitialFromPageManager,
+      splashOverlayBuilder: splashOverlayBuilder,
     );
   }
 
-  /// The domain-level app manager (theme, navigation, loading, etc.).
   final AppManager appManager;
-
-  /// Page registry to materialize widgets from [PageModel]s.
   final PageRegistry registry;
-
-  /// When `true`, only the top page is rendered (projector mode).
   final bool projectorMode;
-
-  /// Initial location used to seed the platform route information.
   final String initialLocation;
-
-  /// Whether this widget is responsible for disposing [appManager].
   final bool ownsManager;
+
+  /// If true, the initial URL is seeded from PageManager.top (if any).
+  /// Keeps initial stack ownership on first Router sync.
+  final bool seedInitialFromPageManager; // <— NUEVO
+
+  /// Optional overlay builder for splash screens drawn above the app.
+  /// When provided, it renders while onboarding is idle/running.
+  final Widget Function(BuildContext, OnboardingState)?
+      splashOverlayBuilder; // <— NUEVO
 
   @override
   Widget build(BuildContext context) {
-    // Share AppManager down the tree without rebuild churn.
     return AppManagerProvider(
       appManager: appManager,
       child: _JocaaguraAppShell(
@@ -89,29 +90,30 @@ class JocaaguraApp extends StatelessWidget {
         registry: registry,
         initialLocation: initialLocation,
         ownsManager: ownsManager,
+        seedInitialFromPageManager: seedInitialFromPageManager, // <— NUEVO
+        splashOverlayBuilder: splashOverlayBuilder, // <— NUEVO
       ),
     );
   }
 }
 
-/// Internal stateful shell that holds stable router instances and observes
-/// application lifecycle, disposing resources when needed.
-///
-/// This keeps the public API stateless while guaranteeing:
-/// - Single instances of delegate/parser/provider.
-/// - Proper `dispose()` calls.
 class _JocaaguraAppShell extends StatefulWidget {
   const _JocaaguraAppShell({
     required this.appManager,
     required this.registry,
     required this.initialLocation,
     required this.ownsManager,
+    required this.seedInitialFromPageManager, // <— NUEVO
+    required this.splashOverlayBuilder, // <— NUEVO
   });
 
   final AppManager appManager;
   final PageRegistry registry;
   final String initialLocation;
   final bool ownsManager;
+  final bool seedInitialFromPageManager; // <— NUEVO
+  final Widget Function(BuildContext, OnboardingState)?
+      splashOverlayBuilder; // <— NUEVO
 
   @override
   State<_JocaaguraAppShell> createState() => _JocaaguraAppShellState();
@@ -133,10 +135,19 @@ class _JocaaguraAppShellState extends State<_JocaaguraAppShell>
       registry: widget.registry,
       pageManager: widget.appManager.pageManager,
     );
+
+    final String seedPath = () {
+      if (widget.seedInitialFromPageManager) {
+        final PageModel top = widget.appManager.pageManager.stack.top;
+        if (top.name.isNotEmpty) {
+          return '/${top.name}';
+        }
+      }
+      return widget.initialLocation;
+    }();
+
     _routeInfoProvider = PlatformRouteInformationProvider(
-      initialRouteInformation: RouteInformation(
-        uri: Uri.parse(widget.initialLocation),
-      ),
+      initialRouteInformation: RouteInformation(uri: Uri.parse(seedPath)),
     );
   }
 
@@ -159,7 +170,6 @@ class _JocaaguraAppShellState extends State<_JocaaguraAppShell>
     try {
       _delegate.dispose();
     } catch (_) {}
-
     super.dispose();
   }
 
@@ -167,12 +177,9 @@ class _JocaaguraAppShellState extends State<_JocaaguraAppShell>
   Widget build(BuildContext context) {
     final AppManager am = widget.appManager;
 
-    _delegate.update(
-      pageManager: am.pageManager,
-      registry: widget.registry,
-    );
+    _delegate.update(pageManager: am.pageManager, registry: widget.registry);
 
-    return StreamBuilder<ThemeState>(
+    Widget app = StreamBuilder<ThemeState>(
       stream: am.theme.stream,
       initialData: am.theme.stateOrDefault,
       builder: (_, __) {
@@ -191,5 +198,29 @@ class _JocaaguraAppShellState extends State<_JocaaguraAppShell>
         );
       },
     );
+
+    // —— Splash overlay (opcional) ——
+    if (widget.splashOverlayBuilder != null) {
+      app = StreamBuilder<OnboardingState>(
+        stream: am.onboarding.stateStream,
+        initialData: am.onboarding.state,
+        builder: (_, __) {
+          final OnboardingState os = am.onboarding.state;
+          final bool show = os.status == OnboardingStatus.idle ||
+              os.status == OnboardingStatus.running;
+          if (!show) {
+            return app;
+          }
+          return Stack(
+            children: <Widget>[
+              app,
+              IgnorePointer(child: widget.splashOverlayBuilder!(context, os)),
+            ],
+          );
+        },
+      );
+    }
+
+    return app;
   }
 }

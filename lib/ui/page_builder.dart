@@ -51,11 +51,11 @@ class PageBuilder extends StatelessWidget {
                                     stream: app.pageManager.currentTitleStream,
                                     initialData: app.pageManager.currentTitle,
                                     builder: (
-                                      BuildContext context,
-                                      AsyncSnapshot<String> tSnap,
+                                      _,
+                                      __,
                                     ) =>
                                         Text(
-                                      tSnap.data ?? '',
+                                      app.pageManager.currentTitle,
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleLarge,
@@ -114,9 +114,9 @@ class PageBuilder extends StatelessWidget {
                           initialData: app.pageManager.currentTitle,
                           builder: (
                             BuildContext context,
-                            AsyncSnapshot<String> tSnap,
+                            __,
                           ) =>
-                              Text(tSnap.data ?? ''),
+                              Text(app.pageManager.currentTitle),
                         ),
                         actions: <Widget>[
                           StreamBuilder<bool>(
