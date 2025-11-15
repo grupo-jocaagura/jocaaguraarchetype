@@ -145,12 +145,9 @@ class LoginPage extends StatelessWidget {
                     final Either<ErrorItem, UserModel> r =
                         await bloc.logIn(email: email, password: pass);
                     r.fold(
-                      (ErrorItem e) =>
-                          context.appManager.notifications.showToast(e.title),
+                      (ErrorItem e) => app.notifications.showToast(e.title),
                       (_) {
-                        context.appManager.notifications.showToast('Login OK');
-                        // La navegación/menús los maneja el SessionNavCoordinator
-                        // vía hooks de JocaaguraAppWithSession.
+                        app.notifications.showToast('Login OK');
                       },
                     );
                   },
@@ -396,6 +393,10 @@ final List<PageDef> defs = <PageDef>[
     model: HomeAuthenticatedPage.pageModel,
     builder: (_, __) => const HomeAuthenticatedPage(),
   ),
+  PageDef(
+    model: SessionErrorPage.pageModel,
+    builder: (_, __) => const SessionErrorPage(),
+  ),
 ];
 
 final PageRegistry registry =
@@ -474,6 +475,16 @@ AppManager buildAppManager() {
   return AppManager(cfg);
 }
 
+const SessionPages sessionPages = SessionPages(
+  splash: SplashPage.pageModel,
+  homePublic: HomePage.pageModel,
+  login: LoginPage.pageModel,
+  homeAuthenticated: HomeAuthenticatedPage.pageModel,
+  sessionClosed: SessionClosedPage.pageModel,
+  authenticating: AuthenticatingPage.pageModel,
+  sessionError: SessionErrorPage.pageModel,
+);
+
 /// ===========================================
 /// 5) MAIN con JocaaguraAppWithSession
 /// ===========================================
@@ -490,14 +501,8 @@ Future<void> main() async {
   runApp(
     JocaaguraAppWithSession.dev(
       appManager: am,
+      sessionPages: sessionPages,
       registry: registry,
-      splashPage: SplashPage.pageModel,
-      homePublicPage: HomePage.pageModel,
-      loginPage: LoginPage.pageModel,
-      homeAuthenticatedPage: HomeAuthenticatedPage.pageModel,
-      sessionClosedPage: SessionClosedPage.pageModel,
-      authenticatingPage: AuthenticatingPage.pageModel,
-      sessionErrorPage: SessionErrorPage.pageModel,
       isSessionInitialized: kIsSessionInitialized,
       initialUserJson: defaultUserModel.toJson(),
       sessionBloc: session,

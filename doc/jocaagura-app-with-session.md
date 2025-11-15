@@ -373,8 +373,6 @@ class LoginPage extends StatelessWidget {
                           app.notifications.showToast(e.title),
                       (_) {
                         app.notifications.showToast('Login OK');
-                        // La navegación/menús los maneja SessionAppManager
-                        // vía hooks de JocaaguraAppWithSession.
                       },
                     );
                   },
@@ -702,6 +700,16 @@ AppManager buildAppManager() {
   return AppManager(cfg);
 }
 
+const SessionPages sessionPages = SessionPages(
+  splash: SplashPage.pageModel,
+  homePublic: HomePage.pageModel,
+  login: LoginPage.pageModel,
+  homeAuthenticated: HomeAuthenticatedPage.pageModel,
+  sessionClosed: SessionClosedPage.pageModel,
+  authenticating: AuthenticatingPage.pageModel,
+  sessionError: SessionErrorPage.pageModel,
+);
+
 /// ===========================================
 /// 5) MAIN con JocaaguraAppWithSession
 /// ===========================================
@@ -713,22 +721,13 @@ Future<void> main() async {
   if (!_onboardingDone && pageManager.stack.top == SplashPage.pageModel) {
     am.onboarding.start();
   }
-
-  // Usamos el mismo BlocSession que ya está registrado en AppManager
   final BlocSession session =
-      am.requireModuleByKey<BlocSession>(BlocSession.name);
-
+  am.requireModuleByKey<BlocSession>(BlocSession.name);
   runApp(
     JocaaguraAppWithSession.dev(
       appManager: am,
+      sessionPages: sessionPages,
       registry: registry,
-      splashPage: SplashPage.pageModel,
-      homePublicPage: HomePage.pageModel,
-      loginPage: LoginPage.pageModel,
-      homeAuthenticatedPage: HomeAuthenticatedPage.pageModel,
-      sessionClosedPage: SessionClosedPage.pageModel,
-      authenticatingPage: AuthenticatingPage.pageModel,
-      sessionErrorPage: SessionErrorPage.pageModel,
       isSessionInitialized: kIsSessionInitialized,
       initialUserJson: defaultUserModel.toJson(),
       sessionBloc: session,
@@ -740,6 +739,12 @@ Future<void> main() async {
 ```
 
 ### Invariantes de navegación por estado de sesión
+
+Unauthenticated  --login--> Authenticating --ok--> Authenticated
+^                                          |
+|                                          |
++------------------logout------------------+
+
 
 Este es el contrato que garantiza `SessionAppManager` entre **estado de sesión** y **stack de navegación** (`NavStackModel`):
 

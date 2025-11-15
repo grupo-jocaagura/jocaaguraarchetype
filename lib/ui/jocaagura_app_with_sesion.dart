@@ -70,13 +70,7 @@ class JocaaguraAppWithSession extends StatefulWidget {
     required this.appManager,
     required this.registry,
     required this.sessionBloc,
-    required this.splashPage,
-    required this.homePublicPage,
-    required this.loginPage,
-    required this.homeAuthenticatedPage,
-    required this.sessionClosedPage,
-    required this.authenticatingPage,
-    required this.sessionErrorPage,
+    required this.sessionPages,
     this.projectorMode = false,
     this.initialLocation = '/home',
     this.seedInitialFromPageManager = false,
@@ -106,13 +100,7 @@ class JocaaguraAppWithSession extends StatefulWidget {
     // Core wiring
     required AppManager appManager,
     required PageRegistry registry,
-    required PageModel splashPage,
-    required PageModel homePublicPage,
-    required PageModel loginPage,
-    required PageModel homeAuthenticatedPage,
-    required PageModel sessionClosedPage,
-    required PageModel authenticatingPage,
-    required PageModel sessionErrorPage,
+    required SessionPages sessionPages,
     required void Function(AppManager app) configureMenusForLoggedIn,
     required void Function(AppManager app)
         configureMenusForLoggedOut, // Session wiring override (optional)
@@ -141,13 +129,7 @@ class JocaaguraAppWithSession extends StatefulWidget {
       appManager: appManager,
       registry: registry,
       sessionBloc: effectiveSessionBloc,
-      splashPage: splashPage,
-      homePublicPage: homePublicPage,
-      loginPage: loginPage,
-      homeAuthenticatedPage: homeAuthenticatedPage,
-      sessionClosedPage: sessionClosedPage,
-      authenticatingPage: authenticatingPage,
-      sessionErrorPage: sessionErrorPage,
+      sessionPages: sessionPages,
       projectorMode: projectorMode,
       initialLocation: initialLocation,
       seedInitialFromPageManager: seedInitialFromPageManager,
@@ -173,26 +155,7 @@ class JocaaguraAppWithSession extends StatefulWidget {
   /// Session BLoC exposing [SessionState] transitions.
   final BlocSession sessionBloc;
 
-  /// Splash screen page model (runs once per app execution).
-  final PageModel splashPage;
-
-  /// Public home page shown while [SessionState] is [Unauthenticated].
-  final PageModel homePublicPage;
-
-  /// Login page shown when user must authenticate.
-  final PageModel loginPage;
-
-  /// Default landing page for [Authenticated] users.
-  final PageModel homeAuthenticatedPage;
-
-  /// Page shown when the session has been explicitly closed.
-  final PageModel sessionClosedPage;
-
-  /// Page used while a login/refresh operation is in progress.
-  final PageModel authenticatingPage;
-
-  /// Page used to display unrecoverable session errors.
-  final PageModel sessionErrorPage;
+  final SessionPages sessionPages;
 
   /// Whether projector mode is enabled (passed to [JocaaguraApp]).
   final bool projectorMode;
@@ -230,13 +193,13 @@ class _JocaaguraAppWithSessionState extends State<JocaaguraAppWithSession> {
         SessionAppManager(
           appManager: widget.appManager,
           sessionBloc: widget.sessionBloc,
-          splashPage: widget.splashPage,
-          homePublicPage: widget.homePublicPage,
-          loginPage: widget.loginPage,
-          homeAuthenticatedPage: widget.homeAuthenticatedPage,
-          sessionClosedPage: widget.sessionClosedPage,
-          authenticatingPage: widget.authenticatingPage,
-          sessionErrorPage: widget.sessionErrorPage,
+          splashPage: widget.sessionPages.splash,
+          homePublicPage: widget.sessionPages.homePublic,
+          loginPage: widget.sessionPages.login,
+          homeAuthenticatedPage: widget.sessionPages.homeAuthenticated,
+          sessionClosedPage: widget.sessionPages.sessionClosed,
+          authenticatingPage: widget.sessionPages.authenticating,
+          sessionErrorPage: widget.sessionPages.sessionError,
           configureMenusForLoggedIn: widget.configureMenusForLoggedIn,
           configureMenusForLoggedOut: widget.configureMenusForLoggedOut,
         );

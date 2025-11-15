@@ -25,6 +25,7 @@ part 'domain/gateways/gateway_theme.dart';
 part 'domain/gateways/gateway_theme_react.dart';
 part 'domain/models/nav_stack_model.dart';
 part 'domain/models/page_model.dart';
+part 'domain/models/session_pages.dart';
 part 'domain/models/toast_message.dart';
 part 'domain/repositories/repository_theme.dart';
 part 'domain/repositories/repository_theme_react.dart';
