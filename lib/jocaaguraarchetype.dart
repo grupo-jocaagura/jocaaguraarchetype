@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'jocaaguraarchetype_domain.dart';
+import 'jocaaguraarchetype.dart';
 
 export 'jocaaguraarchetype_domain.dart';
 
@@ -45,11 +45,13 @@ part 'src/repositories/repository_theme_impl.dart';
 part 'src/repositories/repository_theme_react_impl.dart';
 part 'src/services/service_jocaagura_archetype_theme.dart';
 part 'ui/jocaagura_app.dart';
+part 'ui/jocaagura_app_with_sesion.dart';
 part 'ui/navigation/my_app_router_delegate.dart';
 part 'ui/navigation/my_route_information_parser.dart';
 part 'ui/navigation/page_def.dart';
 part 'ui/navigation/page_manager.dart';
 part 'ui/navigation/page_registry.dart';
+part 'ui/navigation/session_app_manager.dart';
 part 'ui/navigation/session_nav_coordinator.dart';
 part 'ui/page_builder.dart';
 part 'ui/pages/loading_page.dart';

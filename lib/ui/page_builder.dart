@@ -1,12 +1,19 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 class PageBuilder extends StatelessWidget {
-  const PageBuilder({super.key, this.page});
+  const PageBuilder({
+    super.key,
+    this.page,
+    this.showAppBar = true,
+  });
   final Widget? page;
-
+  final bool showAppBar;
   @override
   Widget build(BuildContext context) {
     final AppManager app = context.appManager;
+
+    app.responsive.showAppbar = showAppBar;
+
     final BlocResponsive r = app.responsive;
     r.setSizeFromContext(context);
 

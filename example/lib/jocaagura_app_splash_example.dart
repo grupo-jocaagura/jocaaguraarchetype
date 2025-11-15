@@ -20,8 +20,9 @@ final List<PageDef> defs = <PageDef>[
   PageDef(model: SplashPage.pageModel, builder: (_, __) => const SplashPage()),
   PageDef(model: HomePage.pageModel, builder: (_, __) => const HomePage()),
   PageDef(
-      model: HistorialPage.pageModel,
-      builder: (_, __) => const HistorialPage()),
+    model: HistorialPage.pageModel,
+    builder: (_, __) => const HistorialPage(),
+  ),
 ];
 
 final PageRegistry registry = PageRegistry.fromDefs(

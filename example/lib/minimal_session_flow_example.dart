@@ -34,61 +34,6 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class HomeAuthenticatedPage extends StatelessWidget {
-  const HomeAuthenticatedPage({super.key});
-  static const String name = 'homeAuthenticated';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
-
-  @override
-  Widget build(BuildContext context) {
-    final BlocSession blocSession =
-        context.appManager.requireModuleByKey<BlocSession>(BlocSession.name);
-    return PageBuilder(
-      page: Center(child: Text('${blocSession.state} · Bienvenid@')),
-    );
-  }
-}
-
-class SessionErrorPage extends StatelessWidget {
-  const SessionErrorPage({super.key});
-  static const String name = 'sessionError';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
-
-  @override
-  Widget build(BuildContext context) {
-    final AppManager app = context.appManager;
-    final BlocSession blocSession =
-        app.requireModuleByKey<BlocSession>(BlocSession.name);
-    return Scaffold(
-      body: InkWell(
-        onTap: () {
-          app.pageManager.resetTo(HomePage.pageModel);
-        },
-        child: Center(
-          child: Text('Session Error · ${blocSession.state}'),
-        ),
-      ),
-    );
-  }
-}
-
-class AuthenticatingPage extends StatelessWidget {
-  const AuthenticatingPage({super.key});
-  static const String name = 'authenticating';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
-
-  @override
-  Widget build(BuildContext context) {
-    return const PageBuilder(
-      showAppBar: false,
-      page: Center(child: CircularProgressIndicator()),
-    );
-  }
-}
-
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
   static const String name = 'login';
@@ -97,70 +42,85 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppManager app = context.appManager;
-    final BlocSession bloc = app.requireModuleByKey(BlocSession.name);
+    final BlocSession bloc =
+        context.appManager.requireModuleByKey(BlocSession.name);
 
-    String email = bloc.currentUser.email;
+    String email = bloc.email;
     String pass = '';
+
     return PageBuilder(
       page: Padding(
         padding: const EdgeInsets.all(16),
-        child: StreamBuilder<SessionState>(
-          stream: bloc.stream,
-          builder: (_, __) {
-            if (bloc.state is Authenticating) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-
-            return Column(
-              children: <Widget>[
-                Text(
-                  'Login (anonimo@anonimo.com.co / 12345)',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  onChanged: (String v) => email = v,
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                  onChanged: (String v) => pass = v,
-                  onSubmitted: (_) async {
-                    final Either<ErrorItem, UserModel> r =
-                        await bloc.logIn(email: email, password: pass);
-                    r.fold(
-                      (ErrorItem e) => app.notifications.showToast(e.title),
-                      (_) => app.notifications.showToast('Login OK'),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () async {
-                    final Either<ErrorItem, UserModel> r =
-                        await bloc.logIn(email: email, password: pass);
-                    r.fold(
-                      (ErrorItem e) =>
-                          context.appManager.notifications.showToast(e.title),
-                      (_) {
-                        context.appManager.notifications.showToast('Login OK');
-                        // La navegación/menús los maneja el SessionNavCoordinator
-                        // vía hooks de JocaaguraAppWithSession.
-                      },
-                    );
-                  },
-                  child: const Text('Sign in'),
-                ),
-              ],
-            );
-          },
+        child: Column(
+          children: <Widget>[
+            Text(
+              'Login (anonimo@anonimo.com.co / 12345)',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              decoration: const InputDecoration(labelText: 'Email'),
+              onChanged: (String v) => email = v,
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              decoration: const InputDecoration(labelText: 'Password'),
+              obscureText: true,
+              onChanged: (String v) => pass = v,
+              onSubmitted: (_) async {
+                await _performLoginWithAuthenticatingPage(
+                  context,
+                  bloc,
+                  email,
+                  pass,
+                );
+              },
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () async {
+                await _performLoginWithAuthenticatingPage(
+                  context,
+                  bloc,
+                  email,
+                  pass,
+                );
+              },
+              child: const Text('Sign in'),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Future<void> _performLoginWithAuthenticatingPage(
+    BuildContext context,
+    BlocSession bloc,
+    String email,
+    String pass,
+  ) async {
+    final AppManager app = context.appManager;
+
+    // 1) Ir a la página de "autenticando..."
+    app.pushModel(AuthenticatingPage.pageModel);
+
+    // 2) Ejecutar el login
+    final Either<ErrorItem, Unit> r = await bloc.login(email, pass);
+
+    // 3) Procesar resultado
+    r.fold(
+      (ErrorItem e) {
+        // En error: volver al login y mostrar mensaje
+        app.pageManager.resetTo(LoginPage.pageModel);
+        app.notifications.showToast(e.title);
+      },
+      (_) {
+        // En éxito: configurar menús y mandar a Home
+        app.notifications.showToast('Login OK');
+        _setupMenusForLoggedIn(app);
+        app.pageManager.resetTo(HomePage.pageModel);
+      },
     );
   }
 }
@@ -173,15 +133,8 @@ class SessionClosedPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.appManager.responsive.showAppbar = false;
-    return PageBuilder(
-      page: InkWell(
-        onTap: () {
-          context.appManager.responsive.showAppbar = true;
-          context.appManager.pageManager.resetTo(HomePage.pageModel);
-        },
-        child: const Center(child: Text('Session Closed press to go to Home')),
-      ),
+    return const PageBuilder(
+      page: Center(child: Text('Session Closed · Please login')),
     );
   }
 }
@@ -189,11 +142,8 @@ class SessionClosedPage extends StatelessWidget {
 class CounterPage extends StatefulWidget {
   const CounterPage({super.key});
   static const String name = 'counter';
-  static const PageModel pageModel = PageModel(
-    name: name,
-    segments: <String>[name],
-    requiresAuth: true, // 🔐 protegida
-  );
+  static const PageModel pageModel =
+      PageModel(name: name, segments: <String>[name]);
 
   @override
   State<CounterPage> createState() => _CounterPageState();
@@ -215,6 +165,7 @@ class _CounterPageState extends State<CounterPage> {
     _sec = app.secondaryMenu;
     _counter = app.requireModuleByKey(BlocCounter.name);
 
+    // Configura el menú secundario una única vez
     _sec.clearSecondaryDrawer();
     _sec.addSecondaryMenuOption(
       label: 'Increment',
@@ -240,6 +191,7 @@ class _CounterPageState extends State<CounterPage> {
 
   @override
   void dispose() {
+    // Opcional: limpiar acciones al salir
     if (_wired) {
       _sec.clearSecondaryDrawer();
     }
@@ -250,18 +202,20 @@ class _CounterPageState extends State<CounterPage> {
   Widget build(BuildContext context) {
     final BlocResponsive r = context.appManager.responsive;
     r.showAppbar = true;
-    final BlocCounter blocCounter =
-        context.appManager.requireModuleByKey<BlocCounter>(BlocCounter.name);
 
     return PageBuilder(
       page: PageWithSecondaryMenuWidget(
         responsive: r,
         content: Center(
           child: StreamBuilder<int>(
-            stream: blocCounter.stream,
-            initialData: blocCounter.value,
+            stream: context.appManager
+                .requireModuleByKey<BlocCounter>(BlocCounter.name)
+                .stream,
+            initialData: context.appManager
+                .requireModuleByKey<BlocCounter>(BlocCounter.name)
+                .value,
             builder: (_, AsyncSnapshot<int> snap) => Text(
-              'Counter: ${blocCounter.value}',
+              'Counter: ${snap.data}',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
@@ -298,8 +252,55 @@ class _CounterPageState extends State<CounterPage> {
 }
 
 /// ===========================================
-/// 2) BLoC mínimo: Counter
+/// 2) BLoCs mínimos: Session + Counter
 /// ===========================================
+class BlocSession extends BlocModule {
+  BlocSession({bool initialized = false}) {
+    _loggedIn.value = initialized;
+    if (initialized) {
+      _email = 'anonimo@anonimo.com.co';
+    }
+  }
+
+  static const String name = 'BlocSession';
+
+  final BlocGeneral<bool> _loggedIn = BlocGeneral<bool>(false);
+  bool get isLoggedIn => _loggedIn.value;
+  Stream<bool> get isLoggedInStream => _loggedIn.stream;
+
+  String _email = '';
+  String get email => _email;
+
+  Future<Either<ErrorItem, Unit>> login(String email, String pass) async {
+    // Mock: solo acepta anonimo@anonimo.com.co / 12345
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    if (email.trim().toLowerCase() == 'anonimo@anonimo.com.co' &&
+        pass == '12345') {
+      _email = email.trim();
+      _loggedIn.value = true;
+      return Right<ErrorItem, Unit>(Unit.value);
+    }
+    return Left<ErrorItem, Unit>(
+      const ErrorItem(
+        title: 'Credenciales inválidas',
+        code: '',
+        description: '',
+      ),
+    );
+  }
+
+  Future<void> logout() async {
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+    _email = '';
+    _loggedIn.value = false;
+  }
+
+  @override
+  FutureOr<void> dispose() async {
+    _loggedIn.dispose();
+  }
+}
+
 class BlocCounter extends BlocModule {
   BlocCounter([int initial = 0]) {
     _value.value = initial;
@@ -326,11 +327,50 @@ class BlocCounter extends BlocModule {
   }
 }
 
-/// Hooks de menús (usados por JocaaguraAppWithSession)
-void _setupMenusForLoggedIn(AppManager app) {
-  app.secondaryMenu.clearSecondaryDrawer();
-  app.mainMenu.clearMainDrawer();
+/// ===========================================
+/// 3) SessionNavCoordinator (menús/flujo)
+/// ===========================================
+class SessionNavCoordinator {
+  SessionNavCoordinator(this.app);
+  final AppManager app;
 
+  /// Prepara menú principal según el estado de sesión.
+  void setupMainMenuForCurrentSession() {
+    final BlocSession s = app.requireModuleByKey(BlocSession.name);
+    app.mainMenu.clearMainDrawer();
+
+    if (s.isLoggedIn) {
+      app.mainMenu.addMainMenuOption(
+        label: 'Go to Counter',
+        iconData: Icons.calculate_outlined,
+        onPressed: () => app.pushModel(CounterPage.pageModel),
+        description: 'Navigate to CounterPage',
+      );
+      app.mainMenu.addMainMenuOption(
+        label: 'Sign out',
+        iconData: Icons.logout,
+        onPressed: () async {
+          await s.logout();
+          _setupMenusForLoggedOut(app);
+          app.pageManager.resetTo(SessionClosedPage.pageModel);
+          app.notifications.showToast('Signed out');
+        },
+        description: 'Cerrar sesión',
+      );
+    } else {
+      app.mainMenu.addMainMenuOption(
+        label: 'Go to Login',
+        iconData: Icons.login,
+        onPressed: () => app.pushModel(LoginPage.pageModel),
+        description: 'Navigate to LoginPage',
+      );
+    }
+  }
+}
+
+/// Helpers puros para que también puedas llamarlos desde Login/Logout
+void _setupMenusForLoggedIn(AppManager app) {
+  app.mainMenu.clearMainDrawer();
   app.mainMenu.addMainMenuOption(
     label: 'Go to Counter',
     iconData: Icons.calculate_outlined,
@@ -341,7 +381,7 @@ void _setupMenusForLoggedIn(AppManager app) {
     iconData: Icons.logout,
     onPressed: () async {
       final BlocSession s = app.requireModuleByKey(BlocSession.name);
-      await s.logOut();
+      await s.logout();
       _setupMenusForLoggedOut(app);
       app.pageManager.resetTo(SessionClosedPage.pageModel);
       app.notifications.showToast('Signed out');
@@ -361,6 +401,7 @@ void _setupMenusForLoggedOut(AppManager app) {
 
 /// ===========================================
 /// 4) REGISTRY + PAGE MANAGER + ONBOARDING
+///    · Splash decide sesión y prepara menús
 /// ===========================================
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
@@ -392,10 +433,6 @@ final List<PageDef> defs = <PageDef>[
     model: AuthenticatingPage.pageModel,
     builder: (_, __) => const AuthenticatingPage(),
   ),
-  PageDef(
-    model: HomeAuthenticatedPage.pageModel,
-    builder: (_, __) => const HomeAuthenticatedPage(),
-  ),
 ];
 
 final PageRegistry registry =
@@ -408,28 +445,18 @@ final PageManager pageManager =
     PageManager(initial: NavStackModel.single(initial()));
 
 AppManager buildAppManager() {
-  // Theme mínimo
+  // Theme mínimo (igual a tus ejemplos)
   final RepositoryThemeReact themeRepo = RepositoryThemeReactImpl(
     gateway: GatewayThemeReactImpl(service: FakeServiceThemeReact()),
   );
   final ThemeUsecases themeUsecases = ThemeUsecases.fromRepo(themeRepo);
   final WatchTheme watchTheme = WatchTheme(themeRepo);
 
-  // Auth (con FakeServiceSession que respeta IS_SESSION_INITIALIZATED)
-  final GatewayAuth gatewayAuth = GatewayAuthImpl(
-    FakeServiceSession(
-      initialUserJson: kIsSessionInitialized ? defaultUserModel.toJson() : null,
-    ),
-  );
-  final RepositoryAuth repositoryAuthImpl =
-      RepositoryAuthImpl(gateway: gatewayAuth);
-  final BlocSession session =
-      BlocSession.fromRepository(repository: repositoryAuthImpl);
-
-  // Counter demo
+  // ----- Registrar módulos propios -----
   final BlocCounter counter = BlocCounter();
+  final BlocSession session = BlocSession(initialized: kIsSessionInitialized);
 
-  // Onboarding → decide navegación inicial
+  // Onboarding: verifica sesión, ajusta menús, navega a Home
   final BlocOnboarding onboarding = BlocOnboarding()
     ..configure(<OnboardingStep>[
       const OnboardingStep(
@@ -439,8 +466,13 @@ AppManager buildAppManager() {
       ),
       OnboardingStep(
         title: 'Check Session',
-        description: 'Verificando sesión…',
-        onEnter: () => Right<ErrorItem, Unit>(Unit.value),
+        description: 'Verificando sesión y menús…',
+        onEnter: () {
+          final SessionNavCoordinator coord =
+              SessionNavCoordinator(appManagerProd!); // se setea luego
+          coord.setupMainMenuForCurrentSession();
+          return Right<ErrorItem, Unit>(Unit.value);
+        },
         autoAdvanceAfter: autoAdvanceAfter,
       ),
       OnboardingStep(
@@ -454,7 +486,7 @@ AppManager buildAppManager() {
       ),
     ]);
 
-  // AppConfig con módulos registrados
+  // AppConfig
   final AppConfig cfg = AppConfig(
     blocTheme:
         BlocThemeReact(themeUsecases: themeUsecases, watchTheme: watchTheme),
@@ -465,44 +497,51 @@ AppManager buildAppManager() {
     blocResponsive: BlocResponsive(),
     blocOnboarding: onboarding,
     pageManager: pageManager,
+    // 🔹 Registra los BLoCs propios en el AppManager (si tu AppManager soporta módulos)
     blocModuleList: <String, BlocModule>{
-      BlocSession.name: session,
       BlocCounter.name: counter,
+      BlocSession.name: session,
     },
   );
 
   return AppManager(cfg);
 }
 
+class AuthenticatingPage extends StatelessWidget {
+  const AuthenticatingPage({super.key});
+  static const String name = 'authenticating';
+  static const PageModel pageModel =
+      PageModel(name: name, segments: <String>[name]);
+
+  @override
+  Widget build(BuildContext context) {
+    return const PageBuilder(
+      page: Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+// Referencia cruzada para el coordinator dentro del step:
+AppManager? appManagerProd;
+
 /// ===========================================
-/// 5) MAIN con JocaaguraAppWithSession
+/// 5) MAIN · seedInitialFromPageManager (recomendado)
 /// ===========================================
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final AppManager am = buildAppManager();
+  appManagerProd = am;
 
-  // Inicia Onboarding si top == Splash
+  // Arranca onboarding solo si arrancaste en Splash
   if (!_onboardingDone && pageManager.stack.top == SplashPage.pageModel) {
     am.onboarding.start();
   }
-  final BlocSession session =
-      am.requireModuleByKey<BlocSession>(BlocSession.name);
+
   runApp(
-    JocaaguraAppWithSession.dev(
+    JocaaguraApp(
       appManager: am,
       registry: registry,
-      splashPage: SplashPage.pageModel,
-      homePublicPage: HomePage.pageModel,
-      loginPage: LoginPage.pageModel,
-      homeAuthenticatedPage: HomeAuthenticatedPage.pageModel,
-      sessionClosedPage: SessionClosedPage.pageModel,
-      authenticatingPage: AuthenticatingPage.pageModel,
-      sessionErrorPage: SessionErrorPage.pageModel,
-      isSessionInitialized: kIsSessionInitialized,
-      initialUserJson: defaultUserModel.toJson(),
-      sessionBloc: session,
-      configureMenusForLoggedIn: _setupMenusForLoggedIn,
-      configureMenusForLoggedOut: _setupMenusForLoggedOut,
+      seedInitialFromPageManager: true,
     ),
   );
 }

@@ -35,8 +35,8 @@ class JocaaguraApp extends StatelessWidget {
     this.ownsManager = false,
     this.projectorMode = false,
     this.initialLocation = '/home',
-    this.seedInitialFromPageManager = false, // <— NUEVO
-    this.splashOverlayBuilder, // <— NUEVO (opcional)
+    this.seedInitialFromPageManager = false,
+    this.splashOverlayBuilder,
     super.key,
   });
 
@@ -78,8 +78,7 @@ class JocaaguraApp extends StatelessWidget {
 
   /// Optional overlay builder for splash screens drawn above the app.
   /// When provided, it renders while onboarding is idle/running.
-  final Widget Function(BuildContext, OnboardingState)?
-      splashOverlayBuilder; // <— NUEVO
+  final Widget Function(BuildContext, OnboardingState)? splashOverlayBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -103,17 +102,16 @@ class _JocaaguraAppShell extends StatefulWidget {
     required this.registry,
     required this.initialLocation,
     required this.ownsManager,
-    required this.seedInitialFromPageManager, // <— NUEVO
-    required this.splashOverlayBuilder, // <— NUEVO
+    required this.seedInitialFromPageManager,
+    required this.splashOverlayBuilder,
   });
 
   final AppManager appManager;
   final PageRegistry registry;
   final String initialLocation;
   final bool ownsManager;
-  final bool seedInitialFromPageManager; // <— NUEVO
-  final Widget Function(BuildContext, OnboardingState)?
-      splashOverlayBuilder; // <— NUEVO
+  final bool seedInitialFromPageManager;
+  final Widget Function(BuildContext, OnboardingState)? splashOverlayBuilder;
 
   @override
   State<_JocaaguraAppShell> createState() => _JocaaguraAppShellState();
