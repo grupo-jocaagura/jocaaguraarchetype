@@ -245,14 +245,15 @@ class _CounterPageState extends State<CounterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final BlocResponsive r = context.appManager.responsive;
+    final AppManager app = context.appManager;
+    final BlocResponsive r = app.responsive;
     r.showAppbar = true;
     final BlocCounter blocCounter =
         context.appManager.requireModuleByKey<BlocCounter>(BlocCounter.name);
 
     return PageBuilder(
-      page: PageWithSecondaryMenuWidget(
-        responsive: r,
+      page: PageWithSecondaryMenuBuilder(
+        app: app,
         content: Center(
           child: StreamBuilder<int>(
             stream: blocCounter.stream,
@@ -262,32 +263,6 @@ class _CounterPageState extends State<CounterPage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
-        ),
-        secondaryMenu: StreamBuilder<List<ModelMainMenuModel>>(
-          stream: context.appManager.secondaryMenu.itemsStream,
-          initialData: context.appManager.secondaryMenu.items,
-          builder: (_, AsyncSnapshot<List<ModelMainMenuModel>> snap) {
-            final List<ModelMainMenuModel> items =
-                snap.data ?? const <ModelMainMenuModel>[];
-            if (items.isEmpty) {
-              return const SizedBox.shrink();
-            }
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: items
-                  .map(
-                    (ModelMainMenuModel it) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: ElevatedButton.icon(
-                        onPressed: it.onPressed,
-                        icon: Icon(it.iconData),
-                        label: Text(it.label),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            );
-          },
         ),
       ),
     );
