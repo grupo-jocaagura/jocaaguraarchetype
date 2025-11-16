@@ -1,3 +1,227 @@
+# `JocaaguraAppWithSession`
+
+*Flujo de sesión plug-and-play sobre `JocaaguraApp`*
+
+Este documento explica cómo usar `JocaaguraAppWithSession` para tener:
+
+* Navegación **consciente de sesión** (login / logout / errores).
+* Menús que cambian automáticamente según el estado de sesión.
+* Un flujo de *Splash → Home público → Login → Home autenticado → Logout* listo para copiar y pegar.
+* Un **helper de desarrollo** con `FakeServiceSession` para probar rápido sin backend real.
+
+---
+
+## 1. ¿Qué es `JocaaguraAppWithSession`?
+
+Es un **wrapper de alto nivel** que se sienta por encima de `JocaaguraApp` y conecta tres piezas:
+
+1. `AppManager` + `PageRegistry` → se los pasa a `JocaaguraApp` (router, theming, menús, etc.).
+2. `BlocSession` → expone el estado de sesión (`Unauthenticated`, `Authenticating`, `Authenticated`, `SessionError`, etc.).
+3. `SessionAppManager` → aplica una **política de navegación** según el estado de sesión y configura menús.
+
+Visualmente:
+
+```text
+runApp(
+  JocaaguraAppWithSession(
+    appManager: ...,
+    registry: ...,
+    sessionBloc: ...,
+    splashPage: ...,
+    homePublicPage: ...,
+    loginPage: ...,
+    homeAuthenticatedPage: ...,
+    ...
+  ),
+);
+
+    │
+    ▼
+JocaaguraAppWithSession
+    │    (crea y posee SessionAppManager)
+    ▼
+JocaaguraApp
+    │
+    ▼
+MaterialApp.router + PageManager + AppManager
+```
+
+---
+
+## 2. Responsabilidades
+
+### 2.1. `JocaaguraAppWithSession`
+
+* Recibe:
+
+    * `AppManager`
+    * `PageRegistry`
+    * `BlocSession`
+    * `PageModel`s canónicos de sesión:
+
+        * `splashPage`
+        * `homePublicPage`
+        * `loginPage`
+        * `homeAuthenticatedPage`
+        * `sessionClosedPage`
+        * `authenticatingPage`
+        * `sessionErrorPage`
+    * Hooks de menú:
+
+        * `configureMenusForLoggedIn(AppManager app)`
+        * `configureMenusForLoggedOut(AppManager app)`
+* Crea (o recibe) una instancia de `SessionAppManager`.
+* Renderiza un `JocaaguraApp` normal, pero **sin** que éste sea dueño del `AppManager` (el dueño es el wrapper).
+* En `dispose()`:
+
+    * Hace `appManager.dispose()` si no está ya destruido.
+    * Hace `sessionAppManager.dispose()` si fue creado internamente.
+
+### 2.2. `SessionAppManager`
+
+Se suscribe a:
+
+* `sessionBloc` → cambios en `SessionState`.
+* `pageManager.stackStream` → cambios en el `NavStackModel`.
+
+Y garantiza las siguientes invariantes de navegación (simplificadas):
+
+* **Splash**
+  Mientras la top sea `splashPage`, no fuerza nada.
+
+* **Unauthenticated**
+
+    * Si estás en página `requiresAuth` → guarda la intención y hace `resetTo(loginPage)`.
+    * Si estás en `homeAuthenticatedPage` o `sessionErrorPage` → hace `resetTo(homePublicPage)`.
+
+* **Authenticating**
+
+    * Colapsa el stack a `[authenticatingPage]`.
+
+* **SessionError**
+
+    * Si estabas en protegida → guarda stack en `_pending`.
+    * Hace `resetTo(sessionErrorPage)`.
+
+* **Authenticated / Refreshing**
+
+    * Si hay `_pending` → restaura el stack de negocio.
+    * Si estabas en `login` o `sessionClosed` → `resetTo(homeAuthenticatedPage)`.
+    * Si estabas en `authenticatingPage` → `resetTo(homeAuthenticatedPage)`.
+    * Si el stack tiene una sola página que **no es** de sesión ni `homeAuthenticatedPage` → `resetTo(homeAuthenticatedPage)` (normalización).
+
+Además, en cada cambio de sesión ejecuta:
+
+```dart
+void _applyMenusForState(SessionState state) {
+  if (_isAuthed(state)) {
+    configureMenusForLoggedIn?.call(appManager);
+  } else {
+    configureMenusForLoggedOut?.call(appManager);
+  }
+}
+```
+
+---
+
+## 3. API pública de `JocaaguraAppWithSession`
+
+### 3.1. Constructor principal
+
+Uso cuando ya tienes tu propio `BlocSession` (dominio real):
+
+```
+JocaaguraAppWithSession(
+  appManager: appManager,
+  registry: registry,
+  sessionBloc: sessionBloc,
+  splashPage: SplashPage.pageModel,
+  homePublicPage: HomePage.pageModel,
+  loginPage: LoginPage.pageModel,
+  homeAuthenticatedPage: HomeAuthenticatedPage.pageModel,
+  sessionClosedPage: SessionClosedPage.pageModel,
+  authenticatingPage: AuthenticatingPage.pageModel,
+  sessionErrorPage: SessionErrorPage.pageModel,
+  projectorMode: false,
+  initialLocation: '/home',
+  seedInitialFromPageManager: true,
+  splashOverlayBuilder: null,
+  configureMenusForLoggedIn: _setupMenusForLoggedIn,
+  configureMenusForLoggedOut: _setupMenusForLoggedOut,
+);
+```
+
+### 3.2. `factory JocaaguraAppWithSession.dev`
+
+Uso cuando quieres un flujo de sesión listo para jugar **en modo desarrollo**, sin wiring de backend:
+
+```
+factory JocaaguraAppWithSession.dev({
+  required AppManager appManager,
+  required PageRegistry registry,
+  required PageModel splashPage,
+  required PageModel homePublicPage,
+  required PageModel loginPage,
+  required PageModel homeAuthenticatedPage,
+  required PageModel sessionClosedPage,
+  required PageModel authenticatingPage,
+  required PageModel sessionErrorPage,
+  required void Function(AppManager app) configureMenusForLoggedIn,
+  required void Function(AppManager app) configureMenusForLoggedOut,
+  BlocSession? sessionBloc,          // opcional: se usa si lo pasas
+  bool isSessionInitialized = false, // helper FakeServiceSession
+  Map<String, dynamic>? initialUserJson,
+  bool projectorMode = false,
+  String initialLocation = '/home',
+  bool seedInitialFromPageManager = true,
+  Widget Function(BuildContext, OnboardingState)? splashOverlayBuilder,
+  SessionAppManager? sessionAppManager,
+  Key? key,
+})
+```
+
+Si **no** pasas `sessionBloc`, la factory crea uno usando:
+
+```dart
+BlocSession _buildDevSessionBloc({
+  required bool isSessionInitialized,
+  Map<String, dynamic>? initialUserJson,
+}) {
+  final GatewayAuth gatewayAuth = GatewayAuthImpl(
+    FakeServiceSession(
+      initialUserJson: isSessionInitialized ? initialUserJson : null,
+    ),
+  );
+
+  final RepositoryAuth repositoryAuth =
+      RepositoryAuthImpl(gateway: gatewayAuth);
+
+  return BlocSession.fromRepository(repository: repositoryAuth);
+}
+```
+
+En el ejemplo completo de abajo, usamos el `BlocSession` que ya está registrado en `AppManager` para que **todo comparta la misma instancia**.
+
+---
+
+## 4. Ejemplo completo listo para copiar y pegar
+
+Este ejemplo muestra:
+
+* Splash con onboarding simple.
+* `HomePage` pública.
+* `LoginPage` usando `BlocSession.logIn`.
+* `HomeAuthenticatedPage` para usuarios autenticados.
+* `CounterPage` protegida (`requiresAuth: true`).
+* Menús dinámicos:
+
+    * Sin sesión → “Go to Login”.
+    * Con sesión → “Go to Counter” + “Sign out”.
+* Wiring con `JocaaguraAppWithSession.dev`.
+
+> Puedes copiar este archivo como `main.dart` en el `example/` de tu paquete.
+
+```dart
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -145,7 +369,8 @@ class LoginPage extends StatelessWidget {
                     final Either<ErrorItem, UserModel> r =
                         await bloc.logIn(email: email, password: pass);
                     r.fold(
-                      (ErrorItem e) => app.notifications.showToast(e.title),
+                      (ErrorItem e) =>
+                          app.notifications.showToast(e.title),
                       (_) {
                         app.notifications.showToast('Login OK');
                       },
@@ -245,15 +470,14 @@ class _CounterPageState extends State<CounterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final AppManager app = context.appManager;
-    final BlocResponsive r = app.responsive;
+    final BlocResponsive r = context.appManager.responsive;
     r.showAppbar = true;
     final BlocCounter blocCounter =
         context.appManager.requireModuleByKey<BlocCounter>(BlocCounter.name);
 
     return PageBuilder(
-      page: PageWithSecondaryMenuBuilder(
-        app: app,
+      page: PageWithSecondaryMenuWidget(
+        responsive: r,
         content: Center(
           child: StreamBuilder<int>(
             stream: blocCounter.stream,
@@ -263,6 +487,32 @@ class _CounterPageState extends State<CounterPage> {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
+        ),
+        secondaryMenu: StreamBuilder<List<ModelMainMenuModel>>(
+          stream: context.appManager.secondaryMenu.itemsStream,
+          initialData: context.appManager.secondaryMenu.items,
+          builder: (_, AsyncSnapshot<List<ModelMainMenuModel>> snap) {
+            final List<ModelMainMenuModel> items =
+                snap.data ?? const <ModelMainMenuModel>[];
+            if (items.isEmpty) {
+              return const SizedBox.shrink();
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: items
+                  .map(
+                    (ModelMainMenuModel it) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: ElevatedButton.icon(
+                        onPressed: it.onPressed,
+                        icon: Icon(it.iconData),
+                        label: Text(it.label),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
+          },
         ),
       ),
     );
@@ -472,7 +722,7 @@ Future<void> main() async {
     am.onboarding.start();
   }
   final BlocSession session =
-      am.requireModuleByKey<BlocSession>(BlocSession.name);
+  am.requireModuleByKey<BlocSession>(BlocSession.name);
   runApp(
     JocaaguraAppWithSession.dev(
       appManager: am,
@@ -486,3 +736,38 @@ Future<void> main() async {
     ),
   );
 }
+```
+
+### Invariantes de navegación por estado de sesión
+
+Unauthenticated  --login--> Authenticating --ok--> Authenticated
+^                                          |
+|                                          |
++------------------logout------------------+
+
+
+Este es el contrato que garantiza `SessionAppManager` entre **estado de sesión** y **stack de navegación** (`NavStackModel`):
+
+| Estado de sesión (`SessionState`) | Top esperado (`stack.top`)                    | Forma del stack                       | Notas de comportamiento                                                                                                                            |
+|-----------------------------------|-----------------------------------------------|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| *Cualquiera* mientras Splash      | `splashPage`                                  | `[* , splashPage]` (libre)            | Mientras la top sea `splashPage`, **no se fuerza ninguna política**. El flujo de onboarding manda.                                                 |
+| `Unauthenticated`                 | `loginPage`                                   | `[loginPage]` o `[loginPage, …]`      | Si la top es una página `requiresAuth` distinta de `login/sessionClosed`, se guarda `_pending` y se hace `resetTo(loginPage)`.                     |
+| `Unauthenticated`                 | `homePublicPage`                              | `[homePublicPage]`                    | Si estabas en `homeAuthenticatedPage` o `sessionErrorPage`, el stack se colapsa a `homePublicPage`.                                                |
+| `Authenticating`                  | `authenticatingPage`                          | `[authenticatingPage]`                | Si la top no es `authenticatingPage` o el stack tiene más de 1 página, se hace `resetTo(authenticatingPage)`.                                      |
+| `SessionError`                    | `sessionErrorPage`                            | `[sessionErrorPage]`                  | Si estabas en protegida (≠ login), se guarda `_pending` y se hace `resetTo(sessionErrorPage)`.                                                     |
+| `Authenticated` / `Refreshing`    | (restauración de intención)                   | `targetStack` (clonado de `_pending`) | Si `_pending != null`, se restaura ese stack. Si la top allí es `login/sessionClosed` y solo hay 1 página, se normaliza a `homeAuthenticatedPage`. |
+| `Authenticated` / `Refreshing`    | `homeAuthenticatedPage` (post-login)          | `[homeAuthenticatedPage]`             | Si la top es `loginPage` o `sessionClosedPage` y `goHomeWhenAuthenticatedOnLogin == true`, se hace `resetTo(homeAuthenticatedPage)`.               |
+| `Authenticated` / `Refreshing`    | `homeAuthenticatedPage` (post-authenticating) | `[homeAuthenticatedPage]`             | Si la top es `authenticatingPage`, al volverse authed se hace `resetTo(homeAuthenticatedPage)`.                                                    |
+| `Authenticated` / `Refreshing`    | `homeAuthenticatedPage` (normalización base)  | `[homeAuthenticatedPage]`             | Si el stack tiene `length == 1` y la top no es ni página de sesión ni `homeAuthenticatedPage`, se normaliza a `homeAuthenticatedPage`.             |
+
+**Resumen mental rápido**
+
+* **Splash manda**: mientras la top sea `splashPage`, `SessionAppManager` no toca el stack.
+* **Sin sesión**: base → `loginPage` (si venías de protegida) o `homePublicPage`.
+* **Autenticando**: base → `authenticatingPage`.
+* **Error de sesión**: base → `sessionErrorPage`, guardando intención si estabas en protegida.
+* **Con sesión**:
+
+    * Si hay intención previa (`_pending`) → se restaura.
+    * Si estabas en login/closed/authenticating → se colapsa a `homeAuthenticatedPage`.
+    * Si el stack es “raro pero simple” (una sola página no-de-sesión) → se normaliza también a `homeAuthenticatedPage`.

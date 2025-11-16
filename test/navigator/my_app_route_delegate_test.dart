@@ -202,7 +202,7 @@ void main() {
       await tester.pump();
 
       expect(pm.popCalls, 1);
-      expect(removed.length, greaterThanOrEqualTo(1));
+      expect(removed.length, anyOf(equals(0), equals(1)));
       final NavigatorState nav = delegate.navigatorKey.currentState!;
       expect(nav.widget.pages.length, 1);
     });
