@@ -96,11 +96,15 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
               return const SizedBox.shrink();
             }
             return IconButton(
+              iconSize: responsive.marginWidth * 0.85,
               onPressed: app.pop,
               icon: const Icon(Icons.chevron_left),
               tooltip: label,
             );
           },
+        ),
+        SizedBox(
+          width: responsive.marginWidth,
         ),
       ],
     );

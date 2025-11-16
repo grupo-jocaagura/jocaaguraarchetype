@@ -137,16 +137,20 @@ class _DrawerOptionWidgetState extends State<DrawerOptionWidget> {
         (widget.responsive.columnWidth * 0.8).clamp(44.0, 56.0);
 
     // Colors
-    final Color fgBase =
-        scheme.onSurface.withValues(alpha: isEnabled ? 0.1 : 0.62);
+    final Color fgBase = scheme.onSurface.withValues(
+      alpha: isEnabled ? 0.87 : 0.38,
+    );
     final Color fgSelected = scheme.onSecondaryContainer;
     final Color fg = widget.selected ? fgSelected : fgBase;
 
-    final Color bgBase = scheme.surfaceContainerLow;
+
+    final Color bgBase = scheme.surfaceContainerHigh;
     final Color bgSelected = scheme.secondaryContainer;
-    final Color bgHover = scheme.secondaryContainer.withValues(
-      alpha: widget.selected ? 0.15 : 0.85,
-    );
+
+    final Color bgHover = widget.selected
+        ? bgSelected.withValues(alpha: 0.98)
+        : bgBase.withValues(alpha: 0.95);
+
     final Color bg = widget.selected
         ? bgSelected
         : (_hovered || _focused ? bgHover : bgBase);

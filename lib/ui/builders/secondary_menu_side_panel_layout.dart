@@ -60,10 +60,13 @@ class SecondaryMenuSidePanelLayout extends StatelessWidget {
     final double panelW =
         _hasPanel ? responsive.widthByColumns(effectivePanelColumns) : 0.0;
 
-    final double maxW = responsive.workAreaSize.width;
+    final double screenW = responsive.size.width;
     final double contentGap = _hasPanel ? gap : 0.0;
+
+    final double designW = responsive.workAreaSize.width;
+
     final double contentMaxWidth =
-        (maxW - panelW - contentGap).clamp(360.0, maxW);
+        (screenW - panelW - contentGap).clamp(360.0, designW);
 
     final List<Widget> rowChildren = <Widget>[
       Flexible(
@@ -91,17 +94,11 @@ class SecondaryMenuSidePanelLayout extends StatelessWidget {
       color: backgroundColor,
       width: double.infinity,
       height: double.infinity,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: mh),
-          child: SizedBox(
-            width: maxW,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: ordered,
-            ),
-          ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: mh),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: ordered,
         ),
       ),
     );

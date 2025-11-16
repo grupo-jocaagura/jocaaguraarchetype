@@ -59,7 +59,7 @@ class PageWithSecondaryMenuBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme scheme = Theme.of(context).colorScheme;
-    final Color bg = backgroundColor ?? scheme.surface;
+    final Color bg = backgroundColor ?? scheme.surfaceContainerLowest;
 
     return StreamBuilder<List<ModelMainMenuModel>>(
       stream: app.secondaryMenu.itemsStream,
