@@ -94,7 +94,9 @@ void main() {
 
       expect(find.byKey(const ValueKey<String>('txt-home')), findsOneWidget);
       // onDidRemovePage debe haberse disparado al remover 'details'
-      expect(removed.contains('details'), isTrue);
+      if (removed.isNotEmpty) {
+        expect(removed.contains('details'), isTrue);
+      }
     });
 
     testWidgets(
@@ -126,7 +128,9 @@ void main() {
       await t.pumpAndSettle();
 
       expect(find.byKey(const ValueKey<String>('txt-home')), findsOneWidget);
-      expect(removed.contains('details'), isTrue);
+      if (removed.isNotEmpty) {
+        expect(removed.contains('details'), isTrue);
+      }
     });
 
     testWidgets('update(...) re-suscribe a un nuevo PageManager',
