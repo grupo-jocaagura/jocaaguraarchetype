@@ -143,7 +143,6 @@ class _DrawerOptionWidgetState extends State<DrawerOptionWidget> {
     final Color fgSelected = scheme.onSecondaryContainer;
     final Color fg = widget.selected ? fgSelected : fgBase;
 
-
     final Color bgBase = scheme.surfaceContainerHigh;
     final Color bgSelected = scheme.secondaryContainer;
 
