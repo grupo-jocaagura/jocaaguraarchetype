@@ -121,9 +121,6 @@ class SessionAppManager {
       s.copyWith(pages: List<PageModel>.from(s.pages));
 
   void _enforcePolicy(NavStackModel stack, SessionState state) {
-    print('rastreando el cambio de sesion');
-    print(state);
-
     if (_disposed) {
       return;
     }
@@ -178,7 +175,6 @@ class SessionAppManager {
 
   void _handleAuthenticating(NavStackModel stack, PageModel top) {
     if (!_isAuthenticatingPage(top) || stack.pages.length > 1) {
-      print('manejando inicio de session');
       _pageManager.resetTo(authenticatingPage);
     }
   }
