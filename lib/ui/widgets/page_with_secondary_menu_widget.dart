@@ -71,7 +71,7 @@ class PageWithSecondaryMenuWidget extends StatelessWidget {
     }
 
     final ColorScheme scheme = Theme.of(context).colorScheme;
-    final Color bg = backgroundColor ?? scheme.surface;
+    final Color bg = backgroundColor ?? scheme.surfaceContainerLowest;
 
     final Widget body = switch (responsive.deviceType) {
       ScreenSizeEnum.mobile => _mobile(context, bg),

@@ -5,6 +5,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.2] - 2025-11-16
+
+### Added
+- **Session – `SessionPages` (modelo único)**
+    - Nueva clase que **agrega** las 7 páginas requeridas por `JocaaguraAppWithSession`:
+      `splash`, `homePublic`, `login`, `homeAuthenticated`, `sessionClosed`,
+      `authenticating`, `sessionError`.
+- **UI – Arquitectura extensible de Page Builder (`ui/builders/`)**
+    - Punto de entrada: `PageBuilder`.
+    - Componentes: `PageLoadingBoundary`, `PageScaffoldShell`, `MainDrawer`, `PageAppBar`.
+    - Contratos (overrides): `PageLoadingBoundaryBuilder`, `PageScaffoldShellBuilder`,
+      `MainDrawerBuilder`, `PageAppBarBuilder`.
+    - Extensiones UI: `ModelMainMenuModelX` (vía `Expando`).
+    - Documento: `page-builder-doc.md` (guía completa y patrones de personalización).
+- **UI – Secondary Menu Builder (responsive)**
+    - `PageWithSecondaryMenuBuilder` con *wiring* automático a `AppManager.secondaryMenu.itemsStream`.
+    - Layouts:
+        - `SecondaryMenuMobileLayout` (fila flotante de acciones cuadradas; *tooltips*; animaciones).
+        - `SecondaryMenuSidePanelLayout` (panel lateral para pantallas grandes; *overflow-safe*).
+    - *Overrides*: `menuItemsOverride`, `mobileBuilder`, `sidePanelBuilder`.
+    - Documento: `secondary-menu-builder-doc.md`.
+
+### Changed
+- **`JocaaguraAppWithSession`**
+    - El constructor ahora recibe **un único** parámetro `sessionPages: SessionPages`
+      (en lugar de 7 `PageModel`s). La `factory dev()` fue actualizada.
+- **Alineación con Material 3 (colores y layouts)**
+    - Fondos por defecto en `WorkAreaWidget`, `PageWithSecondaryMenuWidget` y
+      `PageWithSecondaryMenuBuilder`: `scheme.surfaceContainerLowest` (antes `scheme.surface`).
+    - `DrawerOptionWidget`: roles de color M3 para estados habilitado/inhabilitado/seleccionado/hover.
+    - `SecondaryMenuSidePanelLayout`: cálculo de ancho basado en `responsive.size.width` para evitar *overflow* en pantallas pequeñas.
+    - `PageAppBar`: separador después del botón Back para padding consistente; `iconSize` del botón Back ahora **responsivo** (proporcional al margen).
+
+### Docs
+- `jocaagura-app-with-session.md` actualizado para el nuevo API con `SessionPages`.
+- Guías nuevas/extendidas: `page-builder-doc.md`, `secondary-menu-builder-doc.md`.
+
+### Backwards compatibility
+- **`PageBuilder`** mantiene el **mismo API público y comportamiento por defecto**; la nueva arquitectura es **opt-in** mediante *builders*.
+- El cambio de colores a M3 puede ajustar ligeramente el contraste percibido en algunos temas.
+
+### BREAKING CHANGES
+- **Constructor de `JocaaguraAppWithSession`**:
+    - Ahora requiere `sessionPages: SessionPages`.
+    - **Migración rápida**:
+      ```dart
+      // Antes
+      final Widget app = JocaaguraAppWithSession(
+        splash: splashPage,
+        homePublic: homePublic,
+        login: loginPage,
+        homeAuthenticated: homeAuth,
+        sessionClosed: sessionClosed,
+        authenticating: authenticating,
+        sessionError: sessionError,
+      );
+  
+      // Ahora
+      final Widget app = JocaaguraAppWithSession(
+        sessionPages: SessionPages(
+          splash: splashPage,
+          homePublic: homePublic,
+          login: loginPage,
+          homeAuthenticated: homeAuth,
+          sessionClosed: sessionClosed,
+          authenticating: authenticating,
+          sessionError: sessionError,
+        ),
+      );
+      ```
+
+### Notes
+- La nueva arquitectura de **Page/Secondary Menu Builders** mejora **modularidad, pruebas** y **personalización** sin obligar a copiar código del arquetipo.
+- Los ajustes M3 corrigen desbordes y alineaciones sutiles en pantallas pequeñas y grandes.
+
 
 ## [3.4.1] - 2025-11-04
 
