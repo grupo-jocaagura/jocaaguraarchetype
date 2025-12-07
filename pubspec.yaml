@@ -14,7 +14,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  jocaagura_domain: ^1.33.1
+  jocaagura_domain: ^1.33.2
 
 dev_dependencies:
   flutter_test:
