@@ -165,7 +165,8 @@ class _RepoOk implements RepositoryTheme {
 }
 
 /// AppConfig armado con spies para inyectar en AppManager.
-AppConfig _makeConfigWithSpies(_SpyPageManager pm) {
+AppConfig _makeConfigWithSpies(_SpyPageManager pm,
+    {BlocModelVersion? blocModelVersion}) {
   return AppConfig(
     blocTheme: _SpyThemeBloc(),
     blocUserNotifications: _SpyUserNotifications(),
@@ -175,6 +176,7 @@ AppConfig _makeConfigWithSpies(_SpyPageManager pm) {
     blocResponsive: BlocResponsive(),
     blocOnboarding: BlocOnboarding(),
     pageManager: pm,
+    blocModelVersion: blocModelVersion,
   );
 }
 
@@ -669,6 +671,31 @@ void main() {
       expect(pm.lastReplaceTop!.segments, <String>['search']);
       expect(pm.lastReplaceTop!.query['q'], 'shoes');
       expect(pm.lastReplaceTopAllowNoop, isTrue);
+
+      m.dispose();
+    });
+  });
+
+  group('AppManager · versión de la app', () {
+    test('expone BlocModelVersion y refleja su snapshot actual', () {
+      final _SpyPageManager pm = _SpyPageManager();
+      final BlocModelVersion versionBloc = BlocModelVersion();
+      final AppConfig cfg =
+          _makeConfigWithSpies(pm, blocModelVersion: versionBloc);
+      final AppManager m = AppManager(cfg);
+
+      expect(m.appVersionBloc, same(versionBloc));
+      expect(m.currentAppVersion, same(versionBloc.value));
+
+      m.dispose();
+    });
+
+    test('currentAppVersion usa default cuando no hay BlocModelVersion', () {
+      final _SpyPageManager pm = _SpyPageManager();
+      final AppManager m = AppManager(_makeConfigWithSpies(pm));
+
+      expect(m.appVersionBloc, isNull);
+      expect(m.currentAppVersion, ModelAppVersion.defaultModelAppVersion);
 
       m.dispose();
     });

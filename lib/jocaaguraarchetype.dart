@@ -21,6 +21,7 @@ part 'domain/blocs/bloc_secondary_menu_drawer.dart';
 part 'domain/blocs/bloc_theme.dart';
 part 'domain/blocs/bloc_theme_react.dart';
 part 'domain/blocs/bloc_user_notifications.dart';
+part 'domain/blocs/bloc_model_version.dart';
 part 'domain/gateways/gateway_theme.dart';
 part 'domain/gateways/gateway_theme_react.dart';
 part 'domain/models/nav_stack_model.dart';
