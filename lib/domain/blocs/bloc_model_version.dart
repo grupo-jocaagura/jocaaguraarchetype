@@ -85,10 +85,22 @@ class BlocModelVersion extends BlocModule {
   /// Returns `true` when [candidate] represents a newer version than
   /// the current snapshot. Priority order: buildNumber → semver string → buildAt.
   bool isNewerThanCurrent(ModelAppVersion candidate) {
-    return _isVersionGreater(candidate, value);
+    return isCandidateNewerThan(
+      candidate: candidate,
+      current: value,
+    );
   }
 
-  static bool _isVersionGreater(
+  /// Compares any [candidate] against a [current] snapshot and returns `true`
+  /// when the candidate is considered newer.
+  static bool isCandidateNewerThan({
+    required ModelAppVersion candidate,
+    required ModelAppVersion current,
+  }) {
+    return isVersionGreater(candidate, current);
+  }
+
+  static bool isVersionGreater(
     ModelAppVersion next,
     ModelAppVersion current,
   ) {
