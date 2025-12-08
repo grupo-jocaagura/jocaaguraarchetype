@@ -3,6 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Endpoint de ejemplo que representa el servicio remoto de versión de app.
+///
+/// En una app real, este URI vendría de configuración/env:
+/// - `https://api.miapp.com/app/version`
+/// - o similar según ambiente (dev/qa/prod).
 final Uri _kAppVersionEndpoint = Uri.parse('https://example.com/app-version');
 
 Future<void> main() async {
@@ -22,7 +27,14 @@ Future<void> main() async {
 
 /// Hace la llamada HTTP usando BlocHttpRequest y mapea el body → ModelAppVersion.
 ///
-/// Espera que el body tenga la forma:
+/// 🧩 Filosofía del flujo:
+/// - Toda la orquestación HTTP “seria” vive en el dominio
+///   (Service → Gateway → Repository → Usecases → BlocHttpRequest).
+/// - Desde la UI solo consumimos `BlocHttpRequest` como una **fachada transversal**.
+/// - Este helper es un ejemplo didáctico de cómo leer el body y mapearlo a
+///   un modelo de dominio (`ModelAppVersion`).
+///
+/// Contrato esperado del body:
 /// ```json
 /// {
 ///   "value": { ...ModelAppVersion JSON... }
@@ -32,6 +44,10 @@ Future<void> main() async {
 /// ```json
 /// { ...ModelAppVersion JSON... }
 /// ```
+///
+/// En una implementación productiva este mapeo se debería encapsular en un
+/// **usecase/repository específico de AppVersion**, pero aquí lo dejamos
+/// local para mostrar el roundtrip completo.
 Future<Either<ErrorItem, ModelAppVersion>> _fetchAppVersion(
   BlocHttpRequest http, {
   String requestKey = 'app.version.check',
@@ -40,6 +56,7 @@ Future<Either<ErrorItem, ModelAppVersion>> _fetchAppVersion(
     requestKey: requestKey,
     uri: _kAppVersionEndpoint,
     metadata: <String, dynamic>{
+      // Meta pensada para logging/telemetría.
       'feature': 'appVersion',
       'operation': 'fetchVersion',
     },
@@ -52,9 +69,13 @@ Future<Either<ErrorItem, ModelAppVersion>> _fetchAppVersion(
       debugPrint('HTTP app-version cfg.body = $body');
 
       // Intentamos ser tolerantes con la forma del body:
-      // - body['value'] → preferido
-      // - body['data']  → alternativo
-      // - body completo → fallback
+      // - body['value'] → preferido (contrato recomendado).
+      // - body['data']  → alternativo (APIs existentes).
+      // - body completo → fallback (ej. servicio legacy que responde directo).
+      //
+      // Esto transmite la idea de:
+      // - “la app sabe trabajar con varias envolturas razonables”
+      // - sin acoplarse a un único backend perfecto.
       Map<String, dynamic> rawValue;
 
       if (body.containsKey('value')) {
@@ -71,6 +92,8 @@ Future<Either<ErrorItem, ModelAppVersion>> _fetchAppVersion(
         );
         return Right<ErrorItem, ModelAppVersion>(version);
       } on Object catch (error, stackTrace) {
+        // 🎯 Mensaje de error pensado para diagnóstico, no para usuario final.
+        // El UI solo muestra un resumen; el detalle va a logs/telemetría.
         return Left<ErrorItem, ModelAppVersion>(
           ErrorItem(
             code: 'APP_VERSION_MAPPING_ERROR',
@@ -87,6 +110,10 @@ Future<Either<ErrorItem, ModelAppVersion>> _fetchAppVersion(
   );
 }
 
+/// Bootstrap local del ejemplo:
+/// - Define la “versión instalada” (fuente de verdad local).
+/// - Cablea el flujo HTTP completo (Service → Gateway → Repository → Bloc).
+/// - Expone via AppManager + AppConfig para integrarse con el arquetipo.
 class _HttpAndVersionExample {
   _HttpAndVersionExample() : _installedVersion = _buildInstalledVersion() {
     _setupHttpLayer();
@@ -94,6 +121,11 @@ class _HttpAndVersionExample {
   }
 
   /// Versión instalada (fuente de verdad para la app).
+  ///
+  /// 💡 Filosofía:
+  /// - La app debe tener claro cuál es su propia versión de compilación.
+  /// - Esta versión se compara con la del servidor para tomar decisiones
+  ///   (recordatorios suaves, bloqueos hard mínimos, etc.).
   ///
   /// Para el ejemplo usamos un build explícito (42) para poder jugar con
   /// +1 / -1 sin depender del valor real de `defaultModelAppVersion`.
@@ -109,6 +141,7 @@ class _HttpAndVersionExample {
     );
   }
 
+  /// Representa la versión instalada de la app al momento de compilar.
   final ModelAppVersion _installedVersion;
 
   late final BlocModelVersion _blocModelVersion;
@@ -116,6 +149,11 @@ class _HttpAndVersionExample {
   late final PageRegistry registry;
   late final PageManager _pageManager;
 
+  /// Construye el AppManager usando el AppConfig del arquetipo.
+  ///
+  /// Aquí se ve la idea central de jocaaguraarchetype:
+  /// - `AppConfig` es el “cableado” de blocs core + módulos extra.
+  /// - `AppManager` es la fachada de alto nivel que usa la UI.
   AppManager buildAppManager() {
     _blocModelVersion = BlocModelVersion();
     _pageManager = PageManager(
@@ -130,6 +168,10 @@ class _HttpAndVersionExample {
           onEnter: () async {
             // Escenario 1:
             // Fuente de verdad: versión instalada constante (ej. build 42).
+            //
+            // En una app real:
+            // - Podríamos inyectar aquí la versión desde flavor/env.
+            // - O desde un Usecase que lea info de build.
             _blocModelVersion.setVersion(_installedVersion);
             return Right<ErrorItem, Unit>(Unit.value);
           },
@@ -137,6 +179,8 @@ class _HttpAndVersionExample {
         ),
       ]);
 
+    // En este ejemplo iniciamos el onboarding de una vez.
+    // En una app de producción podríamos sincronizarlo con el Splash.
     onboarding.start();
 
     return AppManager(
@@ -149,7 +193,9 @@ class _HttpAndVersionExample {
         blocResponsive: BlocResponsive(),
         blocOnboarding: onboarding,
         pageManager: _pageManager,
+        // 🔐 Fuente de verdad de versión disponible en todo el arquetipo.
         blocModelVersion: _blocModelVersion,
+        // 🌐 HTTP como módulo transversal opcional.
         blocModuleList: <String, BlocModule>{
           BlocHttpRequest.name: _blocHttpRequest,
         },
@@ -157,10 +203,24 @@ class _HttpAndVersionExample {
     );
   }
 
+  /// Configura la capa HTTP completa para el ejemplo.
+  ///
+  /// Patrón recomendado:
+  /// - ServiceHttpRequest: frontera con el mundo (client real o fake).
+  /// - GatewayHttpRequest: mapea errores de transporte → ErrorItem.
+  /// - RepositoryHttpRequest: normaliza el modelo de dominio
+  ///   (`ModelConfigHttpRequest`).
+  /// - Usecases + Facade: orquestan operaciones GET/POST/PUT/DELETE/Retry.
+  /// - BlocHttpRequest: fachada reactiva que usa el resto de la app.
   void _setupHttpLayer() {
     // Escenario del "servidor":
     // - installed = 42
     // - server inicial = 41 (build - 1)
+    //
+    // Esto nos permite ejemplificar:
+    // - Servidor desactualizado (< build local).
+    // - Servidor igual.
+    // - Servidor con build mayor.
     final int installedBuild =
         Utils.getIntegerFromDynamic(_installedVersion.buildNumber);
     final int initialServerBuild = installedBuild - 1;
@@ -169,6 +229,9 @@ class _HttpAndVersionExample {
       version: intToVersion(initialServerBuild),
     );
 
+    // En producción, aquí inyectarías tu client HTTP real (Dio, http, etc.)
+    // adaptado a `ServiceHttpRequest`. En este demo usamos un servicio
+    // en memoria que simula el servidor.
     final ServiceHttpRequest service = VersionSimulatingHttpService(
       initialServerVersion: initialServerVersion,
     );
@@ -191,6 +254,10 @@ class _HttpAndVersionExample {
     _blocHttpRequest = BlocHttpRequest(facade);
   }
 
+  /// Registro de páginas para el arquetipo.
+  ///
+  /// Aquí se ve cómo el ejemplo encaja en el concepto de `PageRegistry`
+  /// y `PageManager` que expone JocaaguraApp.
   void _setupRegistry() {
     registry = PageRegistry.fromDefs(
       <PageDef>[
@@ -203,6 +270,12 @@ class _HttpAndVersionExample {
     );
   }
 
+  /// Construye el BlocTheme alineado con el arquetipo (ThemeUsecases).
+  ///
+  /// Filosofía:
+  /// - El tema se trata como fuente de verdad reactiva.
+  /// - El ejemplo usa FakeServiceThemeReact, pero la estructura permite
+  ///   reemplazarlo por gateways reales sin tocar la UI.
   BlocTheme _buildThemeBloc() {
     final RepositoryThemeReact repo = RepositoryThemeReactImpl(
       gateway: GatewayThemeReactImpl(service: FakeServiceThemeReact()),
@@ -227,11 +300,17 @@ class _VersionHomePage extends StatefulWidget {
 }
 
 class _VersionHomePageState extends State<_VersionHomePage> {
+  /// Última versión remota conocida.
+  ///
+  /// No es la fuente de verdad central (esa es BlocModelVersion), sino
+  /// el “snapshot” más reciente que el usuario consultó vía HTTP.
   late ModelAppVersion _lastRemoteVersion;
 
   @override
   void initState() {
     super.initState();
+    // Iniciamos la remota igual que la instalada para mantener un estado
+    // coherente antes de la primera consulta HTTP.
     _lastRemoteVersion = _HttpAndVersionExample._buildInstalledVersion();
   }
 
@@ -246,6 +325,7 @@ class _VersionHomePageState extends State<_VersionHomePage> {
         appBar: AppBar(title: const Text('HTTP + App Version Demo')),
         body: Center(
           child: StreamBuilder<ModelAppVersion>(
+            // La UI se suscribe al BlocModelVersion expuesto por AppManager.
             stream: app.appVersionBloc?.stream ??
                 Stream<ModelAppVersion>.value(app.currentAppVersion),
             initialData: app.currentAppVersion,
@@ -256,6 +336,9 @@ class _VersionHomePageState extends State<_VersionHomePage> {
               final int installedBuild =
                   Utils.getIntegerFromDynamic(installed.buildNumber);
 
+              // Solo mostramos la etiqueta de “última versión remota”
+              // cuando BlocModelVersion considera que esa remota es “nueva”
+              // frente al estado actual.
               final String? remoteVersionLabel = app.appVersionBloc
                           ?.isNewerThanCurrent(_lastRemoteVersion) ??
                       false
@@ -282,6 +365,7 @@ class _VersionHomePageState extends State<_VersionHomePage> {
                       ),
                     ],
                     const SizedBox(height: 16),
+                    // Botón principal: consulta la versión remota mediante HTTP.
                     ElevatedButton.icon(
                       onPressed: () async {
                         final Either<ErrorItem, ModelAppVersion> result =
@@ -292,6 +376,8 @@ class _VersionHomePageState extends State<_VersionHomePage> {
 
                         result.fold(
                           (ErrorItem error) {
+                            // Mensaje simple para usuario; el detalle viaja
+                            // en ErrorItem.meta hacia logs/telemetría.
                             app.notifications.showToast(
                               'Error al consultar versión remota: '
                               '${error.title.isNotEmpty ? error.title : error.code}',
@@ -330,6 +416,11 @@ class _VersionHomePageState extends State<_VersionHomePage> {
                       label: const Text('Consultar versión remota (HTTP)'),
                     ),
                     const SizedBox(height: 8),
+                    // Botón secundario: aplica la remota como versión instalada.
+                    //
+                    // Obsérvese que:
+                    // - No llamamos HTTP aquí, solo usamos el snapshot `_lastRemoteVersion`.
+                    // - Delegamos la fuente de verdad a `BlocModelVersion`.
                     FilledButton.icon(
                       onPressed: !(app.appVersionBloc
                                   ?.isNewerThanCurrent(_lastRemoteVersion) ??
@@ -362,6 +453,12 @@ class _VersionHomePageState extends State<_VersionHomePage> {
 /// Servicio HTTP que simula un servidor cuya versión de app
 /// se incrementa en cada GET al endpoint de versión.
 ///
+/// 🔍 Objetivo:
+/// - Mostrar cómo un `ServiceHttpRequest` real entregaría un “HTTP response”
+///   con headers, statusCode y un body JSON.
+/// - Reforzar la idea de que el dominio trabaja con `ModelConfigHttpRequest`
+///   como representación “normalizada” del request/response.
+///
 /// - Estado interno: [ModelAppVersion] `_serverVersion`.
 /// - En cada GET a [_kAppVersionEndpoint]:
 ///   - Incrementa el build en 1.
@@ -391,7 +488,7 @@ class VersionSimulatingHttpService implements ServiceHttpRequest {
     Duration? timeout,
     Map<String, dynamic> metadata = const <String, dynamic>{},
   }) async {
-    // Simulamos una pequeña latencia.
+    // Simulamos una pequeña latencia para que el flujo sea visible en UI.
     await Future<void>.delayed(const Duration(milliseconds: 400));
 
     if (uri == _kAppVersionEndpoint) {
@@ -427,6 +524,8 @@ class VersionSimulatingHttpService implements ServiceHttpRequest {
     }
 
     // Fallback genérico para otras rutas (no usadas en este demo).
+    // Sirve de ejemplo de cómo un servicio puede responder para endpoints
+    // que aún no están definidos.
     return <String, dynamic>{
       'method': 'GET',
       'uri': uri.toString(),
@@ -458,6 +557,8 @@ class VersionSimulatingHttpService implements ServiceHttpRequest {
     Duration? timeout,
     Map<String, dynamic> metadata = const <String, dynamic>{},
   }) async {
+    // No se usa en este demo. En una app real se implementaría
+    // siguiendo el mismo patrón que GET.
     throw UnimplementedError('POST not used in this demo');
   }
 
@@ -487,6 +588,9 @@ class VersionSimulatingHttpService implements ServiceHttpRequest {
 /// con las siguientes reglas:
 /// - Cada 10 parches incrementa el minor y patch vuelve a 0.
 /// - Cada 10 minors incrementa el major, y minor/patch vuelven a 0.
+///
+/// Se usa aquí para mostrar al implementador una forma sencilla de
+/// derivar versiones legibles a partir de un contador de build.
 String intToVersion(int value) {
   if (value < 0) {
     throw ArgumentError('value must be >= 0');
