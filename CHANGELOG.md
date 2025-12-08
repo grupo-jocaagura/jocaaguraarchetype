@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.1] - 2025-12-08
+
+### Chore
+- **Dependencies:** actualiza `jocaagura_domain` a **1.33.0**.
+
+### Added
+- **App Version – Gestión reactiva:**
+    - Integración de **`BlocModelVersion`** para centralizar el estado de versión de la app.
+- **HTTP – Obtención de versión remota:**
+    - Manejo de solicitudes HTTP para **consultar la versión de la app** desde backend (flujo GET con normalización de respuesta y manejo de errores).
+
+### Changed
+- **App Version – Lógica de comparación:**
+    - Refactor de la comparación de versiones (semver/build number) para decidir *update available* / *force update* usando `ModelAppVersion`.
+- **HTTP – Robustez & encapsulamiento:**
+    - Mejoras en el **pipeline HTTP** para la consulta de versión (normalización de payload, preparación para timeouts/offline, reutilización de helpers).
+
+### Docs
+- Guías y comentarios ampliados para:
+    - Flujo de **obtención de versión** via HTTP.
+    - Contratos y uso de **`ModelAppVersion`** (semántica de campos, comparación, ejemplos).
+
+### Notes
+- Cambios **no rompientes**. Asegúrate de configurar el **endpoint de versión** y, si corresponde, mapear correctamente los campos de `ModelAppVersion` (e.g., `version`, `buildNumber`, `forceUpdate`).
+
+
 ## [3.5.0] - 2025-11-16
 
 ### Added
