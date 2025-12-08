@@ -52,6 +52,11 @@ class AppManager {
     onAppLifecycleChanged?.call(state);
   }
 
+  BlocModelVersion? get appVersionBloc => _config.blocModelVersion;
+
+  ModelAppVersion get currentAppVersion =>
+      _config.blocModelVersion?.value ?? ModelAppVersion.defaultModelAppVersion;
+
   // --------------------------------------------------------------------------
   // Enviroment -
   // --------------------------------------------------------------------------
@@ -185,7 +190,7 @@ class AppManager {
       return null;
     }
     _disposed = true;
-    _config.dispose(); // si AppConfig es dueño de los blocs, libera allí
+    _config.dispose();
   }
 
   // Dentro de AppManager
