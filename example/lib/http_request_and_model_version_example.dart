@@ -193,7 +193,7 @@ class _HttpAndVersionExample {
         blocResponsive: BlocResponsive(),
         blocOnboarding: onboarding,
         pageManager: _pageManager,
-        // 🔐 Fuente de verdad de versión disponible en todo el arquetipo.
+        // 🔐 Fuente de verdad de versión disponible en para el arquetipo.
         blocModelVersion: _blocModelVersion,
         // 🌐 HTTP como módulo transversal opcional.
         blocModuleList: <String, BlocModule>{
