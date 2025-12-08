@@ -82,6 +82,49 @@ class BlocModelVersion extends BlocModule {
     _bloc.value = ModelAppVersion.defaultModelAppVersion;
   }
 
+  /// Returns `true` when [candidate] represents a newer version than
+  /// the current snapshot. Priority order: buildNumber → semver string → buildAt.
+  bool isNewerThanCurrent(ModelAppVersion candidate) {
+    return _isVersionGreater(candidate, value);
+  }
+
+  static bool _isVersionGreater(
+    ModelAppVersion next,
+    ModelAppVersion current,
+  ) {
+    if (next.buildNumber != current.buildNumber) {
+      return next.buildNumber > current.buildNumber;
+    }
+    final int semverDiff =
+        _compareVersionStrings(next.version, current.version);
+    if (semverDiff != 0) {
+      return semverDiff > 0;
+    }
+    return next.buildAt.compareTo(current.buildAt) > 0;
+  }
+
+  static int _compareVersionStrings(String next, String current) {
+    final List<int> nextParts = _versionSegments(next);
+    final List<int> currentParts = _versionSegments(current);
+    final int length = max(nextParts.length, currentParts.length);
+    for (int i = 0; i < length; i += 1) {
+      final int a = i < nextParts.length ? nextParts[i] : 0;
+      final int b = i < currentParts.length ? currentParts[i] : 0;
+      if (a != b) {
+        return a.compareTo(b);
+      }
+    }
+    return 0;
+  }
+
+  static List<int> _versionSegments(String input) {
+    return input
+        .split(RegExp(r'[^\d]+'))
+        .where((String segment) => segment.isNotEmpty)
+        .map<int>((String segment) => int.tryParse(segment) ?? 0)
+        .toList(growable: false);
+  }
+
   /// Disposes the underlying [BlocGeneral] and frees stream resources.
   @override
   void dispose() {

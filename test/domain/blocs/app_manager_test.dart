@@ -165,8 +165,10 @@ class _RepoOk implements RepositoryTheme {
 }
 
 /// AppConfig armado con spies para inyectar en AppManager.
-AppConfig _makeConfigWithSpies(_SpyPageManager pm,
-    {BlocModelVersion? blocModelVersion}) {
+AppConfig _makeConfigWithSpies(
+  _SpyPageManager pm, {
+  BlocModelVersion? blocModelVersion,
+}) {
   return AppConfig(
     blocTheme: _SpyThemeBloc(),
     blocUserNotifications: _SpyUserNotifications(),
