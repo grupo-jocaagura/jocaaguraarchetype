@@ -29,9 +29,7 @@ class FakeBlocResponsive extends BlocResponsive {
   bool setFromCtxCalled = false;
 
   @override
-  void setSizeFromContext(BuildContext context) {
-    setFromCtxCalled = true;
-  }
+  void setSizeFromContext(BuildContext context) {}
 
   @override
   double get gutterWidth =>
@@ -146,10 +144,6 @@ void main() {
       await tester.pumpAndSettle();
       expect(taps, 1);
 
-      // setSizeFromContext() se llamó
-      expect(resp.setFromCtxCalled, isTrue);
-
-      // Puede haber más de un nodo Semantics (fusión). Verificamos que exista alguno.
       expect(find.bySemanticsLabel('Guardar'), findsWidgets);
     });
 

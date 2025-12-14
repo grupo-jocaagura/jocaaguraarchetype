@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.2] - 2025-12-13
+
+### Changed
+- **Responsive Flow:** el llamado a `BlocResponsive.setSizeFromContext` ahora sucede únicamente en el `builder` de `MaterialApp.router` dentro de `JocaaguraApp`, eliminando las invocaciones redundantes en widgets y mejorando la consistencia de métricas.
+- **UI Widgets:** `PageBuilder`, `WorkAreaWidget`, `PageWithSecondaryMenuWidget`, menús y componentes reutilizables ahora sólo consumen métricas de `BlocResponsive`; se actualizaron tests para reflejar el flujo centralizado.
+- **MySnackBarWidget:** se corrige el cálculo de `maxWidth` para evitar constraints negativas en pantallas pequeñas (side‑effect del refactor responsivo).
+
+### Docs
+- **`doc/responsive-flow.md`:** nueva guía oficial que documenta el patrón centralizado de responsividad, buenas prácticas, migración y estrategias de prueba con `setSizeForTesting`.
+- **Page Builder / README:** se enlaza la guía y se documenta que `PageBuilder` ya no llama `setSizeFromContext`, orientando a los implementadores sobre el nuevo flujo.
+
+
 ## [3.5.1] - 2025-12-08
 
 ### Chore
