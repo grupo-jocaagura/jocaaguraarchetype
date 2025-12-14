@@ -54,10 +54,6 @@ class ResponsiveGeneratorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.mounted) {
-      responsive.setSizeFromContext(context);
-    }
-
     final double mh = responsive.marginWidth;
     final double gap = (gapOverride ?? responsive.gutterWidth).clamp(0.0, 64.0);
 

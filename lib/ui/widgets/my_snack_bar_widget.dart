@@ -102,9 +102,6 @@ class MySnackBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.mounted) {
-      responsive.setSizeFromContext(context);
-    }
     final BlocResponsive r = responsive;
     final ColorScheme scheme = Theme.of(context).colorScheme;
 
@@ -112,11 +109,16 @@ class MySnackBarWidget extends StatelessWidget {
     final double mh = r.marginWidth;
     final double gap = r.gutterWidth.clamp(8.0, 16.0);
 
-    final double defaultMax =
-        isMobile ? (r.workAreaSize.width - mh * 2) : r.widthByColumns(4);
-    final double maxW = maxWidthColumns != null
-        ? r.widthByColumns(maxWidthColumns!.clamp(1, r.columnsNumber))
-        : defaultMax;
+    final double defaultMax = max(
+      0.0,
+      isMobile ? (r.workAreaSize.width - (mh * 2)) : r.widthByColumns(4),
+    );
+    final double maxW = max(
+      0.0,
+      maxWidthColumns != null
+          ? r.widthByColumns(maxWidthColumns!.clamp(1, r.columnsNumber))
+          : defaultMax,
+    );
 
     final Alignment align =
         isMobile ? Alignment.bottomCenter : Alignment.topRight;

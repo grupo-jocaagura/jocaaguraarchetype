@@ -1,4 +1,3 @@
-
 # JocaaguraArchetype
 
 > ⚠️ **Heads-up:** Documentation is in progress. We’re migrating cross-cutting concerns to [`jocaagura_domain`](https://pub.dev/packages/jocaagura_domain).  
@@ -96,6 +95,12 @@ Security & quality:
 * Signed commits enforced (GitHub bot setup).
 
 > Full docs are being completed. We’ll expand with more samples (routing, PageBuilder, responsive widgets) soon.
+
+---
+
+## Documentation
+
+- [Responsive Flow & BlocResponsive Pattern](doc/responsive-flow.md)
 
 ---
 
