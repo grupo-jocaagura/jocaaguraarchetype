@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.3] - 2025-12-14
+
+### Added
+- **ModelFieldState:** modelo inmutable para formularios controlados con `BlocGeneral<ModelFieldState>`, con `copyWith`, banderas `isDirty/isValid` y roundtrip JSON para persistir borradores.
+- **Forms Example:** `example/lib/forms_example.dart` ahora incluye el flujo multi‑paso (Email → Password → Login OK) que replica el patrón de OKANE y prueba navegación con FieldState.
+- **Docs:** guía `doc/forms-flow.md` detallando el ciclo FieldState ↔ BLoC ↔ UI, mejores prácticas y casos (login, búsqueda con sugerencias).
+
+### Changed
+- **Example navigation:** el demo de formularios se divide en dos pantallas (email y password) y solo avanza si cada FieldState es válido; se reutiliza `DemoLoginFormBloc` entre pasos y se añade una pantalla de confirmación.
+
+
 ## [3.5.2] - 2025-12-13
 
 ### Changed
@@ -522,70 +533,6 @@ Esta versión congela el archivo `pubspec.yaml` como parte del proceso de migrac
 No se recibirán actualizaciones ni nuevas dependencias en este paquete hasta que la migración completa esté finalizada. Esto garantiza estabilidad durante el refactor estructural y evita conflictos en entornos de integración continua.
 
 ---
-
-## [2.0.0] - 2025-07-27
-
-### ⚠️ Breaking Changes
-
-- Se removió la implementación interna de `ServiceSession` y `ServiceConnectivity`.
-- Se introdujo `service_session_plus.dart`, que ahora debe ser implementado desde la app o inyectado desde `jocaagura_domain`.
-- `bloc_session.dart` y `bloc_connectivity.dart` fueron actualizados para depender de las nuevas abstracciones definidas en `jocaagura_domain`.
-- El paquete deja de funcionar de forma independiente. Ahora **requiere tener configurado `jocaagura_domain`** para su correcto funcionamiento.
-
-### 💡 Razonamiento del cambio
-
-Este cambio mayor responde a una estrategia de consolidación de herramientas transversales dentro del paquete [`jocaagura_domain`](https://pub.dev/packages/jocaagura_domain). Centralizar los servicios compartidos y sus contratos:
-
-- Simplifica el mantenimiento y evolución de la arquitectura.
-- Evita colisiones con paquetes externos o implementaciones personalizadas.
-- Permite que cada app tenga control sobre la forma en que maneja sesiones, conectividad y navegación.
-
-### 📌 Migración necesaria
-
-1. Agrega `jocaagura_domain` como dependencia en tu `pubspec.yaml`.
-2. Implementa tu propia versión de `ServiceSession` y `ServiceConnectivity` acorde a tus necesidades.
-3. Asegúrate de configurar correctamente los blocs desde `AppManager`, inyectando las implementaciones deseadas.
-
-### 📁 Otros cambios
-
-- Se reorganizó el código para reflejar mejor la separación entre `blocs`, `services`, `ui` y `utils`.
-- Mejora de documentación interna para los nuevos servicios.
-
----
-
-> ⚠️ Este paquete podría ser deprecado en el futuro. Se recomienda utilizar directamente `jocaagura_domain` como punto de entrada para la configuración de servicios compartidos y lógica transversal.
-
-
-
-## [1.5.2] - 2025-01-16
-
-### Improved
-- Enhanced the `publish.yml` workflow to accommodate the Google environment and GitHub Actions, ensuring seamless package publishing.
-
-## [2.0.1] - 2025-08-27
-
-### 🔒 Congelación de `pubspec.yaml`
-
-Esta versión congela el archivo `pubspec.yaml` como parte del proceso de migración de lógica de negocio hacia el paquete [`jocaagura_domain`](https://pub.dev/packages/jocaagura_domain), a partir de su versión `1.21.2`.
-**⚠️ Importante:**  
-No se recibirán actualizaciones ni nuevas dependencias en este paquete hasta que la migración completa esté finalizada. Esto garantiza estabilidad durante el refactor estructural y evita conflictos en entornos de integración continua.
-
----
-
-### 🧭 Contexto
-
-La lógica compartida, los contratos y modelos principales serán trasladados progresivamente a `jocaagura_domain` para favorecer la reutilización, testabilidad y mantenimiento centralizado.
-
----
-
-### 📌 Próximos pasos
-- Migrar los `Blocs`, `Gateways`, `Repositories` y `Entities` existentes a `jocaagura_domain`.
-- Eliminar código duplicado tras la consolidación.
-- Actualizar documentación de dependencias y estructura de carpetas.
-
----
-Si estás utilizando este paquete en tus proyectos, asegúrate de apuntar tus dependencias compartidas directamente a `jocaagura_domain` en adelante.
-
 
 ## [2.0.0] - 2025-07-27
 
