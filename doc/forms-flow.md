@@ -4,7 +4,7 @@ Jocaagura apps adopt a *controlled form* pattern inspired by OKANE's `BlocIncome
 
 ## Key Concepts
 
-- **ModelFieldState**: immutable object with `value`, `errorText`, `suggestions`, `isDirty`, `isValid`. Exposes `copyWith` and JSON roundtrip for persistence.
+- **ModelFieldState**: immutable object with `value`, `errorText`, `suggestions`, `isDirty`, `isValid`. Exposes `copyWith`, `hasError`, `isPristine` and JSON roundtrip for persistence.
 - **BlocXxxForm**: owns one `BlocGeneral<ModelFieldState>` per field and exposes user intents (`onXxxChangedAttempt`, `onXxxSubmittedAttempt`, `submit`).
 - **Controlled widgets**: inputs such as `JocaaguraAutocompleteInputWidget` receive `value`/`errorText` from the bloc and emit raw attempts back.
 - **Flow**: user types → `onChangedAttempt` → validation/formatting → emit new `ModelFieldState` → UI rebuilds. Submit re-validates, builds domain entities and returns `Either`.
@@ -13,7 +13,7 @@ Jocaagura apps adopt a *controlled form* pattern inspired by OKANE's `BlocIncome
 
 ```dart
 final BlocGeneral<ModelFieldState> _email =
-    BlocGeneral(const ModelFieldState(''));
+    BlocGeneral(const ModelFieldState());
 
 void onEmailChangedAttempt(String raw) {
   final String value = raw.trim();
@@ -22,7 +22,7 @@ void onEmailChangedAttempt(String raw) {
     value: value,
     isDirty: true,
     isValid: looksValid,
-    errorText: looksValid ? null : 'Invalid email',
+    errorText: looksValid ? '' : 'Invalid email',
   );
 }
 ```
@@ -44,15 +44,15 @@ final Map<String, dynamic> json = state.toJson();
 ```dart
 class DemoLoginFormBloc extends BlocModule {
   final BlocGeneral<ModelFieldState> _password =
-      BlocGeneral(const ModelFieldState(''));
+      BlocGeneral(const ModelFieldState());
 
   void onPasswordChangedAttempt(String raw) {
     final bool valid = raw.length >= 6;
     _password.value = ModelFieldState(
-      raw,
+      value: raw,
       isDirty: true,
       isValid: valid,
-      errorText: valid ? null : 'Min 6 chars',
+      errorText: valid ? '' : 'Min 6 chars',
     );
   }
 
@@ -78,11 +78,11 @@ StreamBuilder<ModelFieldState>(
   stream: bloc.emailStream,
   initialData: bloc.email,
   builder: (_, __) {
-    final s = bloc.email;
+    final ModelFieldState s = bloc.email;
     return JocaaguraAutocompleteInputWidget(
       label: 'Email',
       value: s.value,
-      errorText: s.errorText,
+      errorText: s.errorText.isEmpty ? null : s.errorText,
       onChangedAttempt: bloc.onEmailChangedAttempt,
       onSubmittedAttempt: bloc.onEmailSubmittedAttempt,
       suggestList: s.suggestions,
@@ -105,7 +105,7 @@ StreamBuilder<ModelFieldState>(
 
 ## Best Practices
 - Keep validation/formatting in the BLoC, never in the widget.
-- Use `isDirty`/`isValid` to control when to show errors.
+- Use `isDirty`/`isValid` (or `hasError`) to control when to show errors.
 - Re-validate inside `submit()` before hitting the usecase.
 - For tests, use `setSizeForTesting` for responsive contexts and `ModelFieldState.fromJson` to hydrate fixtures.
 
@@ -119,4 +119,3 @@ StreamBuilder<ModelFieldState>(
 - OKANE `BlocIncomeForm` + `FormLedgerWidget`.
 - `example/lib/forms_example.dart` showcasing the canonical flow.
 - `JocaaguraAutocompleteInputWidget` DartDoc for controlled usage instructions.
-

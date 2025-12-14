@@ -142,10 +142,10 @@ class DemoLoginFormBloc extends BlocModule {
   }
 
   bool get isValid =>
-      (email.isValid) &&
-      (password.isValid) &&
-      email.errorText.isEmpty &&
-      password.errorText.isEmpty;
+      email.isValid &&
+      password.isValid &&
+      !email.hasError &&
+      !password.hasError;
 
   Future<Either<ErrorItem, Unit>> submit() async {
     onEmailChangedAttempt(email.value);
@@ -200,7 +200,7 @@ class _EmailStepPage extends StatelessWidget {
                     label: 'Email',
                     placeholder: 'person@example.com',
                     value: field.value,
-                    errorText: field.errorText,
+                    errorText: field.errorText.isEmpty ? null : field.errorText,
                     textInputType: TextInputType.emailAddress,
                     icondata: Icons.email_outlined,
                     onChangedAttempt: bloc.onEmailChangedAttempt,
@@ -223,8 +223,7 @@ class _EmailStepPage extends StatelessWidget {
   void _goNext(BuildContext context) {
     final AppManager app = context.appManager;
     bloc.onEmailChangedAttempt(bloc.email.value);
-    final bool validEmail =
-        (bloc.email.errorText.isEmpty) && bloc.email.value.isNotEmpty;
+    final bool validEmail = !bloc.email.hasError && bloc.email.value.isNotEmpty;
     if (!validEmail) {
       app.notifications.showToast('Completa un email válido');
       return;
@@ -262,7 +261,7 @@ class _PasswordStepPage extends StatelessWidget {
                     label: 'Password',
                     placeholder: '******',
                     value: field.value,
-                    errorText: field.errorText,
+                    errorText: field.errorText.isEmpty ? null : field.errorText,
                     obscureText: true,
                     icondata: Icons.lock_outline,
                     onChangedAttempt: bloc.onPasswordChangedAttempt,
