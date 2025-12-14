@@ -43,10 +43,6 @@ class MyAppButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.mounted) {
-      responsive.setSizeFromContext(context);
-    }
-
     final ColorScheme scheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
 

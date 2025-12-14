@@ -33,10 +33,6 @@ abstract class ResponsiveNxBase extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.mounted) {
-      responsive.setSizeFromContext(context);
-    }
-
     final double mh = responsive.marginWidth;
     final double maxW = responsive.workAreaSize.width;
     final double w =

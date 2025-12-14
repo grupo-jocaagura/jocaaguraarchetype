@@ -12,13 +12,9 @@ class _FakeBlocResponsive extends BlocResponsive {
     }
   }
 
-  bool setFromCtxCalled = false;
-
   @override
   void setSizeFromContext(BuildContext context) {
-    // registramos la invocación pero no alteramos el size en tests
-    setFromCtxCalled = true;
-    setSize(MediaQuery.of(context).size); // opcional
+    setSize(MediaQuery.of(context).size);
   }
 }
 
@@ -71,10 +67,8 @@ void main() {
         ),
       );
       expect(find.byKey(const ValueKey<String>('mobile')), findsOneWidget);
-      expect(fake.setFromCtxCalled, isTrue);
 
       // 2) tablet: width > maxMobile && <= maxTablet
-      fake.setFromCtxCalled = false;
       final Size tabletSize = Size(cfg.maxTabletScreenWidth, 800);
       fake.setSizeForTesting(tabletSize);
       await _pumpWithSize(
@@ -88,10 +82,8 @@ void main() {
       );
       // como no hay mobile/desktop/tv, pero tablet sí está provisto
       expect(find.byKey(const ValueKey<String>('tablet')), findsOneWidget);
-      expect(fake.setFromCtxCalled, isTrue);
 
       // 3) desktop: width > maxTablet && < maxDesktop
-      fake.setFromCtxCalled = false;
       final Size desktopSize = Size(cfg.maxDesktopScreenWidth - 1, 800);
       fake.setSizeForTesting(desktopSize);
       await _pumpWithSize(
@@ -104,10 +96,8 @@ void main() {
         ),
       );
       expect(find.byKey(const ValueKey<String>('desktop')), findsOneWidget);
-      expect(fake.setFromCtxCalled, isTrue);
 
       // 4) tv: width >= maxDesktop; si tv no está, cae en desktop; si tampoco, fallback
-      fake.setFromCtxCalled = false;
       final Size tvSize = Size(cfg.maxDesktopScreenWidth, 800);
       fake.setSizeForTesting(tvSize);
       await _pumpWithSize(

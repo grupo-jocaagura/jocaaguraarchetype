@@ -193,6 +193,10 @@ class _JocaaguraAppShellState extends State<_JocaaguraAppShell>
           darkTheme: const BuildThemeData()
               .fromState(s.copyWith(mode: ThemeMode.dark)),
           themeMode: s.mode,
+          builder: (BuildContext context, Widget? child) {
+            am.responsive.setSizeFromContext(context);
+            return child ?? const SizedBox.shrink();
+          },
         );
       },
     );
