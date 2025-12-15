@@ -6,7 +6,7 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 class _CaptureHome extends StatelessWidget {
   const _CaptureHome(this.label, this.captured);
   final String label;
-  final ValueNotifier<AppManager?> captured;
+  final ValueNotifier<AbstractAppManager?> captured;
 
   @override
   Widget build(BuildContext context) {

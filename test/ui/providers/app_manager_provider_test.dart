@@ -44,7 +44,7 @@ class _DependentProbe extends StatefulWidget {
     required this.depChanges,
   });
 
-  final ValueNotifier<AppManager?> captured;
+  final ValueNotifier<AbstractAppManager?> captured;
   final ValueNotifier<int> builds;
   final ValueNotifier<int> depChanges;
 
@@ -64,7 +64,7 @@ class _DependentProbeState extends State<_DependentProbe> {
     widget.builds.value = widget.builds.value + 1;
 
     // Leer vía extensión (equivale a AppManagerProvider.of(context))
-    final AppManager mgr = context.appManager;
+    final AbstractAppManager mgr = context.appManager;
     widget.captured.value = mgr;
 
     // UI mínima estable para no introducir cambios colaterales

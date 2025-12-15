@@ -39,7 +39,7 @@ class PageLoadingBoundary extends StatelessWidget {
         appBarBuilder = appBarBuilder ?? PageAppBar.defaultBuilder;
 
   /// Application manager that provides navigation, loading, menu and routing.
-  final AppManager app;
+  final AbstractAppManager app;
 
   /// Responsive configuration for this page.
   final BlocResponsive responsive;

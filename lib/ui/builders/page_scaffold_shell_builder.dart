@@ -21,7 +21,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ```
 typedef PageScaffoldShellBuilder = Widget Function(
   BuildContext context,
-  AppManager app,
+  AbstractAppManager app,
   BlocResponsive responsive,
   Widget? page,
 );

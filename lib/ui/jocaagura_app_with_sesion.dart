@@ -98,11 +98,11 @@ class JocaaguraAppWithSession extends StatefulWidget {
   /// ```
   factory JocaaguraAppWithSession.dev({
     // Core wiring
-    required AppManager appManager,
+    required AbstractAppManager appManager,
     required PageRegistry registry,
     required SessionPages sessionPages,
-    required void Function(AppManager app) configureMenusForLoggedIn,
-    required void Function(AppManager app)
+    required void Function(AbstractAppManager app) configureMenusForLoggedIn,
+    required void Function(AbstractAppManager app)
         configureMenusForLoggedOut, // Session wiring override (optional)
     BlocSession? sessionBloc,
 
@@ -141,13 +141,13 @@ class JocaaguraAppWithSession extends StatefulWidget {
   }
 
   /// Hook para configurar menús cuando la sesión está autenticada.
-  final void Function(AppManager app)? configureMenusForLoggedIn;
+  final void Function(AbstractAppManager app)? configureMenusForLoggedIn;
 
   /// Hook para configurar menús cuando la sesión NO está autenticada.
-  final void Function(AppManager app)? configureMenusForLoggedOut;
+  final void Function(AbstractAppManager app)? configureMenusForLoggedOut;
 
   /// Core app manager containing navigation, blocs and cross-cutting concerns.
-  final AppManager appManager;
+  final AbstractAppManager appManager;
 
   /// Page registry used by [JocaaguraApp] router.
   final PageRegistry registry;

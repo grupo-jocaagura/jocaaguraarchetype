@@ -3,7 +3,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// Simple onboarding flow for first-run setup.
 ///
 /// Supply the steps (widgets or descriptors) and handle completion by
-/// notifying the AppManager / Router to proceed to the home route.
+/// notifying the AbstractAppManager / Router to proceed to the home route.
 ///
 /// ### Example
 /// ```dart
