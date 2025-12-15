@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2025-12-14
+
+### ⚠️ Breaking Changes
+- Public APIs now depend on `AbstractAppManager` instead of the concrete `AppManager`.
+  This affects (at least):
+  - `JocaaguraAppShellController`
+  - `JocaaguraThemedRouterApp`
+  - `JocaaguraAppShell`
+
+### ✅ Why
+- **Lower coupling:** UI wiring no longer depends on the concrete archetype implementation.
+- **Better testability:** enables minimal fakes/stubs for unit tests without heavy app wiring or real stream extensions.
+- **Safer evolution:** internal changes in `AppManager` are less likely to ripple into consumers.
+
+### 🔁 Migration
+- Replace explicit `AppManager` types with `AbstractAppManager` where required.
+- You can still keep a concrete instance, typed as the abstraction:
+### Rationale
+This reduces coupling in the UI layer and makes unit tests simpler and more deterministic by allowing precise fakes without requiring full app wiring.
+
 ## [3.5.3] - 2025-12-14
 
 ### Added

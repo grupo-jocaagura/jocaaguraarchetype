@@ -18,8 +18,9 @@ Guía práctica para:
 * `PageManager`: **fuente de verdad del historial** (push/replace/pop…).
 * `MyRouteInformationParser`: URL ⇄ `NavStackModel`.
 * `MyAppRouterDelegate`: `PageManager` ⇄ `Navigator`.
-* `AppManager`: fachada (navegación + módulos transversales).
-* `JocaaguraApp`: shell que inyecta `AppManager` y crea el Router.
+* `AbstractAppManager`: fachada pública (navegación + módulos transversales).
+* `AppManager`: implementación concreta inyectada donde se construye la app.
+* `JocaaguraApp`: shell que inyecta `AbstractAppManager` y crea el Router.
 
 **Claves operativas**
 
@@ -96,11 +97,7 @@ if (!_onboardingDone && pageManager.topOrNull == SplashPage.pageModel) {
 
 // === Shell ===
 runApp(JocaaguraApp(
-  appManager: AppManager(AppConfig(
-    pageManager: pageManager,
-    blocOnboarding: onboarding,
-    // ... otros blocs
-  )),
+  appManager: appManager,
   registry: pageRegistry,
   seedInitialFromPageManager: true,
 ));
@@ -291,6 +288,8 @@ Sí: define pasos vacíos o `skip()` en el primer paso y haz `replaceTop(Home)` 
 ///
 /// Recommended:
 /// - `seedInitialFromPageManager: true` to keep the initial stack ownership.
+///
+/// Breaking change (4.0.0): consumers must provide an `AbstractAppManager`.
 ```
 
 ---
