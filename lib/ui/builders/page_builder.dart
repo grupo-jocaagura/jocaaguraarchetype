@@ -85,7 +85,7 @@ class PageBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppManager app = context.appManager;
+    final AbstractAppManager app = context.appManager;
     final BlocResponsive responsive = app.responsive;
 
     app.responsive.showAppbar = showAppBar;
@@ -93,7 +93,7 @@ class PageBuilder extends StatelessWidget {
     final PageLoadingBoundaryBuilder boundaryBuilder = loadingBoundaryBuilder ??
         (
           BuildContext context,
-          AppManager app,
+          AbstractAppManager app,
           BlocResponsive r,
           Widget? page,
         ) =>

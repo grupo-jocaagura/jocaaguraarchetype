@@ -54,7 +54,7 @@ class AppManagerProvider extends InheritedWidget {
   });
 
   /// The `AppManager` instance shared with descendant widgets.
-  final AppManager appManager;
+  final AbstractAppManager appManager;
 
   /// Retrieves the `AppManager` instance from the widget tree.
   ///
@@ -63,7 +63,7 @@ class AppManagerProvider extends InheritedWidget {
   /// ```dart
   /// final appManager = AppManagerProvider.of(context);
   /// ```
-  static AppManager of(BuildContext context) {
+  static AbstractAppManager of(BuildContext context) {
     final AppManagerProvider? result =
         context.dependOnInheritedWidgetOfExactType<AppManagerProvider>();
     assert(result != null, 'No AppManager found in context');
@@ -78,7 +78,7 @@ class AppManagerProvider extends InheritedWidget {
   bool updateShouldNotify(AppManagerProvider oldWidget) => false;
 
   /// Versión "segura": no assertea; devuelve null si no existe el provider.
-  static AppManager? maybeOf(BuildContext context) {
+  static AbstractAppManager? maybeOf(BuildContext context) {
     final AppManagerProvider? result =
         context.dependOnInheritedWidgetOfExactType<AppManagerProvider>();
     return result?.appManager;
@@ -97,5 +97,5 @@ class AppManagerProvider extends InheritedWidget {
 /// ```
 extension AppManagerExtension on BuildContext {
   /// Retrieves the `AppManager` instance from the nearest `AppManagerProvider`.
-  AppManager get appManager => AppManagerProvider.of(this);
+  AbstractAppManager get appManager => AppManagerProvider.of(this);
 }

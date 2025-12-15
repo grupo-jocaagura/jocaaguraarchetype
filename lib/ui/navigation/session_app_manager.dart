@@ -19,7 +19,7 @@ class SessionAppManager {
     _init();
   }
 
-  final AppManager appManager;
+  final AbstractAppManager appManager;
   final BlocSession sessionBloc;
 
   // PageModels canónicos
@@ -32,10 +32,10 @@ class SessionAppManager {
   final PageModel sessionErrorPage;
 
   /// Configuración de menús cuando la sesión está autenticada.
-  final void Function(AppManager app)? configureMenusForLoggedIn;
+  final void Function(AbstractAppManager app)? configureMenusForLoggedIn;
 
   /// Configuración de menús cuando la sesión NO está autenticada.
-  final void Function(AppManager app)? configureMenusForLoggedOut;
+  final void Function(AbstractAppManager app)? configureMenusForLoggedOut;
 
   final bool goHomeWhenAuthenticatedOnLogin;
   final PageEquals pageEquals;

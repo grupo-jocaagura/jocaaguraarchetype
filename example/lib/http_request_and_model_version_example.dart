@@ -316,7 +316,7 @@ class _VersionHomePageState extends State<_VersionHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final AppManager app = context.appManager;
+    final AbstractAppManager app = context.appManager;
     final BlocHttpRequest http =
         app.requireModuleByKey<BlocHttpRequest>(BlocHttpRequest.name);
 

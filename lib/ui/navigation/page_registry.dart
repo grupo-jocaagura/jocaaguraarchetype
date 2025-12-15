@@ -227,7 +227,7 @@ class _RegistryRedirect extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final AppManager? am = AppManagerProvider.maybeOf(context);
+      final AbstractAppManager? am = AppManagerProvider.maybeOf(context);
       if (am == null) {
         assert(() {
           debugPrint(

@@ -32,7 +32,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ```
 typedef PageLoadingBoundaryBuilder = Widget Function(
   BuildContext context,
-  AppManager app,
+  AbstractAppManager app,
   BlocResponsive responsive,
   Widget? page,
 );
