@@ -8,7 +8,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ```dart
 /// final PageRegistry registry = buildExampleRegistry();
 /// final AppConfig cfg = AppConfig.dev(registry: registry);
-/// final AppManager manager = AppManager(cfg);
+/// final AbstractAppManager manager = AppManager(cfg);
 /// runApp(JocaaguraApp(appManager: manager, registry: registry));
 /// ```
 class AppConfig {

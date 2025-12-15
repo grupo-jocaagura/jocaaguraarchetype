@@ -1,5 +1,42 @@
-import 'package:flutter/material.dart';
+part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Project a fixed-size design canvas into the available layout space.
+///
+/// Scales [child] proportionally so it fits within the current constraints
+/// while preserving the aspect ratio defined by [designWidth] / [designHeight].
+///
+/// This widget is useful when your UI is authored using absolute measurements
+/// from a design tool (e.g. Figma) and you want a consistent “design canvas”
+/// that is scaled to the device size.
+///
+/// Parameters:
+/// - [child]: The widget tree laid out on a fixed design canvas.
+/// - [designWidth]: The reference width of the design canvas (must be > 0).
+/// - [designHeight]: The reference height of the design canvas (must be > 0).
+/// - [debug]: When true, paints an amber background to visualize the canvas.
+///
+/// Notes:
+/// - This widget does not apply [SafeArea]. Wrap it if you need notch/padding
+///   handling.
+/// - The child is scaled visually (via [FittedBox]); it is not re-laid out
+///   using responsive constraints.
+///
+/// Example:
+/// ```dart
+/// import 'package:flutter/material.dart';
+///
+/// void main() {
+///   runApp(const MaterialApp(
+///     home: Scaffold(
+///       body: ProjectorWidget(
+///         designWidth: 412,
+///         designHeight: 892,
+///         child: Center(child: Text('Hello canvas')),
+///       ),
+///     ),
+///   ));
+/// }
+/// ```
 class ProjectorWidget extends StatelessWidget {
   const ProjectorWidget({
     required this.child,

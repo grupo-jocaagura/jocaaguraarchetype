@@ -20,7 +20,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ```
 typedef PageAppBarBuilder = PreferredSizeWidget? Function(
   BuildContext context,
-  AppManager app,
+  AbstractAppManager app,
   BlocResponsive responsive,
   bool hasDrawer,
 );

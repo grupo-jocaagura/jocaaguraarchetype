@@ -221,7 +221,7 @@ class _EmailStepPage extends StatelessWidget {
   }
 
   void _goNext(BuildContext context) {
-    final AppManager app = context.appManager;
+    final AbstractAppManager app = context.appManager;
     bloc.onEmailChangedAttempt(bloc.email.value);
     final bool validEmail = !bloc.email.hasError && bloc.email.value.isNotEmpty;
     if (!validEmail) {
@@ -282,7 +282,7 @@ class _PasswordStepPage extends StatelessWidget {
   }
 
   Future<void> _handleSubmit(BuildContext context) async {
-    final AppManager app = context.appManager;
+    final AbstractAppManager app = context.appManager;
     final Either<ErrorItem, Unit> result = await bloc.submit();
     result.fold(
       (ErrorItem error) => app.notifications.showToast(error.title),

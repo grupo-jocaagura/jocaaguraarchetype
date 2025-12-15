@@ -38,7 +38,7 @@ class MyDemoHomePage extends StatefulWidget {
 class _MyDemoHomePageState extends State<MyDemoHomePage> {
   late final _BlocCounter _counter;
 
-  AppManager get app => context.appManager;
+  AbstractAppManager get app => context.appManager;
 
   @override
   void initState() {
