@@ -65,11 +65,6 @@ class PageWithSecondaryMenuWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Sync metrics with current context.
-    if (context.mounted) {
-      responsive.setSizeFromContext(context);
-    }
-
     final ColorScheme scheme = Theme.of(context).colorScheme;
     final Color bg = backgroundColor ?? scheme.surfaceContainerLowest;
 

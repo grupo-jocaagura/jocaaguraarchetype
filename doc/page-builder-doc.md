@@ -12,7 +12,7 @@ El `PageBuilder` es la **cáscara estándar de página** del arquetipo. Su rol e
 * Centralizar:
 
     * Loading global.
-    * Layout responsivo.
+    * Layout responsivo (métricas provistas por BlocResponsive desde el punto único documentado en `doc/responsive-flow.md`).
     * AppBar y Drawer principal.
     * Área de trabajo (`WorkAreaWidget`).
     * Notificaciones (`MySnackBarWidget`).
@@ -89,8 +89,10 @@ class PageBuilder extends StatelessWidget {
 Responsabilidades:
 
 * Obtiene `AppManager` desde `context.appManager`.
-* Inicializa `BlocResponsive` (`showAppbar`, `setSizeFromContext`).
+* Inicializa `BlocResponsive` (`showAppbar`).
 * Crea el **loading boundary** (por defecto `PageLoadingBoundary`).
+
+> Desde la versión 2025.12, `PageBuilder` **ya no** llama `setSizeFromContext`; esa responsabilidad está en `JocaaguraApp`. Consulta `doc/responsive-flow.md` para más contexto y guías de migración.
 
 ### 2.2. `PageLoadingBoundary`
 
@@ -508,4 +510,3 @@ Antes de dar por listo el uso de Page Builder en un proyecto:
     * [ ] Shell por defecto (`PageScaffoldShell`).
     * [ ] Drawer personalizado (si existe).
     * [ ] AppBar personalizado (si existe).
-

@@ -37,7 +37,7 @@ class PageScaffoldShell extends StatelessWidget {
         appBarBuilder = appBarBuilder ?? PageAppBar.defaultBuilder;
 
   /// Application manager that provides navigation, menus and notifications.
-  final AppManager app;
+  final AbstractAppManager app;
 
   /// Responsive configuration for this page.
   final BlocResponsive responsive;
@@ -55,7 +55,7 @@ class PageScaffoldShell extends StatelessWidget {
   /// when no custom shell builder is provided.
   static Widget defaultBuilder(
     BuildContext context,
-    AppManager app,
+    AbstractAppManager app,
     BlocResponsive responsive,
     Widget? page,
   ) {

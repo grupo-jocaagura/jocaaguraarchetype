@@ -104,10 +104,6 @@ class MainMenuWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.mounted) {
-      responsive.setSizeFromContext(context);
-    }
-
     final bool isVertical = axis == Axis.vertical;
     final bool isCollapsed = _resolveCollapsed(isVertical);
 

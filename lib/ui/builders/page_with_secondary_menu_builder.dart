@@ -25,7 +25,7 @@ class PageWithSecondaryMenuBuilder extends StatelessWidget {
   });
 
   /// AppManager para acceder a responsive y al bloc del secondary menu.
-  final AppManager app;
+  final AbstractAppManager app;
 
   BlocResponsive get responsive => app.responsive;
 

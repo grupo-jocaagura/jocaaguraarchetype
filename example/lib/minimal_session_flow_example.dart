@@ -100,7 +100,7 @@ class LoginPage extends StatelessWidget {
     String email,
     String pass,
   ) async {
-    final AppManager app = context.appManager;
+    final AbstractAppManager app = context.appManager;
 
     // 1) Ir a la página de "autenticando..."
     app.pushModel(AuthenticatingPage.pageModel);
@@ -161,7 +161,7 @@ class _CounterPageState extends State<CounterPage> {
       return;
     }
 
-    final AppManager app = context.appManager;
+    final AbstractAppManager app = context.appManager;
     _sec = app.secondaryMenu;
     _counter = app.requireModuleByKey(BlocCounter.name);
 
@@ -369,7 +369,7 @@ class SessionNavCoordinator {
 }
 
 /// Helpers puros para que también puedas llamarlos desde Login/Logout
-void _setupMenusForLoggedIn(AppManager app) {
+void _setupMenusForLoggedIn(AbstractAppManager app) {
   app.mainMenu.clearMainDrawer();
   app.mainMenu.addMainMenuOption(
     label: 'Go to Counter',
@@ -389,7 +389,7 @@ void _setupMenusForLoggedIn(AppManager app) {
   );
 }
 
-void _setupMenusForLoggedOut(AppManager app) {
+void _setupMenusForLoggedOut(AbstractAppManager app) {
   app.secondaryMenu.clearSecondaryDrawer();
   app.mainMenu.clearMainDrawer();
   app.mainMenu.addMainMenuOption(

@@ -58,7 +58,7 @@ class SessionErrorPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppManager app = context.appManager;
+    final AbstractAppManager app = context.appManager;
     final BlocSession blocSession =
         app.requireModuleByKey<BlocSession>(BlocSession.name);
     return Scaffold(
@@ -97,7 +97,7 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppManager app = context.appManager;
+    final AbstractAppManager app = context.appManager;
     final BlocSession bloc = app.requireModuleByKey(BlocSession.name);
 
     String email = bloc.currentUser.email;
@@ -208,7 +208,7 @@ class _CounterPageState extends State<CounterPage> {
       return;
     }
 
-    final AppManager app = context.appManager;
+    final AbstractAppManager app = context.appManager;
     _sec = app.secondaryMenu;
     _counter = app.requireModuleByKey(BlocCounter.name);
 
@@ -245,7 +245,7 @@ class _CounterPageState extends State<CounterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final AppManager app = context.appManager;
+    final AbstractAppManager app = context.appManager;
     final BlocResponsive r = app.responsive;
     r.showAppbar = true;
     final BlocCounter blocCounter =
@@ -299,7 +299,7 @@ class BlocCounter extends BlocModule {
 }
 
 /// Hooks de menús (usados por JocaaguraAppWithSession)
-void _setupMenusForLoggedIn(AppManager app) {
+void _setupMenusForLoggedIn(AbstractAppManager app) {
   app.secondaryMenu.clearSecondaryDrawer();
   app.mainMenu.clearMainDrawer();
 
@@ -321,7 +321,7 @@ void _setupMenusForLoggedIn(AppManager app) {
   );
 }
 
-void _setupMenusForLoggedOut(AppManager app) {
+void _setupMenusForLoggedOut(AbstractAppManager app) {
   app.secondaryMenu.clearSecondaryDrawer();
   app.mainMenu.clearMainDrawer();
   app.mainMenu.addMainMenuOption(

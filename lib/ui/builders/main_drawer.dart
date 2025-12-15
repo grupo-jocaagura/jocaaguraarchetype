@@ -37,7 +37,7 @@ class MainDrawer extends StatelessWidget {
   });
 
   /// Application manager used to obtain the current page title.
-  final AppManager app;
+  final AbstractAppManager app;
 
   /// Responsive configuration used to compute paddings and gutters.
   final BlocResponsive responsive;
@@ -48,7 +48,7 @@ class MainDrawer extends StatelessWidget {
   /// Default builder used by [PageScaffoldShell] and [PageBuilder].
   static Widget? defaultBuilder(
     BuildContext context,
-    AppManager app,
+    AbstractAppManager app,
     BlocResponsive responsive,
     List<ModelMainMenuModel> items,
   ) {

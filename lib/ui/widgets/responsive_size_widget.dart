@@ -42,11 +42,6 @@ class ResponsiveSizeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // keep metrics in sync with current context
-    if (context.mounted) {
-      responsive.setSizeFromContext(context);
-    }
-
     Widget Function(BuildContext, BlocResponsive)? builder;
     switch (responsive.deviceType) {
       case ScreenSizeEnum.mobile:

@@ -23,7 +23,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ```
 typedef MainDrawerBuilder = Widget? Function(
   BuildContext context,
-  AppManager app,
+  AbstractAppManager app,
   BlocResponsive responsive,
   List<ModelMainMenuModel> items,
 );

@@ -8,7 +8,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ```dart
 /// final PageRegistry registry = buildExampleRegistry();
 /// final AppConfig cfg = AppConfig.dev(registry: registry);
-/// final AppManager manager = AppManager(cfg);
+/// final AbstractAppManager manager = AppManager(cfg);
 /// runApp(JocaaguraApp(appManager: manager, registry: registry));
 /// ```
 class AppConfig {
@@ -22,6 +22,7 @@ class AppConfig {
     required this.blocOnboarding,
     required this.pageManager,
     this.blocModuleList = const <String, BlocModule>{},
+    this.blocModelVersion,
   });
 
   /// DEV factory using the archetype defaults and in‑memory theme gateway.
@@ -57,7 +58,7 @@ class AppConfig {
     if (onboardingSteps.isNotEmpty) {
       onboardingBloc.configure(onboardingSteps);
     }
-
+    final BlocModelVersion blocModelVersion = BlocModelVersion();
     return AppConfig(
       blocTheme: themeBloc,
       blocUserNotifications: BlocUserNotifications(),
@@ -67,6 +68,7 @@ class AppConfig {
       blocResponsive: BlocResponsive(),
       blocOnboarding: onboardingBloc,
       pageManager: pm,
+      blocModelVersion: blocModelVersion,
     );
   }
 
@@ -79,6 +81,7 @@ class AppConfig {
   final BlocResponsive blocResponsive;
   final BlocOnboarding blocOnboarding; // from jocaagura_domain
   final PageManager pageManager; // navigation source of truth
+  final BlocModelVersion? blocModelVersion;
 
   /// Extendable modules (non-core). Keys must be unique.
   final Map<String, BlocModule> blocModuleList;
@@ -107,6 +110,7 @@ class AppConfig {
     blocResponsive.dispose();
     blocOnboarding.dispose();
     pageManager.dispose();
+    blocModelVersion?.dispose();
 
     // Dispose any extra modules
     for (final BlocModule module in blocModuleList.values) {

@@ -90,11 +90,6 @@ class _MainMenuOptionWidgetState extends State<MainMenuOptionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // Keep metrics in sync, no MediaQuery direct usage.
-    if (context.mounted) {
-      widget.responsive.setSizeFromContext(context);
-    }
-
     final ColorScheme scheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
 

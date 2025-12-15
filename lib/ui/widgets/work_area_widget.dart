@@ -79,11 +79,6 @@ class WorkAreaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Keep metrics synchronized on rebuild.
-    if (context.mounted) {
-      responsive.setSizeFromContext(context);
-    }
-
     final ColorScheme scheme = Theme.of(context).colorScheme;
     final Color bg = backgroundColor ?? scheme.surfaceContainerLowest;
 

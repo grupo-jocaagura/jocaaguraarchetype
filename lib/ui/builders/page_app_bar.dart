@@ -38,7 +38,7 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String label;
 
   /// Application manager used for navigation and title streams.
-  final AppManager app;
+  final AbstractAppManager app;
 
   /// Responsive configuration used to compute toolbar height.
   final BlocResponsive responsive;
@@ -53,7 +53,7 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Default builder used by [PageScaffoldShell] and [PageBuilder].
   static PreferredSizeWidget? defaultBuilder(
     BuildContext context,
-    AppManager app,
+    AbstractAppManager app,
     BlocResponsive responsive,
     bool hasDrawer,
   ) {

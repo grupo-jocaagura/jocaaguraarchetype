@@ -26,9 +26,7 @@ class FakeBlocResponsive extends BlocResponsive {
   bool setFromCtxCalled = false;
 
   @override
-  void setSizeFromContext(BuildContext context) {
-    setFromCtxCalled = true;
-  }
+  void setSizeFromContext(BuildContext context) {}
 
   @override
   ScreenSizeEnum get deviceType => _deviceType;
@@ -170,7 +168,6 @@ void main() {
       await _pump(tester, child: w);
 
       expect(find.byType(SafeArea), findsOneWidget);
-      expect(resp.setFromCtxCalled, isTrue);
       expect(
         find.byKey(const ValueKey<String>('secondary-menu')),
         findsNothing,
