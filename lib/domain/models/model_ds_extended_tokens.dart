@@ -22,6 +22,8 @@ abstract class ModelDsExtendedTokensKeys {
   static const String elevationXl = 'elevationXl';
   static const String elevationXXl = 'elevationXXl';
 
+  /// Values intended to be used with `Color.withOpacity(x)` or `withAlpha(...)` conversions.
+  /// Range: 0..1.
   static const String withAlphaXs = 'withAlphaXs';
   static const String withAlphaSm = 'withAlphaSm';
   static const String withAlpha = 'withAlpha';
@@ -32,8 +34,39 @@ abstract class ModelDsExtendedTokensKeys {
   static const String animationDurationShort = 'animationDurationShort';
   static const String animationDuration = 'animationDuration';
   static const String animationDurationLong = 'animationDurationLong';
+
+  static const List<String> all = <String>[
+    spacingXs,
+    spacingSm,
+    spacing,
+    spacingLg,
+    spacingXl,
+    spacingXXl,
+    borderRadiusXs,
+    borderRadiusSm,
+    borderRadius,
+    borderRadiusLg,
+    borderRadiusXl,
+    borderRadiusXXl,
+    elevationXs,
+    elevationSm,
+    elevation,
+    elevationLg,
+    elevationXl,
+    elevationXXl,
+    withAlphaXs,
+    withAlphaSm,
+    withAlpha,
+    withAlphaLg,
+    withAlphaXl,
+    withAlphaXXl,
+    animationDurationShort,
+    animationDuration,
+    animationDurationLong,
+  ];
 }
 
+@immutable
 class ModelDsExtendedTokens {
   const ModelDsExtendedTokens({
     this.spacingXs = 4.0,
@@ -52,8 +85,8 @@ class ModelDsExtendedTokens {
     this.elevationSm = 1.0,
     this.elevation = 3.0,
     this.elevationLg = 6.0,
-    this.elevationXl = 12.0,
-    this.elevationXXl = 16.0,
+    this.elevationXl = 9.0,
+    this.elevationXXl = 12.0,
     this.withAlphaXs = 0.04,
     this.withAlphaSm = 0.12,
     this.withAlpha = 0.16,
@@ -65,6 +98,13 @@ class ModelDsExtendedTokens {
     this.animationDurationLong = const Duration(milliseconds: 800),
   });
 
+  /// Geometric scale generator.
+  ///
+  /// Notes:
+  /// - Spacing / radius / elevation grow by a factor.
+  /// - `withAlpha*` values are expected to be within 0..1.
+  ///
+  /// If you want the generated `withAlpha*` values to grow, use a factor > 1.
   factory ModelDsExtendedTokens.fromFactor({
     double spacingFactor = 2.0,
     double initialSpacing = 4.0,
@@ -72,141 +112,127 @@ class ModelDsExtendedTokens {
     double initialBorderRadius = 2.0,
     double elevationFactor = 2.0,
     double initialElevation = 1.0,
-    double alphaFactor = 0.8,
-    double initialAlpha = 0.96,
+
+    /// ⚠️ `withAlpha` grows upward (0..1), so factor should be > 1 (e.g. 1.5 or 1.25).
+    double withAlphaFactor = 1.5,
+    double initialWithAlpha = 0.04,
     int animationDurationFactor = 3,
     double initialAnimationDuration = 100.0,
   }) {
-    return ModelDsExtendedTokens(
+    double pNumber(double base, double factor, int exp) {
+      double out = base;
+      for (int i = 0; i < exp; i++) {
+        out *= factor;
+      }
+      return out;
+    }
+
+    int ms(double x) => x.round();
+
+    final ModelDsExtendedTokens out = ModelDsExtendedTokens(
       spacingXs: initialSpacing,
-      spacingSm: initialSpacing * spacingFactor,
-      spacing: initialSpacing * spacingFactor * spacingFactor,
-      spacingLg: initialSpacing * spacingFactor * spacingFactor * spacingFactor,
-      spacingXl: initialSpacing *
-          spacingFactor *
-          spacingFactor *
-          spacingFactor *
-          spacingFactor,
-      spacingXXl: initialSpacing *
-          spacingFactor *
-          spacingFactor *
-          spacingFactor *
-          spacingFactor *
-          spacingFactor,
+      spacingSm: pNumber(initialSpacing, spacingFactor, 1),
+      spacing: pNumber(initialSpacing, spacingFactor, 2),
+      spacingLg: pNumber(initialSpacing, spacingFactor, 3),
+      spacingXl: pNumber(initialSpacing, spacingFactor, 4),
+      spacingXXl: pNumber(initialSpacing, spacingFactor, 5),
       borderRadiusXs: initialBorderRadius,
-      borderRadiusSm: initialBorderRadius * borderRadiusFactor,
-      borderRadius:
-          initialBorderRadius * borderRadiusFactor * borderRadiusFactor,
-      borderRadiusLg: initialBorderRadius *
-          borderRadiusFactor *
-          borderRadiusFactor *
-          borderRadiusFactor,
-      borderRadiusXl: initialBorderRadius *
-          borderRadiusFactor *
-          borderRadiusFactor *
-          borderRadiusFactor *
-          borderRadiusFactor,
-      borderRadiusXXl: initialBorderRadius *
-          borderRadiusFactor *
-          borderRadiusFactor *
-          borderRadiusFactor *
-          borderRadiusFactor *
-          borderRadiusFactor,
+      borderRadiusSm: pNumber(initialBorderRadius, borderRadiusFactor, 1),
+      borderRadius: pNumber(initialBorderRadius, borderRadiusFactor, 2),
+      borderRadiusLg: pNumber(initialBorderRadius, borderRadiusFactor, 3),
+      borderRadiusXl: pNumber(initialBorderRadius, borderRadiusFactor, 4),
+      borderRadiusXXl: pNumber(initialBorderRadius, borderRadiusFactor, 5),
       elevationXs: initialElevation,
-      elevationSm: initialElevation * elevationFactor,
-      elevation: initialElevation * elevationFactor * elevationFactor,
-      elevationLg: initialElevation *
-          elevationFactor *
-          elevationFactor *
-          elevationFactor,
-      elevationXl: initialElevation *
-          elevationFactor *
-          elevationFactor *
-          elevationFactor *
-          elevationFactor,
-      elevationXXl: initialElevation *
-          elevationFactor *
-          elevationFactor *
-          elevationFactor *
-          elevationFactor *
-          elevationFactor,
-      withAlphaXs: initialAlpha,
-      withAlphaSm: initialAlpha * alphaFactor,
-      withAlpha: initialAlpha * alphaFactor * alphaFactor,
-      withAlphaLg: initialAlpha * alphaFactor * alphaFactor * alphaFactor,
-      withAlphaXl:
-          initialAlpha * alphaFactor * alphaFactor * alphaFactor * alphaFactor,
-      withAlphaXXl: initialAlpha *
-          alphaFactor *
-          alphaFactor *
-          alphaFactor *
-          alphaFactor *
-          alphaFactor,
+      elevationSm: pNumber(initialElevation, elevationFactor, 1),
+      elevation: pNumber(initialElevation, elevationFactor, 2),
+      elevationLg: pNumber(initialElevation, elevationFactor, 3),
+      elevationXl: pNumber(initialElevation, elevationFactor, 4),
+      elevationXXl: pNumber(initialElevation, elevationFactor, 5),
+      withAlphaXs: initialWithAlpha,
+      withAlphaSm: Utils.getDouble(
+        pNumber(initialWithAlpha, withAlphaFactor, 1).clamp(0.0, 1.0),
+      ),
+      withAlpha: Utils.getDouble(
+        pNumber(initialWithAlpha, withAlphaFactor, 2).clamp(0.0, 1.0),
+      ),
+      withAlphaLg: Utils.getDouble(
+        pNumber(initialWithAlpha, withAlphaFactor, 3).clamp(0.0, 1.0),
+      ),
+      withAlphaXl: Utils.getDouble(
+        pNumber(initialWithAlpha, withAlphaFactor, 4).clamp(0.0, 1.0),
+      ),
+      withAlphaXXl: Utils.getDouble(
+        pNumber(initialWithAlpha, withAlphaFactor, 5).clamp(0.0, 1.0),
+      ),
       animationDurationShort:
-          Duration(milliseconds: initialAnimationDuration.toInt()),
+          Duration(milliseconds: ms(initialAnimationDuration)),
       animationDuration: Duration(
-        milliseconds:
-            (initialAnimationDuration * animationDurationFactor).toInt(),
+        milliseconds: ms(initialAnimationDuration * animationDurationFactor),
       ),
       animationDurationLong: Duration(
-        milliseconds: (initialAnimationDuration *
-                animationDurationFactor *
-                animationDurationFactor)
-            .toInt(),
+        milliseconds: ms(
+          initialAnimationDuration *
+              animationDurationFactor *
+              animationDurationFactor,
+        ),
       ),
     );
+
+    out._validate();
+    return out;
   }
 
   factory ModelDsExtendedTokens.fromJson(Map<String, dynamic> json) {
-    return ModelDsExtendedTokens(
-      spacingXs: Utils.getDouble(json[ModelDsExtendedTokensKeys.spacingXs]),
-      spacingSm: Utils.getDouble(json[ModelDsExtendedTokensKeys.spacingSm]),
-      spacing: Utils.getDouble(json[ModelDsExtendedTokensKeys.spacing]),
-      spacingLg: Utils.getDouble(json[ModelDsExtendedTokensKeys.spacingLg]),
-      spacingXl: Utils.getDouble(json[ModelDsExtendedTokensKeys.spacingXl]),
-      spacingXXl: Utils.getDouble(json[ModelDsExtendedTokensKeys.spacingXXl]),
-      borderRadiusXs:
-          Utils.getDouble(json[ModelDsExtendedTokensKeys.borderRadiusXs]),
-      borderRadiusSm:
-          Utils.getDouble(json[ModelDsExtendedTokensKeys.borderRadiusSm]),
-      borderRadius:
-          Utils.getDouble(json[ModelDsExtendedTokensKeys.borderRadius]),
-      borderRadiusLg:
-          Utils.getDouble(json[ModelDsExtendedTokensKeys.borderRadiusLg]),
-      borderRadiusXl:
-          Utils.getDouble(json[ModelDsExtendedTokensKeys.borderRadiusXl]),
-      borderRadiusXXl:
-          Utils.getDouble(json[ModelDsExtendedTokensKeys.borderRadiusXXl]),
-      elevationXs: Utils.getDouble(json[ModelDsExtendedTokensKeys.elevationXs]),
-      elevationSm: Utils.getDouble(json[ModelDsExtendedTokensKeys.elevationSm]),
-      elevation: Utils.getDouble(json[ModelDsExtendedTokensKeys.elevation]),
-      elevationLg: Utils.getDouble(json[ModelDsExtendedTokensKeys.elevationLg]),
-      elevationXl: Utils.getDouble(json[ModelDsExtendedTokensKeys.elevationXl]),
-      elevationXXl:
-          Utils.getDouble(json[ModelDsExtendedTokensKeys.elevationXXl]),
-      withAlphaXs: Utils.getDouble(json[ModelDsExtendedTokensKeys.withAlphaXs]),
-      withAlphaSm: Utils.getDouble(json[ModelDsExtendedTokensKeys.withAlphaSm]),
-      withAlpha: Utils.getDouble(json[ModelDsExtendedTokensKeys.withAlpha]),
-      withAlphaLg: Utils.getDouble(json[ModelDsExtendedTokensKeys.withAlphaLg]),
-      withAlphaXl: Utils.getDouble(json[ModelDsExtendedTokensKeys.withAlphaXl]),
-      withAlphaXXl:
-          Utils.getDouble(json[ModelDsExtendedTokensKeys.withAlphaXXl]),
+    for (final String key in ModelDsExtendedTokensKeys.all) {
+      if (!json.containsKey(key)) {
+        throw FormatException('Missing key: $key');
+      }
+    }
+
+    double doubleNumber(String key) => Utils.getDouble(json[key]);
+    int integerNumber(String key) => Utils.getIntegerFromDynamic(json[key]);
+
+    final ModelDsExtendedTokens out = ModelDsExtendedTokens(
+      spacingXs: doubleNumber(ModelDsExtendedTokensKeys.spacingXs),
+      spacingSm: doubleNumber(ModelDsExtendedTokensKeys.spacingSm),
+      spacing: doubleNumber(ModelDsExtendedTokensKeys.spacing),
+      spacingLg: doubleNumber(ModelDsExtendedTokensKeys.spacingLg),
+      spacingXl: doubleNumber(ModelDsExtendedTokensKeys.spacingXl),
+      spacingXXl: doubleNumber(ModelDsExtendedTokensKeys.spacingXXl),
+      borderRadiusXs: doubleNumber(ModelDsExtendedTokensKeys.borderRadiusXs),
+      borderRadiusSm: doubleNumber(ModelDsExtendedTokensKeys.borderRadiusSm),
+      borderRadius: doubleNumber(ModelDsExtendedTokensKeys.borderRadius),
+      borderRadiusLg: doubleNumber(ModelDsExtendedTokensKeys.borderRadiusLg),
+      borderRadiusXl: doubleNumber(ModelDsExtendedTokensKeys.borderRadiusXl),
+      borderRadiusXXl: doubleNumber(ModelDsExtendedTokensKeys.borderRadiusXXl),
+      elevationXs: doubleNumber(ModelDsExtendedTokensKeys.elevationXs),
+      elevationSm: doubleNumber(ModelDsExtendedTokensKeys.elevationSm),
+      elevation: doubleNumber(ModelDsExtendedTokensKeys.elevation),
+      elevationLg: doubleNumber(ModelDsExtendedTokensKeys.elevationLg),
+      elevationXl: doubleNumber(ModelDsExtendedTokensKeys.elevationXl),
+      elevationXXl: doubleNumber(ModelDsExtendedTokensKeys.elevationXXl),
+      withAlphaXs: doubleNumber(ModelDsExtendedTokensKeys.withAlphaXs),
+      withAlphaSm: doubleNumber(ModelDsExtendedTokensKeys.withAlphaSm),
+      withAlpha: doubleNumber(ModelDsExtendedTokensKeys.withAlpha),
+      withAlphaLg: doubleNumber(ModelDsExtendedTokensKeys.withAlphaLg),
+      withAlphaXl: doubleNumber(ModelDsExtendedTokensKeys.withAlphaXl),
+      withAlphaXXl: doubleNumber(ModelDsExtendedTokensKeys.withAlphaXXl),
       animationDurationShort: Duration(
-        milliseconds: Utils.getIntegerFromDynamic(
-          json[ModelDsExtendedTokensKeys.animationDurationShort],
-        ),
+        milliseconds:
+            integerNumber(ModelDsExtendedTokensKeys.animationDurationShort),
       ),
       animationDuration: Duration(
-        milliseconds: Utils.getIntegerFromDynamic(
-          json[ModelDsExtendedTokensKeys.animationDuration],
-        ),
+        milliseconds:
+            integerNumber(ModelDsExtendedTokensKeys.animationDuration),
       ),
       animationDurationLong: Duration(
-        milliseconds: Utils.getIntegerFromDynamic(
-          json[ModelDsExtendedTokensKeys.animationDurationLong],
-        ),
+        milliseconds:
+            integerNumber(ModelDsExtendedTokensKeys.animationDurationLong),
       ),
     );
+
+    out._validate();
+    return out;
   }
 
   final double spacingXs;
@@ -230,7 +256,7 @@ class ModelDsExtendedTokens {
   final double elevationXl;
   final double elevationXXl;
 
-  // Como DS en flutter no soporta ya opacity se expresa como inverso del alpha
+  /// Intended for use with `Color.withOpacity(x)` (0..1).
   final double withAlphaXs;
   final double withAlphaSm;
   final double withAlpha;
@@ -271,7 +297,37 @@ class ModelDsExtendedTokens {
     Duration? animationDuration,
     Duration? animationDurationLong,
   }) {
-    return ModelDsExtendedTokens(
+    if (spacingXs == null &&
+        spacingSm == null &&
+        spacing == null &&
+        spacingLg == null &&
+        spacingXl == null &&
+        spacingXXl == null &&
+        borderRadiusXs == null &&
+        borderRadiusSm == null &&
+        borderRadius == null &&
+        borderRadiusLg == null &&
+        borderRadiusXl == null &&
+        borderRadiusXXl == null &&
+        elevationXs == null &&
+        elevationSm == null &&
+        elevation == null &&
+        elevationLg == null &&
+        elevationXl == null &&
+        elevationXXl == null &&
+        withAlphaXs == null &&
+        withAlphaSm == null &&
+        withAlpha == null &&
+        withAlphaLg == null &&
+        withAlphaXl == null &&
+        withAlphaXXl == null &&
+        animationDurationShort == null &&
+        animationDuration == null &&
+        animationDurationLong == null) {
+      return this;
+    }
+
+    final ModelDsExtendedTokens out = ModelDsExtendedTokens(
       spacingXs: spacingXs ?? this.spacingXs,
       spacingSm: spacingSm ?? this.spacingSm,
       spacing: spacing ?? this.spacing,
@@ -302,6 +358,9 @@ class ModelDsExtendedTokens {
       animationDurationLong:
           animationDurationLong ?? this.animationDurationLong,
     );
+
+    out._validate();
+    return out;
   }
 
   Map<String, dynamic> toJson() {
@@ -338,4 +397,268 @@ class ModelDsExtendedTokens {
           animationDurationLong.inMilliseconds,
     };
   }
+
+  void _validate() {
+    void nonNegative(double v, String name) {
+      if (v.isNaN || !v.isFinite) {
+        throw RangeError('$name must be finite. Got $v');
+      }
+      if (v < 0) {
+        throw RangeError('$name must be >= 0. Got $v');
+      }
+    }
+
+    void unit(double v, String name) {
+      if (v.isNaN || !v.isFinite) {
+        throw RangeError('$name must be finite. Got $v');
+      }
+      if (v < 0.0 || v > 1.0) {
+        throw RangeError('$name must be within 0..1. Got $v');
+      }
+    }
+
+    void ascending(double a, double b, String aName, String bName) {
+      if (a > b) {
+        throw RangeError('$aName must be <= $bName. Got $a > $b');
+      }
+    }
+
+    nonNegative(spacingXs, ModelDsExtendedTokensKeys.spacingXs);
+    nonNegative(spacingSm, ModelDsExtendedTokensKeys.spacingSm);
+    nonNegative(spacing, ModelDsExtendedTokensKeys.spacing);
+    nonNegative(spacingLg, ModelDsExtendedTokensKeys.spacingLg);
+    nonNegative(spacingXl, ModelDsExtendedTokensKeys.spacingXl);
+    nonNegative(spacingXXl, ModelDsExtendedTokensKeys.spacingXXl);
+
+    ascending(
+      spacingXs,
+      spacingSm,
+      ModelDsExtendedTokensKeys.spacingXs,
+      ModelDsExtendedTokensKeys.spacingSm,
+    );
+    ascending(
+      spacingSm,
+      spacing,
+      ModelDsExtendedTokensKeys.spacingSm,
+      ModelDsExtendedTokensKeys.spacing,
+    );
+    ascending(
+      spacing,
+      spacingLg,
+      ModelDsExtendedTokensKeys.spacing,
+      ModelDsExtendedTokensKeys.spacingLg,
+    );
+    ascending(
+      spacingLg,
+      spacingXl,
+      ModelDsExtendedTokensKeys.spacingLg,
+      ModelDsExtendedTokensKeys.spacingXl,
+    );
+    ascending(
+      spacingXl,
+      spacingXXl,
+      ModelDsExtendedTokensKeys.spacingXl,
+      ModelDsExtendedTokensKeys.spacingXXl,
+    );
+
+    nonNegative(borderRadiusXs, ModelDsExtendedTokensKeys.borderRadiusXs);
+    nonNegative(borderRadiusSm, ModelDsExtendedTokensKeys.borderRadiusSm);
+    nonNegative(borderRadius, ModelDsExtendedTokensKeys.borderRadius);
+    nonNegative(borderRadiusLg, ModelDsExtendedTokensKeys.borderRadiusLg);
+    nonNegative(borderRadiusXl, ModelDsExtendedTokensKeys.borderRadiusXl);
+    nonNegative(borderRadiusXXl, ModelDsExtendedTokensKeys.borderRadiusXXl);
+
+    ascending(
+      borderRadiusXs,
+      borderRadiusSm,
+      ModelDsExtendedTokensKeys.borderRadiusXs,
+      ModelDsExtendedTokensKeys.borderRadiusSm,
+    );
+    ascending(
+      borderRadiusSm,
+      borderRadius,
+      ModelDsExtendedTokensKeys.borderRadiusSm,
+      ModelDsExtendedTokensKeys.borderRadius,
+    );
+    ascending(
+      borderRadius,
+      borderRadiusLg,
+      ModelDsExtendedTokensKeys.borderRadius,
+      ModelDsExtendedTokensKeys.borderRadiusLg,
+    );
+    ascending(
+      borderRadiusLg,
+      borderRadiusXl,
+      ModelDsExtendedTokensKeys.borderRadiusLg,
+      ModelDsExtendedTokensKeys.borderRadiusXl,
+    );
+    ascending(
+      borderRadiusXl,
+      borderRadiusXXl,
+      ModelDsExtendedTokensKeys.borderRadiusXl,
+      ModelDsExtendedTokensKeys.borderRadiusXXl,
+    );
+
+    nonNegative(elevationXs, ModelDsExtendedTokensKeys.elevationXs);
+    nonNegative(elevationSm, ModelDsExtendedTokensKeys.elevationSm);
+    nonNegative(elevation, ModelDsExtendedTokensKeys.elevation);
+    nonNegative(elevationLg, ModelDsExtendedTokensKeys.elevationLg);
+    nonNegative(elevationXl, ModelDsExtendedTokensKeys.elevationXl);
+    nonNegative(elevationXXl, ModelDsExtendedTokensKeys.elevationXXl);
+
+    ascending(
+      elevationXs,
+      elevationSm,
+      ModelDsExtendedTokensKeys.elevationXs,
+      ModelDsExtendedTokensKeys.elevationSm,
+    );
+    ascending(
+      elevationSm,
+      elevation,
+      ModelDsExtendedTokensKeys.elevationSm,
+      ModelDsExtendedTokensKeys.elevation,
+    );
+    ascending(
+      elevation,
+      elevationLg,
+      ModelDsExtendedTokensKeys.elevation,
+      ModelDsExtendedTokensKeys.elevationLg,
+    );
+    ascending(
+      elevationLg,
+      elevationXl,
+      ModelDsExtendedTokensKeys.elevationLg,
+      ModelDsExtendedTokensKeys.elevationXl,
+    );
+    ascending(
+      elevationXl,
+      elevationXXl,
+      ModelDsExtendedTokensKeys.elevationXl,
+      ModelDsExtendedTokensKeys.elevationXXl,
+    );
+
+    unit(withAlphaXs, ModelDsExtendedTokensKeys.withAlphaXs);
+    unit(withAlphaSm, ModelDsExtendedTokensKeys.withAlphaSm);
+    unit(withAlpha, ModelDsExtendedTokensKeys.withAlpha);
+    unit(withAlphaLg, ModelDsExtendedTokensKeys.withAlphaLg);
+    unit(withAlphaXl, ModelDsExtendedTokensKeys.withAlphaXl);
+    unit(withAlphaXXl, ModelDsExtendedTokensKeys.withAlphaXXl);
+
+    ascending(
+      withAlphaXs,
+      withAlphaSm,
+      ModelDsExtendedTokensKeys.withAlphaXs,
+      ModelDsExtendedTokensKeys.withAlphaSm,
+    );
+    ascending(
+      withAlphaSm,
+      withAlpha,
+      ModelDsExtendedTokensKeys.withAlphaSm,
+      ModelDsExtendedTokensKeys.withAlpha,
+    );
+    ascending(
+      withAlpha,
+      withAlphaLg,
+      ModelDsExtendedTokensKeys.withAlpha,
+      ModelDsExtendedTokensKeys.withAlphaLg,
+    );
+    ascending(
+      withAlphaLg,
+      withAlphaXl,
+      ModelDsExtendedTokensKeys.withAlphaLg,
+      ModelDsExtendedTokensKeys.withAlphaXl,
+    );
+    ascending(
+      withAlphaXl,
+      withAlphaXXl,
+      ModelDsExtendedTokensKeys.withAlphaXl,
+      ModelDsExtendedTokensKeys.withAlphaXXl,
+    );
+    if (animationDurationShort.inMilliseconds < 0) {
+      throw RangeError('animationDurationShort must be >= 0');
+    }
+    if (animationDuration.inMilliseconds < 0) {
+      throw RangeError('animationDuration must be >= 0');
+    }
+    if (animationDurationLong.inMilliseconds < 0) {
+      throw RangeError('animationDurationLong must be >= 0');
+    }
+    if (animationDurationShort > animationDuration) {
+      throw RangeError('animationDurationShort must be <= animationDuration');
+    }
+    if (animationDuration > animationDurationLong) {
+      throw RangeError('animationDuration must be <= animationDurationLong');
+    }
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (other is! ModelDsExtendedTokens) {
+      return false;
+    }
+
+    return spacingXs == other.spacingXs &&
+        spacingSm == other.spacingSm &&
+        spacing == other.spacing &&
+        spacingLg == other.spacingLg &&
+        spacingXl == other.spacingXl &&
+        spacingXXl == other.spacingXXl &&
+        borderRadiusXs == other.borderRadiusXs &&
+        borderRadiusSm == other.borderRadiusSm &&
+        borderRadius == other.borderRadius &&
+        borderRadiusLg == other.borderRadiusLg &&
+        borderRadiusXl == other.borderRadiusXl &&
+        borderRadiusXXl == other.borderRadiusXXl &&
+        elevationXs == other.elevationXs &&
+        elevationSm == other.elevationSm &&
+        elevation == other.elevation &&
+        elevationLg == other.elevationLg &&
+        elevationXl == other.elevationXl &&
+        elevationXXl == other.elevationXXl &&
+        withAlphaXs == other.withAlphaXs &&
+        withAlphaSm == other.withAlphaSm &&
+        withAlpha == other.withAlpha &&
+        withAlphaLg == other.withAlphaLg &&
+        withAlphaXl == other.withAlphaXl &&
+        withAlphaXXl == other.withAlphaXXl &&
+        animationDurationShort == other.animationDurationShort &&
+        animationDuration == other.animationDuration &&
+        animationDurationLong == other.animationDurationLong;
+  }
+
+  @override
+  int get hashCode =>
+      spacingXs.hashCode ^
+      (spacingSm.hashCode * 3) ^
+      (spacing.hashCode * 5) ^
+      (spacingLg.hashCode * 7) ^
+      (spacingXl.hashCode * 11) ^
+      (spacingXXl.hashCode * 13) ^
+      (borderRadiusXs.hashCode * 17) ^
+      (borderRadiusSm.hashCode * 19) ^
+      (borderRadius.hashCode * 23) ^
+      (borderRadiusLg.hashCode * 29) ^
+      (borderRadiusXl.hashCode * 31) ^
+      (borderRadiusXXl.hashCode * 37) ^
+      (elevationXs.hashCode * 41) ^
+      (elevationSm.hashCode * 43) ^
+      (elevation.hashCode * 47) ^
+      (elevationLg.hashCode * 53) ^
+      (elevationXl.hashCode * 59) ^
+      (elevationXXl.hashCode * 61) ^
+      (withAlphaXs.hashCode * 67) ^
+      (withAlphaSm.hashCode * 71) ^
+      (withAlpha.hashCode * 73) ^
+      (withAlphaLg.hashCode * 79) ^
+      (withAlphaXl.hashCode * 83) ^
+      (withAlphaXXl.hashCode * 89) ^
+      (animationDurationShort.inMilliseconds.hashCode * 97) ^
+      (animationDuration.inMilliseconds.hashCode * 101) ^
+      (animationDurationLong.inMilliseconds.hashCode * 103);
 }
