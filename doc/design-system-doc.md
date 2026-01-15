@@ -33,3 +33,20 @@ TextTheme _withFontFamily(TextTheme base, String fontFamily) {
 ```
 
 ✅ Ventaja: **100% determinístico**, offline, y tu `ModelThemeData.toJson()` lo soporta bien porque guarda `fontFamily` / `fontFamilyFallback`.
+
+
+final ModelDesignSystem ds = ModelDesignSystem(
+theme: yourModelThemeData,
+tokens: const ModelDsExtendedTokens(),
+);
+
+MaterialApp(
+theme: ds.toThemeData(brightness: Brightness.light),
+darkTheme: ds.toThemeData(brightness: Brightness.dark),
+themeMode: ThemeMode.system,
+home: const HomePage(),
+);
+
+Y en widgets:
+
+final double gap = context.dsTokens.spacingSm;
