@@ -25,6 +25,7 @@ part 'domain/blocs/bloc_user_notifications.dart';
 part 'domain/entities/abstract_app_manager.dart';
 part 'domain/gateways/gateway_theme.dart';
 part 'domain/gateways/gateway_theme_react.dart';
+part 'domain/models/model_ds_extended_tokens.dart';
 part 'domain/models/model_field_state.dart';
 part 'domain/models/model_theme_data.dart';
 part 'domain/models/nav_stack_model.dart';
