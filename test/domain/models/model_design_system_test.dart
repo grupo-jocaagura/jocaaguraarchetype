@@ -11,6 +11,9 @@ void main() {
           darkTheme: ThemeData.dark(),
         ),
         tokens: const ModelDsExtendedTokens(),
+        dataViz: ModelDataVizPalette.fallback(),
+        semanticLight: ModelSemanticColors.fallbackLight(),
+        semanticDark: ModelSemanticColors.fallbackDark(),
       );
 
       final ModelDesignSystem out = ds.copyWith();
@@ -23,7 +26,7 @@ void main() {
     test('Given invalid theme shape When fromJson Then throws FormatException',
         () {
       expect(
-        () => ModelDesignSystem.fromJson(<String, dynamic>{
+        () => ModelDesignSystem.fromJson(const <String, dynamic>{
           ModelDesignSystemKeys.theme: 'nope',
           ModelDesignSystemKeys.tokens: <String, dynamic>{},
         }),
@@ -42,6 +45,9 @@ void main() {
           darkTheme: ThemeData.dark(),
         ),
         tokens: const ModelDsExtendedTokens(),
+        dataViz: ModelDataVizPalette.fallback(),
+        semanticLight: ModelSemanticColors.fallbackLight(),
+        semanticDark: ModelSemanticColors.fallbackDark(),
       );
 
       final ThemeData t = ds.toThemeData(brightness: Brightness.light);

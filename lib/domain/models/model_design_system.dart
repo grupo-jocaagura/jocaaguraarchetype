@@ -8,6 +8,9 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 abstract final class ModelDesignSystemKeys {
   static const String theme = 'theme';
   static const String tokens = 'tokens';
+  static const String semanticLight = 'semanticLight';
+  static const String semanticDark = 'semanticDark';
+  static const String dataViz = 'dataViz';
 }
 
 /// Represents a serializable Design System and provides a single entry-point
@@ -45,41 +48,16 @@ class ModelDesignSystem {
   const ModelDesignSystem({
     required this.theme,
     required this.tokens,
+    required this.semanticLight,
+    required this.semanticDark,
+    required this.dataViz,
   });
-
-  /// Base: ColorScheme + TextTheme + useMaterial3 (JSON-safe).
-  final ModelThemeData theme;
-
-  /// Extra tokens: spacing/radius/elevation/durations, etc (JSON-safe).
-  final ModelDsExtendedTokens tokens;
-
-  /// Returns a new instance with the provided overrides.
-  ///
-  /// Optimization: if no values are provided, returns `this`.
-  ModelDesignSystem copyWith({
-    ModelThemeData? theme,
-    ModelDsExtendedTokens? tokens,
-  }) {
-    if (theme == null && tokens == null) {
-      return this;
-    }
-    return ModelDesignSystem(
-      theme: theme ?? this.theme,
-      tokens: tokens ?? this.tokens,
-    );
-  }
-
-  /// Serializes this instance into a JSON map compatible with [fromJson].
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        ModelDesignSystemKeys.theme: theme.toJson(),
-        ModelDesignSystemKeys.tokens: tokens.toJson(),
-      };
 
   /// Builds an instance from a strict JSON map.
   ///
   /// The `theme` and `tokens` entries must be maps, otherwise a [FormatException]
   /// is thrown.
-  static ModelDesignSystem fromJson(Map<String, dynamic> json) {
+  factory ModelDesignSystem.fromJson(Map<String, dynamic> json) {
     final Object? themeRaw = json[ModelDesignSystemKeys.theme];
     final Object? tokensRaw = json[ModelDesignSystemKeys.tokens];
 
@@ -94,11 +72,81 @@ class ModelDesignSystem {
       );
     }
 
+    final Object? semanticLightRaw = json[ModelDesignSystemKeys.semanticLight];
+    final Object? semanticDarkRaw = json[ModelDesignSystemKeys.semanticDark];
+    final Object? dataVizRaw = json[ModelDesignSystemKeys.dataViz];
+
+    // ✅ Retrocompatible: si faltan, usamos fallbacks
+    final ModelSemanticColors semanticLight =
+        (semanticLightRaw is Map<String, dynamic>)
+            ? ModelSemanticColors.fromJson(semanticLightRaw)
+            : ModelSemanticColors.fallbackLight();
+
+    final ModelSemanticColors semanticDark =
+        (semanticDarkRaw is Map<String, dynamic>)
+            ? ModelSemanticColors.fromJson(semanticDarkRaw)
+            : ModelSemanticColors.fallbackDark();
+
+    final ModelDataVizPalette dataViz = (dataVizRaw is Map<String, dynamic>)
+        ? ModelDataVizPalette.fromJson(dataVizRaw)
+        : ModelDataVizPalette.fallback();
+
     return ModelDesignSystem(
       theme: ModelThemeData.fromJson(themeRaw),
       tokens: ModelDsExtendedTokens.fromJson(tokensRaw),
+      semanticLight: semanticLight,
+      semanticDark: semanticDark,
+      dataViz: dataViz,
     );
   }
+
+  /// Base: ColorScheme + TextTheme + useMaterial3 (JSON-safe).
+  final ModelThemeData theme;
+
+  /// Extra tokens: spacing/radius/elevation/durations, etc (JSON-safe).
+  final ModelDsExtendedTokens tokens;
+
+  /// Domain semantic colors (success/warning/info) for light surfaces.
+  final ModelSemanticColors semanticLight;
+
+  /// Domain semantic colors (success/warning/info) for dark surfaces.
+  final ModelSemanticColors semanticDark;
+
+  /// Data visualization palette (categorical + sequential).
+  final ModelDataVizPalette dataViz;
+
+  /// Returns a new instance with the provided overrides.
+  ///
+  /// Optimization: if no values are provided, returns `this`.
+  ModelDesignSystem copyWith({
+    ModelThemeData? theme,
+    ModelDsExtendedTokens? tokens,
+    ModelSemanticColors? semanticLight,
+    ModelSemanticColors? semanticDark,
+    ModelDataVizPalette? dataViz,
+  }) {
+    if (theme == null &&
+        tokens == null &&
+        semanticLight == null &&
+        semanticDark == null &&
+        dataViz == null) {
+      return this;
+    }
+
+    return ModelDesignSystem(
+      theme: theme ?? this.theme,
+      tokens: tokens ?? this.tokens,
+      semanticLight: semanticLight ?? this.semanticLight,
+      semanticDark: semanticDark ?? this.semanticDark,
+      dataViz: dataViz ?? this.dataViz,
+    );
+  }
+
+  /// Serializes this instance into a JSON map compatible with [fromJson].
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        ModelDesignSystemKeys.theme: theme.toJson(),
+        ModelDesignSystemKeys.tokens: tokens.toJson(),
+      };
 
   /// Builds a complete [ThemeData] for the given [brightness].
   ///
@@ -115,14 +163,17 @@ class ModelDesignSystem {
   }) {
     final ThemeData base = theme.toThemeData(brightness: brightness);
 
-    // 1) Attach tokens as ThemeExtension
+    final ModelSemanticColors semantic =
+        (brightness == Brightness.dark) ? semanticDark : semanticLight;
+
     final ThemeData withExtensions = base.copyWith(
       extensions: <ThemeExtension<dynamic>>[
         DsExtendedTokensExtension(tokens: tokens),
+        DsSemanticColorsExtension(semantic: semantic),
+        DsDataVizPaletteExtension(palette: dataViz),
       ],
     );
 
-    // 2) Apply component themes in one place (simple defaults, tweak later)
     return _applyComponentThemes(withExtensions, brightness: brightness);
   }
 
