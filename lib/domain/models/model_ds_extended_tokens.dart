@@ -1,5 +1,16 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+/// Defines stable JSON keys for [ModelDsExtendedTokens].
+///
+/// This is a centralized registry of keys to ensure:
+/// - Export/import consistency.
+/// - Validation of required keys during [ModelDsExtendedTokens.fromJson].
+///
+/// The [all] list contains every key that must exist in a valid JSON payload.
+///
+/// Notes:
+/// - Keys are intentionally stable; avoid renaming.
+/// - Adding a new key is a breaking change for strict JSON import.
 abstract class ModelDsExtendedTokensKeys {
   static const String spacingXs = 'spacingXs';
   static const String spacingSm = 'spacingSm';
@@ -66,6 +77,53 @@ abstract class ModelDsExtendedTokensKeys {
   ];
 }
 
+/// Represents a set of extended Design System tokens.
+///
+/// This model groups commonly needed numeric tokens:
+/// - Spacing scale (xs..xxl)
+/// - Border radius scale (xs..xxl)
+/// - Elevation scale (xs..xxl)
+/// - Alpha scale for color opacity (xs..xxl) in the 0..1 range
+/// - Animation durations (short/regular/long)
+///
+/// The instance is immutable and self-validating. Any constructor that builds
+/// an instance will call an internal validation step.
+///
+/// Functional example:
+/// ```dart
+/// void main() {
+///   final ModelDsExtendedTokens tokens = ModelDsExtendedTokens.fromFactor(
+///     spacingFactor: 2.0,
+///     initialSpacing: 4.0,
+///     borderRadiusFactor: 2.0,
+///     initialBorderRadius: 2.0,
+///     elevationFactor: 2.0,
+///     initialElevation: 1.0,
+///     withAlphaFactor: 1.5,
+///     initialWithAlpha: 0.04,
+///     animationDurationFactor: 3,
+///     initialAnimationDuration: 100.0,
+///   );
+///
+///   final Map<String, dynamic> json = tokens.toJson();
+///   final ModelDsExtendedTokens restored = ModelDsExtendedTokens.fromJson(json);
+///
+///   // Round-trip safety (should be true for the same values).
+///   assert(tokens == restored);
+///   print(restored.spacing); // e.g. 16.0
+/// }
+/// ```
+///
+/// Contracts:
+/// - Spacing, radius and elevation values must be finite and >= 0.
+/// - `withAlpha*` values must be finite and within 0..1.
+/// - Each scale must be ascending (xs <= sm <= ... <= xxl).
+/// - Durations must be >= 0 and ascending:
+///   short <= regular <= long.
+///
+/// Throws:
+/// - [RangeError] if any contract is violated.
+/// - [FormatException] from [fromJson] if any required key is missing.
 @immutable
 class ModelDsExtendedTokens {
   const ModelDsExtendedTokens({
@@ -98,13 +156,30 @@ class ModelDsExtendedTokens {
     this.animationDurationLong = const Duration(milliseconds: 800),
   });
 
-  /// Geometric scale generator.
+  /// Builds a token set using geometric progression factors.
   ///
   /// Notes:
-  /// - Spacing / radius / elevation grow by a factor.
-  /// - `withAlpha*` values are expected to be within 0..1.
+  /// - Spacing / radius / elevation grow by multiplying the previous step by a factor.
+  /// - `withAlpha*` grows upwards but is clamped into 0..1.
+  /// - Durations are derived from `initialAnimationDuration` and `animationDurationFactor`.
   ///
-  /// If you want the generated `withAlpha*` values to grow, use a factor > 1.
+  /// Parameters:
+  /// - `spacingFactor`, `borderRadiusFactor`, `elevationFactor`:
+  ///   Multipliers for each scale.
+  /// - `initialSpacing`, `initialBorderRadius`, `initialElevation`:
+  ///   The base value for the `*Xs` token.
+  /// - `withAlphaFactor`:
+  ///   Multiplier used for alpha tokens. Values are clamped into 0..1.
+  /// - `initialWithAlpha`:
+  ///   Base alpha used for `withAlphaXs` (0..1).
+  /// - `animationDurationFactor`:
+  ///   Multiplier applied to durations. `long = base * factor^2`.
+  /// - `initialAnimationDuration`:
+  ///   Base duration (milliseconds) used for `animationDurationShort`.
+  ///
+  /// Throws:
+  /// - [RangeError] if the generated values violate the contracts
+  ///   (non-finite values, negatives, non-ascending scales, invalid alpha range, etc.).
   factory ModelDsExtendedTokens.fromFactor({
     double spacingFactor = 2.0,
     double initialSpacing = 4.0,
@@ -182,6 +257,14 @@ class ModelDsExtendedTokens {
     return out;
   }
 
+  /// Builds a token set from a JSON map.
+  ///
+  /// This parser is strict: all keys from [ModelDsExtendedTokensKeys.all]
+  /// must be present, otherwise a [FormatException] is thrown.
+  ///
+  /// Throws:
+  /// - [FormatException] if a required key is missing.
+  /// - [RangeError] if any parsed value violates the contracts.
   factory ModelDsExtendedTokens.fromJson(Map<String, dynamic> json) {
     for (final String key in ModelDsExtendedTokensKeys.all) {
       if (!json.containsKey(key)) {
@@ -268,6 +351,12 @@ class ModelDsExtendedTokens {
   final Duration animationDuration;
   final Duration animationDurationLong;
 
+  /// Returns a new instance with the provided overrides.
+  ///
+  /// Optimization: if every parameter is `null`, returns `this`.
+  ///
+  /// Throws:
+  /// - [RangeError] if the resulting instance violates the contracts.
   ModelDsExtendedTokens copyWith({
     double? spacingXs,
     double? spacingSm,
@@ -363,6 +452,9 @@ class ModelDsExtendedTokens {
     return out;
   }
 
+  /// Returns a JSON representation compatible with [fromJson].
+  ///
+  /// Durations are serialized as milliseconds (`int`).
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       ModelDsExtendedTokensKeys.spacingXs: spacingXs,

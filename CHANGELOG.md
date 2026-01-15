@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [4.0.2] - 2026-01-15
 ### Added
 - ModelDsExtendedTokens: modelo serializable para representar tokens extendidos de espaciado, border radius, elevación y duraciones de animación.
+- add comprehensive documentation and validation for ModelDsExtendedTokens and its keys
 
 ## [4.0.1] - 2026-01-15
 ### Added
