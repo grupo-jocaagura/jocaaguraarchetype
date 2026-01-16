@@ -53,6 +53,7 @@ class DsMainWidget extends StatefulWidget {
 }
 
 class _DsMainWidgetState extends State<DsMainWidget> {
+  ThemeMode themeMode = ThemeMode.system;
   @override
   Widget build(BuildContext context) {
     final double menuWidth =
@@ -62,6 +63,7 @@ class _DsMainWidgetState extends State<DsMainWidget> {
       title: 'Design System Example',
       theme: dsBloc.buildThemeDataLightOrNull(),
       darkTheme: dsBloc.buildThemeDataDarkOrNull(),
+      themeMode: themeMode,
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Design System Example'),
@@ -114,9 +116,21 @@ class _DsMainWidgetState extends State<DsMainWidget> {
                   ),
                 ),
                 Expanded(
-                  child: either.when(
-                    (ErrorItem err) => _ErrorState(err: err),
-                    (ModelDesignSystem ds) => _DsPreview(ds: ds),
+                  child: Column(
+                    children: <Widget>[
+                      _ThemeModeSegmented(
+                        value: themeMode,
+                        onChanged: (ThemeMode mode) =>
+                            setState(() => themeMode = mode),
+                      ),
+                      gapSm(context),
+                      Expanded(
+                        child: either.when(
+                          (ErrorItem err) => _ErrorState(err: err),
+                          (ModelDesignSystem ds) => _DsPreview(ds: ds),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -124,6 +138,68 @@ class _DsMainWidgetState extends State<DsMainWidget> {
           },
         ),
       ),
+    );
+  }
+}
+
+class _ThemeModeSegmented extends StatelessWidget {
+  const _ThemeModeSegmented({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final ThemeMode value;
+  final ValueChanged<ThemeMode> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final ModelDsExtendedTokens tok = context.dsTokens;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text('Theme mode', style: Theme.of(context).textTheme.labelLarge),
+        gapXs(context),
+        SegmentedButton<ThemeMode>(
+          selected: <ThemeMode>{value},
+          onSelectionChanged: (Set<ThemeMode> selection) {
+            if (selection.isEmpty) {
+              return;
+            }
+            onChanged(selection.first);
+          },
+          segments: const <ButtonSegment<ThemeMode>>[
+            ButtonSegment<ThemeMode>(
+              value: ThemeMode.system,
+              icon: Icon(Icons.brightness_auto),
+              label: Text('System'),
+            ),
+            ButtonSegment<ThemeMode>(
+              value: ThemeMode.light,
+              icon: Icon(Icons.light_mode),
+              label: Text('Light'),
+            ),
+            ButtonSegment<ThemeMode>(
+              value: ThemeMode.dark,
+              icon: Icon(Icons.dark_mode),
+              label: Text('Dark'),
+            ),
+          ],
+          style: ButtonStyle(
+            padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+              EdgeInsets.symmetric(
+                horizontal: tok.spacingSm,
+                vertical: tok.spacingXs,
+              ),
+            ),
+            shape: WidgetStatePropertyAll<OutlinedBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(tok.borderRadius),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
