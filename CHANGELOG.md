@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - ModelDesignSystem ahora incluye ModelDataVizPalette y ModelSemanticColors para una gestión más completa del sistema de diseño.
-
+- ModelFieldState actualizado para soportar errorTextToInput con el fin de ayudar a los input de flutter que reciben null en vez de empty.
 ## [4.0.3] - 2026-01-15
 ### Added
 - Introducimos ModelDesignSystem: un modelo serializable que encapsula ModelThemeData y ModelDsExtendedTokens para una gestión integral del sistema de diseño.

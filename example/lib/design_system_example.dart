@@ -2,48 +2,51 @@ import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const DsMainWidget());
 }
 
-final ModelDesignSystem ds = ModelDesignSystem(
-  theme: ModelDesignSystem.fromThemeData(
-    lightTheme: ThemeData.light(),
-    darkTheme: ThemeData.dark(),
-  ),
-  tokens: const ModelDsExtendedTokens(),
-  dataViz: ModelDataVizPalette.fallback(),
-  semanticLight: ModelSemanticColors.fallbackLight(),
-  semanticDark: ModelSemanticColors.fallbackDark(),
-);
+/// ---------------------------------------------------------------------------
+/// Helpers (tokens-first, con fallback seguro cuando aún no hay extension)
+/// ---------------------------------------------------------------------------
 
-final BlocDesignSystem dsBloc = BlocDesignSystem(ds);
-double _dsGap(BuildContext context, double fallback) {
-  final DsExtendedTokensExtension? ext =
-      Theme.of(context).extension<DsExtendedTokensExtension>();
-  return ext?.tokens.spacingSm ?? fallback;
+double _tokOr(
+  BuildContext context,
+  double Function(ModelDsExtendedTokens t) pick,
+  double fallback,
+) {
+  return DsExtendedTokensExtension.tokOr(context, pick, fallback);
 }
 
-Widget gapXs(BuildContext context) => SizedBox(height: _dsGap(context, 4));
+EdgeInsets _padAll(BuildContext context, double fallback) {
+  final double v =
+      _tokOr(context, (ModelDsExtendedTokens t) => t.spacingSm, fallback);
+  return EdgeInsets.all(v);
+}
 
-Widget gapSm(BuildContext context) => SizedBox(height: _dsGap(context, 8));
+Widget gapXs(BuildContext context) => SizedBox(
+      height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingXs, 4),
+    );
 
-Widget gap(BuildContext context) => SizedBox(height: _dsGap(context, 16));
+Widget gapSm(BuildContext context) => SizedBox(
+      height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingSm, 8),
+    );
+
+Widget gap(BuildContext context) => SizedBox(
+      height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacing, 16),
+    );
 
 Widget gapLg(BuildContext context) => SizedBox(
-      height: Theme.of(context)
-              .extension<DsExtendedTokensExtension>()
-              ?.tokens
-              .spacingLg ??
-          24,
+      height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingLg, 24),
     );
 
 Widget gapXl(BuildContext context) => SizedBox(
-      height: Theme.of(context)
-              .extension<DsExtendedTokensExtension>()
-              ?.tokens
-              .spacingXl ??
-          32,
+      height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingXl, 32),
     );
+
+/// ---------------------------------------------------------------------------
+/// App
+/// ---------------------------------------------------------------------------
 
 class DsMainWidget extends StatefulWidget {
   const DsMainWidget({super.key});
@@ -53,94 +56,200 @@ class DsMainWidget extends StatefulWidget {
 }
 
 class _DsMainWidgetState extends State<DsMainWidget> {
+  final GlobalKey<ScaffoldMessengerState> _messengerKey =
+      GlobalKey<ScaffoldMessengerState>();
+
+  late final BlocDesignSystem dsBloc;
+
   ThemeMode themeMode = ThemeMode.system;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final ModelDesignSystem initialDs = ModelDesignSystem(
+      theme: ModelDesignSystem.fromThemeData(
+        lightTheme: ThemeData.light(useMaterial3: true),
+        darkTheme: ThemeData.dark(useMaterial3: true),
+      ),
+      tokens: const ModelDsExtendedTokens(),
+      dataViz: ModelDataVizPalette.fallback(),
+      semanticLight: ModelSemanticColors.fallbackLight(),
+      semanticDark: ModelSemanticColors.fallbackDark(),
+    );
+
+    dsBloc = BlocDesignSystem(initialDs);
+  }
+
+  @override
+  void dispose() {
+    dsBloc.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<Either<ErrorItem, ModelDesignSystem>>(
+      stream: dsBloc.dsStream,
+      initialData: Right<ErrorItem, ModelDesignSystem>(dsBloc.lastGoodDs),
+      builder: (_, AsyncSnapshot<Either<ErrorItem, ModelDesignSystem>> snap) {
+        final Either<ErrorItem, ModelDesignSystem> either =
+            snap.data ?? Right<ErrorItem, ModelDesignSystem>(dsBloc.lastGoodDs);
+
+        // Para ThemeData usamos DS válido (si hay error, el último del bloc).
+
+        final ModelDesignSystem dsForTheme =
+            either.fold((_) => dsBloc.lastGoodDs, (ModelDesignSystem v) => v);
+        return MaterialApp(
+          title: 'Design System Example',
+          scaffoldMessengerKey: _messengerKey,
+          theme: dsForTheme.toThemeData(brightness: Brightness.light),
+          darkTheme: dsForTheme.toThemeData(brightness: Brightness.dark),
+          themeMode: themeMode,
+          home: _Home(
+            dsBloc: dsBloc,
+            either: either,
+            themeMode: themeMode,
+            onThemeModeChanged: (ThemeMode mode) =>
+                setState(() => themeMode = mode),
+            onShowSnackBar: () {
+              _messengerKey.currentState?.showSnackBar(
+                const SnackBar(content: Text('SnackBar preview')),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _Home extends StatelessWidget {
+  const _Home({
+    required this.dsBloc,
+    required this.either,
+    required this.themeMode,
+    required this.onThemeModeChanged,
+    required this.onShowSnackBar,
+  });
+
+  final BlocDesignSystem dsBloc;
+  final Either<ErrorItem, ModelDesignSystem> either;
+
+  final ThemeMode themeMode;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
+  final VoidCallback onShowSnackBar;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Design System Example'),
+        actions: <Widget>[
+          IconButton(
+            tooltip: 'Show snackbar',
+            icon: const Icon(Icons.notifications),
+            onPressed: onShowSnackBar,
+          ),
+        ],
+      ),
+      body: Row(
+        children: <Widget>[
+          SideBarMenuWidget(
+            dsBloc: dsBloc,
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(
+                _tokOr(
+                  context,
+                  (ModelDsExtendedTokens t) => t.spacingSm,
+                  12,
+                ),
+              ),
+              child: ListView(
+                children: <Widget>[
+                  _ThemeModeSegmented(
+                    value: themeMode,
+                    onChanged: onThemeModeChanged,
+                  ),
+                  gap(context),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    child: either.when(
+                      (ErrorItem err) => _ErrorState(err: err),
+                      (ModelDesignSystem ds) => _DsPreview(ds: ds),
+                    ),
+                  ),
+                  gapLg(context),
+                  DsTokenEditorWidget(dsBloc: dsBloc),
+                  gapLg(context),
+                  DsDataVizEditorWidget(dsBloc: dsBloc),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SideBarMenuWidget extends StatelessWidget {
+  const SideBarMenuWidget({
+    required this.dsBloc,
+    super.key,
+  });
+
+  final BlocDesignSystem dsBloc;
   @override
   Widget build(BuildContext context) {
     final double menuWidth =
-        (MediaQuery.of(context).size.width * 0.25).clamp(50.0, 200.0);
-
-    return MaterialApp(
-      title: 'Design System Example',
-      theme: dsBloc.buildThemeDataLightOrNull(),
-      darkTheme: dsBloc.buildThemeDataDarkOrNull(),
-      themeMode: themeMode,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Design System Example'),
-          actions: <Widget>[
-            IconButton(
-              tooltip: 'Show snackbar',
-              icon: const Icon(Icons.notifications),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('SnackBar preview')),
-                );
-              },
+        (MediaQuery.of(context).size.width * 0.25).clamp(100.0, 220.0);
+    return SizedBox(
+      width: menuWidth,
+      height: MediaQuery.of(context).size.height,
+      child: Padding(
+        padding: _padAll(context, 12),
+        child: ListView(
+          children: <Widget>[
+            Text(
+              'Editor de colorScheme',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            ListTile(
+              leading: const Icon(Icons.palette),
+              title: const Text('Theme'),
+              onTap: () {},
+            ),
+            gapSm(context),
+            ...colorEditorsBuilder(context, dsBloc),
+            Text(
+              'Editor de colores semanticos',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            ...semanticEditorsBuilder(context, dsBloc),
+            gapSm(context),
+            ListTile(
+              leading: const Icon(Icons.tune),
+              title: const Text('Tokens'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.insights),
+              title: const Text('DataViz'),
+              onTap: () {},
             ),
           ],
-        ),
-        body: StreamBuilder<Either<ErrorItem, ModelDesignSystem>>(
-          stream: dsBloc.dsStream,
-          builder:
-              (_, AsyncSnapshot<Either<ErrorItem, ModelDesignSystem>> snap) {
-            final Either<ErrorItem, ModelDesignSystem> either = snap.data ??
-                Right<ErrorItem, ModelDesignSystem>(dsBloc.requireDs());
-
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  width: menuWidth,
-                  height: MediaQuery.of(context).size.height,
-                  padding: const EdgeInsets.all(12),
-                  child: ListView(
-                    children: <Widget>[
-                      const Text('Menú'),
-                      gapSm(context),
-                      ListTile(
-                        leading: const Icon(Icons.palette),
-                        title: const Text('Theme'),
-                        onTap: () {},
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.tune),
-                        title: const Text('Tokens'),
-                        onTap: () {},
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.insights),
-                        title: const Text('DataViz'),
-                        onTap: () {},
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    children: <Widget>[
-                      _ThemeModeSegmented(
-                        value: themeMode,
-                        onChanged: (ThemeMode mode) =>
-                            setState(() => themeMode = mode),
-                      ),
-                      gapSm(context),
-                      Expanded(
-                        child: either.when(
-                          (ErrorItem err) => _ErrorState(err: err),
-                          (ModelDesignSystem ds) => _DsPreview(ds: ds),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          },
         ),
       ),
     );
   }
 }
+
+/// ---------------------------------------------------------------------------
+/// ThemeMode Segmented
+/// ---------------------------------------------------------------------------
 
 class _ThemeModeSegmented extends StatelessWidget {
   const _ThemeModeSegmented({
@@ -163,10 +272,9 @@ class _ThemeModeSegmented extends StatelessWidget {
         SegmentedButton<ThemeMode>(
           selected: <ThemeMode>{value},
           onSelectionChanged: (Set<ThemeMode> selection) {
-            if (selection.isEmpty) {
-              return;
+            if (selection.isNotEmpty) {
+              onChanged(selection.first);
             }
-            onChanged(selection.first);
           },
           segments: const <ButtonSegment<ThemeMode>>[
             ButtonSegment<ThemeMode>(
@@ -204,9 +312,10 @@ class _ThemeModeSegmented extends StatelessWidget {
   }
 }
 
-/// ------------------------------
-/// Preview de DS (Material nativo)
-/// ------------------------------
+/// ---------------------------------------------------------------------------
+/// Preview de DS (Material nativo) — intacto (solo mínimos ajustes de estilo)
+/// ---------------------------------------------------------------------------
+
 class _DsPreview extends StatefulWidget {
   const _DsPreview({required this.ds});
 
@@ -232,6 +341,7 @@ class _DsPreviewState extends State<_DsPreview> {
   Widget build(BuildContext context) {
     final ThemeData t = Theme.of(context);
     final ColorScheme cs = t.colorScheme;
+
     final DsSemanticColorsExtension? semanticExt =
         t.extensions[DsSemanticColorsExtension] as DsSemanticColorsExtension?;
     final ModelSemanticColors? semantic = semanticExt?.semantic;
@@ -239,10 +349,12 @@ class _DsPreviewState extends State<_DsPreview> {
     final DsDataVizPaletteExtension? vizExt =
         t.extensions[DsDataVizPaletteExtension] as DsDataVizPaletteExtension?;
     final ModelDataVizPalette? viz = vizExt?.palette;
+
     final ModelDsExtendedTokens tok = context.dsTokens;
+
     return SafeArea(
       child: ListView(
-        padding: EdgeInsets.all(context.dsTokens.spacingSm),
+        padding: EdgeInsets.all(tok.spacingSm),
         children: <Widget>[
           const _SectionTitle(
             title: 'Typography & Surfaces',
@@ -294,34 +406,19 @@ class _DsPreviewState extends State<_DsPreview> {
             spacing: tok.spacingSm,
             runSpacing: tok.spacingSm,
             children: <Widget>[
-              FilledButton(
-                onPressed: () {},
-                child: const Text('Filled'),
-              ),
+              FilledButton(onPressed: () {}, child: const Text('Filled')),
               const FilledButton(
                 onPressed: null,
                 child: Text('Filled disabled'),
               ),
-              OutlinedButton(
-                onPressed: () {},
-                child: const Text('Outlined'),
-              ),
+              OutlinedButton(onPressed: () {}, child: const Text('Outlined')),
               const OutlinedButton(
                 onPressed: null,
                 child: Text('Outlined disabled'),
               ),
-              TextButton(
-                onPressed: () {},
-                child: const Text('Text'),
-              ),
-              const TextButton(
-                onPressed: null,
-                child: Text('Text disabled'),
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text('Elevated'),
-              ),
+              TextButton(onPressed: () {}, child: const Text('Text')),
+              const TextButton(onPressed: null, child: Text('Text disabled')),
+              ElevatedButton(onPressed: () {}, child: const Text('Elevated')),
             ],
           ),
           gapLg(context),
@@ -487,11 +584,11 @@ class _DsPreviewState extends State<_DsPreview> {
                   children: List<Widget>.generate(
                     8,
                     (int i) {
-                      final double t = i / 7.0;
+                      final double v = i / 7.0;
                       return Expanded(
                         child: Container(
                           height: tok.spacingLg,
-                          color: viz.sequentialAt(t),
+                          color: viz.sequentialAt(v),
                         ),
                       );
                     },
@@ -567,9 +664,10 @@ class _DsPreviewState extends State<_DsPreview> {
   }
 }
 
-/// ------------------------------
+/// ---------------------------------------------------------------------------
 /// UI Helpers (nativos)
-/// ------------------------------
+/// ---------------------------------------------------------------------------
+
 class _ErrorState extends StatelessWidget {
   const _ErrorState({required this.err});
 
@@ -610,12 +708,17 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData t = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.only(
+        bottom: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingSm, 12),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(title, style: t.textTheme.titleLarge),
-          const SizedBox(height: 4),
+          SizedBox(
+            height:
+                _tokOr(context, (ModelDsExtendedTokens t) => t.spacingXs, 4),
+          ),
           Text(subtitle, style: t.textTheme.bodySmall),
         ],
       ),
@@ -635,7 +738,9 @@ class _InfoCard extends StatelessWidget {
       width: 360,
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(
+            _tokOr(context, (ModelDsExtendedTokens t) => t.spacing, 16),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -659,12 +764,27 @@ class _ColorRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: EdgeInsets.symmetric(
+        vertical: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingXs, 6),
+      ),
       child: Row(
         children: <Widget>[
-          SizedBox(width: 140, child: Text(label)),
-          const SizedBox(width: 10),
-          _Swatch(color: color),
+          const SizedBox(width: 140, child: Text('')),
+          Expanded(
+            child: Row(
+              children: <Widget>[
+                SizedBox(width: 140, child: Text(label)),
+                SizedBox(
+                  width: _tokOr(
+                    context,
+                    (ModelDsExtendedTokens t) => t.spacingSm,
+                    10,
+                  ),
+                ),
+                _Swatch(color: color),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -678,12 +798,15 @@ class _Swatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double r =
+        _tokOr(context, (ModelDsExtendedTokens t) => t.borderRadiusSm, 6);
+
     return Container(
       width: 28,
       height: 18,
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(r),
       ),
     );
   }
@@ -732,7 +855,9 @@ class _SemanticBanner extends StatelessWidget {
       child: Card(
         color: bg,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(
+            _tokOr(context, (ModelDsExtendedTokens t) => t.spacing, 16),
+          ),
           child: DefaultTextStyle.merge(
             style: TextStyle(color: fg),
             child: Column(
@@ -745,7 +870,13 @@ class _SemanticBanner extends StatelessWidget {
                       .titleMedium
                       ?.copyWith(color: fg),
                 ),
-                const SizedBox(height: 6),
+                SizedBox(
+                  height: _tokOr(
+                    context,
+                    (ModelDsExtendedTokens t) => t.spacingXs,
+                    6,
+                  ),
+                ),
                 Text(message),
               ],
             ),
@@ -763,21 +894,23 @@ class _MiniBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ModelDsExtendedTokens tok = context.dsTokens;
     final List<double> values = <double>[0.2, 0.55, 0.35, 0.8, 0.6];
+
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(tok.spacing),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: List<Widget>.generate(values.length, (int i) {
             return Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
+                padding: EdgeInsets.symmetric(horizontal: tok.spacingXs),
                 child: Container(
                   height: 120 * values[i],
                   decoration: BoxDecoration(
                     color: viz.categoricalAt(i),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(tok.borderRadiusSm),
                   ),
                 ),
               ),
@@ -787,4 +920,482 @@ class _MiniBarChart extends StatelessWidget {
       ),
     );
   }
+}
+
+/// ---------------------------------------------------------------------------
+/// Editing color scheme Segmented
+/// ---------------------------------------------------------------------------
+List<ColorPaletteEditWidget> colorEditorsBuilder(
+  BuildContext context,
+  BlocDesignSystem dsBloc,
+) {
+  return <ColorPaletteEditWidget>[
+    ColorPaletteEditWidget(
+      label: 'primary',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .primary,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(primary: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'onPrimary',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .onPrimary,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(onPrimary: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'primaryContainer',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .primaryContainer,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(primaryContainer: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'onPrimaryContainer',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .onPrimaryContainer,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(onPrimaryContainer: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'inversePrimary',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .inversePrimary,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(inversePrimary: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'secondary',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .secondary,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(secondary: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'onSecondary',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .onSecondary,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(onSecondary: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'secondaryContainer',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .secondaryContainer,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(secondaryContainer: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'onSecondaryContainer',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .onSecondaryContainer,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(onSecondaryContainer: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'tertiary',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .tertiary,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(tertiary: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'onTertiary',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .onTertiary,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(onTertiary: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'tertiaryContainer',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .tertiaryContainer,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(tertiaryContainer: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'onTertiaryContainer',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .onTertiaryContainer,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(onTertiaryContainer: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'error',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .error,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(error: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'onError',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .onError,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(onError: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'errorContainer',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .errorContainer,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(errorContainer: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'onErrorContainer',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .onErrorContainer,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(onErrorContainer: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'surface',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .surface,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(surface: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'onSurface',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .onSurface,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(onSurface: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'surfaceTint',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .surfaceTint,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(surfaceTint: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'inverseSurface',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .inverseSurface,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(inverseSurface: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'onInverseSurface',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .onInverseSurface,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(onInverseSurface: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'outline',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .outline,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(outline: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'outlineVariant',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .outlineVariant,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(outlineVariant: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'shadow',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .shadow,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(shadow: c),
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'scrim',
+      color: dsBloc
+          .dsThemeFromBrightness(Theme.of(context).brightness)
+          .colorScheme
+          .scrim,
+      onChangeColorAttempt: (Color c) {
+        final DsThemeTarget target =
+            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        dsBloc.patchThemeScheme(
+          target: target,
+          builder: (ColorScheme s) => s.copyWith(scrim: c),
+        );
+      },
+    ),
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// Semantic (Light/Dark) — SideBarMenuWidget children
+// ---------------------------------------------------------------------------
+List<ColorPaletteEditWidget> semanticEditorsBuilder(
+  BuildContext context,
+  BlocDesignSystem dsBloc,
+) {
+  return <ColorPaletteEditWidget>[
+    ColorPaletteEditWidget(
+      label: 'semantic.success',
+      color: dsBloc.semanticFor(Theme.of(context).brightness).success,
+      onChangeColorAttempt: (Color c) {
+        dsBloc.patchSemanticPairFor(
+          brightness: Theme.of(context).brightness,
+          pairKey: ModelSemanticColorsKeys.success,
+          background: c,
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'semantic.successContainer',
+      color: dsBloc.semanticFor(Theme.of(context).brightness).successContainer,
+      onChangeColorAttempt: (Color c) {
+        dsBloc.patchSemanticPairFor(
+          brightness: Theme.of(context).brightness,
+          pairKey: ModelSemanticColorsKeys.successContainer,
+          background: c,
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'semantic.warning',
+      color: dsBloc.semanticFor(Theme.of(context).brightness).warning,
+      onChangeColorAttempt: (Color c) {
+        dsBloc.patchSemanticPairFor(
+          brightness: Theme.of(context).brightness,
+          pairKey: ModelSemanticColorsKeys.warning,
+          background: c,
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'semantic.warningContainer',
+      color: dsBloc.semanticFor(Theme.of(context).brightness).warningContainer,
+      onChangeColorAttempt: (Color c) {
+        dsBloc.patchSemanticPairFor(
+          brightness: Theme.of(context).brightness,
+          pairKey: ModelSemanticColorsKeys.warningContainer,
+          background: c,
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'semantic.info',
+      color: dsBloc.semanticFor(Theme.of(context).brightness).info,
+      onChangeColorAttempt: (Color c) {
+        dsBloc.patchSemanticPairFor(
+          brightness: Theme.of(context).brightness,
+          pairKey: ModelSemanticColorsKeys.info,
+          background: c,
+        );
+      },
+    ),
+    ColorPaletteEditWidget(
+      label: 'semantic.infoContainer',
+      color: dsBloc.semanticFor(Theme.of(context).brightness).infoContainer,
+      onChangeColorAttempt: (Color c) {
+        dsBloc.patchSemanticPairFor(
+          brightness: Theme.of(context).brightness,
+          pairKey: ModelSemanticColorsKeys.infoContainer,
+          background: c,
+        );
+      },
+    ),
+  ];
 }

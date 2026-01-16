@@ -65,4 +65,44 @@ class ThemeColorUtils {
     };
     return MaterialColor(base.toARGB32(), shades);
   }
+
+  static String toHex(
+    Color c, {
+    bool leadingHashSign = true,
+    bool includeAlpha = true,
+  }) {
+    final int a = Utils.getIntegerFromDynamic(c.a * 255);
+    final int r = Utils.getIntegerFromDynamic(c.r * 255);
+    final int g = Utils.getIntegerFromDynamic(c.g * 255);
+    final int b = Utils.getIntegerFromDynamic(c.b * 255);
+
+    String two(int v) => v.toRadixString(16).padLeft(2, '0').toUpperCase();
+
+    final String hex = includeAlpha
+        ? '${two(a)}${two(r)}${two(g)}${two(b)}'
+        : '${two(r)}${two(g)}${two(b)}';
+
+    return leadingHashSign ? '#$hex' : hex;
+  }
+
+  static Color? tryParseColor(String input) {
+    final String raw = input.trim();
+
+    // Acepta: #RRGGBB, #AARRGGBB, RRGGBB, AARRGGBB
+    final String hex = raw.startsWith('#') ? raw.substring(1) : raw;
+
+    if (hex.length != 6 && hex.length != 8) {
+      return null;
+    }
+    final int? value = int.tryParse(hex, radix: 16);
+    if (value == null) {
+      return null;
+    }
+
+    // Si es 6 → asumimos FF alpha
+    if (hex.length == 6) {
+      return Color(0xFF000000 | value);
+    }
+    return Color(value);
+  }
 }

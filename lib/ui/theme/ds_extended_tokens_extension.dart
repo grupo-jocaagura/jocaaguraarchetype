@@ -29,6 +29,20 @@ class DsExtendedTokensExtension
     // Tokens no siempre se “interpolan” bien; el approach seguro:
     return (time < 0.5) ? this : other;
   }
+
+  static double tokOr(
+    BuildContext context,
+    double Function(ModelDsExtendedTokens t) pick,
+    double fallback,
+  ) {
+    final DsExtendedTokensExtension? ext =
+        Theme.of(context).extension<DsExtendedTokensExtension>();
+    final ModelDsExtendedTokens? tok = ext?.tokens;
+    if (tok == null) {
+      return fallback;
+    }
+    return pick(tok);
+  }
 }
 
 extension DsTokensContextX on BuildContext {

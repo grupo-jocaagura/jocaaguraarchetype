@@ -1,8 +1,15 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
+enum DsThemeTarget {
+  light,
+  dark,
+  both,
+}
+
 class BlocDesignSystem extends BlocModule {
   BlocDesignSystem(this.ds)
-      : _dsBloc = BlocGeneral<Either<ErrorItem, ModelDesignSystem>>(
+      : _lastGoodDs = ds,
+        _dsBloc = BlocGeneral<Either<ErrorItem, ModelDesignSystem>>(
           Right<ErrorItem, ModelDesignSystem>(ds),
         );
 
@@ -10,9 +17,45 @@ class BlocDesignSystem extends BlocModule {
   static const String name = 'BlocDesignSystem';
 
   final BlocGeneral<Either<ErrorItem, ModelDesignSystem>> _dsBloc;
-
+  ModelDesignSystem _lastGoodDs;
+  ModelDesignSystem get lastGoodDs => _lastGoodDs;
   bool _isDisposed = false;
   bool get isDisposed => _isDisposed;
+
+  ErrorItem? get currentErrorOrNull => _dsBloc.value.when(
+        (ErrorItem e) => e,
+        (ModelDesignSystem _) => null,
+      );
+  DsThemeTarget dsThemeTargetFromBrightness(Brightness? brightness) {
+    if (brightness == null) {
+      return DsThemeTarget.both;
+    }
+    return (brightness == Brightness.dark)
+        ? DsThemeTarget.dark
+        : DsThemeTarget.light;
+  }
+
+  ThemeData dsThemeFromBrightness(Brightness? brightness) {
+    final ModelDesignSystem ds = requireDs();
+    if (brightness == null) {
+      // Por convención, devolvemos el light si es null
+      return ds.toThemeData(brightness: Brightness.light);
+    }
+    return ds.toThemeData(brightness: brightness);
+  }
+
+  ThemeData dsThemeFromTarget(DsThemeTarget target) {
+    final ModelDesignSystem ds = requireDs();
+    switch (target) {
+      case DsThemeTarget.light:
+        return ds.toThemeData(brightness: Brightness.light);
+      case DsThemeTarget.dark:
+        return ds.toThemeData(brightness: Brightness.dark);
+      case DsThemeTarget.both:
+        // Por convención, devolvemos el light si es "both"
+        return ds.toThemeData(brightness: Brightness.light);
+    }
+  }
 
   void ensureNotDisposed() {
     if (_isDisposed) {
@@ -42,7 +85,7 @@ class BlocDesignSystem extends BlocModule {
   ModelDesignSystem requireDs() {
     ensureNotDisposed();
     return _dsBloc.value.when(
-      (ErrorItem e) => throw StateError('DS is in error state: $e'),
+      (ErrorItem _) => _lastGoodDs,
       (ModelDesignSystem v) => v,
     );
   }
@@ -129,46 +172,10 @@ class BlocDesignSystem extends BlocModule {
       (ModelDesignSystem current) {
         try {
           final ModelDesignSystem next = builder(current);
-          if (next == current) {
-            return Right<ErrorItem, ModelDesignSystem>(current);
+          if (next != current) {
+            _lastGoodDs = next; // <-- clave
           }
           return Right<ErrorItem, ModelDesignSystem>(next);
-        } on FormatException catch (e, st) {
-          return Left<ErrorItem, ModelDesignSystem>(
-            _errorFromException(
-              e,
-              st,
-              code: 'DS_FORMAT',
-              title: 'Invalid DS payload',
-            ),
-          );
-        } on RangeError catch (e, st) {
-          return Left<ErrorItem, ModelDesignSystem>(
-            _errorFromException(
-              e,
-              st,
-              code: 'DS_RANGE',
-              title: 'Invalid DS values',
-            ),
-          );
-        } on ArgumentError catch (e, st) {
-          return Left<ErrorItem, ModelDesignSystem>(
-            _errorFromException(
-              e,
-              st,
-              code: 'DS_ARGUMENT',
-              title: 'Invalid DS argument',
-            ),
-          );
-        } on StateError catch (e, st) {
-          return Left<ErrorItem, ModelDesignSystem>(
-            _errorFromException(
-              e,
-              st,
-              code: 'DS_STATE',
-              title: 'Invalid DS state',
-            ),
-          );
         } catch (e, st) {
           return Left<ErrorItem, ModelDesignSystem>(
             _errorFromException(e, st),
@@ -572,6 +579,60 @@ class BlocDesignSystem extends BlocModule {
       return;
     }
     _dsBloc.value = next;
+  }
+
+  void patchTheme(
+    ModelThemeData Function(ModelThemeData current) builder,
+  ) {
+    tryUpdate((ModelDesignSystem c) {
+      final ModelThemeData next = builder(c.theme);
+      if (next == c.theme) {
+        return c;
+      }
+      return c.copyWith(theme: next);
+    });
+  }
+
+  void patchThemeScheme({
+    required DsThemeTarget target,
+    required ColorScheme Function(ColorScheme current) builder,
+  }) {
+    patchTheme((ModelThemeData t) {
+      switch (target) {
+        case DsThemeTarget.light:
+          return t.copyWith(lightScheme: builder(t.lightScheme));
+        case DsThemeTarget.dark:
+          return t.copyWith(darkScheme: builder(t.darkScheme));
+        case DsThemeTarget.both:
+          return t.copyWith(
+            lightScheme: builder(t.lightScheme),
+            darkScheme: builder(t.darkScheme),
+          );
+      }
+    });
+  }
+
+  void patchThemeTextTheme({
+    required DsThemeTarget target,
+    required TextTheme Function(TextTheme current) builder,
+  }) {
+    patchTheme((ModelThemeData t) {
+      switch (target) {
+        case DsThemeTarget.light:
+          return t.copyWith(lightTextTheme: builder(t.lightTextTheme));
+        case DsThemeTarget.dark:
+          return t.copyWith(darkTextTheme: builder(t.darkTextTheme));
+        case DsThemeTarget.both:
+          return t.copyWith(
+            lightTextTheme: builder(t.lightTextTheme),
+            darkTextTheme: builder(t.darkTextTheme),
+          );
+      }
+    });
+  }
+
+  void setUseMaterial3(bool value) {
+    patchTheme((ModelThemeData t) => t.copyWith(useMaterial3: value));
   }
 
   @override
