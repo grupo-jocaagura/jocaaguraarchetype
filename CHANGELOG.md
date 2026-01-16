@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - ModelDataVizPalette: modelo serializable para representar paletas de visualización de datos (colores primarios, secundarios, de acento y de fondo).
 - ModelSemanticColors: modelo serializable para representar colores semánticos adicionales (éxito, advertencia, error, información).
+- ModelDsComponentAnatomy: modelo serializable para representar la anatomía de componentes del sistema de diseño (botones, tarjetas, modales).
+- ModelSystemExamples: ejemplo tipo showcase que ilustra cómo combinar ModelDesignSystem, ModelDataVizPalette y ModelSemanticColors en una configuración completa del sistema de diseño.
 
 ### Changed
 - ModelDesignSystem ahora incluye ModelDataVizPalette y ModelSemanticColors para una gestión más completa del sistema de diseño.
