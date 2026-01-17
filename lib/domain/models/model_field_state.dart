@@ -100,6 +100,7 @@ class ModelFieldState {
   /// Whether the user hasn't interacted with the field yet.
   bool get isPristine => !isDirty;
 
+  /// to clean error state you must pass an empty string as [errorText].
   /// Creates a copy of this [ModelFieldState] with optional new values.
   ModelFieldState copyWith({
     String? value,
@@ -151,6 +152,8 @@ class ModelFieldState {
         other.isDirty == isDirty &&
         other.isValid == isValid;
   }
+
+  String? get errorTextToInput => _hasError ? errorText : null;
 
   @override
   String toString() => '${toJson()}';

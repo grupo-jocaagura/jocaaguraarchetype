@@ -146,6 +146,9 @@ class ModelDesignSystem {
   Map<String, dynamic> toJson() => <String, dynamic>{
         ModelDesignSystemKeys.theme: theme.toJson(),
         ModelDesignSystemKeys.tokens: tokens.toJson(),
+        ModelDesignSystemKeys.semanticLight: semanticLight.toJson(),
+        ModelDesignSystemKeys.semanticDark: semanticDark.toJson(),
+        ModelDesignSystemKeys.dataViz: dataViz.toJson(),
       };
 
   /// Builds a complete [ThemeData] for the given [brightness].
