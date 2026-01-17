@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ModelSemanticColors: modelo serializable para representar colores semánticos adicionales (éxito, advertencia, error, información).
 - ModelDsComponentAnatomy: modelo serializable para representar la anatomía de componentes del sistema de diseño (botones, tarjetas, modales).
 - ModelSystemExamples: ejemplo tipo showcase que ilustra cómo combinar ModelDesignSystem, ModelDataVizPalette y ModelSemanticColors en una configuración completa del sistema de diseño.
+- DsTextThemeEditorWidget: widget interactivo para editar y previsualizar ModelTextTheme dentro de ModelDesignSystem.
+- DsImportExportWidget: widget para importar y exportar configuraciones completas de ModelDesignSystem en formato JSON.
 
 ### Changed
 - ModelDesignSystem ahora incluye ModelDataVizPalette y ModelSemanticColors para una gestión más completa del sistema de diseño.

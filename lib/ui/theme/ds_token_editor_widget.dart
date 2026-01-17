@@ -668,7 +668,7 @@ class _DsTokenDoubleEditWidgetState extends State<DsTokenDoubleEditWidget> {
           return JocaaguraAutocompleteInputWidget(
             label: widget.label,
             value: s.value,
-            errorText: s.errorText,
+            errorText: s.errorTextToInput,
             onChangedAttempt: _onChangeAttempt,
             onSubmittedAttempt: _onChangeAttempt,
             placeholder: widget.max == 1 ? '0.00 .. 1.00' : 'e.g. 12.0',
