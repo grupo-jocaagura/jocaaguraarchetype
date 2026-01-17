@@ -1,11 +1,13 @@
 library jocaaguraarchetype;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'jocaaguraarchetype.dart';
 
@@ -15,6 +17,8 @@ part 'app_config.dart';
 part 'consts/app_constants.dart';
 part 'domain/blocs/app_manager.dart';
 part 'domain/blocs/bloc_app_config.dart';
+part 'domain/blocs/bloc_color.dart';
+part 'domain/blocs/bloc_design_system.dart';
 part 'domain/blocs/bloc_main_menu_drawer.dart';
 part 'domain/blocs/bloc_menu_base.dart';
 part 'domain/blocs/bloc_model_version.dart';
@@ -27,6 +31,7 @@ part 'domain/gateways/gateway_theme.dart';
 part 'domain/gateways/gateway_theme_react.dart';
 part 'domain/models/model_data_viz_palette.dart';
 part 'domain/models/model_design_system.dart';
+part 'domain/models/model_ds_component_anatomy.dart';
 part 'domain/models/model_ds_extended_tokens.dart';
 part 'domain/models/model_field_state.dart';
 part 'domain/models/model_semantic_colors.dart';
@@ -84,9 +89,15 @@ part 'ui/pages/onboarding_page.dart';
 part 'ui/pages/page_404_widget.dart';
 part 'ui/pages/test_page_builder_page.dart';
 part 'ui/providers/app_manager_provider.dart';
+part 'ui/theme/color_palette_edit_widget.dart';
+part 'ui/theme/disposable_debouncer.dart';
+part 'ui/theme/ds_data_vis_editor_widget.dart';
 part 'ui/theme/ds_data_viz_palette_extension.dart';
 part 'ui/theme/ds_extended_tokens_extension.dart';
+part 'ui/theme/ds_import_export_widget.dart';
 part 'ui/theme/ds_semantic_color_extension.dart';
+part 'ui/theme/ds_text_theme_editor_widget.dart';
+part 'ui/theme/ds_token_editor_widget.dart';
 part 'ui/theme/text_theme_overrides.dart';
 part 'ui/theme/theme_overrides.dart';
 part 'ui/theme/utils_for_theme.dart';
