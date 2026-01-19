@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.5] - 2026-01-19
+
+### Added
+- ModelAclSnapshot: modelo serializable para representar snapshots de listas de control de acceso (ACL) con permisos detallados por recurso y acción.
+- AclBridge: clase puente para mapear entre ModelAclSnapshot y estructuras de permisos internas del sistema.
+- HelperAclErrors: utilidades para manejar errores comunes relacionados con ACL (permiso denegado, recurso no encontrado).
+- BlocAcl: BLoC para gestionar el estado de ACL, incluyendo carga, actualización y verificación de permisos.
+
+### Changed
+- jocaagura_domain actualizado a la versión 1.38.0 para soportar ModelAclSnapshot y sus casos de uso asociados.
+
 ## [4.0.4] - 2026-01-15
+
 ### Added
 - ModelDataVizPalette: modelo serializable para representar paletas de visualización de datos (colores primarios, secundarios, de acento y de fondo).
 - ModelSemanticColors: modelo serializable para representar colores semánticos adicionales (éxito, advertencia, error, información).
