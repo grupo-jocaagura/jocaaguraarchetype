@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-
-import '../../jocaaguraarchetype.dart';
+import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// BLoC for controlling Either-Flow editing, validation, analysis and simulation.
 ///
@@ -34,11 +32,12 @@ class BlocEitherFlow {
   final BlocGeneral<EitherFlowBlocState> state;
 
   /// Emits a new state.
-  @protected
+
   void emit(EitherFlowBlocState next) {
-    if (state.value != next) {
-      state.value = next;
+    if (identical(state.value, next)) {
+      return;
     }
+    state.value = next;
   }
 
   /// Updates the controlled raw JSON field.
@@ -113,6 +112,24 @@ class BlocEitherFlow {
         analysisReport: analysis,
         clearSimulation: true,
         clearAudit: true,
+      ),
+    );
+  }
+
+  /// Sets a new validation report for the current state.
+  ///
+  /// This helper is useful when validation is triggered independently from
+  /// import (e.g., after programmatic edits).
+  void setValidation(FlowValidationReport report) {
+    final ModelFieldState nextField = state.value.jsonField.copyWith(
+      isValid: report.isValid,
+      errorText: report.isValid ? '' : 'Flow is invalid',
+    );
+
+    emit(
+      state.value.copyWith(
+        jsonField: nextField,
+        validationReport: report,
       ),
     );
   }
