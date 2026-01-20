@@ -6,6 +6,17 @@ import 'flow_trace_entry.dart';
 
 /// Final status of a [FlowSimulator] run.
 enum FlowSimulationStatus {
+  /// The simulation is in progress.
+  ///
+  /// This status is mainly used by step-by-step simulation sessions.
+  running,
+
+  /// The simulator is waiting for a manual decision.
+  ///
+  /// This status is mainly used by step-by-step simulation sessions when the
+  /// current step has no forced outcome in the plan.
+  waitingDecision,
+
   /// END was reached (`next == -1`).
   endReached,
 

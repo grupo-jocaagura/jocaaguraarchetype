@@ -24,8 +24,7 @@ class FlowTraceEntry {
     required this.effectiveFailureCode,
     required Map<String, double> costAddedByMetric,
   }) : costAddedByMetric = Map<String, double>.unmodifiable(
-          <String, double>{...costAddedByMetric},
-        );
+            <String, double>{...costAddedByMetric});
 
   /// Index of the executed step.
   final int stepIndex;

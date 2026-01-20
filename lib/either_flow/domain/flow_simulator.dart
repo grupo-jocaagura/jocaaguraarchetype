@@ -147,7 +147,7 @@ class FlowSimulator {
     );
   }
 
-  Map<String, double> _normalizeCost(Map<String, dynamic> raw) {
+  Map<String, double> _normalizeCost(Map<String, double> raw) {
     final Map<String, double> out = <String, double>{};
 
     for (final MapEntry<String, dynamic> entry in raw.entries) {
