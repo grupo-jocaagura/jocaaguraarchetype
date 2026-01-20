@@ -10,6 +10,16 @@ enum FlowValidationSeverity {
   warning,
 }
 
+/// Internal JSON keys for [FlowValidationIssue].
+abstract final class _FlowValidationIssueKeys {
+  static const String code = 'code';
+  static const String severity = 'severity';
+  static const String message = 'message';
+  static const String stepIndex = 'stepIndex';
+  static const String refIndex = 'refIndex';
+  static const String cyclePath = 'cyclePath';
+}
+
 /// Machine-friendly codes for flow validation issues.
 ///
 /// These codes are intended for:
@@ -79,6 +89,61 @@ class FlowValidationIssue {
     this.cyclePath,
   });
 
+  /// Hydrates a [FlowValidationIssue] from a JSON map.
+  ///
+  /// This method is lenient and uses safe fallbacks for unknown enum names.
+  factory FlowValidationIssue.fromJson(Map<String, dynamic> json) {
+    final String codeRaw =
+        (json[_FlowValidationIssueKeys.code] ?? '').toString();
+    final String severityRaw =
+        (json[_FlowValidationIssueKeys.severity] ?? '').toString();
+    final String message =
+        (json[_FlowValidationIssueKeys.message] ?? '').toString();
+
+    final FlowValidationCode code = FlowValidationCode.values
+            .where((FlowValidationCode e) => e.name == codeRaw)
+            .cast<FlowValidationCode?>()
+            .firstWhere((FlowValidationCode? _) => true, orElse: () => null) ??
+        FlowValidationCode.emptyFlow;
+
+    final FlowValidationSeverity severity = FlowValidationSeverity.values
+            .where((FlowValidationSeverity e) => e.name == severityRaw)
+            .cast<FlowValidationSeverity?>()
+            .firstWhere((FlowValidationSeverity? _) => true,
+                orElse: () => null) ??
+        FlowValidationSeverity.error;
+
+    int? tryInt(Object? v) {
+      if (v is int) {
+        return v;
+      }
+      return int.tryParse((v ?? '').toString());
+    }
+
+    List<int>? tryIntList(Object? v) {
+      if (v is! List) {
+        return null;
+      }
+      final List<int> out = <int>[];
+      for (final Object? item in v) {
+        final int? parsed = tryInt(item);
+        if (parsed != null) {
+          out.add(parsed);
+        }
+      }
+      return out.isEmpty ? null : List<int>.unmodifiable(out);
+    }
+
+    return FlowValidationIssue(
+      code: code,
+      severity: severity,
+      message: message,
+      stepIndex: tryInt(json[_FlowValidationIssueKeys.stepIndex]),
+      refIndex: tryInt(json[_FlowValidationIssueKeys.refIndex]),
+      cyclePath: tryIntList(json[_FlowValidationIssueKeys.cyclePath]),
+    );
+  }
+
   /// Issue code.
   final FlowValidationCode code;
 
@@ -99,6 +164,19 @@ class FlowValidationIssue {
   /// Contract: when provided, the first and last elements usually match,
   /// representing a closed cycle.
   final List<int>? cyclePath;
+
+  /// Converts this issue to a JSON map.
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      _FlowValidationIssueKeys.code: code.name,
+      _FlowValidationIssueKeys.severity: severity.name,
+      _FlowValidationIssueKeys.message: message,
+      if (stepIndex != null) _FlowValidationIssueKeys.stepIndex: stepIndex,
+      if (refIndex != null) _FlowValidationIssueKeys.refIndex: refIndex,
+      if (cyclePath != null)
+        _FlowValidationIssueKeys.cyclePath: List<int>.unmodifiable(cyclePath!),
+    };
+  }
 
   @override
   String toString() => 'FlowValidationIssue('

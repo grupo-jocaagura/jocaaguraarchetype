@@ -1,4 +1,4 @@
-import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import '../../jocaaguraarchetype.dart';
 
 /// BLoC for controlling Either-Flow editing, validation, analysis and simulation.
 ///
@@ -32,7 +32,6 @@ class BlocEitherFlow {
   final BlocGeneral<EitherFlowBlocState> state;
 
   /// Emits a new state.
-
   void emit(EitherFlowBlocState next) {
     if (identical(state.value, next)) {
       return;

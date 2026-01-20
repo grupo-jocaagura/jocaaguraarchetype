@@ -25,6 +25,25 @@ enum FlowBranch {
 /// );
 /// ```
 class FlowForcedOutcome {
+  /// Hydrates a [FlowForcedOutcome] from JSON.
+  ///
+  /// Unknown branches default to [FlowBranch.success].
+  factory FlowForcedOutcome.fromJson(Map<String, dynamic> json) {
+    final String branchRaw = (json['branch'] ?? '').toString();
+    final FlowBranch branch = FlowBranch.values
+            .where((FlowBranch e) => e.name == branchRaw)
+            .cast<FlowBranch?>()
+            .firstWhere((FlowBranch? _) => true, orElse: () => null) ??
+        FlowBranch.success;
+
+    final String fc = (json['failureCodeOverride'] ?? '').toString().trim();
+    final String? failureCodeOverride = fc.isEmpty ? null : fc;
+
+    return branch == FlowBranch.failure
+        ? FlowForcedOutcome.failure(failureCodeOverride: failureCodeOverride)
+        : const FlowForcedOutcome.success();
+  }
+
   /// Creates an outcome.
   const FlowForcedOutcome._(
     this.branch, {
@@ -51,6 +70,15 @@ class FlowForcedOutcome {
   ///
   /// If null, the simulator will use [ModelFlowStep.failureCode].
   final String? failureCodeOverride;
+
+  /// Converts this forced outcome to JSON.
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'branch': branch.name,
+      if (failureCodeOverride != null)
+        'failureCodeOverride': failureCodeOverride,
+    };
+  }
 }
 
 /// Immutable plan describing how the simulator should behave.
@@ -79,6 +107,40 @@ class FlowSimulationPlan {
     this.forcedByStepIndex = const <int, FlowForcedOutcome>{},
   });
 
+  /// Hydrates a [FlowSimulationPlan] from JSON.
+  ///
+  /// This method is lenient and uses safe fallbacks.
+  factory FlowSimulationPlan.fromJson(Map<String, dynamic> json) {
+    final String defaultRaw = (json['defaultBranch'] ?? '').toString();
+    final FlowBranch defaultBranch = FlowBranch.values
+            .where((FlowBranch e) => e.name == defaultRaw)
+            .cast<FlowBranch?>()
+            .firstWhere((FlowBranch? _) => true, orElse: () => null) ??
+        FlowBranch.success;
+
+    final Map<int, FlowForcedOutcome> forced = <int, FlowForcedOutcome>{};
+    final Object? rawForced = json['forcedByStepIndex'];
+    if (rawForced is Map) {
+      rawForced.forEach((Object? k, Object? v) {
+        final int? idx = int.tryParse((k ?? '').toString());
+        if (idx == null) {
+          return;
+        }
+        if (v is Map<String, dynamic>) {
+          forced[idx] = FlowForcedOutcome.fromJson(v);
+        } else if (v is Map) {
+          forced[idx] =
+              FlowForcedOutcome.fromJson(Map<String, dynamic>.from(v));
+        }
+      });
+    }
+
+    return FlowSimulationPlan.immutable(
+      defaultBranch: defaultBranch,
+      forcedByStepIndex: forced,
+    );
+  }
+
   /// Creates a deeply immutable plan.
   factory FlowSimulationPlan.immutable({
     FlowBranch defaultBranch = FlowBranch.success,
@@ -102,4 +164,16 @@ class FlowSimulationPlan {
 
   /// Returns the forced outcome for [stepIndex], if any.
   FlowForcedOutcome? forcedFor(int stepIndex) => forcedByStepIndex[stepIndex];
+
+  /// Converts this plan to JSON.
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> forced = <String, dynamic>{};
+    forcedByStepIndex.forEach((int k, FlowForcedOutcome v) {
+      forced[k.toString()] = v.toJson();
+    });
+    return <String, dynamic>{
+      'defaultBranch': defaultBranch.name,
+      if (forced.isNotEmpty) 'forcedByStepIndex': forced,
+    };
+  }
 }

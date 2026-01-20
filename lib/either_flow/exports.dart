@@ -1,4 +1,3 @@
-// Archetype / UI tooling (Step 4)
 export 'archetype/bloc_either_flow.dart';
 export 'archetype/either_flow_bloc_state.dart';
 // Archetype / UI tooling (Step 5)

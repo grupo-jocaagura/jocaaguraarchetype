@@ -35,6 +35,33 @@ class FlowValidationReport {
     required this.warnings,
   });
 
+  /// Hydrates a [FlowValidationReport] from JSON.
+  ///
+  /// This method is lenient and treats missing lists as empty.
+  factory FlowValidationReport.fromJson(Map<String, dynamic> json) {
+    List<FlowValidationIssue> issues(Object? raw) {
+      if (raw is! List) {
+        return <FlowValidationIssue>[];
+      }
+      final List<FlowValidationIssue> out = <FlowValidationIssue>[];
+      for (final Object? item in raw) {
+        if (item is Map<String, dynamic>) {
+          out.add(FlowValidationIssue.fromJson(item));
+        } else if (item is Map) {
+          out.add(
+            FlowValidationIssue.fromJson(Map<String, dynamic>.from(item)),
+          );
+        }
+      }
+      return out;
+    }
+
+    return FlowValidationReport(
+      errors: issues(json['errors']),
+      warnings: issues(json['warnings']),
+    );
+  }
+
   /// Blocking issues.
   final List<FlowValidationIssue> errors;
 
@@ -50,6 +77,18 @@ class FlowValidationReport {
       ...errors,
       ...warnings,
     ]);
+  }
+
+  /// Converts this report into a JSON map.
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'errors': errors
+          .map((FlowValidationIssue e) => e.toJson())
+          .toList(growable: false),
+      'warnings': warnings
+          .map((FlowValidationIssue e) => e.toJson())
+          .toList(growable: false),
+    };
   }
 
   @override

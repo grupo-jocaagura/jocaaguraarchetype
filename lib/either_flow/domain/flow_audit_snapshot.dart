@@ -1,6 +1,3 @@
-// ignore: unused_import
-import 'package:jocaagura_domain/jocaagura_domain.dart';
-
 import 'flow_simulation_plan.dart';
 import 'flow_trace_entry.dart';
 
@@ -61,6 +58,82 @@ class FlowAuditSnapshot {
         totalCostByMetric = Map<String, double>.unmodifiable(
           <String, double>{...totalCostByMetric},
         );
+
+  /// Hydrates a [FlowAuditSnapshot] from JSON.
+  ///
+  /// This method is lenient and uses safe fallbacks for unknown enum names.
+  factory FlowAuditSnapshot.fromJson(Map<String, dynamic> json) {
+    FlowSimulationStatus status(Object? v) {
+      final String s = (v ?? '').toString();
+      return FlowSimulationStatus.values
+              .where((FlowSimulationStatus e) => e.name == s)
+              .cast<FlowSimulationStatus?>()
+              .firstWhere(
+                (FlowSimulationStatus? _) => true,
+                orElse: () => null,
+              ) ??
+          FlowSimulationStatus.abortedMissingStep;
+    }
+
+    int value(Object? v, {int fallback = -1}) {
+      if (v is int) {
+        return v;
+      }
+      return int.tryParse((v ?? '').toString()) ?? fallback;
+    }
+
+    Map<String, double> cost(Object? v) {
+      if (v is! Map) {
+        return <String, double>{};
+      }
+      final Map<String, double> out = <String, double>{};
+      v.forEach((Object? k, Object? val) {
+        final String key = (k ?? '').toString();
+        if (key.isEmpty) {
+          return;
+        }
+        if (val is num) {
+          out[key] = val.toDouble();
+          return;
+        }
+        final double? parsed = double.tryParse((val ?? '').toString());
+        if (parsed != null) {
+          out[key] = parsed;
+        }
+      });
+      return out;
+    }
+
+    List<FlowTraceEntry> trace(Object? v) {
+      if (v is! List) {
+        return <FlowTraceEntry>[];
+      }
+      final List<FlowTraceEntry> out = <FlowTraceEntry>[];
+      for (final Object? item in v) {
+        if (item is Map<String, dynamic>) {
+          out.add(FlowTraceEntry.fromJson(item));
+        } else if (item is Map) {
+          out.add(FlowTraceEntry.fromJson(Map<String, dynamic>.from(item)));
+        }
+      }
+      return out;
+    }
+
+    final String lastFailure =
+        (json['lastFailureCode'] ?? '').toString().trim();
+
+    return FlowAuditSnapshot(
+      flowName: (json['flowName'] ?? '').toString(),
+      flowDescription: (json['flowDescription'] ?? '').toString(),
+      entryIndex: value(json['entryIndex']),
+      status: status(json['status']),
+      endIndex: value(json['endIndex']),
+      lastFailureCode: lastFailure.isEmpty ? null : lastFailure,
+      trace: trace(json['trace']),
+      totalCostByMetric: cost(json['totalCostByMetric']),
+      maxSteps: value(json['maxSteps'], fallback: 10000),
+    );
+  }
 
   /// Flow name.
   final String flowName;

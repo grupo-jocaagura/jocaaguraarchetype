@@ -152,9 +152,9 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
     } catch (e) {
       return Left<ErrorItem, Map<String, dynamic>>(
         ErrorItem(
+          title: '',
           code: 'either_flow_import_parse_error',
           description: 'Invalid JSON: $e',
-          title: '',
         ),
       );
     }
@@ -174,22 +174,16 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
       bloc.setImportError(error.description, rawJson: rawJson);
       bloc.setBusy(false);
       return Left<ErrorItem, ModelCompleteFlow>(error);
-    }, (Map<String, dynamic> value) {
-      final ModelCompleteFlow flow;
-
+    }, (Map<String, dynamic> onRight) {
       try {
-        flow = ModelCompleteFlow.fromJson(value);
-        final FlowValidationReport report = _validator.validateFlow(flow);
-        final FlowAnalysisReport analysis = _analyzer.analyze(flow);
-
-        bloc.setImportedFlow(flow: flow, report: report, analysis: analysis);
-        bloc.setBusy(false);
-        return Right<ErrorItem, ModelCompleteFlow>(flow);
+        return Right<ErrorItem, ModelCompleteFlow>(
+          ModelCompleteFlow.fromJson(onRight),
+        );
       } catch (e) {
         final ErrorItem err = ErrorItem(
           code: 'either_flow_import_model_error',
           description: 'Cannot build ModelCompleteFlow: $e',
-          title: 'Error',
+          title: '',
         );
         bloc.setImportError(err.description, rawJson: rawJson);
         bloc.setBusy(false);
@@ -304,27 +298,27 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
     return const ErrorItem(
       code: 'either_flow_storage_missing',
       description: 'Storage gateway is not configured.',
-      title: 'Error',
+      title: '',
     );
   }
 
   @override
-  Future<Either<ErrorItem, void>> saveToStorage({required String id}) async {
+  Future<Either<ErrorItem, Unit>> saveToStorage({required String id}) async {
     final EitherFlowStorageGateway? storage = _storage;
     if (storage == null) {
-      return Left<ErrorItem, void>(_storageMissing());
+      return Left<ErrorItem, Unit>(_storageMissing());
     }
 
     final String raw = exportToJson();
     try {
       await storage.save(id: id, rawJson: raw);
-      return Right<ErrorItem, void>(null);
+      return Right<ErrorItem, Unit>(Unit.value);
     } catch (e) {
-      return Left<ErrorItem, void>(
+      return Left<ErrorItem, Unit>(
         ErrorItem(
-          title: 'Error',
           code: 'either_flow_storage_save_error',
           description: 'Cannot save flow: $e',
+          title: '',
         ),
       );
     }
@@ -344,9 +338,9 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
       if (raw == null) {
         return Left<ErrorItem, ModelCompleteFlow>(
           ErrorItem(
-            title: 'Error',
             code: 'either_flow_storage_not_found',
             description: 'Flow not found for id="$id".',
+            title: '',
           ),
         );
       }
@@ -354,9 +348,9 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
     } catch (e) {
       return Left<ErrorItem, ModelCompleteFlow>(
         ErrorItem(
-          title: 'Error',
           code: 'either_flow_storage_load_error',
           description: 'Cannot load flow: $e',
+          title: '',
         ),
       );
     }

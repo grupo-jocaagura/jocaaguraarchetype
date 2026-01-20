@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jocaagura.dev/schemas/either_flow_bloc_state.schema.json",
+  "title": "EitherFlowBlocState",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["rawJson", "isDirty"],
+  "properties": {
+    "rawJson": { "type": "string" },
+    "isDirty": { "type": "boolean" },
+
+    "selectedStepIndex": { "type": ["integer", "null"] },
+    "updatedAtIso": { "type": ["string", "null"], "format": "date-time" },
+
+    "jsonField": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "description": "ModelFieldState serialized. Kept permissive to avoid coupling schema to ModelFieldState internals."
+    },
+
+    "flow": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "description": "ModelCompleteFlow.toJson() snapshot (optional, recomputable)."
+    },
+    "validation": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "description": "FlowValidationReport snapshot (optional, recomputable)."
+    },
+    "analysis": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "description": "FlowAnalysisReport snapshot (optional, recomputable)."
+    },
+
+    "simulationSession": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "description": "FlowSimulationSession snapshot (optional)."
+    },
+    "lastAuditSnapshot": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "description": "FlowAuditSnapshot snapshot (optional)."
+    },
+
+    "isBusy": { "type": "boolean", "default": false }
+  }
+}

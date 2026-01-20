@@ -24,8 +24,70 @@ class FlowTraceEntry {
     required this.effectiveFailureCode,
     required Map<String, double> costAddedByMetric,
   }) : costAddedByMetric = Map<String, double>.unmodifiable(
-          <String, double>{...costAddedByMetric},
-        );
+            <String, double>{...costAddedByMetric});
+
+  /// Hydrates a [FlowTraceEntry] from JSON.
+  ///
+  /// This is lenient and uses safe fallbacks for unknown enum names.
+  factory FlowTraceEntry.fromJson(Map<String, dynamic> json) {
+    FlowBranch branch(Object? v) {
+      final String s = (v ?? '').toString();
+      return FlowBranch.values
+              .where((FlowBranch e) => e.name == s)
+              .cast<FlowBranch?>()
+              .firstWhere((FlowBranch? _) => true, orElse: () => null) ??
+          FlowBranch.success;
+    }
+
+    int intValue(Object? v, {int fallback = -1}) {
+      if (v is int) {
+        return v;
+      }
+      return int.tryParse((v ?? '').toString()) ?? fallback;
+    }
+
+    bool boolValue(Object? v) {
+      if (v is bool) {
+        return v;
+      }
+      final String s = (v ?? '').toString().toLowerCase();
+      return s == 'true' || s == '1' || s == 'yes';
+    }
+
+    Map<String, double> cost(Object? v) {
+      if (v is! Map) {
+        return <String, double>{};
+      }
+      final Map<String, double> out = <String, double>{};
+      v.forEach((Object? k, Object? val) {
+        final String key = (k ?? '').toString();
+        if (key.isEmpty) {
+          return;
+        }
+        if (val is num) {
+          out[key] = val.toDouble();
+          return;
+        }
+        final double? parsed = double.tryParse((val ?? '').toString());
+        if (parsed != null) {
+          out[key] = parsed;
+        }
+      });
+      return out;
+    }
+
+    return FlowTraceEntry(
+      stepIndex: intValue(json['stepIndex']),
+      branch: branch(json['branch']),
+      nextIndex: intValue(json['nextIndex']),
+      wasForced: boolValue(json['wasForced']),
+      effectiveFailureCode:
+          (json['effectiveFailureCode'] ?? '').toString().trim().isEmpty
+              ? null
+              : (json['effectiveFailureCode'] ?? '').toString(),
+      costAddedByMetric: cost(json['costAddedByMetric']),
+    );
+  }
 
   /// Index of the executed step.
   final int stepIndex;
