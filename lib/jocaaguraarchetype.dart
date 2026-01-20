@@ -6,7 +6,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide DateUtils;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'jocaaguraarchetype.dart';
@@ -27,6 +27,7 @@ part 'domain/blocs/bloc_secondary_menu_drawer.dart';
 part 'domain/blocs/bloc_theme.dart';
 part 'domain/blocs/bloc_theme_react.dart';
 part 'domain/blocs/bloc_user_notifications.dart';
+part 'domain/blocs/jds_app_manager.dart';
 part 'domain/entities/abstract_app_manager.dart';
 part 'domain/entities/acl_bridge.dart';
 part 'domain/gateways/gateway_theme.dart';

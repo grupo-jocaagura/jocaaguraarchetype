@@ -12,7 +12,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// - `refresh()` depends on [AclBridge] and updates the internal snapshot stream.
 ///
 /// Make sure to call [dispose] to release stream resources.
-class BlocAcl {
+class BlocAcl extends BlocModule {
   BlocAcl({
     required this.bridge,
     required this.appName,
@@ -145,6 +145,7 @@ class BlocAcl {
     return canAccessByPolicyId(policyId);
   }
 
+  @override
   void dispose() {
     _snapshotBloc.dispose();
   }

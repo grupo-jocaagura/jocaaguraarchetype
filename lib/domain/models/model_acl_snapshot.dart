@@ -87,8 +87,9 @@ class ModelAclSnapshot {
           RoleType.values.byName(Utils.getStringFromDynamic(v)),
         ),
       ),
-      lastSyncAtIsoDate: DateUtils.normalizeIsoOrEmpty(
-          json[ModelAclSnapshotKeys.lastSyncAtIsoDate]),
+      lastSyncAtIsoDate: JocaDateUtils.normalizeIsoOrEmpty(
+        json[ModelAclSnapshotKeys.lastSyncAtIsoDate],
+      ),
     );
   }
 }
