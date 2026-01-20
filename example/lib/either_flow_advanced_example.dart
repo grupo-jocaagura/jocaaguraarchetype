@@ -6,22 +6,46 @@ import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// ------------------------------------------------------------
-/// EitherFlow – Complete Demo (Single File)
+/// EitherFlow – Refined Demo (Single File)
 ///
-/// What you get in this example:
-/// - A complete unidimensional flow (Lemonade recipe) with success/failure routing
-/// - Constraints rendered as widgets (flag / metric / url) using FlowConstraintUtils.parse
-/// - Deterministic simulation (path + aggregated cost)
-/// - Fake "Save / Load" (icons) + "Export / Import JSON" (dialogs)
+/// Included:
+/// - Responsive UI (two-pane on wide screens, single-pane on narrow)
+/// - Flow map bar (chips by index) + Tooltip with step title
+/// - Focus/inspect a step (details panel on wide)
+/// - Global override: "force failure on decision steps"
+/// - Per-step decision toggles (only when branching exists)
+/// - JSON Center (bottom sheet): Export / Import + Save/Load (fake)
+/// - CRUD of steps in-example:
+///   - Add step (FAB)
+///   - Edit / Delete step (per-step menu)
+/// - Aggregated cost chips
 ///
-/// Notes:
-/// - No external packages (no url_launcher, no clipboard plugin)
-/// - Save/Load is simulated with an in-memory fake service
-/// - The extra widgets live in this file; later you can extract them transversal
+/// Still:
+/// - No external packages
+/// - Fake storage only (in-memory)
+/// - No extra business logic beyond simulation + JSON roundtrip
 /// ------------------------------------------------------------
 
 void main() {
-  runApp(const MaterialApp(home: EitherFlowAdvancedExampleApp()));
+  runApp(const EitherFlowDemoApp());
+}
+
+class EitherFlowDemoApp extends StatelessWidget {
+  const EitherFlowDemoApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'EitherFlow Demo',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.deepPurple,
+        brightness: Brightness.light,
+      ),
+      home: const EitherFlowAdvancedExampleApp(),
+    );
+  }
 }
 
 /// ------------------------------------------------------------
@@ -30,8 +54,7 @@ void main() {
 
 final ModelCompleteFlow kLemonadeFlow = ModelCompleteFlow(
   name: 'Lemonade',
-  description:
-      'A unidimensional flow to prepare lemonade with a taste decision.',
+  description: 'Unidimensional flow to prepare lemonade with a taste decision.',
   stepsByIndex: <int, ModelFlowStep>{
     0: const ModelFlowStep(
       index: 0,
@@ -142,7 +165,7 @@ final ModelCompleteFlow kLemonadeFlow = ModelCompleteFlow(
 );
 
 /// ------------------------------------------------------------
-/// App
+/// App (stateful) – controls simulation + JSON + focus + CRUD steps
 /// ------------------------------------------------------------
 
 class EitherFlowAdvancedExampleApp extends StatefulWidget {
@@ -158,17 +181,24 @@ class _EitherFlowAdvancedExampleAppState
   final FakeFlowStorageService _storage = FakeFlowStorageService();
 
   late ModelCompleteFlow _flow = kLemonadeFlow;
+
+  /// Per-step outcomes for decision steps (true = success, false = failure).
   final Map<int, bool> _outcomeByStep = <int, bool>{};
+
+  /// Global override for decision steps.
+  bool _forceFailureOnDecisions = false;
 
   int _startIndex = 0;
   int _maxHops = 50;
 
+  /// Focused step (for details panel and highlighting).
+  int? _focusedStepIndex;
+
   @override
   void initState() {
     super.initState();
-
-    // Default decision outcomes (success) for steps that actually branch.
     _seedOutcomesFromFlow(_flow);
+    _focusedStepIndex = _startIndex;
   }
 
   void _seedOutcomesFromFlow(ModelCompleteFlow flow) {
@@ -181,138 +211,26 @@ class _EitherFlowAdvancedExampleAppState
   }
 
   bool _isDecisionStep(ModelFlowStep step) {
-    if (step.nextOnSuccessIndex == step.nextOnFailureIndex) {
-      return false;
-    }
-    // If one path is END and the other isn't, it's still a decision.
-    return true;
+    return step.nextOnSuccessIndex != step.nextOnFailureIndex;
   }
 
   bool _resolveOutcomeForStep(ModelFlowStep step) {
+    if (_isDecisionStep(step) && _forceFailureOnDecisions) {
+      return false;
+    }
     return _outcomeByStep[step.index] ?? true;
   }
 
-  Future<void> _onExportJson() async {
-    final Map<String, dynamic> jsonMap =
-        FlowJsonCodec.encodeCompleteFlow(_flow);
-    final String pretty = const JsonEncoder.withIndent('  ').convert(jsonMap);
-
-    if (!mounted) {
-      return;
-    }
-    await showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return _JsonDialog(
-          title: 'Export JSON',
-          initialText: pretty,
-          readOnly: true,
-          primaryLabel: 'Close',
-          onPrimaryPressed: () => Navigator.of(context).pop(),
-          secondaryLabel: 'Save (fake)',
-          onSecondaryPressed: () async {
-            await _storage.save(pretty);
-            if (context.mounted) {
-              Navigator.of(context).pop();
-              _showSnack('Saved to fake storage ✅');
-            }
-          },
-        );
-      },
-    );
+  void _setFocus(int index) {
+    setState(() => _focusedStepIndex = index);
   }
 
-  Future<void> _onImportJson() async {
-    final Map<String, dynamic> current =
-        FlowJsonCodec.encodeCompleteFlow(_flow);
-    final String seed = const JsonEncoder.withIndent('  ').convert(current);
-
-    final String? result = await showDialog<String?>(
-      context: context,
-      builder: (BuildContext context) {
-        return _JsonDialog(
-          title: 'Import JSON',
-          initialText: seed,
-          readOnly: false,
-          primaryLabel: 'Import',
-          onPrimaryPressed: () {},
-          secondaryLabel: 'Cancel',
-          onSecondaryPressed: () => Navigator.of(context).pop(),
-          returnTextOnPrimary: true,
-        );
-      },
-    );
-
-    if (result == null) {
-      return;
+  ModelFlowStep? _focusedStep() {
+    final int? idx = _focusedStepIndex;
+    if (idx == null) {
+      return null;
     }
-
-    try {
-      final Object? decoded = jsonDecode(result);
-      if (decoded is! Map<String, dynamic>) {
-        _showSnack('Invalid JSON (expected object)');
-        return;
-      }
-
-      final ModelCompleteFlow parsed =
-          FlowJsonCodec.decodeCompleteFlow(decoded);
-      setState(() {
-        _flow = parsed;
-        _startIndex = 0;
-        _outcomeByStep.clear();
-        _seedOutcomesFromFlow(_flow);
-      });
-      _showSnack('Imported ✅');
-    } catch (e) {
-      _showSnack('Import failed: $e');
-    }
-  }
-
-  Future<void> _onSaveFake() async {
-    final Map<String, dynamic> jsonMap =
-        FlowJsonCodec.encodeCompleteFlow(_flow);
-    final String raw = jsonEncode(jsonMap);
-    await _storage.save(raw);
-    _showSnack('Saved to fake storage ✅');
-  }
-
-  Future<void> _onLoadFake() async {
-    final String? raw = await _storage.load();
-    if (raw == null || raw.trim().isEmpty) {
-      _showSnack('Nothing saved yet');
-      return;
-    }
-
-    try {
-      final Object? decoded = jsonDecode(raw);
-      if (decoded is! Map<String, dynamic>) {
-        _showSnack('Saved data is not a JSON object');
-        return;
-      }
-      final ModelCompleteFlow parsed =
-          FlowJsonCodec.decodeCompleteFlow(decoded);
-
-      setState(() {
-        _flow = parsed;
-        _startIndex = 0;
-        _outcomeByStep.clear();
-        _seedOutcomesFromFlow(_flow);
-      });
-      _showSnack('Loaded ✅');
-    } catch (e) {
-      _showSnack('Load failed: $e');
-    }
-  }
-
-  void _onResetToDefault() {
-    setState(() {
-      _flow = kLemonadeFlow;
-      _startIndex = 0;
-      _maxHops = 50;
-      _outcomeByStep.clear();
-      _seedOutcomesFromFlow(_flow);
-    });
-    _showSnack('Reset to default flow');
+    return _flow.stepsByIndex[idx];
   }
 
   void _showSnack(String msg) {
@@ -324,6 +242,221 @@ class _EitherFlowAdvancedExampleAppState
     );
   }
 
+  Future<void> _openJsonCenter() async {
+    if (!mounted) {
+      return;
+    }
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (BuildContext context) {
+        return JsonCenterSheet(
+          flow: _flow,
+          storage: _storage,
+          onImported: (ModelCompleteFlow parsed) {
+            setState(() {
+              _flow = parsed;
+              _startIndex = _bestStartIndex(parsed);
+              _focusedStepIndex = _startIndex;
+              _outcomeByStep.clear();
+              _seedOutcomesFromFlow(_flow);
+            });
+            _showSnack('Imported ✅');
+          },
+          onSaved: () => _showSnack('Saved to fake storage ✅'),
+          onLoaded: (ModelCompleteFlow parsed) {
+            setState(() {
+              _flow = parsed;
+              _startIndex = _bestStartIndex(parsed);
+              _focusedStepIndex = _startIndex;
+              _outcomeByStep.clear();
+              _seedOutcomesFromFlow(_flow);
+            });
+            _showSnack('Loaded ✅');
+          },
+          onError: (String msg) => _showSnack(msg),
+        );
+      },
+    );
+  }
+
+  int _bestStartIndex(ModelCompleteFlow flow) {
+    final List<int> keys = flow.stepsByIndex.keys.toList()..sort();
+    if (keys.isEmpty) {
+      return 0;
+    }
+    return keys.first;
+  }
+
+  void _resetToDefault() {
+    setState(() {
+      _flow = kLemonadeFlow;
+      _startIndex = 0;
+      _maxHops = 50;
+      _focusedStepIndex = 0;
+      _forceFailureOnDecisions = false;
+      _outcomeByStep.clear();
+      _seedOutcomesFromFlow(_flow);
+    });
+    _showSnack('Reset to default flow');
+  }
+
+  /// ---------------------------
+  /// CRUD Steps (Example-side)
+  /// ---------------------------
+
+  Future<void> _createNewStep() async {
+    final int nextIndex = _suggestNewIndex(_flow);
+    final ModelFlowStep draft = ModelFlowStep.immutable(
+      index: nextIndex,
+      title: 'New step',
+      description: 'Describe what this step does.',
+      failureCode: 'FLOW.STEP_$nextIndex',
+      nextOnSuccessIndex: -1,
+      nextOnFailureIndex: -1,
+    );
+
+    final ModelFlowStep? created = await showModalBottomSheet<ModelFlowStep?>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (BuildContext context) {
+        return StepEditorSheet(
+          title: 'Create step',
+          initial: draft,
+          existingIndexes: _flow.stepsByIndex.keys.toSet(),
+        );
+      },
+    );
+
+    if (created == null) {
+      return;
+    }
+
+    setState(() {
+      final Map<int, ModelFlowStep> next =
+          Map<int, ModelFlowStep>.from(_flow.stepsByIndex);
+      next[created.index] = created;
+
+      _flow = ModelCompleteFlow(
+        name: _flow.name,
+        description: _flow.description,
+        stepsByIndex: next,
+      );
+
+      _focusedStepIndex = created.index;
+      _seedOutcomesFromFlow(_flow);
+    });
+
+    _showSnack('Step #${created.index} created ✅');
+  }
+
+  int _suggestNewIndex(ModelCompleteFlow flow) {
+    final List<int> keys = flow.stepsByIndex.keys.toList()..sort();
+    if (keys.isEmpty) {
+      return 0;
+    }
+    // simplest: max + 1
+    return keys.last + 1;
+  }
+
+  Future<void> _editStep(ModelFlowStep step) async {
+    final ModelFlowStep? edited = await showModalBottomSheet<ModelFlowStep?>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (BuildContext context) {
+        return StepEditorSheet(
+          title: 'Edit step #${step.index}',
+          initial: step,
+          existingIndexes: _flow.stepsByIndex.keys.toSet(),
+          editingIndex: step.index,
+        );
+      },
+    );
+
+    if (edited == null) {
+      return;
+    }
+
+    setState(() {
+      final Map<int, ModelFlowStep> next =
+          Map<int, ModelFlowStep>.from(_flow.stepsByIndex);
+
+      // If index changed, remove old entry.
+      if (edited.index != step.index) {
+        next.remove(step.index);
+        _outcomeByStep.remove(step.index);
+      }
+
+      next[edited.index] = edited;
+
+      _flow = ModelCompleteFlow(
+        name: _flow.name,
+        description: _flow.description,
+        stepsByIndex: next,
+      );
+
+      _focusedStepIndex = edited.index;
+      _seedOutcomesFromFlow(_flow);
+    });
+
+    _showSnack('Step updated ✅');
+  }
+
+  Future<void> _deleteStep(ModelFlowStep step) async {
+    final bool? ok = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete step #${step.index}?'),
+          content: const Text(
+            'This only removes the step from stepsByIndex. '
+            'Other steps that reference this index will remain unchanged.',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (ok != true) {
+      return;
+    }
+
+    setState(() {
+      final Map<int, ModelFlowStep> next =
+          Map<int, ModelFlowStep>.from(_flow.stepsByIndex);
+      next.remove(step.index);
+      _outcomeByStep.remove(step.index);
+
+      _flow = ModelCompleteFlow(
+        name: _flow.name,
+        description: _flow.description,
+        stepsByIndex: next,
+      );
+
+      // Adjust focus
+      final List<int> keys = _flow.stepsByIndex.keys.toList()..sort();
+      _focusedStepIndex = keys.isEmpty ? null : keys.first;
+      _startIndex = keys.isEmpty ? 0 : keys.first;
+
+      _seedOutcomesFromFlow(_flow);
+    });
+
+    _showSnack('Step deleted ✅');
+  }
+
   @override
   Widget build(BuildContext context) {
     final FlowSimulationResult result = FlowSimulator.simulate(
@@ -333,213 +466,345 @@ class _EitherFlowAdvancedExampleAppState
       resolveOutcomeForStep: _resolveOutcomeForStep,
     );
 
+    // Ensure focus exists
+    final ModelFlowStep? focus = _focusedStep();
+    if (_focusedStepIndex != null && focus == null) {
+      _focusedStepIndex = _startIndex;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('EitherFlow – Simulator Demo'),
         actions: <Widget>[
           IconButton(
-            tooltip: 'Save (fake)',
-            onPressed: _onSaveFake,
-            icon: const Icon(Icons.save_outlined),
-          ),
-          IconButton(
-            tooltip: 'Load (fake)',
-            onPressed: _onLoadFake,
-            icon: const Icon(Icons.folder_open_outlined),
-          ),
-          IconButton(
-            tooltip: 'Export JSON',
-            onPressed: _onExportJson,
-            icon: const Icon(Icons.upload_file_outlined),
-          ),
-          IconButton(
-            tooltip: 'Import JSON',
-            onPressed: _onImportJson,
-            icon: const Icon(Icons.download_outlined),
+            tooltip: 'JSON Center (Export/Import + Save/Load)',
+            onPressed: _openJsonCenter,
+            icon: const Icon(Icons.data_object_outlined),
           ),
           IconButton(
             tooltip: 'Reset',
-            onPressed: _onResetToDefault,
+            onPressed: _resetToDefault,
             icon: const Icon(Icons.restart_alt_outlined),
           ),
           const SizedBox(width: 4),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: <Widget>[
-            FlowHeaderWidget(
-              flow: _flow,
-              startIndex: _startIndex,
-              maxHops: _maxHops,
-              visitedCount: result.visitedSteps.length,
-              aggregatedCost: result.aggregatedCost,
-              onStartIndexChanged: (int v) => setState(() => _startIndex = v),
-              onMaxHopsChanged: (int v) => setState(() => _maxHops = v),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: ListView.separated(
-                itemCount: result.visitedSteps.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (BuildContext context, int i) {
-                  final ModelFlowStep step = result.visitedSteps[i];
-                  final bool isDecision = _isDecisionStep(step);
-                  final bool outcome = _resolveOutcomeForStep(step);
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _createNewStep,
+        icon: const Icon(Icons.add),
+        label: const Text('Add step'),
+      ),
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints c) {
+          final bool wide = c.maxWidth >= 980;
 
-                  return FlowStepWidget(
-                    flowStep: step,
-                    stepNumberInPath: i + 1,
-                    isDecision: isDecision,
-                    outcomeIsSuccess: outcome,
-                    onOutcomeChanged: isDecision
-                        ? (bool v) {
-                            setState(() => _outcomeByStep[step.index] = v);
-                          }
-                        : null,
-                  );
-                },
-              ),
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: <Widget>[
+                FlowHeaderWidget(
+                  flow: _flow,
+                  startIndex: _startIndex,
+                  maxHops: _maxHops,
+                  visitedCount: result.visitedSteps.length,
+                  aggregatedCost: result.aggregatedCost,
+                  forceFailureOnDecisions: _forceFailureOnDecisions,
+                  onForceFailureChanged: (bool v) {
+                    setState(() => _forceFailureOnDecisions = v);
+                  },
+                  onStartIndexChanged: (int v) {
+                    setState(() {
+                      _startIndex = v;
+                      _focusedStepIndex ??= v;
+                    });
+                  },
+                  onMaxHopsChanged: (int v) => setState(() => _maxHops = v),
+                ),
+                const SizedBox(height: 12),
+                FlowMapBarWidget(
+                  flow: _flow,
+                  focusedIndex: _focusedStepIndex,
+                  onSelect: _setFocus,
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: wide
+                      ? _WideBody(
+                          flow: _flow,
+                          simulation: result,
+                          focusedIndex: _focusedStepIndex,
+                          resolveOutcomeForStep: _resolveOutcomeForStep,
+                          isDecisionStep: _isDecisionStep,
+                          onFocus: _setFocus,
+                          onOutcomeChanged: (int stepIndex, bool outcome) {
+                            setState(() => _outcomeByStep[stepIndex] = outcome);
+                          },
+                          onEdit: _editStep,
+                          onDelete: _deleteStep,
+                        )
+                      : _NarrowBody(
+                          flow: _flow,
+                          simulation: result,
+                          focusedIndex: _focusedStepIndex,
+                          resolveOutcomeForStep: _resolveOutcomeForStep,
+                          isDecisionStep: _isDecisionStep,
+                          onFocus: _setFocus,
+                          onOutcomeChanged: (int stepIndex, bool outcome) {
+                            setState(() => _outcomeByStep[stepIndex] = outcome);
+                          },
+                          onEdit: _editStep,
+                          onDelete: _deleteStep,
+                        ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 }
 
 /// ------------------------------------------------------------
-/// Fake storage service
+/// Responsive bodies
 /// ------------------------------------------------------------
 
-class FakeFlowStorageService {
-  String? _stored;
-
-  Future<void> save(String json) async {
-    await Future<void>.delayed(const Duration(milliseconds: 180));
-    _stored = json;
-  }
-
-  Future<String?> load() async {
-    await Future<void>.delayed(const Duration(milliseconds: 180));
-    return _stored;
-  }
-}
-
-/// ------------------------------------------------------------
-/// JSON codec (example-side, safe & independent)
-/// ------------------------------------------------------------
-
-abstract final class FlowJsonCodec {
-  static Map<String, dynamic> encodeCompleteFlow(ModelCompleteFlow flow) {
-    final Map<String, dynamic> stepsJson = <String, dynamic>{};
-    for (final MapEntry<int, ModelFlowStep> e in flow.stepsByIndex.entries) {
-      stepsJson[e.key.toString()] = e.value.toJson();
-    }
-
-    return <String, dynamic>{
-      'name': flow.name,
-      'description': flow.description,
-      'stepsByIndex': stepsJson,
-    };
-  }
-
-  static ModelCompleteFlow decodeCompleteFlow(Map<String, dynamic> json) {
-    final String name = _string(json['name']);
-    final String description = _string(json['description']);
-
-    final Map<int, ModelFlowStep> steps = <int, ModelFlowStep>{};
-    final Object? rawSteps = json['stepsByIndex'];
-    if (rawSteps is Map) {
-      for (final MapEntry<dynamic, dynamic> e in rawSteps.entries) {
-        final int? key = int.tryParse(e.key.toString());
-        if (key == null) {
-          continue;
-        }
-        final Object? v = e.value;
-        if (v is Map<String, dynamic>) {
-          steps[key] = ModelFlowStep.fromJson(v);
-        } else if (v is Map) {
-          steps[key] = ModelFlowStep.fromJson(v.cast<String, dynamic>());
-        }
-      }
-    }
-
-    return ModelCompleteFlow(
-      name: name.isEmpty ? 'Flow' : name,
-      description: description,
-      stepsByIndex: steps,
-    );
-  }
-
-  static String _string(Object? v) => v?.toString() ?? '';
-}
-
-/// ------------------------------------------------------------
-/// Simulator (pure, deterministic, UI-friendly)
-/// ------------------------------------------------------------
-
-abstract final class FlowSimulator {
-  static FlowSimulationResult simulate({
-    required ModelCompleteFlow completeFlow,
-    required int startIndex,
-    required int maxHops,
-    required bool Function(ModelFlowStep step) resolveOutcomeForStep,
-  }) {
-    final List<ModelFlowStep> visited = <ModelFlowStep>[];
-    final Map<String, double> aggregatedCost = <String, double>{};
-
-    int hops = 0;
-    int current = startIndex;
-
-    while (hops < maxHops) {
-      final ModelFlowStep? step = completeFlow.stepsByIndex[current];
-      if (step == null) {
-        break;
-      }
-
-      visited.add(step);
-
-      for (final MapEntry<String, double> e in step.cost.entries) {
-        final String k = e.key;
-        final double v = e.value;
-        aggregatedCost[k] = (aggregatedCost[k] ?? 0.0) + v;
-      }
-
-      final bool isSuccess = resolveOutcomeForStep(step);
-      final int next =
-          isSuccess ? step.nextOnSuccessIndex : step.nextOnFailureIndex;
-
-      if (next == -1) {
-        break;
-      }
-
-      final bool wouldLoop = visited.any((ModelFlowStep s) => s.index == next);
-      if (wouldLoop) {
-        break;
-      }
-
-      current = next;
-      hops++;
-    }
-
-    return FlowSimulationResult(
-      visitedSteps: visited,
-      aggregatedCost: aggregatedCost,
-    );
-  }
-}
-
-@immutable
-class FlowSimulationResult {
-  const FlowSimulationResult({
-    required this.visitedSteps,
-    required this.aggregatedCost,
+class _WideBody extends StatelessWidget {
+  const _WideBody({
+    required this.flow,
+    required this.simulation,
+    required this.focusedIndex,
+    required this.resolveOutcomeForStep,
+    required this.isDecisionStep,
+    required this.onFocus,
+    required this.onOutcomeChanged,
+    required this.onEdit,
+    required this.onDelete,
   });
 
-  final List<ModelFlowStep> visitedSteps;
-  final Map<String, double> aggregatedCost;
+  final ModelCompleteFlow flow;
+  final FlowSimulationResult simulation;
+  final int? focusedIndex;
+
+  final bool Function(ModelFlowStep step) resolveOutcomeForStep;
+  final bool Function(ModelFlowStep step) isDecisionStep;
+
+  final ValueChanged<int> onFocus;
+  final void Function(int stepIndex, bool outcome) onOutcomeChanged;
+
+  final ValueChanged<ModelFlowStep> onEdit;
+  final ValueChanged<ModelFlowStep> onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final ModelFlowStep? focused =
+        focusedIndex == null ? null : flow.stepsByIndex[focusedIndex!];
+
+    return Row(
+      children: <Widget>[
+        SizedBox(
+          width: 420,
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: _SimulationList(
+                steps: simulation.visitedSteps,
+                focusedIndex: focusedIndex,
+                onFocus: onFocus,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: focused == null
+                  ? const Center(child: Text('Select a step to inspect'))
+                  : FlowStepWidget(
+                      flowStep: focused,
+                      stepNumberInPath: _pathNumber(
+                        simulation.visitedSteps,
+                        focused.index,
+                      ),
+                      isDecision: isDecisionStep(focused),
+                      outcomeIsSuccess: resolveOutcomeForStep(focused),
+                      onOutcomeChanged: isDecisionStep(focused)
+                          ? (bool v) => onOutcomeChanged(focused.index, v)
+                          : null,
+                      highlight: true,
+                      onEdit: () => onEdit(focused),
+                      onDelete: () => onDelete(focused),
+                    ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  int _pathNumber(List<ModelFlowStep> visited, int index) {
+    for (int i = 0; i < visited.length; i++) {
+      if (visited[i].index == index) {
+        return i + 1;
+      }
+    }
+    return 0;
+  }
+}
+
+class _NarrowBody extends StatelessWidget {
+  const _NarrowBody({
+    required this.flow,
+    required this.simulation,
+    required this.focusedIndex,
+    required this.resolveOutcomeForStep,
+    required this.isDecisionStep,
+    required this.onFocus,
+    required this.onOutcomeChanged,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final ModelCompleteFlow flow;
+  final FlowSimulationResult simulation;
+  final int? focusedIndex;
+
+  final bool Function(ModelFlowStep step) resolveOutcomeForStep;
+  final bool Function(ModelFlowStep step) isDecisionStep;
+
+  final ValueChanged<int> onFocus;
+  final void Function(int stepIndex, bool outcome) onOutcomeChanged;
+
+  final ValueChanged<ModelFlowStep> onEdit;
+  final ValueChanged<ModelFlowStep> onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      itemCount: simulation.visitedSteps.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      itemBuilder: (BuildContext context, int i) {
+        final ModelFlowStep step = simulation.visitedSteps[i];
+        final bool isDecision = isDecisionStep(step);
+        final bool outcome = resolveOutcomeForStep(step);
+        final bool highlight = step.index == focusedIndex;
+
+        return GestureDetector(
+          onTap: () => onFocus(step.index),
+          child: FlowStepWidget(
+            flowStep: step,
+            stepNumberInPath: i + 1,
+            isDecision: isDecision,
+            outcomeIsSuccess: outcome,
+            onOutcomeChanged:
+                isDecision ? (bool v) => onOutcomeChanged(step.index, v) : null,
+            highlight: highlight,
+            onEdit: () => onEdit(step),
+            onDelete: () => onDelete(step),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SimulationList extends StatelessWidget {
+  const _SimulationList({
+    required this.steps,
+    required this.focusedIndex,
+    required this.onFocus,
+  });
+
+  final List<ModelFlowStep> steps;
+  final int? focusedIndex;
+  final ValueChanged<int> onFocus;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text('Simulated path', style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 8),
+        Expanded(
+          child: ListView.separated(
+            itemCount: steps.length,
+            separatorBuilder: (_, __) => const Divider(height: 1),
+            itemBuilder: (BuildContext context, int i) {
+              final ModelFlowStep s = steps[i];
+              final bool selected = s.index == focusedIndex;
+
+              return ListTile(
+                dense: true,
+                selected: selected,
+                title: Text('Step #${s.index} — ${s.title}'),
+                subtitle: Text(
+                  s.failureCode,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: selected ? const Icon(Icons.chevron_right) : null,
+                onTap: () => onFocus(s.index),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// ------------------------------------------------------------
+/// Flow map bar (jump to any step) + tooltip with title
+/// ------------------------------------------------------------
+
+class FlowMapBarWidget extends StatelessWidget {
+  const FlowMapBarWidget({
+    required this.flow,
+    required this.focusedIndex,
+    required this.onSelect,
+    super.key,
+  });
+
+  final ModelCompleteFlow flow;
+  final int? focusedIndex;
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<ModelFlowStep> ordered = flow.stepsByIndex.values.toList()
+      ..sort((ModelFlowStep a, ModelFlowStep b) => a.index.compareTo(b.index));
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: ordered.map((ModelFlowStep s) {
+              final bool selected = s.index == focusedIndex;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Tooltip(
+                  message: s.title,
+                  child: ChoiceChip(
+                    selected: selected,
+                    label: Text('#${s.index}'),
+                    avatar: selected
+                        ? const Icon(Icons.visibility_outlined, size: 18)
+                        : const Icon(Icons.circle_outlined, size: 18),
+                    onSelected: (_) => onSelect(s.index),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// ------------------------------------------------------------
@@ -553,6 +818,8 @@ class FlowHeaderWidget extends StatelessWidget {
     required this.maxHops,
     required this.visitedCount,
     required this.aggregatedCost,
+    required this.forceFailureOnDecisions,
+    required this.onForceFailureChanged,
     required this.onStartIndexChanged,
     required this.onMaxHopsChanged,
     super.key,
@@ -564,12 +831,16 @@ class FlowHeaderWidget extends StatelessWidget {
   final int visitedCount;
   final Map<String, double> aggregatedCost;
 
+  final bool forceFailureOnDecisions;
+  final ValueChanged<bool> onForceFailureChanged;
+
   final ValueChanged<int> onStartIndexChanged;
   final ValueChanged<int> onMaxHopsChanged;
 
   @override
   Widget build(BuildContext context) {
     final List<int> indices = flow.stepsByIndex.keys.toList()..sort();
+
     final List<MapEntry<String, double>> costEntries =
         aggregatedCost.entries.toList()
           ..sort((MapEntry<String, double> a, MapEntry<String, double> b) {
@@ -582,9 +853,28 @@ class FlowHeaderWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(flow.name, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 4),
-            Text(flow.description),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        flow.name,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(flow.description),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                _InfoPill(
+                  icon: Icons.route_outlined,
+                  label: 'Visited: $visitedCount',
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
             Row(
               children: <Widget>[
@@ -593,8 +883,8 @@ class FlowHeaderWidget extends StatelessWidget {
                     label: 'Start index',
                     value: indices.contains(startIndex)
                         ? startIndex
-                        : indices.first,
-                    items: indices,
+                        : (indices.isEmpty ? 0 : indices.first),
+                    items: indices.isEmpty ? const <int>[0] : indices,
                     itemLabel: (int v) => v.toString(),
                     onChanged: onStartIndexChanged,
                   ),
@@ -612,20 +902,16 @@ class FlowHeaderWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            Row(
-              children: <Widget>[
-                _InfoPill(
-                  icon: Icons.route_outlined,
-                  label: 'Visited: $visitedCount',
-                ),
-                const SizedBox(width: 8),
-                _InfoPill(
-                  icon: Icons.account_tree_outlined,
-                  label: 'Steps: ${flow.stepsByIndex.length}',
-                ),
-              ],
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              value: forceFailureOnDecisions,
+              onChanged: onForceFailureChanged,
+              title: const Text('Force failure on decision steps'),
+              subtitle: const Text(
+                'Overrides per-step toggles (useful to demo alt paths).',
+              ),
             ),
-            const SizedBox(height: 12),
+            const Divider(height: 20),
             if (costEntries.isEmpty)
               const Text('Aggregated cost: (none)')
             else
@@ -728,7 +1014,7 @@ class _LabeledDropdown<T> extends StatelessWidget {
 }
 
 /// ------------------------------------------------------------
-/// Step UI + Constraints panel
+/// Step UI + Constraints panel + menu (edit/delete)
 /// ------------------------------------------------------------
 
 class FlowStepWidget extends StatelessWidget {
@@ -738,6 +1024,9 @@ class FlowStepWidget extends StatelessWidget {
     required this.isDecision,
     required this.outcomeIsSuccess,
     required this.onOutcomeChanged,
+    required this.onEdit,
+    required this.onDelete,
+    this.highlight = false,
     super.key,
   });
 
@@ -748,6 +1037,11 @@ class FlowStepWidget extends StatelessWidget {
   final bool outcomeIsSuccess;
   final ValueChanged<bool>? onOutcomeChanged;
 
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
+
+  final bool highlight;
+
   @override
   Widget build(BuildContext context) {
     final String success = flowStep.nextOnSuccessIndex == -1
@@ -757,24 +1051,80 @@ class FlowStepWidget extends StatelessWidget {
         ? 'END'
         : '${flowStep.nextOnFailureIndex}';
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+    final Color border = Theme.of(context).dividerColor;
+    final Color bg = highlight
+        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.94)
+        : Colors.transparent;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: border),
+      ),
+      padding: const EdgeInsets.all(14),
+      child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              'Path $stepNumberInPath — Step #${flowStep.index}',
-              style: Theme.of(context).textTheme.labelLarge,
+            Row(
+              children: <Widget>[
+                _IndexBadge(index: flowStep.index, path: stepNumberInPath),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        flowStep.title,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        flowStep.failureCode,
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
+                    ],
+                  ),
+                ),
+                PopupMenuButton<_StepMenuAction>(
+                  tooltip: 'Step actions',
+                  onSelected: (_StepMenuAction a) {
+                    switch (a) {
+                      case _StepMenuAction.edit:
+                        onEdit();
+                      case _StepMenuAction.delete:
+                        onDelete();
+                    }
+                  },
+                  itemBuilder: (_) => <PopupMenuEntry<_StepMenuAction>>[
+                    const PopupMenuItem<_StepMenuAction>(
+                      value: _StepMenuAction.edit,
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.edit_outlined),
+                          SizedBox(width: 10),
+                          Text('Edit'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<_StepMenuAction>(
+                      value: _StepMenuAction.delete,
+                      child: Row(
+                        children: <Widget>[
+                          Icon(Icons.delete_outline),
+                          SizedBox(width: 10),
+                          Text('Delete'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              flowStep.title,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 6),
-            Text(flowStep.description),
             const SizedBox(height: 10),
+            Text(flowStep.description),
+            const SizedBox(height: 12),
             Row(
               children: <Widget>[
                 Expanded(
@@ -794,8 +1144,8 @@ class FlowStepWidget extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            if (isDecision && onOutcomeChanged != null)
+            if (isDecision && onOutcomeChanged != null) ...<Widget>[
+              const SizedBox(height: 6),
               SwitchListTile.adaptive(
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Decision outcome'),
@@ -805,6 +1155,7 @@ class FlowStepWidget extends StatelessWidget {
                 value: outcomeIsSuccess,
                 onChanged: onOutcomeChanged,
               ),
+            ],
             const Divider(height: 22),
             if (flowStep.constraints.isEmpty)
               const Text('No constraints')
@@ -816,6 +1167,46 @@ class FlowStepWidget extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+enum _StepMenuAction { edit, delete }
+
+class _IndexBadge extends StatelessWidget {
+  const _IndexBadge({
+    required this.index,
+    required this.path,
+  });
+
+  final int index;
+  final int path;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color bg = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final Color fg = Theme.of(context).colorScheme.onSurfaceVariant;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            '#$index',
+            style: TextStyle(fontWeight: FontWeight.w700, color: fg),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'Path $path',
+            style: TextStyle(fontSize: 11, color: fg),
+          ),
+        ],
       ),
     );
   }
@@ -836,7 +1227,7 @@ class _RoutePill extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color border = Theme.of(context).dividerColor;
     final Color bg = isActive
-        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.92)
+        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.90)
         : Colors.transparent;
 
     return Container(
@@ -924,9 +1315,9 @@ class FlowStepConstraintsPanelWidget extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: flags.map((FlowConstraint c) {
-              final String label = (c.key ?? c.raw).trim().isEmpty
-                  ? '(empty)'
-                  : (c.key ?? c.raw);
+              final String label = (c.key ?? c.raw).trim().isNotEmpty
+                  ? (c.key ?? c.raw)
+                  : '(empty)';
               return Chip(
                 avatar: const Icon(Icons.flag_outlined, size: 18),
                 label: Text(label),
@@ -971,12 +1362,7 @@ class FlowStepConstraintsPanelWidget extends StatelessWidget {
                 title: Text(label),
                 subtitle: Text(urlText),
                 trailing: Chip(label: Text(ok ? 'https ok' : 'invalid')),
-                onTap: ok
-                    ? () {
-                        // Hook for the example:
-                        // If you later want this interactive, use url_launcher in the example app.
-                      }
-                    : null,
+                onTap: ok ? () {} : null,
               );
             }).toList(),
           ),
@@ -987,41 +1373,178 @@ class FlowStepConstraintsPanelWidget extends StatelessWidget {
 }
 
 /// ------------------------------------------------------------
-/// JSON Dialog (import/export UX)
+/// Fake storage service
 /// ------------------------------------------------------------
 
-class _JsonDialog extends StatefulWidget {
-  const _JsonDialog({
-    required this.title,
-    required this.initialText,
-    required this.readOnly,
-    required this.primaryLabel,
-    required this.onPrimaryPressed,
-    required this.secondaryLabel,
-    required this.onSecondaryPressed,
-    this.returnTextOnPrimary = false,
-  });
+class FakeFlowStorageService {
+  String? _stored;
 
-  final String title;
-  final String initialText;
-  final bool readOnly;
+  Future<void> save(String json) async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    _stored = json;
+  }
 
-  final String primaryLabel;
-  final VoidCallback onPrimaryPressed;
-
-  final String secondaryLabel;
-  final VoidCallback onSecondaryPressed;
-
-  /// When true, the dialog pops with the current text on primary action.
-  final bool returnTextOnPrimary;
-
-  @override
-  State<_JsonDialog> createState() => _JsonDialogState();
+  Future<String?> load() async {
+    await Future<void>.delayed(const Duration(milliseconds: 180));
+    return _stored;
+  }
 }
 
-class _JsonDialogState extends State<_JsonDialog> {
-  late final TextEditingController _c =
-      TextEditingController(text: widget.initialText);
+/// ------------------------------------------------------------
+/// JSON codec (example-side)
+/// ------------------------------------------------------------
+
+abstract final class FlowJsonCodec {
+  static Map<String, dynamic> encodeCompleteFlow(ModelCompleteFlow flow) {
+    final Map<String, dynamic> stepsJson = <String, dynamic>{};
+    for (final MapEntry<int, ModelFlowStep> e in flow.stepsByIndex.entries) {
+      stepsJson[e.key.toString()] = e.value.toJson();
+    }
+
+    return <String, dynamic>{
+      'name': flow.name,
+      'description': flow.description,
+      'stepsByIndex': stepsJson,
+    };
+  }
+
+  static ModelCompleteFlow decodeCompleteFlow(Map<String, dynamic> json) {
+    final String name = _string(json['name']);
+    final String description = _string(json['description']);
+
+    final Map<int, ModelFlowStep> steps = <int, ModelFlowStep>{};
+    final Object? rawSteps = json['stepsByIndex'];
+    if (rawSteps is Map) {
+      for (final MapEntry<dynamic, dynamic> e in rawSteps.entries) {
+        final int? key = int.tryParse(e.key.toString());
+        if (key == null) {
+          continue;
+        }
+        final Object? v = e.value;
+        if (v is Map<String, dynamic>) {
+          steps[key] = ModelFlowStep.fromJson(v);
+        } else if (v is Map) {
+          steps[key] = ModelFlowStep.fromJson(v.cast<String, dynamic>());
+        }
+      }
+    }
+
+    return ModelCompleteFlow(
+      name: name.isEmpty ? 'Flow' : name,
+      description: description,
+      stepsByIndex: steps,
+    );
+  }
+
+  static String _string(Object? v) => v?.toString() ?? '';
+}
+
+/// ------------------------------------------------------------
+/// Simulator (pure, deterministic)
+/// ------------------------------------------------------------
+
+abstract final class FlowSimulator {
+  static FlowSimulationResult simulate({
+    required ModelCompleteFlow completeFlow,
+    required int startIndex,
+    required int maxHops,
+    required bool Function(ModelFlowStep step) resolveOutcomeForStep,
+  }) {
+    final List<ModelFlowStep> visited = <ModelFlowStep>[];
+    final Map<String, double> aggregatedCost = <String, double>{};
+
+    int hops = 0;
+    int current = startIndex;
+
+    while (hops < maxHops) {
+      final ModelFlowStep? step = completeFlow.stepsByIndex[current];
+      if (step == null) {
+        break;
+      }
+
+      visited.add(step);
+
+      for (final MapEntry<String, double> e in step.cost.entries) {
+        final String k = e.key;
+        final double v = e.value;
+        aggregatedCost[k] = (aggregatedCost[k] ?? 0.0) + v;
+      }
+
+      final bool isSuccess = resolveOutcomeForStep(step);
+      final int next =
+          isSuccess ? step.nextOnSuccessIndex : step.nextOnFailureIndex;
+
+      if (next == -1) {
+        break;
+      }
+
+      final bool wouldLoop = visited.any((ModelFlowStep s) => s.index == next);
+      if (wouldLoop) {
+        break;
+      }
+
+      // If the next step doesn't exist, stop (no business auto-fix).
+      if (!completeFlow.stepsByIndex.containsKey(next)) {
+        break;
+      }
+
+      current = next;
+      hops++;
+    }
+
+    return FlowSimulationResult(
+      visitedSteps: visited,
+      aggregatedCost: aggregatedCost,
+    );
+  }
+}
+
+@immutable
+class FlowSimulationResult {
+  const FlowSimulationResult({
+    required this.visitedSteps,
+    required this.aggregatedCost,
+  });
+
+  final List<ModelFlowStep> visitedSteps;
+  final Map<String, double> aggregatedCost;
+}
+
+/// ------------------------------------------------------------
+/// JSON Center (Bottom Sheet)
+/// ------------------------------------------------------------
+
+class JsonCenterSheet extends StatefulWidget {
+  const JsonCenterSheet({
+    required this.flow,
+    required this.storage,
+    required this.onImported,
+    required this.onSaved,
+    required this.onLoaded,
+    required this.onError,
+    super.key,
+  });
+
+  final ModelCompleteFlow flow;
+  final FakeFlowStorageService storage;
+
+  final ValueChanged<ModelCompleteFlow> onImported;
+  final VoidCallback onSaved;
+  final ValueChanged<ModelCompleteFlow> onLoaded;
+  final ValueChanged<String> onError;
+
+  @override
+  State<JsonCenterSheet> createState() => _JsonCenterSheetState();
+}
+
+class _JsonCenterSheetState extends State<JsonCenterSheet> {
+  late final TextEditingController _c;
+
+  @override
+  void initState() {
+    super.initState();
+    _c = TextEditingController(text: _pretty(widget.flow));
+  }
 
   @override
   void dispose() {
@@ -1029,40 +1552,488 @@ class _JsonDialogState extends State<_JsonDialog> {
     super.dispose();
   }
 
+  String _pretty(ModelCompleteFlow flow) {
+    final Map<String, dynamic> jsonMap = FlowJsonCodec.encodeCompleteFlow(flow);
+    return const JsonEncoder.withIndent('  ').convert(jsonMap);
+  }
+
+  Map<String, dynamic>? _tryDecodeObject(String raw) {
+    try {
+      final Object? decoded = jsonDecode(raw);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      if (decoded is Map) {
+        return decoded.cast<String, dynamic>();
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.title),
-      content: SizedBox(
-        width: 720,
-        child: TextField(
-          controller: _c,
-          readOnly: widget.readOnly,
-          maxLines: 18,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-            isDense: true,
-          ),
-          style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+    final double h = MediaQuery.of(context).size.height;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
+        top: 8,
+      ),
+      child: SizedBox(
+        height: h * 0.85,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text('JSON Center', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 6),
+            Text(
+              'Export, edit, import, or use fake save/load.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: TextField(
+                controller: _c,
+                maxLines: null,
+                expands: true,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  isDense: true,
+                ),
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: <Widget>[
+                FilledButton.icon(
+                  onPressed: () {
+                    _c.text = _pretty(widget.flow);
+                  },
+                  icon: const Icon(Icons.refresh_outlined),
+                  label: const Text('Re-export'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final Map<String, dynamic>? obj = _tryDecodeObject(_c.text);
+                    if (obj == null) {
+                      widget.onError('Invalid JSON: expected an object');
+                      return;
+                    }
+                    try {
+                      final ModelCompleteFlow parsed =
+                          FlowJsonCodec.decodeCompleteFlow(obj);
+                      widget.onImported(parsed);
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                      }
+                    } catch (e) {
+                      widget.onError('Import failed: $e');
+                    }
+                  },
+                  icon: const Icon(Icons.download_outlined),
+                  label: const Text('Import'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    await widget.storage.save(_c.text);
+                    widget.onSaved();
+                  },
+                  icon: const Icon(Icons.save_outlined),
+                  label: const Text('Save (fake)'),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final String? raw = await widget.storage.load();
+                    if (raw == null || raw.trim().isEmpty) {
+                      widget.onError('Nothing saved yet');
+                      return;
+                    }
+                    final Map<String, dynamic>? obj = _tryDecodeObject(raw);
+                    if (obj == null) {
+                      widget.onError('Saved data is not a JSON object');
+                      return;
+                    }
+                    try {
+                      final ModelCompleteFlow parsed =
+                          FlowJsonCodec.decodeCompleteFlow(obj);
+                      widget.onLoaded(parsed);
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                      }
+                    } catch (e) {
+                      widget.onError('Load failed: $e');
+                    }
+                  },
+                  icon: const Icon(Icons.folder_open_outlined),
+                  label: const Text('Load (fake)'),
+                ),
+                TextButton.icon(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close),
+                  label: const Text('Close'),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-      actions: <Widget>[
-        TextButton(
-          onPressed: widget.onSecondaryPressed,
-          child: Text(widget.secondaryLabel),
+    );
+  }
+}
+
+/// ------------------------------------------------------------
+/// Step Editor (Bottom Sheet)
+///
+/// Formats:
+/// - Constraints: one per line (raw)
+/// - Cost: one per line as `key=value` (value double)
+/// ------------------------------------------------------------
+
+class StepEditorSheet extends StatefulWidget {
+  const StepEditorSheet({
+    required this.title,
+    required this.initial,
+    required this.existingIndexes,
+    this.editingIndex,
+    super.key,
+  });
+
+  final String title;
+  final ModelFlowStep initial;
+
+  /// Used to prevent duplicated indexes.
+  final Set<int> existingIndexes;
+
+  /// When editing, allow keeping the same index.
+  final int? editingIndex;
+
+  @override
+  State<StepEditorSheet> createState() => _StepEditorSheetState();
+}
+
+class _StepEditorSheetState extends State<StepEditorSheet> {
+  late final TextEditingController _indexC;
+  late final TextEditingController _titleC;
+  late final TextEditingController _descC;
+  late final TextEditingController _failureC;
+  late final TextEditingController _succC;
+  late final TextEditingController _failC;
+  late final TextEditingController _constraintsC;
+  late final TextEditingController _costC;
+
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    final ModelFlowStep s = widget.initial;
+
+    _indexC = TextEditingController(text: s.index.toString());
+    _titleC = TextEditingController(text: s.title);
+    _descC = TextEditingController(text: s.description);
+    _failureC = TextEditingController(text: s.failureCode);
+    _succC = TextEditingController(text: s.nextOnSuccessIndex.toString());
+    _failC = TextEditingController(text: s.nextOnFailureIndex.toString());
+
+    _constraintsC = TextEditingController(text: s.constraints.join('\n'));
+
+    final List<String> costLines = <String>[];
+    final List<MapEntry<String, double>> entries = s.cost.entries.toList()
+      ..sort((MapEntry<String, double> a, MapEntry<String, double> b) {
+        return a.key.compareTo(b.key);
+      });
+    for (final MapEntry<String, double> e in entries) {
+      costLines.add('${e.key}=${e.value}');
+    }
+    _costC = TextEditingController(text: costLines.join('\n'));
+  }
+
+  @override
+  void dispose() {
+    _indexC.dispose();
+    _titleC.dispose();
+    _descC.dispose();
+    _failureC.dispose();
+    _succC.dispose();
+    _failC.dispose();
+    _constraintsC.dispose();
+    _costC.dispose();
+    super.dispose();
+  }
+
+  int? _parseInt(String s) => int.tryParse(s.trim());
+
+  Map<String, double> _parseCost(String raw) {
+    final Map<String, double> out = <String, double>{};
+    final List<String> lines = raw.split('\n');
+    for (final String line in lines) {
+      final String t = line.trim();
+      if (t.isEmpty) {
+        continue;
+      }
+      final int eq = t.indexOf('=');
+      if (eq <= 0) {
+        continue;
+      }
+      final String key = t.substring(0, eq).trim();
+      final String valStr = t.substring(eq + 1).trim();
+      final double? v = double.tryParse(valStr);
+      if (key.isEmpty || v == null || !v.isFinite || v < 0) {
+        continue;
+      }
+      out[key] = v;
+    }
+    return out;
+  }
+
+  List<String> _parseConstraints(String raw) {
+    final List<String> out = <String>[];
+    final List<String> lines = raw.split('\n');
+    for (final String line in lines) {
+      final String t = line.trim();
+      if (t.isEmpty) {
+        continue;
+      }
+      out.add(t);
+    }
+    return out;
+  }
+
+  void _save() {
+    setState(() => _error = null);
+
+    final int? idx = _parseInt(_indexC.text);
+    final int? succ = _parseInt(_succC.text);
+    final int? fail = _parseInt(_failC.text);
+
+    if (idx == null) {
+      setState(() => _error = 'Index must be an integer');
+      return;
+    }
+    if (succ == null || fail == null) {
+      setState(() => _error = 'Next indices must be integers');
+      return;
+    }
+
+    final bool indexTaken = widget.existingIndexes.contains(idx) &&
+        (widget.editingIndex == null || widget.editingIndex != idx);
+    if (indexTaken) {
+      setState(() => _error = 'Index #$idx already exists');
+      return;
+    }
+
+    final String title = _titleC.text.trim();
+    final String desc = _descC.text.trim();
+    final String failureCode = _failureC.text.trim();
+
+    if (title.isEmpty) {
+      setState(() => _error = 'Title is required');
+      return;
+    }
+    if (failureCode.isEmpty) {
+      setState(() => _error = 'Failure code is required');
+      return;
+    }
+
+    final List<String> constraints = _parseConstraints(_constraintsC.text);
+    final Map<String, double> cost = _parseCost(_costC.text);
+
+    final ModelFlowStep next = ModelFlowStep.immutable(
+      index: idx,
+      title: title,
+      description: desc,
+      failureCode: failureCode,
+      nextOnSuccessIndex: succ,
+      nextOnFailureIndex: fail,
+      constraints: constraints,
+      cost: cost,
+    );
+
+    Navigator.of(context).pop(next);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double h = MediaQuery.of(context).size.height;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
+        top: 8,
+      ),
+      child: SizedBox(
+        height: h * 0.90,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(widget.title, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 6),
+            const Text(
+              'Constraints: one per line.\nCost: one per line as key=value.\n'
+              'Note: Changing indexes does not auto-rewire other steps.',
+            ),
+            const SizedBox(height: 12),
+            if (_error != null) ...<Widget>[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .error
+                      .withValues(alpha: 0.92),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .error
+                        .withValues(alpha: 0.60),
+                  ),
+                ),
+                child: Text(
+                  _error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            Expanded(
+              child: ListView(
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: TextField(
+                          controller: _indexC,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Index',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: _failureC,
+                          decoration: const InputDecoration(
+                            labelText: 'Failure code',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _titleC,
+                    decoration: const InputDecoration(
+                      labelText: 'Title',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _descC,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: TextField(
+                          controller: _succC,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Next on success',
+                            helperText: '-1 means END',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: _failC,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Next on failure',
+                            helperText: '-1 means END',
+                            border: OutlineInputBorder(),
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _constraintsC,
+                    maxLines: 6,
+                    decoration: const InputDecoration(
+                      labelText: 'Constraints (one per line)',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    style:
+                        const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _costC,
+                    maxLines: 6,
+                    decoration: const InputDecoration(
+                      labelText: 'Cost (key=value per line)',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                    ),
+                    style:
+                        const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close),
+                    label: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: _save,
+                    icon: const Icon(Icons.check),
+                    label: const Text('Save'),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        FilledButton(
-          onPressed: () {
-            widget.onPrimaryPressed();
-            if (widget.returnTextOnPrimary) {
-              Navigator.of(context).pop(_c.text);
-              return;
-            }
-            // If not returning text, primary callback should decide navigation.
-          },
-          child: Text(widget.primaryLabel),
-        ),
-      ],
+      ),
     );
   }
 }
