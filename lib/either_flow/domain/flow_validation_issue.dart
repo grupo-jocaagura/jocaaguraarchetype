@@ -109,8 +109,10 @@ class FlowValidationIssue {
     final FlowValidationSeverity severity = FlowValidationSeverity.values
             .where((FlowValidationSeverity e) => e.name == severityRaw)
             .cast<FlowValidationSeverity?>()
-            .firstWhere((FlowValidationSeverity? _) => true,
-                orElse: () => null) ??
+            .firstWhere(
+              (FlowValidationSeverity? _) => true,
+              orElse: () => null,
+            ) ??
         FlowValidationSeverity.error;
 
     int? tryInt(Object? v) {

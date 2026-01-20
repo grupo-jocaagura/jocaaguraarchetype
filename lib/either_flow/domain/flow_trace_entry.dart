@@ -24,7 +24,8 @@ class FlowTraceEntry {
     required this.effectiveFailureCode,
     required Map<String, double> costAddedByMetric,
   }) : costAddedByMetric = Map<String, double>.unmodifiable(
-            <String, double>{...costAddedByMetric});
+          <String, double>{...costAddedByMetric},
+        );
 
   /// Hydrates a [FlowTraceEntry] from JSON.
   ///

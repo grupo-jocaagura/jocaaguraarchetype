@@ -16,3 +16,5 @@ export 'domain/flow_trace_entry.dart';
 export 'domain/flow_validation_issue.dart';
 export 'domain/flow_validator.dart';
 export 'domain/flow_validator_report.dart';
+export 'domain/model_flow_constraint.dart';
+export 'ui/widgets/flow_step_widget.dart';
