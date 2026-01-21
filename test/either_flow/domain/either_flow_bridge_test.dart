@@ -174,4 +174,171 @@ void main() {
       bloc.dispose();
     });
   });
+  group('DefaultEitherFlowBridge - robustness', () {
+    test(
+        'Given invalid JSON When importFromJson Then isBusy ends false (never stuck)',
+        () async {
+      final BlocEitherFlow bloc = BlocEitherFlow();
+      final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
+
+      const String raw = '{invalid-json';
+
+      final Either<ErrorItem, ModelCompleteFlow> res =
+          await bridge.importFromJson(raw);
+
+      expect(res.isLeft, isTrue);
+      expect(bloc.state.value.isBusy, isFalse);
+
+      bloc.dispose();
+    });
+
+    test(
+        'Given JSON with non-object root When importFromJson Then returns left and marks field invalid',
+        () async {
+      final BlocEitherFlow bloc = BlocEitherFlow();
+      final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
+
+      // Valid JSON, but root is a list -> _safeDecodeJson must reject.
+      const String raw = '[]';
+
+      final Either<ErrorItem, ModelCompleteFlow> res =
+          await bridge.importFromJson(raw);
+
+      expect(res.isLeft, isTrue);
+      expect(bloc.state.value.flow, isNull);
+      expect(bloc.state.value.jsonField.isValid, isFalse);
+      expect(bloc.state.value.jsonField.errorText, isNotEmpty);
+      expect(bloc.state.value.isBusy, isFalse);
+
+      bloc.dispose();
+    });
+
+    test(
+        'Given parsable JSON but weird stepsByIndex When importFromJson Then returns right with empty steps and never stuck busy',
+        () async {
+      final BlocEitherFlow bloc = BlocEitherFlow();
+      final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
+
+      // "stepsByIndex" is a List, but ModelCompleteFlow.fromJson is lenient:
+      // it should produce an empty stepsByIndex map, not throw.
+      const String raw =
+          '{"name":"Demo","description":"x","entryIndex":0,"stepsByIndex":[]}';
+
+      final Either<ErrorItem, ModelCompleteFlow> res =
+          await bridge.importFromJson(raw);
+
+      expect(res.isRight, isTrue);
+      expect(bloc.state.value.flow, isNotNull);
+      expect(bloc.state.value.flow!.stepsByIndex, isEmpty);
+
+      // Import contract: derived artifacts exist (your tests expect this).
+      expect(bloc.state.value.validationReport, isNotNull);
+      expect(bloc.state.value.analysisReport, isNotNull);
+
+      // Must always end not busy.
+      expect(bloc.state.value.isBusy, isFalse);
+
+      bloc.dispose();
+    });
+
+    test(
+        'Given no flow When validate Then sets and returns an empty validation report (safe behavior)',
+        () {
+      final BlocEitherFlow bloc = BlocEitherFlow();
+      final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
+
+      final FlowValidationReport report = bridge.validate();
+
+      expect(report.errors, isEmpty);
+      expect(report.warnings, isEmpty);
+      expect(bloc.state.value.validationReport, isNotNull);
+
+      bloc.dispose();
+    });
+
+    test(
+        'Given no flow When analyze Then sets and returns an empty analysis report (safe behavior)',
+        () {
+      final BlocEitherFlow bloc = BlocEitherFlow();
+      final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
+
+      final FlowAnalysisReport report = bridge.analyze();
+
+      expect(report.entryIndex, equals(-1));
+      expect(bloc.state.value.analysisReport, isNotNull);
+      expect(bloc.state.value.analysisReport!.entryIndex, equals(-1));
+
+      bloc.dispose();
+    });
+
+    test(
+        'Given no flow When startStepSimulation Then does nothing and does not flip busy',
+        () {
+      final BlocEitherFlow bloc = BlocEitherFlow();
+      final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
+
+      bridge.startStepSimulation();
+
+      expect(bloc.state.value.simulationSession, isNull);
+      expect(bloc.state.value.lastAuditSnapshot, isNull);
+      expect(bloc.state.value.isBusy, isFalse);
+
+      bloc.dispose();
+    });
+
+    test(
+        'Given started step simulation When clearSimulation Then session and audit are cleared',
+        () {
+      final BlocEitherFlow bloc = BlocEitherFlow();
+      final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
+
+      final ModelCompleteFlow flow = ModelCompleteFlow.immutable(
+        name: 'Demo',
+        description: 'Demo',
+        steps: <ModelFlowStep>[
+          ModelFlowStep.immutable(
+            index: 0,
+            title: 'A',
+            description: '',
+            failureCode: 'F',
+            nextOnSuccessIndex: -1,
+            nextOnFailureIndex: -1,
+          ),
+        ],
+      );
+
+      bloc.setImportedFlow(
+        flow: flow,
+        report: FlowValidator().validateFlow(flow),
+        analysis: FlowAnalyzer().analyze(flow),
+      );
+
+      bridge.startStepSimulation();
+      expect(bloc.state.value.simulationSession, isNotNull);
+      expect(bloc.state.value.lastAuditSnapshot, isNotNull);
+
+      bridge.clearSimulation();
+
+      expect(bloc.state.value.simulationSession, isNull);
+      expect(bloc.state.value.lastAuditSnapshot, isNull);
+
+      bloc.dispose();
+    });
+
+    test(
+        'Given storage not configured When saveToStorage/loadFromStorage Then returns left',
+        () async {
+      final BlocEitherFlow bloc = BlocEitherFlow();
+      final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
+
+      final Either<ErrorItem, Unit> saved = await bridge.saveToStorage(id: 'x');
+      expect(saved.isLeft, isTrue);
+
+      final Either<ErrorItem, ModelCompleteFlow> loaded =
+          await bridge.loadFromStorage(id: 'x');
+      expect(loaded.isLeft, isTrue);
+
+      bloc.dispose();
+    });
+  });
 }

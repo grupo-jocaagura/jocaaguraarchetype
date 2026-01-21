@@ -167,29 +167,40 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
     bloc.setBusy(true);
     bloc.updateRawJson(rawJson);
 
-    final Either<ErrorItem, Map<String, dynamic>> decoded =
-        _safeDecodeJson(rawJson);
+    try {
+      final Either<ErrorItem, Map<String, dynamic>> decoded =
+          _safeDecodeJson(rawJson);
 
-    return decoded.fold((ErrorItem error) {
-      bloc.setImportError(error.description, rawJson: rawJson);
+      return decoded.fold((ErrorItem error) {
+        bloc.setImportError(error.description, rawJson: rawJson);
+        return Left<ErrorItem, ModelCompleteFlow>(error);
+      }, (Map<String, dynamic> onRight) {
+        try {
+          final ModelCompleteFlow flow = ModelCompleteFlow.fromJson(onRight);
+
+          final FlowValidationReport report = _validator.validateFlow(flow);
+          final FlowAnalysisReport analysis = _analyzer.analyze(flow);
+
+          bloc.setImportedFlow(
+            flow: flow,
+            report: report,
+            analysis: analysis,
+          );
+
+          return Right<ErrorItem, ModelCompleteFlow>(flow);
+        } catch (e) {
+          final ErrorItem err = ErrorItem(
+            code: 'either_flow_import_model_error',
+            description: 'Cannot build ModelCompleteFlow: $e',
+            title: '',
+          );
+          bloc.setImportError(err.description, rawJson: rawJson);
+          return Left<ErrorItem, ModelCompleteFlow>(err);
+        }
+      });
+    } finally {
       bloc.setBusy(false);
-      return Left<ErrorItem, ModelCompleteFlow>(error);
-    }, (Map<String, dynamic> onRight) {
-      try {
-        return Right<ErrorItem, ModelCompleteFlow>(
-          ModelCompleteFlow.fromJson(onRight),
-        );
-      } catch (e) {
-        final ErrorItem err = ErrorItem(
-          code: 'either_flow_import_model_error',
-          description: 'Cannot build ModelCompleteFlow: $e',
-          title: '',
-        );
-        bloc.setImportError(err.description, rawJson: rawJson);
-        bloc.setBusy(false);
-        return Left<ErrorItem, ModelCompleteFlow>(err);
-      }
-    });
+    }
   }
 
   @override
