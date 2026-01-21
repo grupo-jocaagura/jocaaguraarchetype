@@ -17,4 +17,8 @@ export 'domain/flow_validation_issue.dart';
 export 'domain/flow_validator.dart';
 export 'domain/flow_validator_report.dart';
 export 'domain/model_flow_constraint.dart';
+export 'ui/widgets/cost_panel_widget.dart';
+export 'ui/widgets/flow_step_constraints_panel_widget.dart';
 export 'ui/widgets/flow_step_widget.dart';
+export 'ui/widgets/index_badget_widget.dart';
+export 'ui/widgets/route_pill_widget.dart';

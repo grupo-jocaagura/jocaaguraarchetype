@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -624,6 +622,7 @@ class _WideBody extends StatelessWidget {
                   ? const Center(child: Text('Select a step to inspect'))
                   : FlowStepWidget(
                       flowStep: focused,
+                      existingIndexes: flow.stepsByIndex.keys.toSet(),
                       stepNumberInPath: _pathNumber(
                         simulation.visitedSteps,
                         focused.index,
@@ -694,6 +693,7 @@ class _NarrowBody extends StatelessWidget {
         return GestureDetector(
           onTap: () => onFocus(step.index),
           child: FlowStepWidget(
+            existingIndexes: flow.stepsByIndex.keys.toSet(),
             flowStep: step,
             stepNumberInPath: i + 1,
             isDecision: isDecision,
@@ -772,6 +772,10 @@ class FlowMapBarWidget extends StatelessWidget {
   final int? focusedIndex;
   final ValueChanged<int> onSelect;
 
+  bool _isDecision(ModelFlowStep s) {
+    return s.nextOnSuccessIndex != s.nextOnFailureIndex;
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<ModelFlowStep> ordered = flow.stepsByIndex.values.toList()
@@ -785,16 +789,27 @@ class FlowMapBarWidget extends StatelessWidget {
           child: Row(
             children: ordered.map((ModelFlowStep s) {
               final bool selected = s.index == focusedIndex;
+              final bool decision = _isDecision(s);
+
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: Tooltip(
-                  message: s.title,
+                  message: '${s.title}${decision ? ' • decision' : ''}',
                   child: ChoiceChip(
                     selected: selected,
-                    label: Text('#${s.index}'),
                     avatar: selected
                         ? const Icon(Icons.visibility_outlined, size: 18)
                         : const Icon(Icons.circle_outlined, size: 18),
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text('#${s.index}'),
+                        if (decision) ...<Widget>[
+                          const SizedBox(width: 6),
+                          const Icon(Icons.alt_route_outlined, size: 16),
+                        ],
+                      ],
+                    ),
                     onSelected: (_) => onSelect(s.index),
                   ),
                 ),
@@ -1026,6 +1041,7 @@ class FlowStepWidget extends StatelessWidget {
     required this.onOutcomeChanged,
     required this.onEdit,
     required this.onDelete,
+    required this.existingIndexes,
     this.highlight = false,
     super.key,
   });
@@ -1040,18 +1056,29 @@ class FlowStepWidget extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
+  /// Needed to show broken-route warnings (no business auto-fix).
+  final Set<int> existingIndexes;
+
   final bool highlight;
+
+  bool _isMissing(int nextIndex) {
+    return nextIndex != -1 && !existingIndexes.contains(nextIndex);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final String success = flowStep.nextOnSuccessIndex == -1
-        ? 'END'
-        : '${flowStep.nextOnSuccessIndex}';
-    final String failure = flowStep.nextOnFailureIndex == -1
-        ? 'END'
-        : '${flowStep.nextOnFailureIndex}';
+    final int succIndex = flowStep.nextOnSuccessIndex;
+    final int failIndex = flowStep.nextOnFailureIndex;
+
+    final bool missingSucc = _isMissing(succIndex);
+    final bool missingFail = _isMissing(failIndex);
+
+    final String success = succIndex == -1 ? 'END' : '$succIndex';
+    final String failure = failIndex == -1 ? 'END' : '$failIndex';
 
     final Color border = Theme.of(context).dividerColor;
+
+    // (Fix visual) highlight must be subtle to keep text readable.
     final Color bg = highlight
         ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.94)
         : Colors.transparent;
@@ -1069,7 +1096,7 @@ class FlowStepWidget extends StatelessWidget {
           children: <Widget>[
             Row(
               children: <Widget>[
-                _IndexBadge(index: flowStep.index, path: stepNumberInPath),
+                IndexBadgeWidget(index: flowStep.index, path: stepNumberInPath),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -1128,22 +1155,37 @@ class FlowStepWidget extends StatelessWidget {
             Row(
               children: <Widget>[
                 Expanded(
-                  child: _RoutePill(
+                  child: RoutePillWidget(
                     label: 'Success → $success',
                     icon: Icons.check_circle_outline,
                     isActive: outcomeIsSuccess,
+                    hasWarning: missingSucc,
+                    tooltip: missingSucc
+                        ? 'Broken route: step #$succIndex not found'
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: _RoutePill(
+                  child: RoutePillWidget(
                     label: 'Failure → $failure',
                     icon: Icons.error_outline,
                     isActive: !outcomeIsSuccess,
+                    hasWarning: missingFail,
+                    tooltip: missingFail
+                        ? 'Broken route: step #$failIndex not found'
+                        : null,
                   ),
                 ),
               ],
             ),
+            if (missingSucc || missingFail) ...<Widget>[
+              const SizedBox(height: 10),
+              BrokenRoutesWarningWidget(
+                missingSuccess: missingSucc ? succIndex : null,
+                missingFailure: missingFail ? failIndex : null,
+              ),
+            ],
             if (isDecision && onOutcomeChanged != null) ...<Widget>[
               const SizedBox(height: 6),
               SwitchListTile.adaptive(
@@ -1163,7 +1205,7 @@ class FlowStepWidget extends StatelessWidget {
               FlowStepConstraintsPanelWidget(constraints: flowStep.constraints),
             if (flowStep.cost.isNotEmpty) ...<Widget>[
               const Divider(height: 22),
-              _CostPanel(cost: flowStep.cost),
+              CostPanelWidget(cost: flowStep.cost),
             ],
           ],
         ),
@@ -1172,205 +1214,56 @@ class FlowStepWidget extends StatelessWidget {
   }
 }
 
-enum _StepMenuAction { edit, delete }
-
-class _IndexBadge extends StatelessWidget {
-  const _IndexBadge({
-    required this.index,
-    required this.path,
+class BrokenRoutesWarningWidget extends StatelessWidget {
+  const BrokenRoutesWarningWidget({
+    required this.missingSuccess,
+    required this.missingFailure,
+    super.key,
   });
 
-  final int index;
-  final int path;
+  final int? missingSuccess;
+  final int? missingFailure;
 
   @override
   Widget build(BuildContext context) {
-    final Color bg = Theme.of(context).colorScheme.surfaceContainerHighest;
-    final Color fg = Theme.of(context).colorScheme.onSurfaceVariant;
+    final Color bg =
+        Theme.of(context).colorScheme.error.withValues(alpha: 0.92);
+    final Color border =
+        Theme.of(context).colorScheme.error.withValues(alpha: 0.65);
+
+    final List<String> lines = <String>[
+      if (missingSuccess != null)
+        'Success points to missing step #$missingSuccess',
+      if (missingFailure != null)
+        'Failure points to missing step #$missingFailure',
+    ];
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(
-            '#$index',
-            style: TextStyle(fontWeight: FontWeight.w700, color: fg),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            'Path $path',
-            style: TextStyle(fontSize: 11, color: fg),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RoutePill extends StatelessWidget {
-  const _RoutePill({
-    required this.label,
-    required this.icon,
-    required this.isActive,
-  });
-
-  final String label;
-  final IconData icon;
-  final bool isActive;
-
-  @override
-  Widget build(BuildContext context) {
-    final Color border = Theme.of(context).dividerColor;
-    final Color bg = isActive
-        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.90)
-        : Colors.transparent;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: border),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Icon(icon, size: 18),
-          const SizedBox(width: 8),
-          Expanded(child: Text(label)),
+          const Icon(Icons.warning_amber_outlined),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: lines.map((String s) => Text(s)).toList(),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _CostPanel extends StatelessWidget {
-  const _CostPanel({required this.cost});
-
-  final Map<String, double> cost;
-
-  @override
-  Widget build(BuildContext context) {
-    final List<MapEntry<String, double>> entries = cost.entries.toList()
-      ..sort((MapEntry<String, double> a, MapEntry<String, double> b) {
-        return a.key.compareTo(b.key);
-      });
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text('Cost', style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: entries.map((MapEntry<String, double> e) {
-            return Chip(label: Text('${e.key}: ${e.value}'));
-          }).toList(),
-        ),
-      ],
-    );
-  }
-}
-
-/// Panel that parses and renders constraints with different UI per type:
-/// - flags -> Chip
-/// - metrics -> Chip (name/value/unit)
-/// - urls -> ListTile (navigable badge)
-class FlowStepConstraintsPanelWidget extends StatelessWidget {
-  const FlowStepConstraintsPanelWidget({
-    required this.constraints,
-    super.key,
-  });
-
-  final List<String> constraints;
-
-  @override
-  Widget build(BuildContext context) {
-    final List<FlowConstraint> parsed =
-        constraints.map((String c) => FlowConstraintUtils.parse(c)).toList();
-
-    final List<FlowConstraint> urls = parsed
-        .where((FlowConstraint c) => c.kind == FlowConstraintKind.url)
-        .toList();
-    final List<FlowConstraint> metrics = parsed
-        .where((FlowConstraint c) => c.kind == FlowConstraintKind.metric)
-        .toList();
-    final List<FlowConstraint> flags = parsed.where((FlowConstraint c) {
-      return c.kind == FlowConstraintKind.flag ||
-          c.kind == FlowConstraintKind.unknown;
-    }).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text('Constraints', style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 8),
-        if (flags.isNotEmpty) ...<Widget>[
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: flags.map((FlowConstraint c) {
-              final String label = (c.key ?? c.raw).trim().isNotEmpty
-                  ? (c.key ?? c.raw)
-                  : '(empty)';
-              return Chip(
-                avatar: const Icon(Icons.flag_outlined, size: 18),
-                label: Text(label),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 12),
-        ],
-        if (metrics.isNotEmpty) ...<Widget>[
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: metrics.map((FlowConstraint c) {
-              final String name = c.key ?? 'metric';
-              final String unit = c.unit ?? '';
-              final String value = c.value?.toString() ?? '?';
-              final String text =
-                  '$name: $value${unit.isEmpty ? '' : ' $unit'}';
-
-              final bool ok = c.isValidMetric;
-              return Chip(
-                avatar: Icon(
-                  ok ? Icons.straighten_outlined : Icons.help_outline,
-                  size: 18,
-                ),
-                label: Text(text),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 12),
-        ],
-        if (urls.isNotEmpty) ...<Widget>[
-          Column(
-            children: urls.map((FlowConstraint c) {
-              final String label = c.label ?? 'link';
-              final String urlText = c.url?.toString() ?? '(invalid url)';
-              final bool ok = c.isNavigableUrl;
-
-              return ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.link),
-                title: Text(label),
-                subtitle: Text(urlText),
-                trailing: Chip(label: Text(ok ? 'https ok' : 'invalid')),
-                onTap: ok ? () {} : null,
-              );
-            }).toList(),
-          ),
-        ],
-      ],
-    );
-  }
-}
+enum _StepMenuAction { edit, delete }
 
 /// ------------------------------------------------------------
 /// Fake storage service
