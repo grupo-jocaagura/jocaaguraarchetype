@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026-01-21
+
+> **Release acumulada** que integra **4.0.1 → 4.0.6**. Enfoque: Sistema de Diseño serializable, utilidades de ACL, y toolchain para análisis/simulación de flujos.
+
+### Added
+- **Design System (4.0.1–4.0.4)**
+    - `ModelThemeData`: representación serializable de **ThemeData** (colores, tipografías, text scaling).
+    - `ModelDsExtendedTokens`: **tokens extendidos** (spacing, border radius, elevation, animation durations) + validación y documentación.
+    - `ModelDesignSystem`: contenedor integral que **orquesta** `ModelThemeData` y `ModelDsExtendedTokens`.
+    - `ModelDataVizPalette` y `ModelSemanticColors`: paletas para **visualización** y **colores semánticos** (éxito/advertencia/error/info).
+    - `ModelDsComponentAnatomy`: anatomía de componentes (botón, tarjeta, modal, etc.).
+    - **Showcase** `ModelSystemExamples`: ejemplo de composición DS + DataViz + Semantic.
+    - **Widgets DS**:
+        - `DsTextThemeEditorWidget`: edición y previsualización de tipografías.
+        - `DsImportExportWidget`: import/export JSON de configuraciones completas.
+
+- **ACL (4.0.5)**
+    - `ModelAclSnapshot`: snapshot serializable de permisos por **recurso/acción**.
+    - `AclBridge`: mapeo entre `ModelAclSnapshot` y estructuras internas.
+    - `HelperAclErrors`: utilidades para errores comunes (denegado, no encontrado).
+    - `BlocAcl`: BLoC para **cargar/actualizar/verificar** permisos.
+    - **Documentación** detallada del flujo de ACL y su integración con el DS.
+
+- **Flow Analysis & Simulation (4.0.6)**
+    - **Análisis**: `FlowAnalyzer`, `FlowAnalysisReport`, `FlowValidationIssue`, `FlowValidator`, `FlowValidatorReport`.
+    - **Simulación**: `FlowSimulationPlan`, `FlowSimulator`, `FlowTraceEntry`, `FlowAuditSnapshot`.
+    - **Soporte `Either`**: validación, auditoría y trazas **reproducibles** de flujos.
+
+### Changed
+- **ModelDesignSystem** amplía alcance: integra **DataViz** y **Semantic Colors**.
+- **ModelFieldState**: soporte `errorTextToInput` (interoperabilidad con inputs que esperan `null` en lugar de `''`).
+- **Dependencias**: `jocaagura_domain` actualizado a **1.38.0** para soportar `ModelAclSnapshot` y casos de uso asociados.
+
+### Docs
+- Guías y ejemplos:
+    - **DS**: definición de tokens, composición de `ModelDesignSystem`, showcase.
+    - **ACL**: ejemplo de implementación end-to-end.
+    - **Flujos**: pipeline de **análisis/validación** y **simulación** con reportes reproducibles.
+
+### Migration notes
+- **Adopción DS**: migra temas y tokens existentes a `ModelDesignSystem`. Usa `DsImportExportWidget` para intercambio JSON.
+- **ACL**: si tenías permisos dispersos, centraliza en `ModelAclSnapshot` y usa `AclBridge` para el mapeo.
+- **Flujos**: para diagnosticar decisiones en pipelines `Either`, define **planes de simulación** con `FlowSimulationPlan` y genera auditorías con `FlowAuditSnapshot`.
+
+> **Compatibilidad:** Cambios no rompientes dentro del rango **4.0.x → 4.1.0**. Requiere `jocaagura_domain >= 1.38.1` para las funciones de ACL.
+
+
 ## [4.0.6] - 2026-01-20
 ### Added
 - FlowAnalysisReport: modelo serializable para resultados de análisis de flujos.
@@ -55,6 +102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - ModelThemeData: modelo serializable para representar ThemeData completo (colores, tipografías, text scaling).
 - Extended tokens model for spacing, border radius, elevation, and animation durations
+
 ## [4.0.0] - 2025-12-14
 
 ### ⚠️ Breaking Changes
