@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 
 import 'jocaaguraarchetype.dart';
 
+export 'either_flow/exports.dart';
 export 'jocaaguraarchetype_domain.dart';
 
 part 'app_config.dart';
