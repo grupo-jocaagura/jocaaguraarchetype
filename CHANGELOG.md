@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.6] - 2026-01-20
+### Added
+- FlowAnalysisReport: modelo serializable para resultados de análisis de flujos.
+- FlowAnalyzer: servicio/contrato para analizar flujos Either y generar reportes.
+- FlowAuditSnapshot: snapshot auditable del estado del flujo y sus decisiones.
+- FlowSimulationPlan: plan de simulación parametrizable para flujos Either.
+- FlowSimulator: ejecutor de simulaciones de flujos con trazas reproducibles.
+- FlowTraceEntry: entrada granular del rastro de ejecución de un flujo.
+- FlowValidationIssue: representación estandarizada de hallazgos/errores en validación.
+- FlowValidator: contrato para validar flujos y producir issues.
+- FlowValidatorReport: reporte agregado de validaciones de flujos.
+
 ## [4.0.5] - 2026-01-20
 
 ### Added
