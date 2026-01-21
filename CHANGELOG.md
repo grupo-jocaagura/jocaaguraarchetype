@@ -5,6 +5,104 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026-01-21
+
+> **Release acumulada** que integra **4.0.1 → 4.0.6**. Enfoque: Sistema de Diseño serializable, utilidades de ACL, y toolchain para análisis/simulación de flujos.
+
+### Added
+- **Design System (4.0.1–4.0.4)**
+    - `ModelThemeData`: representación serializable de **ThemeData** (colores, tipografías, text scaling).
+    - `ModelDsExtendedTokens`: **tokens extendidos** (spacing, border radius, elevation, animation durations) + validación y documentación.
+    - `ModelDesignSystem`: contenedor integral que **orquesta** `ModelThemeData` y `ModelDsExtendedTokens`.
+    - `ModelDataVizPalette` y `ModelSemanticColors`: paletas para **visualización** y **colores semánticos** (éxito/advertencia/error/info).
+    - `ModelDsComponentAnatomy`: anatomía de componentes (botón, tarjeta, modal, etc.).
+    - **Showcase** `ModelSystemExamples`: ejemplo de composición DS + DataViz + Semantic.
+    - **Widgets DS**:
+        - `DsTextThemeEditorWidget`: edición y previsualización de tipografías.
+        - `DsImportExportWidget`: import/export JSON de configuraciones completas.
+
+- **ACL (4.0.5)**
+    - `ModelAclSnapshot`: snapshot serializable de permisos por **recurso/acción**.
+    - `AclBridge`: mapeo entre `ModelAclSnapshot` y estructuras internas.
+    - `HelperAclErrors`: utilidades para errores comunes (denegado, no encontrado).
+    - `BlocAcl`: BLoC para **cargar/actualizar/verificar** permisos.
+    - **Documentación** detallada del flujo de ACL y su integración con el DS.
+
+- **Flow Analysis & Simulation (4.0.6)**
+    - **Análisis**: `FlowAnalyzer`, `FlowAnalysisReport`, `FlowValidationIssue`, `FlowValidator`, `FlowValidatorReport`.
+    - **Simulación**: `FlowSimulationPlan`, `FlowSimulator`, `FlowTraceEntry`, `FlowAuditSnapshot`.
+    - **Soporte `Either`**: validación, auditoría y trazas **reproducibles** de flujos.
+
+### Changed
+- **ModelDesignSystem** amplía alcance: integra **DataViz** y **Semantic Colors**.
+- **ModelFieldState**: soporte `errorTextToInput` (interoperabilidad con inputs que esperan `null` en lugar de `''`).
+- **Dependencias**: `jocaagura_domain` actualizado a **1.38.0** para soportar `ModelAclSnapshot` y casos de uso asociados.
+
+### Docs
+- Guías y ejemplos:
+    - **DS**: definición de tokens, composición de `ModelDesignSystem`, showcase.
+    - **ACL**: ejemplo de implementación end-to-end.
+    - **Flujos**: pipeline de **análisis/validación** y **simulación** con reportes reproducibles.
+
+### Migration notes
+- **Adopción DS**: migra temas y tokens existentes a `ModelDesignSystem`. Usa `DsImportExportWidget` para intercambio JSON.
+- **ACL**: si tenías permisos dispersos, centraliza en `ModelAclSnapshot` y usa `AclBridge` para el mapeo.
+- **Flujos**: para diagnosticar decisiones en pipelines `Either`, define **planes de simulación** con `FlowSimulationPlan` y genera auditorías con `FlowAuditSnapshot`.
+
+> **Compatibilidad:** Cambios no rompientes dentro del rango **4.0.x → 4.1.0**. Requiere `jocaagura_domain >= 1.38.1` para las funciones de ACL.
+
+
+## [4.0.6] - 2026-01-20
+### Added
+- FlowAnalysisReport: modelo serializable para resultados de análisis de flujos.
+- FlowAnalyzer: servicio/contrato para analizar flujos Either y generar reportes.
+- FlowAuditSnapshot: snapshot auditable del estado del flujo y sus decisiones.
+- FlowSimulationPlan: plan de simulación parametrizable para flujos Either.
+- FlowSimulator: ejecutor de simulaciones de flujos con trazas reproducibles.
+- FlowTraceEntry: entrada granular del rastro de ejecución de un flujo.
+- FlowValidationIssue: representación estandarizada de hallazgos/errores en validación.
+- FlowValidator: contrato para validar flujos y producir issues.
+- FlowValidatorReport: reporte agregado de validaciones de flujos.
+
+## [4.0.5] - 2026-01-20
+
+### Added
+- ModelAclSnapshot: modelo serializable para representar snapshots de listas de control de acceso (ACL) con permisos detallados por recurso y acción.
+- AclBridge: clase puente para mapear entre ModelAclSnapshot y estructuras de permisos internas del sistema.
+- HelperAclErrors: utilidades para manejar errores comunes relacionados con ACL (permiso denegado, recurso no encontrado).
+- BlocAcl: BLoC para gestionar el estado de ACL, incluyendo carga, actualización y verificación de permisos.
+- Doocumentacion detallada del ejemplo de impleemntacion del flujo de ACl y Design system.
+
+### Changed
+- jocaagura_domain actualizado a la versión 1.38.0 para soportar ModelAclSnapshot y sus casos de uso asociados.
+
+## [4.0.4] - 2026-01-15
+
+### Added
+- ModelDataVizPalette: modelo serializable para representar paletas de visualización de datos (colores primarios, secundarios, de acento y de fondo).
+- ModelSemanticColors: modelo serializable para representar colores semánticos adicionales (éxito, advertencia, error, información).
+- ModelDsComponentAnatomy: modelo serializable para representar la anatomía de componentes del sistema de diseño (botones, tarjetas, modales).
+- ModelSystemExamples: ejemplo tipo showcase que ilustra cómo combinar ModelDesignSystem, ModelDataVizPalette y ModelSemanticColors en una configuración completa del sistema de diseño.
+- DsTextThemeEditorWidget: widget interactivo para editar y previsualizar ModelTextTheme dentro de ModelDesignSystem.
+- DsImportExportWidget: widget para importar y exportar configuraciones completas de ModelDesignSystem en formato JSON.
+
+### Changed
+- ModelDesignSystem ahora incluye ModelDataVizPalette y ModelSemanticColors para una gestión más completa del sistema de diseño.
+- ModelFieldState actualizado para soportar errorTextToInput con el fin de ayudar a los input de flutter que reciben null en vez de empty.
+## [4.0.3] - 2026-01-15
+### Added
+- Introducimos ModelDesignSystem: un modelo serializable que encapsula ModelThemeData y ModelDsExtendedTokens para una gestión integral del sistema de diseño.
+
+## [4.0.2] - 2026-01-15
+### Added
+- ModelDsExtendedTokens: modelo serializable para representar tokens extendidos de espaciado, border radius, elevación y duraciones de animación.
+- add comprehensive documentation and validation for ModelDsExtendedTokens and its keys
+
+## [4.0.1] - 2026-01-15
+### Added
+- ModelThemeData: modelo serializable para representar ThemeData completo (colores, tipografías, text scaling).
+- Extended tokens model for spacing, border radius, elevation, and animation durations
+
 ## [4.0.0] - 2025-12-14
 
 ### ⚠️ Breaking Changes

@@ -55,31 +55,24 @@ class JocaaguraAutocompleteInputWidget extends StatefulWidget {
     super.key,
     this.errorText,
     this.onSubmittedAttempt,
-    // Autocomplete:
     this.suggestList,
-    // Look & feel:
     this.label = '',
     this.placeholder = '',
     this.icondata,
-    // Text config:
     this.textInputType = TextInputType.text,
     this.textInputAction = TextInputAction.done,
     this.textCapitalization = TextCapitalization.none,
     this.autocorrect = true,
     this.enableSuggestions = true,
     this.autofillHints,
-    // Accessibility:
     this.semanticsLabel,
     this.semanticsHint,
-    // Overlay sizing:
     this.maxOptionsHeight = 240,
     this.minOptionsWidth = 280,
-    // Password helpers:
     this.obscureText = false,
     this.showToggleObscure = true,
   });
 
-  // ----- Controlled props -----
   /// Current text value controlled by the parent (BLoC).
   final String value;
 
@@ -92,16 +85,13 @@ class JocaaguraAutocompleteInputWidget extends StatefulWidget {
   /// Emits raw submitted value (e.g., IME "done" or fieldComplete).
   final JgTextAttempt? onSubmittedAttempt;
 
-  // ----- Autocomplete -----
   /// Suggestions to be filtered with a simple `contains` strategy.
   final List<String>? suggestList;
 
-  // ----- Look & feel -----
   final String label;
   final String placeholder;
   final IconData? icondata;
 
-  // ----- Text config -----
   final TextInputType textInputType;
   final TextInputAction textInputAction;
   final TextCapitalization textCapitalization;
@@ -109,19 +99,13 @@ class JocaaguraAutocompleteInputWidget extends StatefulWidget {
   final bool enableSuggestions;
   final Iterable<String>? autofillHints;
 
-  // ----- Accessibility -----
   final String? semanticsLabel;
   final String? semanticsHint;
 
-  // ----- Overlay sizing -----
   final double maxOptionsHeight;
   final double minOptionsWidth;
 
-  // ----- Password helpers -----
-  /// If true, the input is obscured (password-like field).
   final bool obscureText;
-
-  /// If true and [obscureText] is enabled, shows an eye icon to toggle.
   final bool showToggleObscure;
 
   @override
@@ -131,28 +115,111 @@ class JocaaguraAutocompleteInputWidget extends StatefulWidget {
 
 class _JocaaguraAutocompleteInputWidgetState
     extends State<JocaaguraAutocompleteInputWidget> {
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
+
   bool _obscure = false;
 
   @override
   void initState() {
     super.initState();
+    _controller = TextEditingController(text: widget.value);
+    _focusNode = FocusNode();
     _obscure = widget.obscureText;
   }
 
   @override
+  void didUpdateWidget(covariant JocaaguraAutocompleteInputWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Sync CONTROLLED value -> controller, pero fuera del build.
+    if (widget.value != _controller.text) {
+      _controller.value = _controller.value.copyWith(
+        text: widget.value,
+        selection: TextSelection.collapsed(offset: widget.value.length),
+        composing: TextRange.empty,
+      );
+    }
+
+    if (oldWidget.obscureText != widget.obscureText) {
+      _obscure = widget.obscureText;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  Iterable<String> _filterOptions(TextEditingValue tev) {
+    if (tev.text.isEmpty) {
+      return const Iterable<String>.empty();
+    }
+    final List<String> base = widget.suggestList ?? const <String>[];
+    final String q = tev.text.toLowerCase();
+    return base.where((String s) => s.toLowerCase().contains(q));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Autocomplete<String>(
-      initialValue: TextEditingValue(text: widget.value),
-      optionsBuilder: (TextEditingValue tev) {
-        if (tev.text.isEmpty) {
-          return const Iterable<String>.empty();
-        }
-        final List<String> base = widget.suggestList ?? const <String>[];
-        final String q = tev.text.toLowerCase();
-        return base.where((String s) => s.toLowerCase().contains(q));
+    return RawAutocomplete<String>(
+      textEditingController: _controller,
+      focusNode: _focusNode,
+      optionsBuilder: _filterOptions,
+      onSelected: (String val) {
+        widget.onChangedAttempt(val);
+        _focusNode.unfocus();
       },
-      optionsViewBuilder:
-          (_, void Function(String) onSelected, Iterable<String> options) {
+      fieldViewBuilder: (
+        BuildContext context,
+        TextEditingController _,
+        FocusNode __,
+        VoidCallback onFieldSubmitted,
+      ) {
+        final InputDecoration decoration = InputDecoration(
+          prefixIcon: widget.icondata != null ? Icon(widget.icondata) : null,
+          label: widget.label.isNotEmpty ? Text(widget.label) : null,
+          hintText: widget.placeholder,
+          errorText: widget.errorText,
+          suffixIcon: (widget.obscureText && widget.showToggleObscure)
+              ? IconButton(
+                  tooltip: _obscure ? 'Show' : 'Hide',
+                  icon: Icon(
+                    _obscure ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () => setState(() => _obscure = !_obscure),
+                )
+              : null,
+        );
+
+        // Ojo: TextField ya trae semantics; no necesitamos envolverlo extra.
+        return TextField(
+          controller: _controller,
+          focusNode: _focusNode,
+          keyboardType: widget.textInputType,
+          textInputAction: widget.textInputAction,
+          textCapitalization: widget.textCapitalization,
+          autocorrect: widget.autocorrect,
+          enableSuggestions: widget.enableSuggestions,
+          autofillHints: widget.autofillHints,
+          obscureText: _obscure,
+          onChanged: widget.onChangedAttempt,
+          onSubmitted: (String v) {
+            widget.onSubmittedAttempt?.call(v);
+            onFieldSubmitted();
+            _focusNode.unfocus();
+          },
+          decoration: decoration,
+        );
+      },
+      optionsViewBuilder: (
+        BuildContext context,
+        AutocompleteOnSelected<String> onSelected,
+        Iterable<String> options,
+      ) {
+        // El overlay vive fuera del ListView, pero lo constrainimos bien.
         return Align(
           alignment: Alignment.topLeft,
           child: Material(
@@ -164,94 +231,19 @@ class _JocaaguraAutocompleteInputWidgetState
               ),
               child: ListView.separated(
                 padding: EdgeInsets.zero,
+                shrinkWrap: true,
                 itemCount: options.length,
                 separatorBuilder: (_, __) => const Divider(height: 1),
                 itemBuilder: (_, int i) {
                   final String option = options.elementAt(i);
                   return ListTile(
                     title: Text(option),
-                    onTap: () {
-                      onSelected(option);
-                      // Parent must update `value` via onChangedAttempt → state.
-                      widget.onChangedAttempt(option);
-                      FocusScope.of(context).unfocus();
-                    },
+                    onTap: () => onSelected(option),
                   );
                 },
               ),
             ),
           ),
-        );
-      },
-      onSelected: (String val) {
-        widget.onChangedAttempt(val);
-        FocusScope.of(context).unfocus();
-      },
-      fieldViewBuilder: (
-        BuildContext context,
-        TextEditingController controller,
-        FocusNode focusNode,
-        void Function() onEditingComplete,
-      ) {
-        // Keep controller in sync with external value.
-        if (controller.text != widget.value) {
-          controller.value = controller.value.copyWith(
-            text: widget.value,
-            selection: TextSelection.collapsed(offset: widget.value.length),
-          );
-        }
-
-        final InputDecoration decoration = InputDecoration(
-          prefixIcon: widget.icondata != null ? Icon(widget.icondata) : null,
-          label: widget.label.isNotEmpty ? Text(widget.label) : null,
-          hintText: widget.placeholder,
-          errorText: widget.errorText,
-          suffixIcon: (widget.obscureText && widget.showToggleObscure)
-              ? IconButton(
-                  tooltip: _obscure ? 'Show' : 'Hide',
-                  icon:
-                      Icon(_obscure ? Icons.visibility : Icons.visibility_off),
-                  onPressed: () => setState(() => _obscure = !_obscure),
-                )
-              : null,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.orange),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.orange),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.orange),
-          ),
-        );
-
-        final TextField textField = TextField(
-          controller: controller,
-          focusNode: focusNode,
-          keyboardType: widget.textInputType,
-          textInputAction: widget.textInputAction,
-          textCapitalization: widget.textCapitalization,
-          autocorrect: widget.autocorrect,
-          enableSuggestions: widget.enableSuggestions,
-          autofillHints: widget.autofillHints,
-          obscureText: _obscure,
-          onChanged: widget.onChangedAttempt,
-          onEditingComplete: () {
-            widget.onSubmittedAttempt?.call(controller.text);
-            onEditingComplete();
-            FocusScope.of(context).unfocus();
-          },
-          decoration: decoration,
-        );
-
-        return Semantics(
-          label: widget.semanticsLabel ?? widget.label,
-          hint: widget.semanticsHint ?? widget.placeholder,
-          textField: true,
-          child: textField,
         );
       },
     );
