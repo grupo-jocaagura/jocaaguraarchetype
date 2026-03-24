@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2026-03-24
+
+### Changed
+- Dependencia `jocaagura_domain` actualizada y alineada a `1.39.0`.
+- Validada la retrocompatibilidad del arquetipo con `jocaagura_domain 1.39.0` en compilación, análisis y pruebas.
+
+### Docs
+- README general reestructurado para reflejar el estado actual del arquetipo.
+- Se documentó explícitamente la compatibilidad con `jocaagura_domain 1.39.0`.
+- Se añadió un bloque destacado para enfatizar el soporte nativo del paquete a Design System:
+  - `ModelDesignSystem`
+  - `ModelThemeData`
+  - `ModelDsExtendedTokens`
+  - `ModelSemanticColors`
+  - `ModelDataVizPalette`
+  - `BlocDesignSystem`
+  - widgets de edición e import/export
+
+### Compatibility
+- Upgrade considerado retrocompatible para `jocaaguraarchetype`.
+- No se requirieron ajustes funcionales obligatorios en widgets, flujos, formularios ni bootstrap transversal.
+
 ## [4.1.0] - 2026-01-21
 
 > **Release acumulada** que integra **4.0.1 → 4.0.6**. Enfoque: Sistema de Diseño serializable, utilidades de ACL, y toolchain para análisis/simulación de flujos.
