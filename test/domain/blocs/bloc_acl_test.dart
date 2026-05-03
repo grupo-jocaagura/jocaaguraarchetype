@@ -19,8 +19,8 @@ void main() {
       );
 
       final _FakeAclBridge bridge = _FakeAclBridge(
-        policiesResult: Right<ErrorItem, List<ModelAclPolicy>>(
-          const <ModelAclPolicy>[policy],
+        policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+          <ModelAclPolicy>[policy],
         ),
         userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
           _grant(
@@ -72,10 +72,10 @@ void main() {
         () async {
       // Arrange
       final _FakeAclBridge bridge = _FakeAclBridge(
-        policiesResult: Left<ErrorItem, List<ModelAclPolicy>>(
-          const ErrorItem(title: 'x', code: 'NET', description: 'fail'),
+        policiesResult: const Left<ErrorItem, List<ModelAclPolicy>>(
+          ErrorItem(title: 'x', code: 'NET', description: 'fail'),
         ),
-        userAclResult: Right<ErrorItem, List<ModelAcl>>(const <ModelAcl>[]),
+        userAclResult: const Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[]),
       );
 
       final BlocAcl bloc = BlocAcl(
@@ -113,11 +113,11 @@ void main() {
       );
 
       final _FakeAclBridge bridge = _FakeAclBridge(
-        policiesResult: Right<ErrorItem, List<ModelAclPolicy>>(
-          const <ModelAclPolicy>[policy],
+        policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+          <ModelAclPolicy>[policy],
         ),
-        userAclResult: Left<ErrorItem, List<ModelAcl>>(
-          const ErrorItem(title: 'x', code: 'NET', description: 'fail'),
+        userAclResult: const Left<ErrorItem, List<ModelAcl>>(
+          ErrorItem(title: 'x', code: 'NET', description: 'fail'),
         ),
       );
 
@@ -147,8 +147,8 @@ void main() {
       final BlocAcl bloc = BlocAcl(
         bridge: _FakeAclBridge(
           policiesResult:
-              Right<ErrorItem, List<ModelAclPolicy>>(const <ModelAclPolicy>[]),
-          userAclResult: Right<ErrorItem, List<ModelAcl>>(const <ModelAcl>[]),
+              const Right<ErrorItem, List<ModelAclPolicy>>(<ModelAclPolicy>[]),
+          userAclResult: const Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[]),
         ),
         appName: 'a',
         userEmail: 'u@x.com',
@@ -177,8 +177,8 @@ void main() {
 
       final BlocAcl bloc = BlocAcl(
         bridge: _FakeAclBridge(
-          policiesResult: Right<ErrorItem, List<ModelAclPolicy>>(
-            const <ModelAclPolicy>[inactive],
+          policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+            <ModelAclPolicy>[inactive],
           ),
           userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
             _grant(
@@ -218,8 +218,8 @@ void main() {
 
       final BlocAcl bloc = BlocAcl(
         bridge: _FakeAclBridge(
-          policiesResult: Right<ErrorItem, List<ModelAclPolicy>>(
-            const <ModelAclPolicy>[policy],
+          policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+            <ModelAclPolicy>[policy],
           ),
           userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
             _grant(
@@ -260,8 +260,8 @@ void main() {
       );
 
       final _FakeAclBridge bridge = _FakeAclBridge(
-        policiesResult: Right<ErrorItem, List<ModelAclPolicy>>(
-          const <ModelAclPolicy>[policy],
+        policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+          <ModelAclPolicy>[policy],
         ),
         userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
           _grant(
@@ -306,8 +306,8 @@ void main() {
       );
 
       final _FakeAclBridge bridge = _FakeAclBridge(
-        policiesResult: Right<ErrorItem, List<ModelAclPolicy>>(
-          const <ModelAclPolicy>[policy],
+        policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+          <ModelAclPolicy>[policy],
         ),
         userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
           _grant(
@@ -352,8 +352,8 @@ void main() {
       );
 
       final _FakeAclBridge bridge = _FakeAclBridge(
-        policiesResult: Right<ErrorItem, List<ModelAclPolicy>>(
-          const <ModelAclPolicy>[policy],
+        policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+          <ModelAclPolicy>[policy],
         ),
         userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
           _grant(
@@ -376,7 +376,7 @@ void main() {
         policyId: 'a.b',
         action: () async {
           actionCalled = true;
-          return Right<ErrorItem, int>(1);
+          return const Right<ErrorItem, int>(1);
         },
         unauthorizedErrorBuilder: () =>
             HelperAclErrors.unauthorized(policyId: 'a.b', appName: 'a'),
@@ -410,8 +410,8 @@ void main() {
 
       final BlocAcl bloc = BlocAcl(
         bridge: _FakeAclBridge(
-          policiesResult: Right<ErrorItem, List<ModelAclPolicy>>(
-            const <ModelAclPolicy>[policy],
+          policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+            <ModelAclPolicy>[policy],
           ),
           userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
             _grant(
@@ -431,7 +431,7 @@ void main() {
       // Act
       final Either<ErrorItem, int> result = await bloc.executeWithAcl<int>(
         policyId: 'a.b',
-        action: () async => Right<ErrorItem, int>(42),
+        action: () async => const Right<ErrorItem, int>(42),
         unauthorizedErrorBuilder: () =>
             HelperAclErrors.unauthorized(policyId: 'a.b', appName: 'a'),
       );
@@ -462,8 +462,8 @@ void main() {
 
       final BlocAcl bloc = BlocAcl(
         bridge: _FakeAclBridge(
-          policiesResult: Right<ErrorItem, List<ModelAclPolicy>>(
-            const <ModelAclPolicy>[policy],
+          policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+            <ModelAclPolicy>[policy],
           ),
           userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
             _grant(

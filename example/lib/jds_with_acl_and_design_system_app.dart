@@ -1132,7 +1132,7 @@ class _FakeRepositoryAuth implements RepositoryAuth {
     await Future<void>.delayed(const Duration(milliseconds: 80));
     _current = null;
     _emit(null);
-    return Right<ErrorItem, void>(null);
+    return const Right<ErrorItem, void>(null);
   }
 
   @override
@@ -1253,7 +1253,7 @@ class RepositoryThemeForExample implements RepositoryTheme {
   @override
   Future<Either<ErrorItem, ThemeState>> read() {
     return Future<Either<ErrorItem, ThemeState>>.value(
-      Right<ErrorItem, ThemeState>(ThemeState.defaults),
+      const Right<ErrorItem, ThemeState>(ThemeState.defaults),
     );
   }
 
@@ -1875,7 +1875,7 @@ class _AclCard extends StatelessWidget {
                     await Future<void>.delayed(
                       const Duration(milliseconds: 120),
                     );
-                    return Right<ErrorItem, Unit>(unit);
+                    return const Right<ErrorItem, Unit>(unit);
                   },
                 );
 
@@ -2069,7 +2069,7 @@ JdsAppManager buildAppManager(PageManager pageManager, PageRegistry registry) {
           if (parsed != null) {
             blocDs.setNewDs(parsed);
           }
-          return Right<ErrorItem, Unit>(unit);
+          return const Right<ErrorItem, Unit>(unit);
         },
         autoAdvanceAfter: const Duration(milliseconds: 200),
       ),
@@ -2078,7 +2078,7 @@ JdsAppManager buildAppManager(PageManager pageManager, PageRegistry registry) {
         description: 'Verificando sesión…',
         onEnter: () async {
           await blocSession.boot();
-          return Right<ErrorItem, Unit>(unit);
+          return const Right<ErrorItem, Unit>(unit);
         },
         autoAdvanceAfter: const Duration(milliseconds: 200),
       ),
@@ -2087,7 +2087,7 @@ JdsAppManager buildAppManager(PageManager pageManager, PageRegistry registry) {
         description: 'Entrando…',
         onEnter: () {
           pageManager.replaceTop(HomePublicPage.pageModel);
-          return Right<ErrorItem, Unit>(unit);
+          return const Right<ErrorItem, Unit>(unit);
         },
       ),
     ]);

@@ -158,7 +158,7 @@ void main() {
       expect(reactRepo.hasListener, isFalse);
 
       // Emitir después de dispose no debe lanzar
-      reactRepo.emit(Right<ErrorItem, ThemeState>(ThemeState.defaults));
+      reactRepo.emit(const Right<ErrorItem, ThemeState>(ThemeState.defaults));
 
       // Cleanup
       reactRepo.close();

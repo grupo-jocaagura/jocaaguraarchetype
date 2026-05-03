@@ -23,8 +23,8 @@ class _RepoFlip implements RepositoryTheme {
   @override
   Future<Either<ErrorItem, ThemeState>> read() async {
     if (failRead) {
-      return Left<ErrorItem, ThemeState>(
-        const ErrorItem(
+      return const Left<ErrorItem, ThemeState>(
+        ErrorItem(
           title: 'read-fail',
           code: 'read-fail',
           description: 'read',
@@ -37,8 +37,8 @@ class _RepoFlip implements RepositoryTheme {
   @override
   Future<Either<ErrorItem, ThemeState>> save(ThemeState s) async {
     if (failSave) {
-      return Left<ErrorItem, ThemeState>(
-        const ErrorItem(
+      return const Left<ErrorItem, ThemeState>(
+        ErrorItem(
           title: 'save-fail',
           code: 'save-fail',
           description: 'save',

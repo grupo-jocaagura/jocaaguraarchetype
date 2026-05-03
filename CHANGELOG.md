@@ -5,6 +5,80 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.3.0
+
+### Added
+
+- Se agregó `ModelInteractiveState` como modelo inmutable reutilizable para representar estados interactivos controlados en componentes de UI.
+  - Soporta estados habilitado, cargando, visible, seleccionado, razón, error e intención semántica.
+  - Incluye serialización/deserialización JSON.
+  - Incluye getters derivados como `canInteract`, `hasError`, `hasReason`, `isBlocked` y helpers de feedback.
+  - Incluye pruebas round-trip para estados default, loading, error, selected, disabled y fallback semántico.
+
+- Se agregó `DsInteractiveBuilder`.
+  - Permite interpretar visualmente un `ModelInteractiveState`.
+  - Soporta builders específicos para estados hidden, loading, error, selected, disabled y enabled.
+  - Define prioridad de render determinística:
+    `hidden → loading → error → selected → disabled → enabled`.
+  - Incluye widget tests para prioridad de render y comportamiento fallback.
+
+- Se agregó la base funcional de la galería del Design System.
+  - Se agregó `GalleryPreviewBuilder`.
+  - Se agregó `SideBySideWidget` para comparar un mismo preview en tema claro y oscuro.
+  - Se agregó `DesignSystemGalleryCoverPage`.
+  - Se agregó `DesignSystemGalleryPage`.
+  - Se agregó `DsGalleryPage` como shell principal de la galería.
+  - Se agregó `BlocGallery` para administrar estado, página actual, páginas por defecto y navegación interna sin depender de `Navigator`.
+  - Se agregó `ModelDsGalleryState` y `ModelDsGalleryPageEntry`.
+  - Se agregó `DsGalleryNavigationControls`.
+  - Se agregó `DsGalleryIndexPage`.
+
+- Se agregaron páginas de previsualización para modelos del Design System.
+  - `ModelThemeDataPage`.
+  - `TextThemePage`.
+  - `ModelDsExtendedTokensPage`.
+  - `ModelSemanticColorsPage`.
+  - `ModelDataVizPalettePage`.
+
+- Se agregó `defaultModelDesignSystem()` para examples, pruebas y uso fallback de la galería.
+
+- Se agregó ejemplo de uso de la galería.
+  - Muestra cómo montar `DsGalleryPage`.
+  - Muestra cómo extender la galería con entradas personalizadas usando `ModelDsGalleryPageEntry`.
+  - Muestra previews de widgets mediante `DesignSystemGalleryPage`.
+  - Muestra el uso de `SideBySideWidget` como herramienta de comparación light/dark.
+  - Incluye páginas de ejemplo para botones DS, tipografía DS y `DsInteractiveBuilder`.
+
+### Changed
+
+- Dependencia `jocaagura_domain` actualizada y alineada a `1.40.0`.
+
+- Se mejoró la implementación de `SideBySideWidget` para funcionar correctamente dentro de páginas scrollables de la galería.
+  - Se reemplazaron árboles anidados de `MaterialApp` por paneles aislados con `Theme`.
+  - Se agregó altura explícita para el preview.
+  - Se hizo más seguro su uso dentro de `SingleChildScrollView`, `Column` y layouts de galería.
+
+- Se refinó el enfoque de la galería DS para usar `ModelDsComponentAnatomy` como contrato principal de metadata para portada, páginas de widgets y documentación visual.
+
+### Fixed
+
+- Se corrigió el comportamiento de preview de `SideBySideWidget` al renderizarse dentro de una página scrollable del example.
+  - Ahora el preview muestra de forma confiable los paneles light y dark.
+  - Se evita que el preview desaparezca por constraints verticales no acotadas.
+
+### Tests
+
+- Se agregaron pruebas round-trip para `ModelInteractiveState`.
+- Se agregaron widget tests para `DsInteractiveBuilder`.
+- Se agregaron pruebas de `BlocGallery` para `next`, `previous`, `goTo`, `reset` y navegación al índice.
+- Se agregaron widget tests para `DsGalleryPage`, `DsGalleryIndexPage` y `SideBySideWidget`.
+- Se agregaron widget tests tipo smoke para las páginas de previsualización de modelos DS.
+
+### Notes
+
+- La galería DS se enfoca en esta versión en estructura, contratos y comportamiento funcional de previsualización.
+- El refinamiento visual, composición responsive y pulido final de la galería quedan diferidos a un issue dedicado.
+
 ## [4.2.0] - 2026-03-24
 
 ### Changed

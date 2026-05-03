@@ -83,7 +83,7 @@ class RepositoryThemeImpl implements RepositoryTheme {
         (ErrorItem err) {
           // Si es "no encontrado", devolvemos defaults como éxito
           if (err.code == 'ERR_NOT_FOUND') {
-            return Right<ErrorItem, ThemeState>(ThemeState.defaults);
+            return const Right<ErrorItem, ThemeState>(ThemeState.defaults);
           }
           // Cualquier otro error se propaga como Left
           return Left<ErrorItem, ThemeState>(
