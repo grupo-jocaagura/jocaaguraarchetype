@@ -173,7 +173,7 @@ class _HttpAndVersionExample {
             // - Podríamos inyectar aquí la versión desde flavor/env.
             // - O desde un Usecase que lea info de build.
             _blocModelVersion.setVersion(_installedVersion);
-            return Right<ErrorItem, Unit>(Unit.value);
+            return const Right<ErrorItem, Unit>(Unit.value);
           },
           autoAdvanceAfter: const Duration(milliseconds: 250),
         ),

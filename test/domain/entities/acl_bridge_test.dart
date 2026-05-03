@@ -70,8 +70,8 @@ class _FakeAclBridge implements AclBridge {
     required String appName,
   }) async {
     if (shouldFail) {
-      return Left<ErrorItem, List<ModelAclPolicy>>(
-        const ErrorItem(
+      return const Left<ErrorItem, List<ModelAclPolicy>>(
+        ErrorItem(
           title: 'network',
           code: 'NETWORK_2',
           description: 'Network error',
@@ -79,11 +79,11 @@ class _FakeAclBridge implements AclBridge {
       );
     }
     if (appName == 'bienvenido') {
-      return Right<ErrorItem, List<ModelAclPolicy>>(
-        const <ModelAclPolicy>[ModelAclPolicy.defaultModelAclPolicy],
+      return const Right<ErrorItem, List<ModelAclPolicy>>(
+        <ModelAclPolicy>[ModelAclPolicy.defaultModelAclPolicy],
       );
     }
-    return Right<ErrorItem, List<ModelAclPolicy>>(const <ModelAclPolicy>[]);
+    return const Right<ErrorItem, List<ModelAclPolicy>>(<ModelAclPolicy>[]);
   }
 
   @override
@@ -92,14 +92,14 @@ class _FakeAclBridge implements AclBridge {
     required String userEmail,
   }) async {
     if (shouldFail) {
-      return Left<ErrorItem, List<ModelAcl>>(
-        const ErrorItem(
+      return const Left<ErrorItem, List<ModelAcl>>(
+        ErrorItem(
           title: 'network',
           code: 'NETWORK.ERROR',
           description: '',
         ),
       );
     }
-    return Right<ErrorItem, List<ModelAcl>>(const <ModelAcl>[]);
+    return const Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[]);
   }
 }

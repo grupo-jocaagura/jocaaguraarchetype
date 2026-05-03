@@ -158,7 +158,7 @@ void main() {
       final _GatewayFake g = _GatewayFake();
       // Mal formado: textScale no finito provoca FormatException en ThemeState.fromJson
       g.nextRead =
-          Right<ErrorItem, Map<String, dynamic>>(const <String, dynamic>{
+          const Right<ErrorItem, Map<String, dynamic>>(<String, dynamic>{
         'useM3': true,
         'textScale': double.infinity,
       });
@@ -219,7 +219,7 @@ void main() {
       final _GatewayFake g = _GatewayFake();
       // Forzamos que el gateway devuelva un mapa roto tras write:
       g.nextWrite =
-          Right<ErrorItem, Map<String, dynamic>>(const <String, dynamic>{
+          const Right<ErrorItem, Map<String, dynamic>>(<String, dynamic>{
         'useM3': true,
         'textScale': double.nan, // hará fallar ThemeState.fromJson
       });
@@ -298,7 +298,7 @@ void main() {
       });
 
       g.emit(
-        Right<ErrorItem, Map<String, dynamic>>(const <String, dynamic>{
+        const Right<ErrorItem, Map<String, dynamic>>(<String, dynamic>{
           'useM3': true,
           'textScale': double.infinity,
         }),

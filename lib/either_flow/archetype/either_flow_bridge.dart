@@ -142,8 +142,8 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
       if (decoded is Map<String, dynamic>) {
         return Right<ErrorItem, Map<String, dynamic>>(decoded);
       }
-      return Left<ErrorItem, Map<String, dynamic>>(
-        const ErrorItem(
+      return const Left<ErrorItem, Map<String, dynamic>>(
+        ErrorItem(
           code: 'either_flow_import_invalid_root',
           description: 'Expected a JSON object at the root.',
           title: '',
@@ -323,7 +323,7 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
     final String raw = exportToJson();
     try {
       await storage.save(id: id, rawJson: raw);
-      return Right<ErrorItem, Unit>(Unit.value);
+      return const Right<ErrorItem, Unit>(Unit.value);
     } catch (e) {
       return Left<ErrorItem, Unit>(
         ErrorItem(

@@ -94,7 +94,7 @@ class _FormsExample {
             title: 'Init forms demo',
             description: 'Setting up reactive modules',
             onEnter: () async {
-              return Right<ErrorItem, Unit>(Unit.value);
+              return const Right<ErrorItem, Unit>(Unit.value);
             },
             autoAdvanceAfter: const Duration(milliseconds: 200),
           ),
@@ -151,8 +151,8 @@ class DemoLoginFormBloc extends BlocModule {
     onEmailChangedAttempt(email.value);
     onPasswordChangedAttempt(password.value);
     if (!isValid) {
-      return Left<ErrorItem, Unit>(
-        const ErrorItem(
+      return const Left<ErrorItem, Unit>(
+        ErrorItem(
           code: 'INVALID_FORM',
           title: 'Formulario inválido',
           description: 'Revise los campos e intente de nuevo',
@@ -161,7 +161,7 @@ class DemoLoginFormBloc extends BlocModule {
     }
 
     await Future<void>.delayed(const Duration(milliseconds: 250));
-    return Right<ErrorItem, Unit>(Unit.value);
+    return const Right<ErrorItem, Unit>(Unit.value);
   }
 
   @override
