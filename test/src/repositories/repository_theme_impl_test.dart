@@ -9,8 +9,8 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 class _GwNotFound implements GatewayTheme {
   @override
   Future<Either<ErrorItem, Map<String, dynamic>>> read() async =>
-      Left<ErrorItem, Map<String, dynamic>>(
-        const ErrorItem(
+      const Left<ErrorItem, Map<String, dynamic>>(
+        ErrorItem(
           title: 'not-found',
           code: 'ERR_NOT_FOUND',
           description: 'not-found',
@@ -21,8 +21,8 @@ class _GwNotFound implements GatewayTheme {
   Future<Either<ErrorItem, Map<String, dynamic>>> write(
     Map<String, dynamic> json,
   ) async =>
-      Left<ErrorItem, Map<String, dynamic>>(
-        const ErrorItem(
+      const Left<ErrorItem, Map<String, dynamic>>(
+        ErrorItem(
           title: 'write-unreachable',
           code: 'UNUSED',
           description: 'UNUSED',
@@ -42,8 +42,8 @@ class _GwReadRight implements GatewayTheme {
   Future<Either<ErrorItem, Map<String, dynamic>>> write(
     Map<String, dynamic> json,
   ) async =>
-      Left<ErrorItem, Map<String, dynamic>>(
-        const ErrorItem(
+      const Left<ErrorItem, Map<String, dynamic>>(
+        ErrorItem(
           title: 'write-unreachable',
           code: 'UNUSED',
           description: 'UNUSED',
@@ -69,8 +69,8 @@ class _GwReadLeft implements GatewayTheme {
   Future<Either<ErrorItem, Map<String, dynamic>>> write(
     Map<String, dynamic> json,
   ) async =>
-      Left<ErrorItem, Map<String, dynamic>>(
-        const ErrorItem(
+      const Left<ErrorItem, Map<String, dynamic>>(
+        ErrorItem(
           title: 'write-unreachable',
           code: 'UNUSED',
           description: 'UNUSED',
@@ -88,8 +88,8 @@ class _GwThrowOnRead implements GatewayTheme {
   Future<Either<ErrorItem, Map<String, dynamic>>> write(
     Map<String, dynamic> json,
   ) async =>
-      Left<ErrorItem, Map<String, dynamic>>(
-        const ErrorItem(
+      const Left<ErrorItem, Map<String, dynamic>>(
+        ErrorItem(
           title: 'write-unreachable',
           code: 'UNUSED',
           description: 'UNUSED',
@@ -100,8 +100,8 @@ class _GwThrowOnRead implements GatewayTheme {
 class _GwWriteEcho implements GatewayTheme {
   @override
   Future<Either<ErrorItem, Map<String, dynamic>>> read() async =>
-      Left<ErrorItem, Map<String, dynamic>>(
-        const ErrorItem(
+      const Left<ErrorItem, Map<String, dynamic>>(
+        ErrorItem(
           title: 'read-unreachable',
           code: 'UNUSED',
           description: 'UNUSED',
@@ -121,8 +121,8 @@ class _GwWriteLeft implements GatewayTheme {
 
   @override
   Future<Either<ErrorItem, Map<String, dynamic>>> read() async =>
-      Left<ErrorItem, Map<String, dynamic>>(
-        const ErrorItem(
+      const Left<ErrorItem, Map<String, dynamic>>(
+        ErrorItem(
           title: 'read-unreachable',
           code: 'UNUSED',
           description: 'UNUSED',
@@ -145,8 +145,8 @@ class _GwWriteLeft implements GatewayTheme {
 class _GwThrowOnWrite implements GatewayTheme {
   @override
   Future<Either<ErrorItem, Map<String, dynamic>>> read() async =>
-      Left<ErrorItem, Map<String, dynamic>>(
-        const ErrorItem(
+      const Left<ErrorItem, Map<String, dynamic>>(
+        ErrorItem(
           title: 'read-unreachable',
           code: 'UNUSED',
           description: 'UNUSED',
@@ -500,8 +500,8 @@ void main() {
 class _GwWriteAlwaysBiz implements GatewayTheme {
   @override
   Future<Either<ErrorItem, Map<String, dynamic>>> read() async =>
-      Left<ErrorItem, Map<String, dynamic>>(
-        const ErrorItem(
+      const Left<ErrorItem, Map<String, dynamic>>(
+        ErrorItem(
           title: 'read-unreachable',
           code: 'UNUSED',
           description: 'UNUSED',

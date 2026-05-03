@@ -31,7 +31,7 @@ OnboardingStep deferredStep({
     onEnter: () async {
       try {
         await load().timeout(timeout);
-        return Right<ErrorItem, Unit>(Unit.value);
+        return const Right<ErrorItem, Unit>(Unit.value);
       } on TimeoutException {
         return Left<ErrorItem, Unit>(
           ErrorItem(

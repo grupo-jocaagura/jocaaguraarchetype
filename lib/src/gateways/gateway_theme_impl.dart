@@ -97,8 +97,8 @@ class GatewayThemeImpl implements GatewayTheme {
   Future<Either<ErrorItem, Map<String, dynamic>>> read() async {
     try {
       if (_doc == null) {
-        return Left<ErrorItem, Map<String, dynamic>>(
-          const ErrorItem(
+        return const Left<ErrorItem, Map<String, dynamic>>(
+          ErrorItem(
             title: 'Theme not found',
             code: 'ERR_NOT_FOUND',
             description: 'No persisted theme was found.',

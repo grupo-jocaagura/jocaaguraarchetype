@@ -278,10 +278,10 @@ class BlocSession extends BlocModule {
         pass == '12345') {
       _email = email.trim();
       _loggedIn.value = true;
-      return Right<ErrorItem, Unit>(Unit.value);
+      return const Right<ErrorItem, Unit>(Unit.value);
     }
-    return Left<ErrorItem, Unit>(
-      const ErrorItem(
+    return const Left<ErrorItem, Unit>(
+      ErrorItem(
         title: 'Credenciales inválidas',
         code: '',
         description: '',
@@ -471,7 +471,7 @@ AppManager buildAppManager() {
           final SessionNavCoordinator coord =
               SessionNavCoordinator(appManagerProd!); // se setea luego
           coord.setupMainMenuForCurrentSession();
-          return Right<ErrorItem, Unit>(Unit.value);
+          return const Right<ErrorItem, Unit>(Unit.value);
         },
         autoAdvanceAfter: autoAdvanceAfter,
       ),
@@ -481,7 +481,7 @@ AppManager buildAppManager() {
         onEnter: () {
           _onboardingDone = true;
           pageManager.replaceTop(HomePage.pageModel);
-          return Right<ErrorItem, Unit>(Unit.value);
+          return const Right<ErrorItem, Unit>(Unit.value);
         },
       ),
     ]);

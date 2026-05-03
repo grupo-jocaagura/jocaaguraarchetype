@@ -46,8 +46,8 @@ class FailingWriteGateway implements GatewayTheme {
   Future<Either<ErrorItem, Map<String, dynamic>>> write(
     Map<String, dynamic> json,
   ) async {
-    return Left<ErrorItem, Map<String, dynamic>>(
-      const ErrorItem(
+    return const Left<ErrorItem, Map<String, dynamic>>(
+      ErrorItem(
         title: 'Write failed',
         code: 'ERR_WRITE',
         description: 'Injected write failure',

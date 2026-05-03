@@ -89,7 +89,7 @@ AppManager buildAppManager() {
         // ✅ Reemplaza la página superior (Splash) por Home (no push)
         pageManager.replaceTop(HomePage.pageModel);
 
-        return Right<ErrorItem, Unit>(Unit.value);
+        return const Right<ErrorItem, Unit>(Unit.value);
       },
     ),
   ];
