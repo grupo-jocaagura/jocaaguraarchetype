@@ -416,7 +416,7 @@ AppManager buildAppManager() {
       OnboardingStep(
         title: 'Check Session',
         description: 'Verificando sesión…',
-        onEnter: () => Right<ErrorItem, Unit>(Unit.value),
+        onEnter: () => const Right<ErrorItem, Unit>(Unit.value),
         autoAdvanceAfter: autoAdvanceAfter,
       ),
       OnboardingStep(
@@ -425,7 +425,7 @@ AppManager buildAppManager() {
         onEnter: () {
           _onboardingDone = true;
           pageManager.replaceTop(HomePage.pageModel);
-          return Right<ErrorItem, Unit>(Unit.value);
+          return const Right<ErrorItem, Unit>(Unit.value);
         },
       ),
     ]);
