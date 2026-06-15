@@ -43,10 +43,10 @@ class ModelAclSnapshot {
   final Map<String, ModelAclPolicy> _policiesById;
   final Map<String, RoleType> _userAclByPolicyId;
 
-  /// Key: policyId ("<appName>.<feature>").
+  /// Key: policyId ("appName.feature").
   Map<String, ModelAclPolicy> get policiesById => _policiesById;
 
-  /// Key: policyId ("<appName>.<feature>"), Value: user's assigned role for that policy.
+  /// Key: policyId ("appName.feature"), Value: user's assigned role for that policy.
   Map<String, RoleType> get userAclByPolicyId => _userAclByPolicyId;
 
   final String lastSyncAtIsoDate;
