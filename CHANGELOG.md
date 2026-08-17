@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.5.0] - 2026-06-15
+
+### Added
+
+* Internationalization foundation
+
+  * Added `LanguageLocaleMapper` to provide deterministic bidirectional conversion between domain `ModelLanguage` values and Flutter `Locale`.
+  * Added `LanguageResolutionPolicy` to deterministically resolve preferred languages against supported languages and an explicit fallback.
+  * Added support for language, script, and region matching while preventing explicit script conflicts.
+  * Added deterministic fallback behavior and supported-language ordering for resolution ties.
+* Internationalization unit tests
+
+  * Added coverage for language-only, regional, script-specific, undetermined, and roundtrip locale mappings.
+  * Added coverage for exact matches, preferred-language ordering, script and region matching, generic languages, compatible variants, fallback resolution, incompatible scripts, empty collections, and deterministic tie-breaking.
+  * `LanguageLocaleMapper`: 100% line coverage.
+  * `LanguageResolutionPolicy`: 100% line coverage.
+
+### Changed
+
+* Updated `jocaagura_domain` dependency from `^1.42.0` to `^1.43.0` to consume the new internationalization domain models and DTO contracts.
+* Updated asynchronous `Either` handling in `DefaultEitherFlowBridge` and `RepositoryThemeImpl` with explicit awaiting for compatibility with the current Flutter/Dart toolchain.
+* Updated analyzer exclusions for generated build and platform directories in both the package and example configuration to preserve clean analysis with current Flutter tooling.
+
+### Compatibility
+
+* The release is backward compatible with the existing public API.
+* Existing consumers are not required to adopt the new internationalization APIs.
+* The new internationalization layer establishes the first integration phase between Jocaagura domain language models and Flutter localization primitives.
+
 ## [4.4.0] - 2026-06-15
 
 ### Added
