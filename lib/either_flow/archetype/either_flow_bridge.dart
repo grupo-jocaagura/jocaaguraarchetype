@@ -171,7 +171,7 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
       final Either<ErrorItem, Map<String, dynamic>> decoded =
           _safeDecodeJson(rawJson);
 
-      return decoded.fold((ErrorItem error) {
+      return await decoded.fold((ErrorItem error) {
         bloc.setImportError(error.description, rawJson: rawJson);
         return Left<ErrorItem, ModelCompleteFlow>(error);
       }, (Map<String, dynamic> onRight) {
@@ -355,7 +355,7 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
           ),
         );
       }
-      return importFromJson(raw);
+      return await importFromJson(raw);
     } catch (e) {
       return Left<ErrorItem, ModelCompleteFlow>(
         ErrorItem(

@@ -78,7 +78,7 @@ class RepositoryThemeImpl implements RepositoryTheme {
       final Either<ErrorItem, Map<String, dynamic>> r = await _gw.read();
 
       // Mapear resultado del gateway con `when`
-      return r.when(
+      return await r.when(
         // LEFT: Error del gateway
         (ErrorItem err) {
           // Si es "no encontrado", devolvemos defaults como éxito
@@ -117,7 +117,7 @@ class RepositoryThemeImpl implements RepositoryTheme {
       final Map<String, dynamic> json = next.toJson();
       final Either<ErrorItem, Map<String, dynamic>> r = await _gw.write(json);
 
-      return r.when(
+      return await r.when(
         (ErrorItem err) => Left<ErrorItem, ThemeState>(
           err.copyWith(
             meta: <String, dynamic>{
