@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.5.1] - 2026-09-08
+
+### Fixed
+
+- Fixed `MySnackBarWidget` exposing a full-screen residual semantics region
+  while no notification was visible on Flutter Web. Notification semantics
+  are now limited to the visible toast and removed after its exit transition,
+  preserving live-region announcements, actions, dismissal, and the existing
+  public API.
+
 ## [4.5.0] - 2026-06-15
 
 ### Added
