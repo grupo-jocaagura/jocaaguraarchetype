@@ -97,7 +97,18 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
             }
             return IconButton(
               iconSize: responsive.marginWidth * 0.85,
-              onPressed: app.pop,
+              onPressed: () {
+                final RouterDelegate<Object?>? delegate =
+                    Router.maybeOf(context)?.routerDelegate;
+                if (delegate is MyAppRouterDelegate &&
+                    delegate.userBackNavigationPolicy != null) {
+                  delegate.requestUserBack(
+                    source: UserBackNavigationSource.appBar,
+                  );
+                } else {
+                  app.pop();
+                }
+              },
               icon: const Icon(Icons.chevron_left),
               tooltip: label,
             );

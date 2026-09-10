@@ -37,6 +37,7 @@ class JocaaguraApp extends StatelessWidget {
     this.initialLocation = '/home',
     this.seedInitialFromPageManager = false,
     this.splashOverlayBuilder,
+    this.userBackNavigationPolicy,
     super.key,
   });
 
@@ -44,6 +45,7 @@ class JocaaguraApp extends StatelessWidget {
     required PageRegistry registry,
     required bool projectorMode,
     Key? key,
+    UserBackNavigationPolicy? userBackNavigationPolicy,
     String initialLocation = '/home',
     List<OnboardingStep> onboardingSteps = const <OnboardingStep>[],
     bool seedInitialFromPageManager = false, // <— NUEVO
@@ -63,6 +65,7 @@ class JocaaguraApp extends StatelessWidget {
       ownsManager: true,
       seedInitialFromPageManager: seedInitialFromPageManager,
       splashOverlayBuilder: splashOverlayBuilder,
+      userBackNavigationPolicy: userBackNavigationPolicy,
     );
   }
 
@@ -71,6 +74,10 @@ class JocaaguraApp extends StatelessWidget {
   final bool projectorMode;
   final String initialLocation;
   final bool ownsManager;
+
+  /// Optional application-owned policy for user back requests. Null preserves
+  /// legacy navigation. Programmatic PageManager resets/replacements bypass it.
+  final UserBackNavigationPolicy? userBackNavigationPolicy;
 
   /// If true, the initial URL is seeded from PageManager.top (if any).
   /// Keeps initial stack ownership on first Router sync.
@@ -91,6 +98,7 @@ class JocaaguraApp extends StatelessWidget {
         ownsManager: ownsManager,
         seedInitialFromPageManager: seedInitialFromPageManager,
         splashOverlayBuilder: splashOverlayBuilder,
+        userBackNavigationPolicy: userBackNavigationPolicy,
       ),
     );
   }
