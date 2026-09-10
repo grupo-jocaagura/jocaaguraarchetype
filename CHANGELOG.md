@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.6.0] - 2026-09-09
+
+### Added
+
+- Optional application-owned `UserBackNavigationPolicy` for system back,
+  Navigator pops, iOS gestures, browser history and `PageAppBar`. Rejected
+  requests leave `PageManager` unchanged and are never replayed. The app shells
+  wire history URL restoration automatically; direct router users can use
+  `UserBackRouteInformationProvider`. Programmatic stack resets/replacements
+  remain available and navigation without a policy keeps its existing behavior.
+- A runnable user-back-navigation example and deterministic regression tests
+  for rejection, subsequent approval, gestures, history and stale decisions.
+- Guarded pops preserve Flutter local history, route results and result
+  callbacks. Recognized browser history entries distinguish repeated URIs by
+  their target stack index. Policy lifecycle state guarantees are documented.
+- Flutter PopScope vetoes precede local-history consumption, and equal method
+  tear-offs preserve pending policy decisions across rebuilds. Multi-entry
+  Forward applies the destination without restoring discarded intermediate
+  pages; this single-stack limitation is documented and regression-tested.
+
 ## [4.5.1] - 2026-09-08
 
 ### Fixed
