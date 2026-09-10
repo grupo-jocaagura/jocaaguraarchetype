@@ -21,9 +21,12 @@ class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {
 
     // "/" → default
     if (uri.pathSegments.isEmpty) {
-      return NavStackModel.single(
-        PageModel(
-          name: defaultRouteName,
+      return _withHistory(
+        routeInformation,
+        NavStackModel.single(
+          PageModel(
+            name: defaultRouteName,
+          ),
         ),
       );
     }
@@ -37,13 +40,40 @@ class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {
         Utils.getStringFromDynamic(v),
       ),
     );
-    return NavStackModel.single(
-      PageModel(name: name, segments: segments, query: query),
+    return _withHistory(
+      routeInformation,
+      NavStackModel.single(
+        PageModel(name: name, segments: segments, query: query),
+      ),
     );
   }
 
+  NavStackModel _withHistory(
+    RouteInformation information,
+    NavStackModel stack,
+  ) =>
+      information is _UserHistoryRouteInformation
+          ? _UserHistoryStack(
+              NavStackModel.single(
+                PageModel.fromUri(
+                  information.uri,
+                  name: stack.top.name,
+                  kind: stack.top.kind,
+                ),
+              ),
+              information.backward,
+              stackIndex: information.stackIndex,
+            )
+          : stack;
+
   @override
   RouteInformation? restoreRouteInformation(NavStackModel configuration) {
+    if (configuration is _UserHistoryStack) {
+      return _UserHistoryRouteInformation(
+        uri: Uri.parse(configuration.top.toUriString()),
+        stackIndex: configuration.stackIndex,
+      );
+    }
     return RouteInformation(uri: Uri.parse(configuration.top.toUriString()));
   }
 

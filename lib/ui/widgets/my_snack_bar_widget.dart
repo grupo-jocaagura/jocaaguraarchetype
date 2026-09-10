@@ -1,51 +1,82 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// A lightweight, responsive toast/snack overlay driven by a stream.
+/// Display a lightweight responsive notification overlay driven by a stream.
 ///
-/// - Uses [BlocResponsive] to size & place the toast (bottom-center on mobile,
-///   top-right on tablet/desktop).
-/// - Queues incoming snacks and shows them one by one.
-/// - Auto-dismisses after [duration] (can be overridden per snack).
-/// - Optional action button and close (X).
+/// Positions the notification at the bottom center on mobile layouts and at
+/// the top right on tablet and desktop layouts.
 ///
-/// ### Usage (recommended)
+/// The notification exposes a live semantics region only while it is visible.
+/// Its semantics bounds are limited to the visible notification so controls
+/// outside the notification remain interactive.
+///
+/// A `null` snack or a snack with an empty message hides the notification and
+/// does not expose a `Notification` semantics node.
+///
+/// The owner of [snacks] controls the notification lifecycle. When
+/// [onDismissRequested] is invoked, the owner is responsible for emitting a
+/// value that hides the current notification.
+///
+/// Place this widget inside a [Stack] when using it as an overlay.
+///
+/// Functional example:
+///
 /// ```dart
-/// final BlocResponsive resp = BlocResponsive()..setSizeFromContext(context);
-/// final StreamController<AppSnack> ctrl = StreamController<AppSnack>();
+/// void main() {
+///   runApp(const MaterialApp(home: SnackExample()));
+/// }
 ///
-/// // Somewhere in your code:
-/// ctrl.add(AppSnack.info('Saved!'));
+/// class SnackExample extends StatefulWidget {
+///   const SnackExample({super.key});
 ///
-/// // Overlay:
-/// Stack(
-///   children: [
-///     page,
-///     Align(
-///       alignment: Alignment.topCenter,
-///       child: MySnackBarWidget(
-///         responsive: resp,
-///         snacks: ctrl.stream,
+///   @override
+///   State<SnackExample> createState() => _SnackExampleState();
+/// }
+///
+/// class _SnackExampleState extends State<SnackExample> {
+///   final StreamController<AppSnack?> _controller =
+///       StreamController<AppSnack?>();
+///   final BlocResponsive _responsive = BlocResponsive();
+///
+///   @override
+///   void dispose() {
+///     _controller.close();
+///     super.dispose();
+///   }
+///
+///   @override
+///   Widget build(BuildContext context) {
+///     _responsive.setSizeFromContext(context);
+///
+///     return Scaffold(
+///       body: Stack(
+///         children: <Widget>[
+///           Center(
+///             child: ElevatedButton(
+///               onPressed: () {
+///                 _controller.add(AppSnack.info('Saved!'));
+///               },
+///               child: const Text('Show notification'),
+///             ),
+///           ),
+///           MySnackBarWidget(
+///             responsive: _responsive,
+///             snacks: _controller.stream,
+///             onDismissRequested: () {
+///               _controller.add(null);
+///             },
+///           ),
+///         ],
 ///       ),
-///     ),
-///   ],
-/// )
+///     );
+///   }
+/// }
 /// ```
 ///
-/// ### Legacy (string stream)
-/// ```dart
-/// MySnackBarWidget.fromStringStream(
-///   responsive: resp,
-///   toastStream: myStringStream,
-/// );
-/// ```
-///
-/// This widget paints inside its own box; place it in a `Stack` for an overlay.
-///
-/// See: [AppSnack], [AppSnackVariant].
+/// See [AppSnack] and [AppSnackVariant].
 class MySnackBarWidget extends StatelessWidget {
   const MySnackBarWidget({
     required this.responsive,
-    required this.snacks, // Stream<AppSnack?>: null = oculto, AppSnack = visible
+    required this.snacks,
     super.key,
     this.maxWidthColumns,
     this.elevation = 8.0,
@@ -54,7 +85,12 @@ class MySnackBarWidget extends StatelessWidget {
     this.onDismissRequested,
   });
 
-  /// Backwards-compatible factory para `Stream<String>`.
+  /// Adapt a legacy string stream to an [AppSnack] stream.
+  ///
+  /// Every emitted string is converted to an informational [AppSnack].
+  ///
+  /// An empty string produces a hidden notification because
+  /// [MySnackBarWidget] only displays snacks with non-empty messages.
   factory MySnackBarWidget.fromStringStream({
     required BlocResponsive responsive,
     required Stream<String> toastStream,
@@ -65,8 +101,10 @@ class MySnackBarWidget extends StatelessWidget {
     VoidCallback? onDismissRequested,
     Key? key,
   }) {
-    final Stream<AppSnack?> mapped =
-        toastStream.map<AppSnack?>((String msg) => AppSnack.info(msg));
+    final Stream<AppSnack?> mapped = toastStream.map<AppSnack?>(
+      (String message) => AppSnack.info(message),
+    );
+
     return MySnackBarWidget(
       key: key,
       responsive: responsive,
@@ -79,25 +117,38 @@ class MySnackBarWidget extends StatelessWidget {
     );
   }
 
-  /// Responsive metrics provider.
+  /// Provide responsive metrics used to size and position the notification.
   final BlocResponsive responsive;
 
-  /// Stream reactivo: `null` oculta, `AppSnack` muestra.
+  /// Provide the notifications to display.
+  ///
+  /// Emit `null` to hide the current notification.
+  ///
+  /// A snack whose message is empty is also treated as hidden.
   final Stream<AppSnack?> snacks;
 
-  /// Clamp max width usando columnas responsivas.
+  /// Limit the notification width using responsive layout columns.
+  ///
+  /// When `null`, the widget derives its maximum width from the current
+  /// responsive layout.
   final int? maxWidthColumns;
 
-  /// Material elevation.
+  /// Set the Material elevation of the visible notification.
   final double elevation;
 
-  /// Si `true`, muestra botón de cierre (X) **si** hay `onDismissRequested`.
+  /// Show the close button when dismissal is available.
+  ///
+  /// The close button is rendered only when this value is `true` and
+  /// [onDismissRequested] is not `null`.
   final bool dismissible;
 
-  /// Envuelve en SafeArea.
+  /// Wrap the notification overlay in a [SafeArea] when `true`.
   final bool safeArea;
 
-  /// Pedido de cierre: el padre debe ocultar emitiendo `null` en el stream.
+  /// Request dismissal of the current notification.
+  ///
+  /// This callback does not mutate [snacks]. The owner must update the stream
+  /// to hide the notification, typically by emitting `null`.
   final VoidCallback? onDismissRequested;
 
   @override
@@ -106,57 +157,79 @@ class MySnackBarWidget extends StatelessWidget {
     final ColorScheme scheme = Theme.of(context).colorScheme;
 
     final bool isMobile = r.isMobile;
-    final double mh = r.marginWidth;
+    final double marginWidth = r.marginWidth;
     final double gap = r.gutterWidth.clamp(8.0, 16.0);
 
-    final double defaultMax = max(
+    final double defaultMaxWidth = max(
       0.0,
-      isMobile ? (r.workAreaSize.width - (mh * 2)) : r.widthByColumns(4),
-    );
-    final double maxW = max(
-      0.0,
-      maxWidthColumns != null
-          ? r.widthByColumns(maxWidthColumns!.clamp(1, r.columnsNumber))
-          : defaultMax,
+      isMobile ? r.workAreaSize.width - (marginWidth * 2) : r.widthByColumns(4),
     );
 
-    final Alignment align =
+    final double maxWidth = max(
+      0.0,
+      maxWidthColumns != null
+          ? r.widthByColumns(
+              maxWidthColumns!.clamp(1, r.columnsNumber),
+            )
+          : defaultMaxWidth,
+    );
+
+    final Alignment alignment =
         isMobile ? Alignment.bottomCenter : Alignment.topRight;
-    final EdgeInsets outerPad = isMobile
-        ? EdgeInsets.only(left: mh, right: mh, bottom: gap)
-        : EdgeInsets.only(right: mh, top: gap);
+
+    final EdgeInsets outerPadding = isMobile
+        ? EdgeInsets.only(
+            left: marginWidth,
+            right: marginWidth,
+            bottom: gap,
+          )
+        : EdgeInsets.only(
+            right: marginWidth,
+            top: gap,
+          );
 
     return StreamBuilder<AppSnack?>(
       stream: snacks,
-      builder: (BuildContext context, AsyncSnapshot<AppSnack?> snap) {
-        final AppSnack? s = snap.data;
-        final bool show = s != null && s.message.isNotEmpty;
-        final _Palette p =
-            _paletteFor(s?.variant ?? AppSnackVariant.info, scheme);
+      builder: (
+        BuildContext context,
+        AsyncSnapshot<AppSnack?> snapshot,
+      ) {
+        final AppSnack? snack = snapshot.data;
+        final bool show = snack != null && snack.message.isNotEmpty;
+
+        final _Palette palette = _paletteFor(
+          snack?.variant ?? AppSnackVariant.info,
+          scheme,
+        );
 
         final Widget toast = !show
             ? const SizedBox.shrink()
             : Material(
                 elevation: elevation,
-                color: p.bg,
-                surfaceTintColor: p.tint,
+                color: palette.bg,
+                surfaceTintColor: palette.tint,
                 borderRadius: BorderRadius.circular(12),
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: maxW),
+                  constraints: BoxConstraints(maxWidth: maxWidth),
                   child: Padding(
                     padding: EdgeInsets.all(gap),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        if (s.leadingIcon != null)
+                        if (snack.leadingIcon != null)
                           Padding(
-                            padding:
-                                EdgeInsetsDirectional.only(end: gap * 0.75),
-                            child: Icon(s.leadingIcon, color: p.fg, size: 20),
+                            padding: EdgeInsetsDirectional.only(
+                              end: gap * 0.75,
+                            ),
+                            child: Icon(
+                              snack.leadingIcon,
+                              color: palette.fg,
+                              size: 20,
+                            ),
                           ),
                         Flexible(
                           child: Text(
-                            s.message,
+                            snack.message,
                             key: const ValueKey<String>('snack-text'),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -164,25 +237,27 @@ class MySnackBarWidget extends StatelessWidget {
                                 .textTheme
                                 .bodyMedium
                                 ?.copyWith(
-                                  color: p.fg,
+                                  color: palette.fg,
                                   fontWeight: FontWeight.w600,
                                 ),
                           ),
                         ),
-                        if (s.actionLabel != null && s.onAction != null)
+                        if (snack.actionLabel != null && snack.onAction != null)
                           Padding(
                             padding: EdgeInsetsDirectional.only(start: gap),
                             child: TextButton(
                               onPressed: () {
-                                s.onAction?.call();
+                                snack.onAction?.call();
                                 onDismissRequested?.call();
                               },
                               child: Text(
-                                s.actionLabel!,
+                                snack.actionLabel!,
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelLarge
-                                    ?.copyWith(color: p.action),
+                                    ?.copyWith(
+                                      color: palette.action,
+                                    ),
                               ),
                             ),
                           ),
@@ -193,7 +268,7 @@ class MySnackBarWidget extends StatelessWidget {
                             icon: Icon(
                               Icons.close_rounded,
                               size: 18,
-                              color: p.fg.withValues(alpha: 0.85),
+                              color: palette.fg.withValues(alpha: 0.85),
                             ),
                           ),
                       ],
@@ -209,66 +284,76 @@ class MySnackBarWidget extends StatelessWidget {
           child: show
               ? KeyedSubtree(
                   key: const ValueKey<String>('snack-on'),
-                  child: toast,
+                  child: Semantics(
+                    liveRegion: true,
+                    label: 'Notification',
+                    value: snack.message,
+                    child: toast,
+                  ),
                 )
-              : const SizedBox(key: ValueKey<String>('snack-off')),
+              : const SizedBox(
+                  key: ValueKey<String>('snack-off'),
+                ),
         );
 
         final Widget body = Align(
-          alignment: align,
-          child: Padding(padding: outerPad, child: animated),
+          alignment: alignment,
+          child: Padding(
+            padding: outerPadding,
+            child: animated,
+          ),
         );
 
-        final Widget withSemantics = Semantics(
-          liveRegion: true,
-          label: 'Notification',
-          value: s?.message,
-          child: body,
-        );
-
-        return safeArea ? SafeArea(child: withSemantics) : withSemantics;
+        return safeArea ? SafeArea(child: body) : body;
       },
     );
   }
 
-  _Palette _paletteFor(AppSnackVariant v, ColorScheme s) {
-    switch (v) {
+  _Palette _paletteFor(
+    AppSnackVariant variant,
+    ColorScheme scheme,
+  ) {
+    switch (variant) {
       case AppSnackVariant.info:
         return _Palette(
-          bg: s.inverseSurface,
-          fg: s.onInverseSurface, // <- corregido: texto legible
-          action: s.inversePrimary,
-          tint: s.inverseSurface,
+          bg: scheme.inverseSurface,
+          fg: scheme.onInverseSurface,
+          action: scheme.inversePrimary,
+          tint: scheme.inverseSurface,
         );
       case AppSnackVariant.success:
         return _Palette(
-          bg: s.tertiaryContainer,
-          fg: s.onTertiaryContainer,
-          action: s.tertiary,
-          tint: s.tertiaryContainer,
+          bg: scheme.tertiaryContainer,
+          fg: scheme.onTertiaryContainer,
+          action: scheme.tertiary,
+          tint: scheme.tertiaryContainer,
         );
       case AppSnackVariant.warning:
         return _Palette(
-          bg: s.secondaryContainer,
-          fg: s.onSecondaryContainer,
-          action: s.secondary,
-          tint: s.secondaryContainer,
+          bg: scheme.secondaryContainer,
+          fg: scheme.onSecondaryContainer,
+          action: scheme.secondary,
+          tint: scheme.secondaryContainer,
         );
       case AppSnackVariant.error:
         return _Palette(
-          bg: s.errorContainer,
-          fg: s.onErrorContainer,
-          action: s.error,
-          tint: s.errorContainer,
+          bg: scheme.errorContainer,
+          fg: scheme.onErrorContainer,
+          action: scheme.error,
+          tint: scheme.errorContainer,
         );
     }
   }
 }
 
-/// Payload for [MySnackBarWidget].
+/// Describe a notification displayed by [MySnackBarWidget].
 ///
-/// Use factories for quick creation:
-/// - [AppSnack.info], [AppSnack.success], [AppSnack.warning], [AppSnack.error]
+/// Use [AppSnack.info], [AppSnack.success], [AppSnack.warning], or
+/// [AppSnack.error] to create common notification variants.
+///
+/// [duration] is notification metadata only. [MySnackBarWidget] does not
+/// schedule automatic dismissal; the owner of the notification stream remains
+/// responsible for its lifecycle.
 class AppSnack {
   const AppSnack({
     required this.message,
@@ -279,6 +364,7 @@ class AppSnack {
     this.duration,
   });
 
+  /// Create an informational notification.
   factory AppSnack.info(
     String msg, {
     String? actionLabel,
@@ -294,6 +380,7 @@ class AppSnack {
         duration: duration,
       );
 
+  /// Create a success notification.
   factory AppSnack.success(
     String msg, {
     String? actionLabel,
@@ -310,6 +397,7 @@ class AppSnack {
         duration: duration,
       );
 
+  /// Create a warning notification.
   factory AppSnack.warning(
     String msg, {
     String? actionLabel,
@@ -326,6 +414,7 @@ class AppSnack {
         duration: duration,
       );
 
+  /// Create an error notification.
   factory AppSnack.error(
     String msg, {
     String? actionLabel,
@@ -342,16 +431,38 @@ class AppSnack {
         duration: duration,
       );
 
+  /// Provide the notification message.
   final String message;
+
+  /// Define the visual notification variant.
   final AppSnackVariant variant;
+
+  /// Provide the optional label for the primary action.
+  ///
+  /// The action is displayed only when both [actionLabel] and [onAction] are
+  /// provided.
   final String? actionLabel;
+
+  /// Handle activation of the optional primary action.
   final VoidCallback? onAction;
+
+  /// Provide an optional leading icon.
   final IconData? leadingIcon;
+
+  /// Describe the preferred notification display duration.
+  ///
+  /// [MySnackBarWidget] does not automatically dismiss notifications based on
+  /// this value.
   final Duration? duration;
 }
 
-/// Visual style for a snack variant.
-enum AppSnackVariant { info, success, warning, error }
+/// Define the visual style of an [AppSnack].
+enum AppSnackVariant {
+  info,
+  success,
+  warning,
+  error,
+}
 
 class _Palette {
   const _Palette({
@@ -360,6 +471,7 @@ class _Palette {
     required this.action,
     required this.tint,
   });
+
   final Color bg;
   final Color fg;
   final Color action;

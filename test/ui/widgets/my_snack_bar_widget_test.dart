@@ -331,4 +331,393 @@ void main() {
 
     await off.close();
   });
+
+  group('Fix issue 128', () {
+    testWidgets(
+      'Given no active notification When rendered Then Notification semantics does not exist',
+      (WidgetTester tester) async {
+        final StreamController<AppSnack?> controller =
+            StreamController<AppSnack?>();
+        addTearDown(controller.close);
+
+        final BlocResponsive responsive = BlocResponsive();
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (BuildContext context) {
+                responsive.setSizeFromContext(context);
+
+                return Scaffold(
+                  body: MySnackBarWidget(
+                    responsive: responsive,
+                    snacks: controller.stream,
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+
+        expect(
+          find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)')),
+          findsNothing,
+        );
+      },
+    );
+    testWidgets(
+      'Given an empty legacy notification When rendered Then Notification semantics does not exist',
+      (WidgetTester tester) async {
+        final StreamController<String> controller = StreamController<String>();
+        addTearDown(controller.close);
+
+        final BlocResponsive responsive = BlocResponsive();
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (BuildContext context) {
+                responsive.setSizeFromContext(context);
+
+                return Scaffold(
+                  body: MySnackBarWidget.fromStringStream(
+                    responsive: responsive,
+                    toastStream: controller.stream,
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+
+        controller.add('Legacy notification');
+        await tester.pumpAndSettle();
+        expect(
+          find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)')),
+          findsOneWidget,
+        );
+
+        controller.add('');
+        await tester.pumpAndSettle();
+
+        expect(
+          find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)')),
+          findsNothing,
+        );
+      },
+    );
+    testWidgets(
+      'Given a visible notification When rendered Then it exposes a live Notification semantics region',
+      (WidgetTester tester) async {
+        final StreamController<AppSnack?> controller =
+            StreamController<AppSnack?>();
+        addTearDown(controller.close);
+
+        final BlocResponsive responsive = BlocResponsive();
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (BuildContext context) {
+                responsive.setSizeFromContext(context);
+
+                return Scaffold(
+                  body: MySnackBarWidget(
+                    responsive: responsive,
+                    snacks: controller.stream,
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+
+        controller.add(AppSnack.info('Saved'));
+        await tester.pumpAndSettle();
+
+        final Finder notification =
+            find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)'));
+
+        expect(notification, findsOneWidget);
+
+        expect(
+          tester.getSemantics(notification),
+          matchesSemantics(
+            label: 'Notification\nSaved',
+            value: 'Saved',
+            isLiveRegion: true,
+          ),
+        );
+      },
+    );
+    testWidgets(
+      'Given a visible notification When rendered Then its semantics bounds are smaller than the viewport',
+      (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(1200, 800);
+        tester.view.devicePixelRatio = 1.0;
+
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        final StreamController<AppSnack?> controller =
+            StreamController<AppSnack?>();
+        addTearDown(controller.close);
+
+        final BlocResponsive responsive = BlocResponsive();
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (BuildContext context) {
+                responsive.setSizeFromContext(context);
+
+                return Scaffold(
+                  body: MySnackBarWidget(
+                    responsive: responsive,
+                    snacks: controller.stream,
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+
+        controller.add(AppSnack.info('Saved'));
+        await tester.pumpAndSettle();
+
+        final Finder notificationSemantics =
+            find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)'));
+
+        expect(notificationSemantics, findsOneWidget);
+
+        final Size semanticsSize =
+            tester.getSemantics(notificationSemantics).rect.size;
+
+        expect(semanticsSize.width, lessThan(1200));
+        expect(semanticsSize.height, lessThan(800));
+      },
+    );
+    testWidgets(
+      'Given a notification overlay When hidden, visible or dismissed Then outside controls remain interactive',
+      (WidgetTester tester) async {
+        final StreamController<AppSnack?> controller =
+            StreamController<AppSnack?>();
+        addTearDown(controller.close);
+
+        final BlocResponsive responsive = BlocResponsive();
+        int taps = 0;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (BuildContext context) {
+                responsive.setSizeFromContext(context);
+
+                return Scaffold(
+                  body: Stack(
+                    children: <Widget>[
+                      Center(
+                        child: TextButton(
+                          onPressed: () {
+                            taps++;
+                          },
+                          child: const Text('Vender'),
+                        ),
+                      ),
+                      MySnackBarWidget(
+                        responsive: responsive,
+                        snacks: controller.stream,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Vender'));
+        await tester.pumpAndSettle();
+
+        expect(taps, 1);
+
+        controller.add(AppSnack.info('Saved'));
+        await tester.pumpAndSettle();
+        expect(
+          find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)')),
+          findsOneWidget,
+        );
+        expect(find.bySemanticsLabel('Vender'), findsOneWidget);
+        await tester.tap(find.text('Vender'));
+        await tester.pumpAndSettle();
+        expect(taps, 2);
+
+        controller.add(null);
+        await tester.pumpAndSettle();
+        expect(
+          find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)')),
+          findsNothing,
+        );
+        await tester.tap(find.text('Vender'));
+        await tester.pumpAndSettle();
+        expect(taps, 3);
+      },
+    );
+    testWidgets(
+      'Given a notification action When tapped Then action and dismissal callbacks run exactly once',
+      (WidgetTester tester) async {
+        final StreamController<AppSnack?> controller =
+            StreamController<AppSnack?>();
+        addTearDown(controller.close);
+
+        final BlocResponsive responsive = BlocResponsive();
+        int actions = 0;
+        int dismissals = 0;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (BuildContext context) {
+                responsive.setSizeFromContext(context);
+
+                return Scaffold(
+                  body: MySnackBarWidget(
+                    responsive: responsive,
+                    snacks: controller.stream,
+                    onDismissRequested: () {
+                      dismissals++;
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+
+        controller.add(
+          AppSnack.info(
+            'Connection failed',
+            actionLabel: 'Retry',
+            onAction: () {
+              actions++;
+            },
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Retry'));
+        await tester.pumpAndSettle();
+
+        expect(actions, 1);
+        expect(dismissals, 1);
+      },
+    );
+    testWidgets(
+      'Given a dismissible notification When Close is tapped Then dismissal is requested exactly once',
+      (WidgetTester tester) async {
+        final StreamController<AppSnack?> controller =
+            StreamController<AppSnack?>();
+        addTearDown(controller.close);
+
+        final BlocResponsive responsive = BlocResponsive();
+        int dismissals = 0;
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (BuildContext context) {
+                responsive.setSizeFromContext(context);
+
+                return Scaffold(
+                  body: MySnackBarWidget(
+                    responsive: responsive,
+                    snacks: controller.stream,
+                    onDismissRequested: () {
+                      dismissals++;
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+
+        controller.add(AppSnack.info('Saved'));
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.getSemantics(find.byTooltip('Close')),
+          isSemantics(
+            tooltip: 'Close',
+            isButton: true,
+            hasTapAction: true,
+          ),
+        );
+
+        await tester.tap(find.byTooltip('Close'));
+        await tester.pumpAndSettle();
+
+        expect(dismissals, 1);
+      },
+    );
+    testWidgets(
+      'Given a visible notification When hidden and transition completes Then Notification semantics disappears',
+      (WidgetTester tester) async {
+        final StreamController<AppSnack?> controller =
+            StreamController<AppSnack?>();
+        addTearDown(controller.close);
+
+        final BlocResponsive responsive = BlocResponsive();
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (BuildContext context) {
+                responsive.setSizeFromContext(context);
+
+                return Scaffold(
+                  body: MySnackBarWidget(
+                    responsive: responsive,
+                    snacks: controller.stream,
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+
+        controller.add(AppSnack.info('First notification'));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)')),
+          findsOneWidget,
+        );
+
+        controller.add(null);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 90));
+        expect(
+          find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)')),
+          findsOneWidget,
+        );
+        await tester.pump(const Duration(milliseconds: 200));
+
+        expect(
+          find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)')),
+          findsNothing,
+        );
+        controller.add(AppSnack.info('Second notification'));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)')),
+          findsOneWidget,
+        );
+
+        expect(find.text('Second notification'), findsOneWidget);
+      },
+    );
+  });
 }

@@ -75,6 +75,7 @@ class JocaaguraAppWithSession extends StatefulWidget {
     this.initialLocation = '/home',
     this.seedInitialFromPageManager = false,
     this.splashOverlayBuilder,
+    this.userBackNavigationPolicy,
     this.sessionAppManager,
     this.configureMenusForLoggedIn,
     this.configureMenusForLoggedOut,
@@ -116,6 +117,7 @@ class JocaaguraAppWithSession extends StatefulWidget {
     bool seedInitialFromPageManager = true,
     Widget Function(BuildContext, OnboardingState)? splashOverlayBuilder,
     SessionAppManager? sessionAppManager,
+    UserBackNavigationPolicy? userBackNavigationPolicy,
     Key? key,
   }) {
     final BlocSession effectiveSessionBloc = sessionBloc ??
@@ -134,6 +136,7 @@ class JocaaguraAppWithSession extends StatefulWidget {
       initialLocation: initialLocation,
       seedInitialFromPageManager: seedInitialFromPageManager,
       splashOverlayBuilder: splashOverlayBuilder,
+      userBackNavigationPolicy: userBackNavigationPolicy,
       sessionAppManager: sessionAppManager,
       configureMenusForLoggedIn: configureMenusForLoggedIn,
       configureMenusForLoggedOut: configureMenusForLoggedOut,
@@ -159,6 +162,9 @@ class JocaaguraAppWithSession extends StatefulWidget {
 
   /// Whether projector mode is enabled (passed to [JocaaguraApp]).
   final bool projectorMode;
+
+  /// Optional policy for user back navigation, independent of session resets.
+  final UserBackNavigationPolicy? userBackNavigationPolicy;
 
   /// Initial URL for the router when not seeding from [PageManager].
   final String initialLocation;
@@ -214,6 +220,7 @@ class _JocaaguraAppWithSessionState extends State<JocaaguraAppWithSession> {
       initialLocation: widget.initialLocation,
       seedInitialFromPageManager: widget.seedInitialFromPageManager,
       splashOverlayBuilder: widget.splashOverlayBuilder,
+      userBackNavigationPolicy: widget.userBackNavigationPolicy,
     );
   }
 

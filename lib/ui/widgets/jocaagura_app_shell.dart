@@ -9,6 +9,7 @@ class JocaaguraAppShell extends StatefulWidget {
     required this.seedInitialFromPageManager,
     required this.splashOverlayBuilder,
     this.controller, // ✅ nuevo (para tests)
+    this.userBackNavigationPolicy,
     super.key,
   });
 
@@ -22,6 +23,10 @@ class JocaaguraAppShell extends StatefulWidget {
   /// Cuando se provee, evita usar streams “reales” (ej. RepeatLastValueExtension).
   final JocaaguraAppShellController? controller;
 
+  /// Optional application decision before user back navigation leaves a page.
+  /// Keep it installed and change its return value to preserve route state.
+  final UserBackNavigationPolicy? userBackNavigationPolicy;
+
   @override
   State<JocaaguraAppShell> createState() => _JocaaguraAppShellState();
 }
@@ -30,7 +35,7 @@ class _JocaaguraAppShellState extends State<JocaaguraAppShell>
     with WidgetsBindingObserver {
   late final MyRouteInformationParser _parser;
   late final MyAppRouterDelegate _delegate;
-  late final PlatformRouteInformationProvider _routeInfoProvider;
+  late final UserBackRouteInformationProvider _routeInfoProvider;
 
   late JocaaguraAppShellController _controller;
 
@@ -46,6 +51,7 @@ class _JocaaguraAppShellState extends State<JocaaguraAppShell>
     _delegate = MyAppRouterDelegate(
       registry: widget.registry,
       pageManager: _controller.appManager.pageManager,
+      userBackNavigationPolicy: widget.userBackNavigationPolicy,
     );
 
     final String seedPath = _controller.computeSeedPath(
@@ -53,8 +59,9 @@ class _JocaaguraAppShellState extends State<JocaaguraAppShell>
       initialLocation: widget.initialLocation,
     );
 
-    _routeInfoProvider = PlatformRouteInformationProvider(
+    _routeInfoProvider = UserBackRouteInformationProvider(
       initialRouteInformation: RouteInformation(uri: Uri.parse(seedPath)),
+      enabled: widget.userBackNavigationPolicy != null,
     );
   }
 
@@ -69,6 +76,9 @@ class _JocaaguraAppShellState extends State<JocaaguraAppShell>
   @override
   void didUpdateWidget(covariant JocaaguraAppShell oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    _delegate.userBackNavigationPolicy = widget.userBackNavigationPolicy;
+    _routeInfoProvider.enabled = widget.userBackNavigationPolicy != null;
 
     // Si el test inyecta controller y lo cambia, lo respetamos.
     if (!identical(oldWidget.controller, widget.controller) &&
