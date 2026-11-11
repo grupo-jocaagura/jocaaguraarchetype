@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.6.1] - 2026-11-11
+
+### Fixed
+
+- Cancel pending notification auto-close timers when `AppManager` disposes
+  `BlocUserNotifications`, including toasts with custom durations. Repeated
+  disposal remains safe.
+- Cancel the previous auto-close timer when clearing or replacing a toast so
+  an older notification cannot dismiss its replacement prematurely.
+- Add deterministic regression tests for owner-driven disposal and replacement
+  across default and custom notification durations. Fixes #133.
+
 ## [4.6.0] - 2026-09-09
 
 ### Added
