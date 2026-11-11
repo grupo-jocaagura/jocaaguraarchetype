@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../jocaaguraarchetype.dart';
 
@@ -139,10 +139,7 @@ abstract final class FlowConstraintUtils {
   ///   assert(c.startsWith('url:figma|'));
   /// }
   /// ```
-  static String formatUrl({
-    required String label,
-    required Uri url,
-  }) {
+  static String formatUrl({required String label, required Uri url}) {
     final String safeLabel = label.trim().toLowerCase();
     final String urlString = url.toString().trim();
     if (safeLabel.isEmpty || urlString.isEmpty) {
@@ -234,11 +231,7 @@ abstract final class FlowConstraintUtils {
       );
     }
 
-    return FlowConstraint(
-      kind: FlowConstraintKind.flag,
-      raw: s,
-      key: s,
-    );
+    return FlowConstraint(kind: FlowConstraintKind.flag, raw: s, key: s);
   }
 
   /// Returns true if [raw] already exists in [constraints] (exact string match).
@@ -282,12 +275,11 @@ extension ModelFlowStepConstraintsX on ModelFlowStep {
   ///   assert(updated.constraints.length == 1);
   /// }
   /// ```
-  ModelFlowStep withUrlConstraint({
-    required String label,
-    required Uri url,
-  }) {
-    final String formatted =
-        FlowConstraintUtils.formatUrl(label: label, url: url);
+  ModelFlowStep withUrlConstraint({required String label, required Uri url}) {
+    final String formatted = FlowConstraintUtils.formatUrl(
+      label: label,
+      url: url,
+    );
     final List<String> next = List<String>.from(constraints);
 
     if (!FlowConstraintUtils.containsExact(constraints: next, raw: formatted)) {
@@ -306,8 +298,11 @@ extension ModelFlowStepConstraintsX on ModelFlowStep {
     required double value,
     required String unit,
   }) {
-    final String formatted =
-        FlowConstraintUtils.formatMetric(name: name, value: value, unit: unit);
+    final String formatted = FlowConstraintUtils.formatMetric(
+      name: name,
+      value: value,
+      unit: unit,
+    );
     final List<String> next = List<String>.from(constraints);
 
     if (!FlowConstraintUtils.containsExact(constraints: next, raw: formatted)) {

@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   const Size mobileSize = Size(390, 844);
@@ -51,18 +51,14 @@ void main() {
     await tester.pump(); // frame inicial
   }
 
-  testWidgets('muestra el mensaje cuando llega por el stream',
-      (WidgetTester tester) async {
+  testWidgets('muestra el mensaje cuando llega por el stream', (
+    WidgetTester tester,
+  ) async {
     final BlocResponsive r = mobileResp();
     final StreamController<AppSnack?> ctrl =
         StreamController<AppSnack?>.broadcast();
 
-    await pumpHost(
-      tester,
-      mediaSize: mobileSize,
-      r: r,
-      stream: ctrl.stream,
-    );
+    await pumpHost(tester, mediaSize: mobileSize, r: r, stream: ctrl.stream);
 
     ctrl.add(AppSnack.info('Saved!'));
     await tester.pumpAndSettle(const Duration(milliseconds: 250));
@@ -72,28 +68,26 @@ void main() {
     await ctrl.close();
   });
 
-  testWidgets('colocación: bottom-center en mobile, top-right en desktop',
-      (WidgetTester tester) async {
+  testWidgets('colocación: bottom-center en mobile, top-right en desktop', (
+    WidgetTester tester,
+  ) async {
     // Mobile
     final BlocResponsive rMob = mobileResp();
     final StreamController<AppSnack?> mob =
         StreamController<AppSnack?>.broadcast();
-    await pumpHost(
-      tester,
-      mediaSize: mobileSize,
-      r: rMob,
-      stream: mob.stream,
-    );
+    await pumpHost(tester, mediaSize: mobileSize, r: rMob, stream: mob.stream);
     mob.add(AppSnack.info('Here!'));
     await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
     final Finder txtMob = find.text('Here!');
     expect(txtMob, findsOneWidget);
-    final Align mobAlign = find
-        .ancestor(of: txtMob, matching: find.byType(Align))
-        .evaluate()
-        .last
-        .widget as Align;
+    final Align mobAlign =
+        find
+                .ancestor(of: txtMob, matching: find.byType(Align))
+                .evaluate()
+                .last
+                .widget
+            as Align;
     expect(mobAlign.alignment, Alignment.bottomCenter);
     await mob.close();
 
@@ -112,27 +106,25 @@ void main() {
 
     final Finder txtDesk = find.text('There!');
     expect(txtDesk, findsOneWidget);
-    final Align deskAlign = find
-        .ancestor(of: txtDesk, matching: find.byType(Align))
-        .evaluate()
-        .last
-        .widget as Align;
+    final Align deskAlign =
+        find
+                .ancestor(of: txtDesk, matching: find.byType(Align))
+                .evaluate()
+                .last
+                .widget
+            as Align;
     expect(deskAlign.alignment, Alignment.topRight);
     await desk.close();
   });
 
-  testWidgets('hace cola (controlada): A → (hide) → B',
-      (WidgetTester tester) async {
+  testWidgets('hace cola (controlada): A → (hide) → B', (
+    WidgetTester tester,
+  ) async {
     final BlocResponsive r = mobileResp();
     final StreamController<AppSnack?> ctrl =
         StreamController<AppSnack?>.broadcast();
 
-    await pumpHost(
-      tester,
-      mediaSize: mobileSize,
-      r: r,
-      stream: ctrl.stream,
-    );
+    await pumpHost(tester, mediaSize: mobileSize, r: r, stream: ctrl.stream);
 
     ctrl.add(AppSnack.info('A'));
     await tester.pumpAndSettle(const Duration(milliseconds: 250));
@@ -152,8 +144,9 @@ void main() {
     await ctrl.close();
   });
 
-  testWidgets('dismissible: pulsar Close llama onDismissRequested',
-      (WidgetTester tester) async {
+  testWidgets('dismissible: pulsar Close llama onDismissRequested', (
+    WidgetTester tester,
+  ) async {
     final BlocResponsive r = mobileResp();
     final StreamController<AppSnack?> ctrl =
         StreamController<AppSnack?>.broadcast();
@@ -181,8 +174,9 @@ void main() {
     await ctrl.close();
   });
 
-  testWidgets('action: pulsa acción, ejecuta callback y pide dismiss',
-      (WidgetTester tester) async {
+  testWidgets('action: pulsa acción, ejecuta callback y pide dismiss', (
+    WidgetTester tester,
+  ) async {
     final BlocResponsive r = mobileResp();
     final StreamController<AppSnack?> ctrl =
         StreamController<AppSnack?>.broadcast();
@@ -218,8 +212,9 @@ void main() {
     await ctrl.close();
   });
 
-  testWidgets('maxWidthColumns fija el maxWidth usando widthByColumns',
-      (WidgetTester tester) async {
+  testWidgets('maxWidthColumns fija el maxWidth usando widthByColumns', (
+    WidgetTester tester,
+  ) async {
     final BlocResponsive r = desktopResp();
     final StreamController<AppSnack?> ctrl =
         StreamController<AppSnack?>.broadcast();
@@ -239,11 +234,13 @@ void main() {
     final Finder txt = find.text('Width test');
     expect(txt, findsOneWidget);
 
-    final ConstrainedBox cbox = find
-        .ancestor(of: txt, matching: find.byType(ConstrainedBox))
-        .evaluate()
-        .last
-        .widget as ConstrainedBox;
+    final ConstrainedBox cbox =
+        find
+                .ancestor(of: txt, matching: find.byType(ConstrainedBox))
+                .evaluate()
+                .last
+                .widget
+            as ConstrainedBox;
 
     final double expected = r.widthByColumns(cols.clamp(1, r.columnsNumber));
     final double maxW = cbox.constraints.maxWidth;
@@ -252,8 +249,9 @@ void main() {
     await ctrl.close();
   });
 
-  testWidgets('factory fromStringStream: muestra el texto recibido',
-      (WidgetTester tester) async {
+  testWidgets('factory fromStringStream: muestra el texto recibido', (
+    WidgetTester tester,
+  ) async {
     final BlocResponsive r = mobileResp();
     final StreamController<String> ctrl = StreamController<String>.broadcast();
 
@@ -285,18 +283,14 @@ void main() {
     await ctrl.close();
   });
 
-  testWidgets('safeArea: por defecto ON y se puede desactivar',
-      (WidgetTester tester) async {
+  testWidgets('safeArea: por defecto ON y se puede desactivar', (
+    WidgetTester tester,
+  ) async {
     // ON
     final BlocResponsive rOn = mobileResp();
     final StreamController<AppSnack?> on =
         StreamController<AppSnack?>.broadcast();
-    await pumpHost(
-      tester,
-      mediaSize: mobileSize,
-      r: rOn,
-      stream: on.stream,
-    );
+    await pumpHost(tester, mediaSize: mobileSize, r: rOn, stream: on.stream);
     on.add(AppSnack.info('safe on'));
     await tester.pumpAndSettle(const Duration(milliseconds: 250));
 
@@ -435,8 +429,9 @@ void main() {
         controller.add(AppSnack.info('Saved'));
         await tester.pumpAndSettle();
 
-        final Finder notification =
-            find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)'));
+        final Finder notification = find.bySemanticsLabel(
+          RegExp(r'^Notification(?:\n|$)'),
+        );
 
         expect(notification, findsOneWidget);
 
@@ -485,13 +480,16 @@ void main() {
         controller.add(AppSnack.info('Saved'));
         await tester.pumpAndSettle();
 
-        final Finder notificationSemantics =
-            find.bySemanticsLabel(RegExp(r'^Notification(?:\n|$)'));
+        final Finder notificationSemantics = find.bySemanticsLabel(
+          RegExp(r'^Notification(?:\n|$)'),
+        );
 
         expect(notificationSemantics, findsOneWidget);
 
-        final Size semanticsSize =
-            tester.getSemantics(notificationSemantics).rect.size;
+        final Size semanticsSize = tester
+            .getSemantics(notificationSemantics)
+            .rect
+            .size;
 
         expect(semanticsSize.width, lessThan(1200));
         expect(semanticsSize.height, lessThan(800));
@@ -648,11 +646,7 @@ void main() {
 
         expect(
           tester.getSemantics(find.byTooltip('Close')),
-          isSemantics(
-            tooltip: 'Close',
-            isButton: true,
-            hasTapAction: true,
-          ),
+          isSemantics(tooltip: 'Close', isButton: true, hasTapAction: true),
         );
 
         await tester.tap(find.byTooltip('Close'));

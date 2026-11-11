@@ -1,23 +1,20 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('BlocGallery', () {
-    test(
-      'Given default gallery When created Then starts at cover page',
-      () {
-        final ModelDesignSystem designSystem = _fakeDesignSystem();
-        final BlocGallery bloc = BlocGallery(designSystem: designSystem);
+    test('Given default gallery When created Then starts at cover page', () {
+      final ModelDesignSystem designSystem = _fakeDesignSystem();
+      final BlocGallery bloc = BlocGallery(designSystem: designSystem);
 
-        expect(bloc.state.currentIndex, 0);
-        expect(bloc.state.currentPage?.id, 'ds.gallery.cover');
-        expect(bloc.state.canGoPrevious, isFalse);
-        expect(bloc.state.canGoNext, isTrue);
+      expect(bloc.state.currentIndex, 0);
+      expect(bloc.state.currentPage?.id, 'ds.gallery.cover');
+      expect(bloc.state.canGoPrevious, isFalse);
+      expect(bloc.state.canGoNext, isTrue);
 
-        bloc.dispose();
-      },
-    );
+      bloc.dispose();
+    });
 
     test(
       'Given gallery at first page When previous is called Then keeps index',
@@ -33,35 +30,29 @@ void main() {
       },
     );
 
-    test(
-      'Given gallery When goTo invalid index Then keeps current page',
-      () {
-        final ModelDesignSystem designSystem = _fakeDesignSystem();
-        final BlocGallery bloc = BlocGallery(designSystem: designSystem);
+    test('Given gallery When goTo invalid index Then keeps current page', () {
+      final ModelDesignSystem designSystem = _fakeDesignSystem();
+      final BlocGallery bloc = BlocGallery(designSystem: designSystem);
 
-        bloc.goTo(999);
+      bloc.goTo(999);
 
-        expect(bloc.state.currentIndex, 0);
+      expect(bloc.state.currentIndex, 0);
 
-        bloc.dispose();
-      },
-    );
+      bloc.dispose();
+    });
 
-    test(
-      'Given gallery When reset is called Then returns to cover page',
-      () {
-        final ModelDesignSystem designSystem = _fakeDesignSystem();
-        final BlocGallery bloc = BlocGallery(designSystem: designSystem);
+    test('Given gallery When reset is called Then returns to cover page', () {
+      final ModelDesignSystem designSystem = _fakeDesignSystem();
+      final BlocGallery bloc = BlocGallery(designSystem: designSystem);
 
-        bloc.goTo(4);
-        bloc.reset();
+      bloc.goTo(4);
+      bloc.reset();
 
-        expect(bloc.state.currentIndex, 0);
-        expect(bloc.state.currentPage?.id, 'ds.gallery.cover');
+      expect(bloc.state.currentIndex, 0);
+      expect(bloc.state.currentPage?.id, 'ds.gallery.cover');
 
-        bloc.dispose();
-      },
-    );
+      bloc.dispose();
+    });
     test(
       'Given default gallery When goToIndex is called Then moves to index page',
       () {
@@ -96,9 +87,7 @@ void main() {
 ModelDesignSystem _fakeDesignSystem() {
   return ModelDesignSystem(
     theme: ModelThemeData(
-      lightScheme: ColorScheme.fromSeed(
-        seedColor: Colors.deepPurple,
-      ),
+      lightScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       darkScheme: ColorScheme.fromSeed(
         seedColor: Colors.deepPurple,
         brightness: Brightness.dark,

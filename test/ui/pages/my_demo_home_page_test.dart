@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ----------------------
 /// Helpers de montaje
@@ -23,10 +23,7 @@ AppManager _managerWithDefaults() {
   return AppManager(cfg);
 }
 
-Future<void> _pumpDemo(
-  WidgetTester tester, {
-  AppManager? manager,
-}) async {
+Future<void> _pumpDemo(WidgetTester tester, {AppManager? manager}) async {
   final AppManager m = manager ?? _managerWithDefaults();
 
   await tester.pumpWidget(
@@ -50,8 +47,9 @@ Future<void> _openDrawer(WidgetTester tester) async {
 
 // Helper: busca la opción del menú por etiqueta
 ModelMainMenuModel _menuOption(AppManager m, String label) {
-  return m.mainMenu.items
-      .firstWhere((ModelMainMenuModel e) => e.label == label);
+  return m.mainMenu.items.firstWhere(
+    (ModelMainMenuModel e) => e.label == label,
+  );
 }
 
 /// ----------------------
@@ -60,21 +58,24 @@ ModelMainMenuModel _menuOption(AppManager m, String label) {
 
 void main() {
   group('MyDemoHomePage + PageBuilder', () {
-    testWidgets('contador inicia en 0 y aumenta a 1 al pulsar',
-        (WidgetTester tester) async {
+    testWidgets('contador inicia en 0 y aumenta a 1 al pulsar', (
+      WidgetTester tester,
+    ) async {
       await _pumpDemo(tester);
 
       expect(find.text('0'), findsOneWidget);
 
-      await tester
-          .tap(find.text('You have pushed the button this many times:'));
+      await tester.tap(
+        find.text('You have pushed the button this many times:'),
+      );
       await tester.pump(); // rebuild del StreamBuilder<int>
 
       expect(find.text('1'), findsOneWidget);
     });
 
-    testWidgets('incremento inyecta opciones y el Drawer aparece',
-        (WidgetTester tester) async {
+    testWidgets('incremento inyecta opciones y el Drawer aparece', (
+      WidgetTester tester,
+    ) async {
       final AppManager m = _managerWithDefaults();
       await _pumpDemo(tester, manager: m);
 
@@ -82,8 +83,9 @@ void main() {
       expect(find.byType(Drawer), findsNothing);
 
       // Incrementa → inyecta opciones
-      await tester
-          .tap(find.text('You have pushed the button this many times:'));
+      await tester.tap(
+        find.text('You have pushed the button this many times:'),
+      );
       await tester.pump();
 
       // Abre Drawer del shell (PageBuilder)
@@ -97,38 +99,43 @@ void main() {
       expect(find.text('Toast demo'), findsOneWidget);
     });
 
-    testWidgets('tocar "Loading (auto)" muestra LoadingPage y luego desaparece',
-        (WidgetTester tester) async {
-      await _pumpDemo(tester);
+    testWidgets(
+      'tocar "Loading (auto)" muestra LoadingPage y luego desaparece',
+      (WidgetTester tester) async {
+        await _pumpDemo(tester);
 
-      // Inyecta menú
-      await tester
-          .tap(find.text('You have pushed the button this many times:'));
-      await tester.pump();
+        // Inyecta menú
+        await tester.tap(
+          find.text('You have pushed the button this many times:'),
+        );
+        await tester.pump();
 
-      await _openDrawer(tester);
+        await _openDrawer(tester);
 
-      await tester.tap(find.text('Loading (auto)'));
-      await tester.pump(); // muestra el loading
+        await tester.tap(find.text('Loading (auto)'));
+        await tester.pump(); // muestra el loading
 
-      expect(find.byType(LoadingPage), findsOneWidget);
-      expect(find.textContaining('Cargando'), findsWidgets);
+        expect(find.byType(LoadingPage), findsOneWidget);
+        expect(find.textContaining('Cargando'), findsWidgets);
 
-      // Termina la tarea falsa (2s) y se limpia
-      await tester.pump(const Duration(seconds: 2));
-      await tester.pumpAndSettle();
+        // Termina la tarea falsa (2s) y se limpia
+        await tester.pump(const Duration(seconds: 2));
+        await tester.pumpAndSettle();
 
-      expect(find.byType(LoadingPage), findsNothing);
-    });
+        expect(find.byType(LoadingPage), findsNothing);
+      },
+    );
 
-    testWidgets('tocar "Toast demo" muestra/oculta el texto del toast',
-        (WidgetTester tester) async {
+    testWidgets('tocar "Toast demo" muestra/oculta el texto del toast', (
+      WidgetTester tester,
+    ) async {
       final AppManager m = _managerWithDefaults();
       await _pumpDemo(tester, manager: m);
 
       // 1) Inyecta las opciones (la demo las añade al pulsar el contador)
-      await tester
-          .tap(find.text('You have pushed the button this many times:'));
+      await tester.tap(
+        find.text('You have pushed the button this many times:'),
+      );
       await tester.pump(); // deja que se emitan las opciones al stream
 
       // 2) En vez de tap en el texto del Drawer, ejecutamos el callback del item
@@ -158,13 +165,15 @@ void main() {
       expect(m.notifications.msg.isEmpty, isTrue);
     });
 
-    testWidgets('tocar "Eliminame" agrega opción secundaria (estado BLoC)',
-        (WidgetTester tester) async {
+    testWidgets('tocar "Eliminame" agrega opción secundaria (estado BLoC)', (
+      WidgetTester tester,
+    ) async {
       final AppManager m = _managerWithDefaults();
       await _pumpDemo(tester, manager: m);
 
-      await tester
-          .tap(find.text('You have pushed the button this many times:'));
+      await tester.tap(
+        find.text('You have pushed the button this many times:'),
+      );
       await tester.pump();
 
       await _openDrawer(tester);
@@ -173,18 +182,21 @@ void main() {
 
       // Aunque el secondary menu no se renderiza en PageBuilder,
       // validamos el efecto de negocio directamente en el BLoC:
-      final bool addedSecondary = m.secondaryMenu.items
-          .any((ModelMainMenuModel e) => e.label == 'Eliminame');
+      final bool addedSecondary = m.secondaryMenu.items.any(
+        (ModelMainMenuModel e) => e.label == 'Eliminame',
+      );
 
       expect(addedSecondary, isTrue);
     });
 
-    testWidgets('tocar "Cambiar tema" elimina esa opción del menú',
-        (WidgetTester tester) async {
+    testWidgets('tocar "Cambiar tema" elimina esa opción del menú', (
+      WidgetTester tester,
+    ) async {
       await _pumpDemo(tester);
 
-      await tester
-          .tap(find.text('You have pushed the button this many times:'));
+      await tester.tap(
+        find.text('You have pushed the button this many times:'),
+      );
       await tester.pump();
 
       await _openDrawer(tester);

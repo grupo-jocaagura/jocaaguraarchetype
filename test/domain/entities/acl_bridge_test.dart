@@ -4,56 +4,56 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 void main() {
   group('AclBridge contract (fake implementation)', () {
     test(
-        'Given existing app When fetchPolicies Then returns Right with policies',
-        () async {
-      // Arrange
-      final AclBridge bridge = _FakeAclBridge();
+      'Given existing app When fetchPolicies Then returns Right with policies',
+      () async {
+        // Arrange
+        final AclBridge bridge = _FakeAclBridge();
 
-      // Act
-      final Either<ErrorItem, List<ModelAclPolicy>> result =
-          await bridge.fetchPolicies(appName: 'bienvenido');
+        // Act
+        final Either<ErrorItem, List<ModelAclPolicy>> result = await bridge
+            .fetchPolicies(appName: 'bienvenido');
 
-      // Assert
-      expect(result.isRight, isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (List<ModelAclPolicy> policies) {
+        // Assert
+        expect(result.isRight, isTrue);
+        result.fold((_) => fail('Expected Right'), (
+          List<ModelAclPolicy> policies,
+        ) {
           expect(policies, isNotEmpty);
-        },
-      );
-    });
+        });
+      },
+    );
 
     test(
-        'Given unknown app When fetchPolicies Then returns Right with empty list',
-        () async {
-      final AclBridge bridge = _FakeAclBridge();
+      'Given unknown app When fetchPolicies Then returns Right with empty list',
+      () async {
+        final AclBridge bridge = _FakeAclBridge();
 
-      final Either<ErrorItem, List<ModelAclPolicy>> result =
-          await bridge.fetchPolicies(appName: 'unknown');
+        final Either<ErrorItem, List<ModelAclPolicy>> result = await bridge
+            .fetchPolicies(appName: 'unknown');
 
-      expect(result.isRight, isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (List<ModelAclPolicy> policies) => expect(policies, isEmpty),
-      );
-    });
+        expect(result.isRight, isTrue);
+        result.fold(
+          (_) => fail('Expected Right'),
+          (List<ModelAclPolicy> policies) => expect(policies, isEmpty),
+        );
+      },
+    );
 
-    test('Given network failure When fetchUserAcl Then returns Left(ErrorItem)',
-        () async {
-      final AclBridge bridge = _FakeAclBridge(shouldFail: true);
+    test(
+      'Given network failure When fetchUserAcl Then returns Left(ErrorItem)',
+      () async {
+        final AclBridge bridge = _FakeAclBridge(shouldFail: true);
 
-      final Either<ErrorItem, List<ModelAcl>> result =
-          await bridge.fetchUserAcl(
-        appName: 'bienvenido',
-        userEmail: 'user@corp.com',
-      );
+        final Either<ErrorItem, List<ModelAcl>> result = await bridge
+            .fetchUserAcl(appName: 'bienvenido', userEmail: 'user@corp.com');
 
-      expect(result.isLeft, isTrue);
-      result.fold(
-        (ErrorItem err) => expect(err, isA<ErrorItem>()),
-        (_) => fail('Expected Left'),
-      );
-    });
+        expect(result.isLeft, isTrue);
+        result.fold(
+          (ErrorItem err) => expect(err, isA<ErrorItem>()),
+          (_) => fail('Expected Left'),
+        );
+      },
+    );
   });
 }
 
@@ -79,9 +79,9 @@ class _FakeAclBridge implements AclBridge {
       );
     }
     if (appName == 'bienvenido') {
-      return const Right<ErrorItem, List<ModelAclPolicy>>(
-        <ModelAclPolicy>[ModelAclPolicy.defaultModelAclPolicy],
-      );
+      return const Right<ErrorItem, List<ModelAclPolicy>>(<ModelAclPolicy>[
+        ModelAclPolicy.defaultModelAclPolicy,
+      ]);
     }
     return const Right<ErrorItem, List<ModelAclPolicy>>(<ModelAclPolicy>[]);
   }
@@ -93,11 +93,7 @@ class _FakeAclBridge implements AclBridge {
   }) async {
     if (shouldFail) {
       return const Left<ErrorItem, List<ModelAcl>>(
-        ErrorItem(
-          title: 'network',
-          code: 'NETWORK.ERROR',
-          description: '',
-        ),
+        ErrorItem(title: 'network', code: 'NETWORK.ERROR', description: ''),
       );
     }
     return const Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[]);

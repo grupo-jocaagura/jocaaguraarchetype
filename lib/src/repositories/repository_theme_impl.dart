@@ -60,11 +60,9 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// }
 /// ```
 class RepositoryThemeImpl implements RepositoryTheme {
-  RepositoryThemeImpl({
-    required GatewayTheme gateway,
-    ErrorMapper? errorMapper,
-  })  : _gw = gateway,
-        _mapper = errorMapper ?? const DefaultErrorMapper();
+  RepositoryThemeImpl({required GatewayTheme gateway, ErrorMapper? errorMapper})
+    : _gw = gateway,
+      _mapper = errorMapper ?? const DefaultErrorMapper();
 
   final GatewayTheme _gw;
   final ErrorMapper _mapper;
@@ -88,17 +86,16 @@ class RepositoryThemeImpl implements RepositoryTheme {
           // Cualquier otro error se propaga como Left
           return Left<ErrorItem, ThemeState>(
             err.copyWith(
-              meta: <String, dynamic>{
-                ...err.meta,
-                'location': _locRead,
-              },
+              meta: <String, dynamic>{...err.meta, 'location': _locRead},
             ),
           );
         },
         // RIGHT: Payload ok; validar si trae error de negocio
         (Map<String, dynamic> payload) {
-          final ErrorItem? biz =
-              _mapper.fromPayload(payload, location: _locRead);
+          final ErrorItem? biz = _mapper.fromPayload(
+            payload,
+            location: _locRead,
+          );
           if (biz != null) {
             return Left<ErrorItem, ThemeState>(biz);
           }
@@ -120,15 +117,14 @@ class RepositoryThemeImpl implements RepositoryTheme {
       return await r.when(
         (ErrorItem err) => Left<ErrorItem, ThemeState>(
           err.copyWith(
-            meta: <String, dynamic>{
-              ...err.meta,
-              'location': _locWrite,
-            },
+            meta: <String, dynamic>{...err.meta, 'location': _locWrite},
           ),
         ),
         (Map<String, dynamic> payload) {
-          final ErrorItem? biz =
-              _mapper.fromPayload(payload, location: _locWrite);
+          final ErrorItem? biz = _mapper.fromPayload(
+            payload,
+            location: _locWrite,
+          );
           if (biz != null) {
             return Left<ErrorItem, ThemeState>(biz);
           }
@@ -136,8 +132,11 @@ class RepositoryThemeImpl implements RepositoryTheme {
         },
       );
     } catch (e, st) {
-      final ErrorItem mapped =
-          _mapper.fromException(e, st, location: _locWrite);
+      final ErrorItem mapped = _mapper.fromException(
+        e,
+        st,
+        location: _locWrite,
+      );
       return Left<ErrorItem, ThemeState>(mapped);
     }
   }

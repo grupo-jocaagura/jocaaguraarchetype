@@ -4,11 +4,11 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// PageManager espía para observar goHome y setFromRouteChain.
 class _SpyPageManager extends PageManager {
   _SpyPageManager()
-      : super(
-          initial: NavStackModel.single(
-            const PageModel(name: 'home', segments: <String>['home']),
-          ),
-        );
+    : super(
+        initial: NavStackModel.single(
+          const PageModel(name: 'home', segments: <String>['home']),
+        ),
+      );
 
   bool goHomeCalled = false;
   String? lastSetFromRouteChain;
@@ -138,36 +138,37 @@ void main() {
     });
   });
   group('AppManager · restore-after-login (completo)', () {
-    test('1) restore con chain válida → setFromRouteChain y nulifica chain',
-        () {
-      final _SpyPageManager spy = _SpyPageManager();
-      final AppManager manager = AppManager(_makeConfigWith(spy));
+    test(
+      '1) restore con chain válida → setFromRouteChain y nulifica chain',
+      () {
+        final _SpyPageManager spy = _SpyPageManager();
+        final AppManager manager = AppManager(_makeConfigWith(spy));
 
-      manager.debugSetPendingRouteChain('/profile/settings?tab=privacy');
-      manager.onAuthenticatedRestorePendingStack();
+        manager.debugSetPendingRouteChain('/profile/settings?tab=privacy');
+        manager.onAuthenticatedRestorePendingStack();
 
-      expect(spy.lastSetFromRouteChain, '/profile/settings?tab=privacy');
-      expect(
-        spy.goHomeCalled,
-        isFalse,
-        reason: 'Con chain válida no debe ir a home',
-      );
+        expect(spy.lastSetFromRouteChain, '/profile/settings?tab=privacy');
+        expect(
+          spy.goHomeCalled,
+          isFalse,
+          reason: 'Con chain válida no debe ir a home',
+        );
 
-      // Segunda llamada: ya NO hay chain (se nulificó) → va a home
-      spy.goHomeCalled = false;
-      spy.lastSetFromRouteChain = null;
+        // Segunda llamada: ya NO hay chain (se nulificó) → va a home
+        spy.goHomeCalled = false;
+        spy.lastSetFromRouteChain = null;
 
-      manager.onAuthenticatedRestorePendingStack();
-      expect(
-        spy.goHomeCalled,
-        isTrue,
-        reason:
-            'Después de restaurar una vez, el chain se borra y el siguiente restore manda a home',
-      );
-      expect(spy.lastSetFromRouteChain, isNull);
+        manager.onAuthenticatedRestorePendingStack();
+        expect(
+          spy.goHomeCalled,
+          isTrue,
+          reason: 'Después de restaurar una vez, el chain se borra y el siguiente restore manda a home',
+        );
+        expect(spy.lastSetFromRouteChain, isNull);
 
-      manager.dispose();
-    });
+        manager.dispose();
+      },
+    );
 
     test('2) clearPendingIntent() seguido de restore → va a home', () {
       final _SpyPageManager spy = _SpyPageManager();

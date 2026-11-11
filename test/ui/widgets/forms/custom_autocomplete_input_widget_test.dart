@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 Future<void> _pump(
   WidgetTester tester, {
@@ -12,8 +12,9 @@ Future<void> _pump(
       theme: ThemeData(useMaterial3: true),
       home: MediaQuery(
         data: MediaQueryData(size: surface),
-        child:
-            Scaffold(body: Center(child: SizedBox(width: 320, child: child))),
+        child: Scaffold(
+          body: Center(child: SizedBox(width: 320, child: child)),
+        ),
       ),
     ),
   );
@@ -25,124 +26,129 @@ Finder _tf() => find.byType(TextField);
 void main() {
   group('CustomAutoCompleteInputWidget', () {
     testWidgets(
-        'render básico + label/placeholder/icon + valor inicial y validación inicial OK',
-        (WidgetTester tester) async {
-      final List<String> changed = <String>[];
-      final List<String> submitted = <String>[];
+      'render básico + label/placeholder/icon + valor inicial y validación inicial OK',
+      (WidgetTester tester) async {
+        final List<String> changed = <String>[];
+        final List<String> submitted = <String>[];
 
-      String? validator(String? v) => null; // siempre válido
+        String? validator(String? v) => null; // siempre válido
 
-      final CustomAutoCompleteInputWidget w = CustomAutoCompleteInputWidget(
-        label: 'Usuario',
-        placeholder: 'Tu usuario',
-        icondata: Icons.person_outline,
-        initialData: 'init',
-        onEditingValidateFunction: validator,
-        onChanged: changed.add,
-        onFieldSubmitted: submitted.add,
-      );
+        final CustomAutoCompleteInputWidget w = CustomAutoCompleteInputWidget(
+          label: 'Usuario',
+          placeholder: 'Tu usuario',
+          icondata: Icons.person_outline,
+          initialData: 'init',
+          onEditingValidateFunction: validator,
+          onChanged: changed.add,
+          onFieldSubmitted: submitted.add,
+        );
 
-      await _pump(tester, child: w);
+        await _pump(tester, child: w);
 
-      // Vistas básicas
-      expect(find.text('Usuario'), findsOneWidget);
-      expect(find.text('Tu usuario'), findsOneWidget);
-      expect(find.byIcon(Icons.person_outline), findsOneWidget);
+        // Vistas básicas
+        expect(find.text('Usuario'), findsOneWidget);
+        expect(find.text('Tu usuario'), findsOneWidget);
+        expect(find.byIcon(Icons.person_outline), findsOneWidget);
 
-      // El TextField refleja el valor inicial
-      final TextField tf = tester.widget(_tf());
-      expect(tf.controller!.text, 'init');
+        // El TextField refleja el valor inicial
+        final TextField tf = tester.widget(_tf());
+        expect(tf.controller!.text, 'init');
 
-      // Como el inicial es válido, onChanged se dispara en initState vía _onValidate
-      expect(changed, contains('init'));
-    });
-
-    testWidgets(
-        'validación inicial inválida muestra error y NO dispara onChanged',
-        (WidgetTester tester) async {
-      final List<String> changed = <String>[];
-
-      String? validator(String? v) => (v == 'ok') ? null : 'err';
-
-      final CustomAutoCompleteInputWidget w = CustomAutoCompleteInputWidget(
-        onEditingValidateFunction: validator,
-        onChanged: changed.add,
-      );
-
-      await _pump(tester, child: w);
-
-      // Error visible (por initState -> _onValidate(''))
-      expect(find.text('err'), findsOneWidget);
-      expect(changed, isEmpty);
-    });
+        // Como el inicial es válido, onChanged se dispara en initState vía _onValidate
+        expect(changed, contains('init'));
+      },
+    );
 
     testWidgets(
-        'filtrado de sugerencias (case-insensitive) y selección actualiza valor + onChanged',
-        (WidgetTester tester) async {
-      final List<String> changed = <String>[];
+      'validación inicial inválida muestra error y NO dispara onChanged',
+      (WidgetTester tester) async {
+        final List<String> changed = <String>[];
 
-      final CustomAutoCompleteInputWidget w = CustomAutoCompleteInputWidget(
-        suggestList: const <String>['Apple', 'Banana', 'Grape', 'Pineapple'],
-        onEditingValidateFunction: (String? v) => null, // siempre válido
-        onChanged: changed.add,
-      );
+        String? validator(String? v) => (v == 'ok') ? null : 'err';
 
-      await _pump(tester, child: w);
+        final CustomAutoCompleteInputWidget w = CustomAutoCompleteInputWidget(
+          onEditingValidateFunction: validator,
+          onChanged: changed.add,
+        );
 
-      await tester.tap(_tf());
-      await tester.pump();
+        await _pump(tester, child: w);
 
-      await tester.enterText(_tf(), 'ap'); // Apple, Grape, Pineapple
-      await tester.pumpAndSettle();
-
-      expect(find.text('Apple'), findsOneWidget);
-      expect(find.text('Grape'), findsOneWidget);
-      expect(find.text('Pineapple'), findsOneWidget);
-      expect(find.text('Banana'), findsNothing);
-
-      // Tocar Pineapple
-      await tester.tap(find.text('Pineapple'));
-      await tester.pumpAndSettle();
-
-      // TextField quedó con Pineapple y onChanged fue llamado
-      final TextField tf = tester.widget(_tf());
-      expect(tf.controller!.text, 'Pineapple');
-      expect(changed.contains('Pineapple'), isTrue);
-    });
+        // Error visible (por initState -> _onValidate(''))
+        expect(find.text('err'), findsOneWidget);
+        expect(changed, isEmpty);
+      },
+    );
 
     testWidgets(
-        'submit (IME done) llama onFieldSubmitted solo si pasa validación',
-        (WidgetTester tester) async {
-      final List<String> submitted = <String>[];
+      'filtrado de sugerencias (case-insensitive) y selección actualiza valor + onChanged',
+      (WidgetTester tester) async {
+        final List<String> changed = <String>[];
 
-      String? validator(String? v) => (v == 'ok') ? null : 'err';
+        final CustomAutoCompleteInputWidget w = CustomAutoCompleteInputWidget(
+          suggestList: const <String>['Apple', 'Banana', 'Grape', 'Pineapple'],
+          onEditingValidateFunction: (String? v) => null, // siempre válido
+          onChanged: changed.add,
+        );
 
-      final CustomAutoCompleteInputWidget w = CustomAutoCompleteInputWidget(
-        onEditingValidateFunction: validator,
-        onChanged: (_) {},
-        onFieldSubmitted: submitted.add,
-      );
+        await _pump(tester, child: w);
 
-      await _pump(tester, child: w);
+        await tester.tap(_tf());
+        await tester.pump();
 
-      // Caso inválido: no debe llamar onFieldSubmitted
-      await tester.tap(_tf());
-      await tester.enterText(_tf(), 'bad');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      await tester.pumpAndSettle();
-      expect(submitted, isEmpty);
-      expect(find.text('err'), findsOneWidget);
+        await tester.enterText(_tf(), 'ap'); // Apple, Grape, Pineapple
+        await tester.pumpAndSettle();
 
-      // Caso válido
-      await tester.enterText(_tf(), 'ok');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      await tester.pumpAndSettle();
-      expect(submitted.last, 'ok');
-      expect(find.text('err'), findsNothing);
-    });
+        expect(find.text('Apple'), findsOneWidget);
+        expect(find.text('Grape'), findsOneWidget);
+        expect(find.text('Pineapple'), findsOneWidget);
+        expect(find.text('Banana'), findsNothing);
 
-    testWidgets('debounce: onChanged se dispara tras el delay configurado',
-        (WidgetTester tester) async {
+        // Tocar Pineapple
+        await tester.tap(find.text('Pineapple'));
+        await tester.pumpAndSettle();
+
+        // TextField quedó con Pineapple y onChanged fue llamado
+        final TextField tf = tester.widget(_tf());
+        expect(tf.controller!.text, 'Pineapple');
+        expect(changed.contains('Pineapple'), isTrue);
+      },
+    );
+
+    testWidgets(
+      'submit (IME done) llama onFieldSubmitted solo si pasa validación',
+      (WidgetTester tester) async {
+        final List<String> submitted = <String>[];
+
+        String? validator(String? v) => (v == 'ok') ? null : 'err';
+
+        final CustomAutoCompleteInputWidget w = CustomAutoCompleteInputWidget(
+          onEditingValidateFunction: validator,
+          onChanged: (_) {},
+          onFieldSubmitted: submitted.add,
+        );
+
+        await _pump(tester, child: w);
+
+        // Caso inválido: no debe llamar onFieldSubmitted
+        await tester.tap(_tf());
+        await tester.enterText(_tf(), 'bad');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+        expect(submitted, isEmpty);
+        expect(find.text('err'), findsOneWidget);
+
+        // Caso válido
+        await tester.enterText(_tf(), 'ok');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+        expect(submitted.last, 'ok');
+        expect(find.text('err'), findsNothing);
+      },
+    );
+
+    testWidgets('debounce: onChanged se dispara tras el delay configurado', (
+      WidgetTester tester,
+    ) async {
       final List<String> changed = <String>[];
 
       // validator siempre OK para que onChanged se llame cuando dispare _onValidate
@@ -172,8 +178,9 @@ void main() {
       expect(changed.where((String e) => e == 'world'), isNotEmpty);
     });
 
-    testWidgets('overlay: respeta minWidth=280 y maxHeight=240 (por defecto)',
-        (WidgetTester tester) async {
+    testWidgets('overlay: respeta minWidth=280 y maxHeight=240 (por defecto)', (
+      WidgetTester tester,
+    ) async {
       final CustomAutoCompleteInputWidget w = CustomAutoCompleteInputWidget(
         suggestList: List<String>.generate(40, (int i) => 'item $i'),
         onEditingValidateFunction: (String? v) => null,
@@ -181,11 +188,7 @@ void main() {
       );
 
       // superficie angosta para forzar el minWidth del overlay
-      await _pump(
-        tester,
-        child: w,
-        surface: const Size(260, 600),
-      );
+      await _pump(tester, child: w, surface: const Size(260, 600));
 
       await tester.tap(_tf());
       await tester.enterText(_tf(), 'item');
@@ -196,8 +199,9 @@ void main() {
       expect(lv.height <= 240, isTrue);
     });
 
-    testWidgets('errorText aparece/disminuye según validación al escribir',
-        (WidgetTester tester) async {
+    testWidgets('errorText aparece/disminuye según validación al escribir', (
+      WidgetTester tester,
+    ) async {
       final List<String> changed = <String>[];
 
       String? validator(String? v) =>

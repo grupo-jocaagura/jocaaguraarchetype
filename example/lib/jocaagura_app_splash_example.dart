@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ===============================
 /// 0) Variables de entorno (compile-time)

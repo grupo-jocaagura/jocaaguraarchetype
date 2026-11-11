@@ -17,21 +17,19 @@ class DsGalleryIndexPage extends StatelessWidget {
         state.pagesBySection;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Design System Gallery Index'),
-      ),
+      appBar: AppBar(title: const Text('Design System Gallery Index')),
       body: ListView(
         padding: const EdgeInsets.all(16),
-        children: sections.entries.map(
-          (MapEntry<String, List<ModelDsGalleryPageEntry>> section) {
-            return _DsGalleryIndexSection(
-              title: section.key,
-              pages: section.value,
-              state: state,
-              onGoTo: onGoTo,
-            );
-          },
-        ).toList(growable: false),
+        children: sections.entries
+            .map((MapEntry<String, List<ModelDsGalleryPageEntry>> section) {
+              return _DsGalleryIndexSection(
+                title: section.key,
+                pages: section.value,
+                state: state,
+                onGoTo: onGoTo,
+              );
+            })
+            .toList(growable: false),
       ),
     );
   }
@@ -58,10 +56,7 @@ class _DsGalleryIndexSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
             for (final ModelDsGalleryPageEntry page in pages)
               _DsGalleryIndexTile(
@@ -97,9 +92,7 @@ class _DsGalleryIndexTile extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       title: Text(page.title),
       subtitle: page.description.isEmpty ? null : Text(page.description),
-      leading: CircleAvatar(
-        child: Text('${index + 1}'),
-      ),
+      leading: CircleAvatar(child: Text('${index + 1}')),
       trailing: const Icon(Icons.chevron_right),
       onTap: index < 0 ? null : () => onGoTo(index),
     );

@@ -94,11 +94,11 @@ class PageManager extends BlocModule {
   /// - **Estricto**: tras `dispose()` lanza [StateError].
   /// - **Tolerante**: calcula a partir del último snapshot.
   bool get canPop => _guard<bool>(
-        body: () => !stack.isRoot,
-        lastSnapshot: () {
-          return !_stack.value.isRoot;
-        },
-      );
+    body: () => !stack.isRoot,
+    lastSnapshot: () {
+      return !_stack.value.isRoot;
+    },
+  );
 
   /// Stream derivado que emite `true/false` según el stack **no** esté en root.
   Stream<bool> get canPopStream =>
@@ -111,18 +111,18 @@ class PageManager extends BlocModule {
   ///
   /// En modo tolerante, se devuelve la misma instancia aunque se haya cerrado.
   Stream<NavStackModel> get stackStream => _guard<Stream<NavStackModel>>(
-        body: () => _stackStreamRef,
-        lastSnapshot: () =>
-            _stackStreamRef, // misma instancia, aunque ya esté cerrado
-      );
+    body: () => _stackStreamRef,
+    lastSnapshot: () =>
+        _stackStreamRef, // misma instancia, aunque ya esté cerrado
+  );
 
   /// Snapshot actual del stack de navegación.
   ///
   /// En modo tolerante, devuelve el último valor conocido.
   NavStackModel get stack => _guard<NavStackModel>(
-        body: () => _stack.value,
-        lastSnapshot: () => _stack.value,
-      );
+    body: () => _stack.value,
+    lastSnapshot: () => _stack.value,
+  );
 
   // ---- Mutaciones con no-op en leniente ------------------------------------
 
@@ -140,8 +140,9 @@ class PageManager extends BlocModule {
       throw StateError('PageManager has been disposed');
     }
 
-    final NavStackModel sanitized =
-        allowDuplicate ? next : _dedupConsecutive(next);
+    final NavStackModel sanitized = allowDuplicate
+        ? next
+        : _dedupConsecutive(next);
 
     if (identical(sanitized, _stack.value) || sanitized == _stack.value) {
       return;
@@ -318,8 +319,11 @@ class PageManager extends BlocModule {
     bool mustReplaceTop = false,
     bool allowDuplicate = false,
   }) {
-    final PageModel page =
-        PageModel.fromUri(Uri.parse(location), name: name, kind: kind);
+    final PageModel page = PageModel.fromUri(
+      Uri.parse(location),
+      name: name,
+      kind: kind,
+    );
 
     if (mustReplaceTop) {
       replaceTop(page, allowNoop: true);
@@ -336,8 +340,11 @@ class PageManager extends BlocModule {
     String? name,
     PageKind kind = PageKind.material,
   }) {
-    final PageModel root =
-        PageModel.fromUri(Uri.parse(location), name: name, kind: kind);
+    final PageModel root = PageModel.fromUri(
+      Uri.parse(location),
+      name: name,
+      kind: kind,
+    );
     resetTo(root);
   }
 

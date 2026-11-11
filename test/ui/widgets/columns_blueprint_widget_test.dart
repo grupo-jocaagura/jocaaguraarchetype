@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ---------- helpers ----------
 
@@ -41,8 +41,9 @@ double _widthOf(WidgetTester t, Key key) => t.getSize(find.byKey(key)).width;
 
 void main() {
   group('ColumnsBlueprintWidget', () {
-    testWidgets('asigna anchos por span y respeta gapOverride',
-        (WidgetTester tester) async {
+    testWidgets('asigna anchos por span y respeta gapOverride', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = BlocResponsive();
 
       const Key kA = Key('slotA');
@@ -75,8 +76,9 @@ void main() {
       expect(gaps, 1);
     });
 
-    testWidgets('si los spans exceden las columnas, los extra se recortan a 0',
-        (WidgetTester tester) async {
+    testWidgets('si los spans exceden las columnas, los extra se recortan a 0', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = BlocResponsive();
 
       const Key kA = Key('wide');
@@ -100,8 +102,9 @@ void main() {
       expect(_widthOf(tester, kA), greaterThan(0.0));
     });
 
-    testWidgets('showGuides=true dibuja 2*cols-1 franjas',
-        (WidgetTester tester) async {
+    testWidgets('showGuides=true dibuja 2*cols-1 franjas', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = BlocResponsive();
 
       await _pump(
@@ -127,41 +130,37 @@ void main() {
       expect(stripes, cols * 2 - 1);
     });
 
-    testWidgets('safeArea:true envuelve en SafeArea; false no lo hace',
-        (WidgetTester tester) async {
+    testWidgets('safeArea:true envuelve en SafeArea; false no lo hace', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = BlocResponsive();
 
       await _pump(
         tester,
         r: r,
-        children: const <ColumnSlot>[
-          ColumnSlot(span: 1, child: SizedBox()),
-        ],
+        children: const <ColumnSlot>[ColumnSlot(span: 1, child: SizedBox())],
       );
       expect(find.byType(SafeArea), findsOneWidget);
 
       await _pump(
         tester,
         r: r,
-        children: const <ColumnSlot>[
-          ColumnSlot(span: 1, child: SizedBox()),
-        ],
+        children: const <ColumnSlot>[ColumnSlot(span: 1, child: SizedBox())],
         safeArea: false,
       );
       expect(find.byType(SafeArea), findsNothing);
     });
 
-    testWidgets('aplica backgroundColor en el contenedor externo',
-        (WidgetTester tester) async {
+    testWidgets('aplica backgroundColor en el contenedor externo', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = BlocResponsive();
       const Color bg = Colors.orange;
 
       await _pump(
         tester,
         r: r,
-        children: const <ColumnSlot>[
-          ColumnSlot(span: 1, child: SizedBox()),
-        ],
+        children: const <ColumnSlot>[ColumnSlot(span: 1, child: SizedBox())],
         bg: bg,
       );
 
@@ -180,34 +179,36 @@ void main() {
       expect(hasBg, isTrue);
     });
 
-    testWidgets('mainAxisAlignment.center desplaza contenido respecto a start',
-        (WidgetTester tester) async {
-      final BlocResponsive r = BlocResponsive();
+    testWidgets(
+      'mainAxisAlignment.center desplaza contenido respecto a start',
+      (WidgetTester tester) async {
+        final BlocResponsive r = BlocResponsive();
 
-      const Key k = Key('first');
+        const Key k = Key('first');
 
-      await _pump(
-        tester,
-        r: r,
-        children: const <ColumnSlot>[
-          ColumnSlot(span: 1, child: SizedBox(key: k)),
-          ColumnSlot(span: 1, child: SizedBox()),
-        ],
-      );
-      final double dxStart = tester.getTopLeft(find.byKey(k)).dx;
+        await _pump(
+          tester,
+          r: r,
+          children: const <ColumnSlot>[
+            ColumnSlot(span: 1, child: SizedBox(key: k)),
+            ColumnSlot(span: 1, child: SizedBox()),
+          ],
+        );
+        final double dxStart = tester.getTopLeft(find.byKey(k)).dx;
 
-      await _pump(
-        tester,
-        r: r,
-        children: const <ColumnSlot>[
-          ColumnSlot(span: 1, child: SizedBox(key: k)),
-          ColumnSlot(span: 1, child: SizedBox()),
-        ],
-        main: MainAxisAlignment.center,
-      );
-      final double dxCenter = tester.getTopLeft(find.byKey(k)).dx;
+        await _pump(
+          tester,
+          r: r,
+          children: const <ColumnSlot>[
+            ColumnSlot(span: 1, child: SizedBox(key: k)),
+            ColumnSlot(span: 1, child: SizedBox()),
+          ],
+          main: MainAxisAlignment.center,
+        );
+        final double dxCenter = tester.getTopLeft(find.byKey(k)).dx;
 
-      expect(dxCenter, greaterThan(dxStart));
-    });
+        expect(dxCenter, greaterThan(dxStart));
+      },
+    );
   });
 }

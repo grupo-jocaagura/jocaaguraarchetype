@@ -33,10 +33,10 @@ class PageLoadingBoundary extends StatelessWidget {
     MainDrawerBuilder? drawerBuilder,
     PageAppBarBuilder? appBarBuilder,
     super.key,
-  })  : scaffoldShellBuilder =
-            scaffoldShellBuilder ?? PageScaffoldShell.defaultBuilder,
-        drawerBuilder = drawerBuilder ?? MainDrawer.defaultBuilder,
-        appBarBuilder = appBarBuilder ?? PageAppBar.defaultBuilder;
+  }) : scaffoldShellBuilder =
+           scaffoldShellBuilder ?? PageScaffoldShell.defaultBuilder,
+       drawerBuilder = drawerBuilder ?? MainDrawer.defaultBuilder,
+       appBarBuilder = appBarBuilder ?? PageAppBar.defaultBuilder;
 
   /// Application manager that provides navigation, loading, menu and routing.
   final AbstractAppManager app;
@@ -67,12 +67,7 @@ class PageLoadingBoundary extends StatelessWidget {
           return LoadingPage(msg: msg);
         }
 
-        return scaffoldShellBuilder(
-          context,
-          app,
-          responsive,
-          page,
-        );
+        return scaffoldShellBuilder(context, app, responsive, page);
       },
     );
   }

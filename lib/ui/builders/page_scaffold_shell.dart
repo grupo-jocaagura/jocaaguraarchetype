@@ -33,8 +33,8 @@ class PageScaffoldShell extends StatelessWidget {
     MainDrawerBuilder? drawerBuilder,
     PageAppBarBuilder? appBarBuilder,
     super.key,
-  })  : drawerBuilder = drawerBuilder ?? MainDrawer.defaultBuilder,
-        appBarBuilder = appBarBuilder ?? PageAppBar.defaultBuilder;
+  }) : drawerBuilder = drawerBuilder ?? MainDrawer.defaultBuilder,
+       appBarBuilder = appBarBuilder ?? PageAppBar.defaultBuilder;
 
   /// Application manager that provides navigation, menus and notifications.
   final AbstractAppManager app;
@@ -59,11 +59,7 @@ class PageScaffoldShell extends StatelessWidget {
     BlocResponsive responsive,
     Widget? page,
   ) {
-    return PageScaffoldShell(
-      app: app,
-      responsive: responsive,
-      page: page,
-    );
+    return PageScaffoldShell(app: app, responsive: responsive, page: page);
   }
 
   @override
@@ -75,10 +71,7 @@ class PageScaffoldShell extends StatelessWidget {
         return StreamBuilder<List<ModelMainMenuModel>>(
           stream: app.mainMenu.listMenuOptionsStream,
           initialData: app.mainMenu.listMenuOptions,
-          builder: (
-            _,
-            __,
-          ) {
+          builder: (_, __) {
             final List<ModelMainMenuModel> items = app.mainMenu.listMenuOptions;
 
             final Widget? drawerWidget = drawerBuilder(
@@ -91,10 +84,7 @@ class PageScaffoldShell extends StatelessWidget {
             return StreamBuilder<bool>(
               stream: responsive.showAppbarStream,
               initialData: responsive.showAppbar,
-              builder: (
-                _,
-                __,
-              ) {
+              builder: (_, __) {
                 final bool showAppbar = responsive.showAppbar;
 
                 final PreferredSizeWidget? appBarWidget = showAppbar

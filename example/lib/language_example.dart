@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 const String _mathAssessmentKey = 'math';
 const String _artAssessmentKey = 'art';
@@ -54,11 +54,14 @@ final ModelLocalizedText _internationalizationDemoText = _text(
 );
 
 final ModelLocalizedText _blocLanguageDescriptionText = _text(
-  es: 'BlocLanguage está registrado como un módulo opcional de AppManager. '
+  es:
+      'BlocLanguage está registrado como un módulo opcional de AppManager. '
       'AppManager no ha sido modificado.',
-  en: 'BlocLanguage is registered as an optional AppManager module. '
+  en:
+      'BlocLanguage is registered as an optional AppManager module. '
       'The AppManager itself has not been modified.',
-  pt: 'BlocLanguage está registrado como um módulo opcional do AppManager. '
+  pt:
+      'BlocLanguage está registrado como um módulo opcional do AppManager. '
       'O AppManager não foi modificado.',
 );
 
@@ -75,13 +78,16 @@ final ModelLocalizedText _simulatePreferenceText = _text(
 );
 
 final ModelLocalizedText _integrationPendingText = _text(
-  es: 'Esta demostración todavía no asigna el Locale resuelto a MaterialApp. '
+  es:
+      'Esta demostración todavía no asigna el Locale resuelto a MaterialApp. '
       'Esa integración pertenece a una futura fase de internacionalización '
       'de AppManager.',
-  en: 'This demo intentionally does not assign the resolved Locale to '
+  en:
+      'This demo intentionally does not assign the resolved Locale to '
       'MaterialApp yet. That integration belongs to the future AppManager '
       'internationalization phase.',
-  pt: 'Esta demonstração ainda não atribui o Locale resolvido ao MaterialApp. '
+  pt:
+      'Esta demonstração ainda não atribui o Locale resolvido ao MaterialApp. '
       'Essa integração pertence a uma futura fase de internacionalização '
       'do AppManager.',
 );
@@ -128,11 +134,7 @@ final ModelLocalizedText _questionText = _text(
   pt: 'Pergunta',
 );
 
-final ModelLocalizedText _ofText = _text(
-  es: 'de',
-  en: 'of',
-  pt: 'de',
-);
+final ModelLocalizedText _ofText = _text(es: 'de', en: 'of', pt: 'de');
 
 final ModelLocalizedText _timeLimitText = _text(
   es: 'Tiempo límite',
@@ -194,11 +196,7 @@ final ModelLocalizedText _explanationText = _text(
   pt: 'Explicação',
 );
 
-final ModelLocalizedText _goalText = _text(
-  es: 'Meta',
-  en: 'Goal',
-  pt: 'Meta',
-);
+final ModelLocalizedText _goalText = _text(es: 'Meta', en: 'Goal', pt: 'Meta');
 
 final ModelLocalizedText _standardText = _text(
   es: 'Estándar',
@@ -219,19 +217,22 @@ final ModelLocalizedText _homeText = _text(
 );
 
 final ModelLocalizedText _architectureNoteText = _text(
-  es: 'Límite de la demostración:\n\n'
+  es:
+      'Límite de la demostración:\n\n'
       'UI → AppManager → BlocLanguage → LanguageResolutionPolicy\n\n'
       'La conversión a Locale permanece en LanguageLocaleMapper.\n'
       'AppManager no ha sido modificado.\n\n'
       'El chrome de la UI usa ModelLocalizedText. '
       'El contenido de las evaluaciones conserva sus String de dominio.',
-  en: 'Demo boundary:\n\n'
+  en:
+      'Demo boundary:\n\n'
       'UI → AppManager → BlocLanguage → LanguageResolutionPolicy\n\n'
       'Locale conversion remains in LanguageLocaleMapper.\n'
       'AppManager has not been modified.\n\n'
       'The UI chrome uses ModelLocalizedText. '
       'Assessment content keeps its domain String values.',
-  pt: 'Limite da demonstração:\n\n'
+  pt:
+      'Limite da demonstração:\n\n'
       'UI → AppManager → BlocLanguage → LanguageResolutionPolicy\n\n'
       'A conversão para Locale permanece em LanguageLocaleMapper.\n'
       'O AppManager não foi modificado.\n\n'
@@ -248,9 +249,7 @@ String _localizedText(
   }
 
   final ModelLanguage resolvedLanguage = _languageResolutionPolicy.resolve(
-    preferredLanguages: <ModelLanguage>[
-      preferredLanguage,
-    ],
+    preferredLanguages: <ModelLanguage>[preferredLanguage],
     supportedLanguages: localizedText.translations.keys,
     fallbackLanguage: localizedText.fallbackLanguage,
   );
@@ -267,9 +266,7 @@ void main() {
 
   final PageRegistry registry = _buildRegistry();
 
-  final AppConfig defaults = AppConfig.dev(
-    registry: registry,
-  );
+  final AppConfig defaults = AppConfig.dev(registry: registry);
 
   final AppConfig config = AppConfig(
     blocTheme: defaults.blocTheme,
@@ -300,33 +297,28 @@ void main() {
 }
 
 PageRegistry _buildRegistry() {
-  return PageRegistry.fromDefs(
-    <PageDef>[
-      PageDef(
-        model: AssessmentChooserPage.pageModel,
-        builder: AssessmentChooserPage.builder(),
-      ),
-      PageDef(
-        model: AssessmentHomePage.pageModel,
-        builder: AssessmentHomePage.builder(),
-      ),
-      PageDef(
-        model: AssessmentRunnerPage.pageModel,
-        builder: AssessmentRunnerPage.builder(),
-      ),
-      PageDef(
-        model: AssessmentResultPage.pageModel,
-        builder: AssessmentResultPage.builder(),
-      ),
-    ],
-    defaultPage: AssessmentChooserPage.pageModel,
-  );
+  return PageRegistry.fromDefs(<PageDef>[
+    PageDef(
+      model: AssessmentChooserPage.pageModel,
+      builder: AssessmentChooserPage.builder(),
+    ),
+    PageDef(
+      model: AssessmentHomePage.pageModel,
+      builder: AssessmentHomePage.builder(),
+    ),
+    PageDef(
+      model: AssessmentRunnerPage.pageModel,
+      builder: AssessmentRunnerPage.builder(),
+    ),
+    PageDef(
+      model: AssessmentResultPage.pageModel,
+      builder: AssessmentResultPage.builder(),
+    ),
+  ], defaultPage: AssessmentChooserPage.pageModel);
 }
 
 BlocLanguage _languageBloc(BuildContext context) {
-  return context.appManager.requireModuleByKey<BlocLanguage>(
-    BlocLanguage.name,
-  );
+  return context.appManager.requireModuleByKey<BlocLanguage>(BlocLanguage.name);
 }
 
 ModelAssessment _assessmentFor(String key) {
@@ -338,14 +330,9 @@ ModelAssessment _assessmentFor(String key) {
 // -----------------------------------------------------------------------------
 
 class _LanguageBuilder extends StatelessWidget {
-  const _LanguageBuilder({
-    required this.builder,
-  });
+  const _LanguageBuilder({required this.builder});
 
-  final Widget Function(
-    BuildContext context,
-    ModelLanguage language,
-  ) builder;
+  final Widget Function(BuildContext context, ModelLanguage language) builder;
 
   @override
   Widget build(BuildContext context) {
@@ -354,14 +341,8 @@ class _LanguageBuilder extends StatelessWidget {
     return StreamBuilder<ModelLanguage>(
       stream: bloc.stream,
       initialData: bloc.language,
-      builder: (
-        BuildContext context,
-        AsyncSnapshot<ModelLanguage> snapshot,
-      ) {
-        return builder(
-          context,
-          snapshot.data ?? bloc.language,
-        );
+      builder: (BuildContext context, AsyncSnapshot<ModelLanguage> snapshot) {
+        return builder(context, snapshot.data ?? bloc.language);
       },
     );
   }
@@ -379,9 +360,7 @@ class AssessmentChooserPage extends StatelessWidget {
   static const PageModel pageModel = PageModel(
     name: name,
     segments: <String>['home'],
-    state: <String, dynamic>{
-      'title': 'Jocaagura Education Demo',
-    },
+    state: <String, dynamic>{'title': 'Jocaagura Education Demo'},
   );
 
   static PageWidgetBuilder builder() {
@@ -393,39 +372,24 @@ class AssessmentChooserPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _LanguageBuilder(
-      builder: (
-        BuildContext context,
-        ModelLanguage language,
-      ) {
-        final ModelAssessment math = _assessmentFor(
-          _mathAssessmentKey,
-        );
-        final ModelAssessment art = _assessmentFor(
-          _artAssessmentKey,
-        );
+      builder: (BuildContext context, ModelLanguage language) {
+        final ModelAssessment math = _assessmentFor(_mathAssessmentKey);
+        final ModelAssessment art = _assessmentFor(_artAssessmentKey);
 
         return PageBuilder(
           page: ListView(
             padding: const EdgeInsets.all(16),
             children: <Widget>[
-              _LanguageDemoCard(
-                language: language,
-              ),
+              _LanguageDemoCard(language: language),
               const SizedBox(height: 24),
               Text(
-                _localizedText(
-                  _chooseAssessmentText,
-                  language,
-                ),
+                _localizedText(_chooseAssessmentText, language),
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 16),
               _AssessmentCard(
                 title: math.title,
-                subtitle: _assessmentSummary(
-                  math,
-                  language,
-                ),
+                subtitle: _assessmentSummary(math, language),
                 onTap: () {
                   context.appManager.pushOnceModel(
                     AssessmentHomePage.make(
@@ -438,10 +402,7 @@ class AssessmentChooserPage extends StatelessWidget {
               const SizedBox(height: 12),
               _AssessmentCard(
                 title: art.title,
-                subtitle: _assessmentSummary(
-                  art,
-                  language,
-                ),
+                subtitle: _assessmentSummary(art, language),
                 onTap: () {
                   context.appManager.pushOnceModel(
                     AssessmentHomePage.make(
@@ -452,9 +413,7 @@ class AssessmentChooserPage extends StatelessWidget {
                 },
               ),
               const SizedBox(height: 24),
-              _ArchitectureNote(
-                language: language,
-              ),
+              _ArchitectureNote(language: language),
             ],
           ),
         );
@@ -468,9 +427,7 @@ class AssessmentChooserPage extends StatelessWidget {
 // -----------------------------------------------------------------------------
 
 class _LanguageDemoCard extends StatelessWidget {
-  const _LanguageDemoCard({
-    required this.language,
-  });
+  const _LanguageDemoCard({required this.language});
 
   final ModelLanguage language;
 
@@ -488,39 +445,24 @@ class _LanguageDemoCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              _localizedText(
-                _internationalizationDemoText,
-                language,
-              ),
+              _localizedText(_internationalizationDemoText, language),
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
-            Text(
-              _localizedText(
-                _blocLanguageDescriptionText,
-                language,
-              ),
-            ),
+            Text(_localizedText(_blocLanguageDescriptionText, language)),
             const SizedBox(height: 16),
             DropdownButtonFormField<ModelLanguage>(
-              key: ValueKey<String>(
-                language.canonicalTag,
-              ),
+              key: ValueKey<String>(language.canonicalTag),
               initialValue: language,
               decoration: InputDecoration(
-                labelText: _localizedText(
-                  _activeLanguageText,
-                  language,
-                ),
+                labelText: _localizedText(_activeLanguageText, language),
                 border: const OutlineInputBorder(),
               ),
               items: bloc.supportedLanguages
                   .map(
                     (ModelLanguage item) => DropdownMenuItem<ModelLanguage>(
                       value: item,
-                      child: Text(
-                        _languageLabel(item),
-                      ),
+                      child: Text(_languageLabel(item)),
                     ),
                   )
                   .toList(growable: false),
@@ -533,42 +475,24 @@ class _LanguageDemoCard extends StatelessWidget {
               },
             ),
             const SizedBox(height: 12),
-            Text(
-              'ModelLanguage: ${language.canonicalTag}',
-            ),
-            Text(
-              'Flutter Locale: ${_localeTag(locale)}',
-            ),
+            Text('ModelLanguage: ${language.canonicalTag}'),
+            Text('Flutter Locale: ${_localeTag(locale)}'),
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: () {
                 final ModelLanguage resolved = bloc.resolvePreferredLanguages(
-                  const <ModelLanguage>[
-                    ModelLanguage.spanishMexico,
-                  ],
+                  const <ModelLanguage>[ModelLanguage.spanishMexico],
                 );
 
-                context.appManager.notify(
-                  'es-MX → ${resolved.canonicalTag}',
-                );
+                context.appManager.notify('es-MX → ${resolved.canonicalTag}');
               },
               icon: const Icon(Icons.travel_explore),
-              label: Text(
-                _localizedText(
-                  _simulatePreferenceText,
-                  language,
-                ),
-              ),
+              label: Text(_localizedText(_simulatePreferenceText, language)),
             ),
             const SizedBox(height: 8),
             Text(
-              _localizedText(
-                _integrationPendingText,
-                language,
-              ),
-              style: const TextStyle(
-                fontSize: 12,
-              ),
+              _localizedText(_integrationPendingText, language),
+              style: const TextStyle(fontSize: 12),
             ),
           ],
         ),
@@ -619,29 +543,20 @@ class _AssessmentCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: <Widget>[
-              const Icon(
-                Icons.quiz,
-                size: 32,
-              ),
+              const Icon(Icons.quiz, size: 32),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                    Text(title, style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(height: 4),
                     Text(subtitle),
                   ],
                 ),
               ),
               const SizedBox(width: 12),
-              const Icon(
-                Icons.arrow_forward_ios,
-                size: 18,
-              ),
+              const Icon(Icons.arrow_forward_ios, size: 18),
             ],
           ),
         ),
@@ -651,9 +566,7 @@ class _AssessmentCard extends StatelessWidget {
 }
 
 class _ArchitectureNote extends StatelessWidget {
-  const _ArchitectureNote({
-    required this.language,
-  });
+  const _ArchitectureNote({required this.language});
 
   final ModelLanguage language;
 
@@ -661,22 +574,15 @@ class _ArchitectureNote extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Theme.of(context).dividerColor,
-        ),
+        border: Border.all(color: Theme.of(context).dividerColor),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Text(
-          _localizedText(
-            _architectureNoteText,
-            language,
-          ),
+          _localizedText(_architectureNoteText, language),
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 12,
-          ),
+          style: const TextStyle(fontSize: 12),
         ),
       ),
     );
@@ -688,10 +594,7 @@ class _ArchitectureNote extends StatelessWidget {
 // -----------------------------------------------------------------------------
 
 class AssessmentHomePage extends StatelessWidget {
-  const AssessmentHomePage({
-    required this.assessmentKey,
-    super.key,
-  });
+  const AssessmentHomePage({required this.assessmentKey, super.key});
 
   factory AssessmentHomePage.fromPageModel(PageModel page) {
     return AssessmentHomePage(
@@ -719,22 +622,15 @@ class AssessmentHomePage extends StatelessWidget {
     required String title,
   }) {
     return pageModel.copyWith(
-      query: <String, String>{
-        'assessment': assessmentKey,
-      },
-      state: <String, dynamic>{
-        'title': title,
-      },
+      query: <String, String>{'assessment': assessmentKey},
+      state: <String, dynamic>{'title': title},
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return _LanguageBuilder(
-      builder: (
-        BuildContext context,
-        ModelLanguage language,
-      ) {
+      builder: (BuildContext context, ModelLanguage language) {
         final ModelAssessment assessment = _assessmentFor(assessmentKey);
 
         return PageBuilder(
@@ -748,12 +644,7 @@ class AssessmentHomePage extends StatelessWidget {
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  _assessmentSummary(
-                    assessment,
-                    language,
-                  ),
-                ),
+                Text(_assessmentSummary(assessment, language)),
                 const SizedBox(height: 12),
                 Expanded(
                   child: Card(
@@ -763,9 +654,7 @@ class AssessmentHomePage extends StatelessWidget {
                         child: Text(
                           'JSON (enum.name stable):\n'
                           '${assessment.toJson()}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                          ),
+                          style: const TextStyle(fontSize: 12),
                         ),
                       ),
                     ),
@@ -783,15 +672,8 @@ class AssessmentHomePage extends StatelessWidget {
                         ),
                       );
                     },
-                    icon: const Icon(
-                      Icons.play_arrow,
-                    ),
-                    label: Text(
-                      _localizedText(
-                        _startAssessmentText,
-                        language,
-                      ),
-                    ),
+                    icon: const Icon(Icons.play_arrow),
+                    label: Text(_localizedText(_startAssessmentText, language)),
                   ),
                 ),
               ],
@@ -808,10 +690,7 @@ class AssessmentHomePage extends StatelessWidget {
 // -----------------------------------------------------------------------------
 
 class AssessmentRunnerPage extends StatefulWidget {
-  const AssessmentRunnerPage({
-    required this.assessmentKey,
-    super.key,
-  });
+  const AssessmentRunnerPage({required this.assessmentKey, super.key});
 
   factory AssessmentRunnerPage.fromPageModel(PageModel page) {
     return AssessmentRunnerPage(
@@ -839,12 +718,8 @@ class AssessmentRunnerPage extends StatefulWidget {
     required String title,
   }) {
     return pageModel.copyWith(
-      query: <String, String>{
-        'assessment': assessmentKey,
-      },
-      state: <String, dynamic>{
-        'title': title,
-      },
+      query: <String, String>{'assessment': assessmentKey},
+      state: <String, dynamic>{'title': title},
     );
   }
 
@@ -893,10 +768,7 @@ class _AssessmentRunnerPageState extends State<AssessmentRunnerPage> {
   @override
   Widget build(BuildContext context) {
     return _LanguageBuilder(
-      builder: (
-        BuildContext context,
-        ModelLanguage language,
-      ) {
+      builder: (BuildContext context, ModelLanguage language) {
         final ItemInstance instance = _instances[_index];
         final String? chosen = _answers[instance.item.id];
 
@@ -923,9 +795,7 @@ class _AssessmentRunnerPageState extends State<AssessmentRunnerPage> {
                     '${_localizedText(_timeLimitText, language)}: '
                     '${_assessment.timeLimit.inMinutes} min '
                     '(${_localizedText(_informationalText, language)})',
-                    style: const TextStyle(
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ],
                 const SizedBox(height: 8),
@@ -934,46 +804,33 @@ class _AssessmentRunnerPageState extends State<AssessmentRunnerPage> {
                     padding: const EdgeInsets.all(16),
                     child: Text(
                       instance.item.label,
-                      style: const TextStyle(
-                        fontSize: 18,
-                      ),
+                      style: const TextStyle(fontSize: 18),
                     ),
                   ),
                 ),
                 const SizedBox(height: 12),
-                ...instance.options.map(
-                  (String option) {
-                    final bool isSelected = chosen == option;
+                ...instance.options.map((String option) {
+                  final bool isSelected = chosen == option;
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 4,
-                      ),
-                      child: ListTile(
-                        shape: RoundedRectangleBorder(
-                          side: BorderSide(
-                            color: isSelected
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).dividerColor,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: ListTile(
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).dividerColor,
                         ),
-                        title: Text(option),
-                        trailing: isSelected
-                            ? const Icon(
-                                Icons.check,
-                              )
-                            : null,
-                        onTap: () {
-                          _choose(
-                            instance.item.id,
-                            option,
-                          );
-                        },
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                    );
-                  },
-                ),
+                      title: Text(option),
+                      trailing: isSelected ? const Icon(Icons.check) : null,
+                      onTap: () {
+                        _choose(instance.item.id, option);
+                      },
+                    ),
+                  );
+                }),
                 const Spacer(),
                 Row(
                   children: <Widget>[
@@ -985,15 +842,8 @@ class _AssessmentRunnerPageState extends State<AssessmentRunnerPage> {
                                 _index--;
                               });
                             },
-                      icon: const Icon(
-                        Icons.arrow_back,
-                      ),
-                      label: Text(
-                        _localizedText(
-                          _backText,
-                          language,
-                        ),
-                      ),
+                      icon: const Icon(Icons.arrow_back),
+                      label: Text(_localizedText(_backText, language)),
                     ),
                     const Spacer(),
                     FilledButton.icon(
@@ -1037,8 +887,8 @@ class AssessmentResultPage extends StatelessWidget {
   factory AssessmentResultPage.fromPageModel(PageModel page) {
     final Map<String, dynamic> rawAnswers =
         page.state['answers'] is Map<String, dynamic>
-            ? page.state['answers'] as Map<String, dynamic>
-            : <String, dynamic>{};
+        ? page.state['answers'] as Map<String, dynamic>
+        : <String, dynamic>{};
 
     return AssessmentResultPage(
       assessmentKey: page.query['assessment'] ?? _mathAssessmentKey,
@@ -1070,9 +920,7 @@ class AssessmentResultPage extends StatelessWidget {
     required Map<String, String> answers,
   }) {
     return pageModel.copyWith(
-      query: <String, String>{
-        'assessment': assessmentKey,
-      },
+      query: <String, String>{'assessment': assessmentKey},
       state: <String, dynamic>{
         'title': 'Resultado',
         'answers': Map<String, String>.from(answers),
@@ -1083,10 +931,7 @@ class AssessmentResultPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _LanguageBuilder(
-      builder: (
-        BuildContext context,
-        ModelLanguage language,
-      ) {
+      builder: (BuildContext context, ModelLanguage language) {
         final ModelAssessment assessment = _assessmentFor(assessmentKey);
 
         final List<ItemInstance> instances = _createInstances(assessment);
@@ -1131,18 +976,10 @@ class AssessmentResultPage extends StatelessWidget {
                 Expanded(
                   child: ListView.separated(
                     itemCount: instances.length,
-                    separatorBuilder: (
-                      BuildContext context,
-                      int index,
-                    ) {
-                      return const Divider(
-                        height: 1,
-                      );
+                    separatorBuilder: (BuildContext context, int index) {
+                      return const Divider(height: 1);
                     },
-                    itemBuilder: (
-                      BuildContext context,
-                      int index,
-                    ) {
+                    itemBuilder: (BuildContext context, int index) {
                       final ItemInstance instance = instances[index];
 
                       final String? chosen = answers[instance.item.id];
@@ -1151,14 +988,8 @@ class AssessmentResultPage extends StatelessWidget {
                           chosen == instance.item.correctAnswer;
 
                       return ListTile(
-                        leading: CircleAvatar(
-                          child: Text(
-                            '${index + 1}',
-                          ),
-                        ),
-                        title: Text(
-                          instance.item.label,
-                        ),
+                        leading: CircleAvatar(child: Text('${index + 1}')),
+                        title: Text(instance.item.label),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
@@ -1172,7 +1003,9 @@ class AssessmentResultPage extends StatelessWidget {
                               '${instance.item.correctAnswer}',
                             ),
                             if (instance
-                                .item.explanation.isNotEmpty) ...<Widget>[
+                                .item
+                                .explanation
+                                .isNotEmpty) ...<Widget>[
                               const SizedBox(height: 8),
                               Text(
                                 '${_localizedText(_explanationText, language)}: '
@@ -1186,9 +1019,7 @@ class AssessmentResultPage extends StatelessWidget {
                               '• '
                               '${_localizedText(_standardText, language)}: '
                               '${instance.item.achievementOne.modelLearningGoal.standard.code}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                              ),
+                              style: const TextStyle(fontSize: 12),
                             ),
                           ],
                         ),
@@ -1214,15 +1045,8 @@ class AssessmentResultPage extends StatelessWidget {
                           ),
                         );
                       },
-                      icon: const Icon(
-                        Icons.replay,
-                      ),
-                      label: Text(
-                        _localizedText(
-                          _retryText,
-                          language,
-                        ),
-                      ),
+                      icon: const Icon(Icons.replay),
+                      label: Text(_localizedText(_retryText, language)),
                     ),
                     const Spacer(),
                     FilledButton.icon(
@@ -1231,15 +1055,8 @@ class AssessmentResultPage extends StatelessWidget {
                           AssessmentChooserPage.pageModel,
                         );
                       },
-                      icon: const Icon(
-                        Icons.home,
-                      ),
-                      label: Text(
-                        _localizedText(
-                          _homeText,
-                          language,
-                        ),
-                      ),
+                      icon: const Icon(Icons.home),
+                      label: Text(_localizedText(_homeText, language)),
                     ),
                   ],
                 ),
@@ -1257,10 +1074,7 @@ class AssessmentResultPage extends StatelessWidget {
 // -----------------------------------------------------------------------------
 
 class ItemInstance {
-  const ItemInstance({
-    required this.item,
-    required this.options,
-  });
+  const ItemInstance({required this.item, required this.options});
 
   final ModelLearningItem item;
   final List<String> options;
@@ -1280,31 +1094,23 @@ class AssessmentResult {
   final bool passed;
 }
 
-List<ItemInstance> _createInstances(
-  ModelAssessment assessment,
-) {
+List<ItemInstance> _createInstances(ModelAssessment assessment) {
   final List<ModelLearningItem> items = List<ModelLearningItem>.from(
     assessment.items,
   );
 
   if (assessment.shuffleItems) {
-    items.shuffle(
-      Random(
-        assessment.id.hashCode,
-      ),
-    );
+    items.shuffle(Random(assessment.id.hashCode));
   }
 
-  return items.map(
-    (ModelLearningItem item) {
-      return ItemInstance(
-        item: item,
-        options: item.optionsShuffled(
-          item.id.hashCode,
-        ),
-      );
-    },
-  ).toList(growable: false);
+  return items
+      .map((ModelLearningItem item) {
+        return ItemInstance(
+          item: item,
+          options: item.optionsShuffled(item.id.hashCode),
+        );
+      })
+      .toList(growable: false);
 }
 
 AssessmentResult _computeResult({
@@ -1331,15 +1137,9 @@ AssessmentResult _computeResult({
   );
 }
 
-String _assessmentSummary(
-  ModelAssessment assessment,
-  ModelLanguage language,
-) {
+String _assessmentSummary(ModelAssessment assessment, ModelLanguage language) {
   final String time = assessment.timeLimit == Duration.zero
-      ? _localizedText(
-          _withoutLimitText,
-          language,
-        )
+      ? _localizedText(_withoutLimitText, language)
       : '${assessment.timeLimit.inMinutes} min';
 
   return '${_localizedText(_questionsText, language)}: '
@@ -1357,10 +1157,7 @@ ModelAssessment _buildMathAssessment() {
   const ModelCompetencyStandard std = ModelCompetencyStandard(
     id: 'STD-MATH-OPS-3',
     label: 'Resuelve operaciones básicas de suma y resta (3°)',
-    area: ModelCategory(
-      category: 'math',
-      description: 'Matemáticas',
-    ),
+    area: ModelCategory(category: 'math', description: 'Matemáticas'),
     cineLevel: 1,
     code: 'MATH.OPS.L1',
   );
@@ -1398,9 +1195,7 @@ ModelAssessment _buildMathAssessment() {
       explanation: '',
       attributes: const <ModelAttribute<dynamic>>[],
       achievementOne: indicator,
-      estimatedTimeForAnswer: const Duration(
-        minutes: 1,
-      ),
+      estimatedTimeForAnswer: const Duration(minutes: 1),
       category: const ModelCategory(
         category: 'math',
         description: 'Matemáticas',
@@ -1410,38 +1205,10 @@ ModelAssessment _buildMathAssessment() {
   }
 
   final List<ModelLearningItem> items = <ModelLearningItem>[
-    q(
-      id: 'Q1',
-      label: '2 + 3 = ?',
-      correct: '5',
-      w1: '4',
-      w2: '6',
-      w3: '7',
-    ),
-    q(
-      id: 'Q2',
-      label: '7 - 4 = ?',
-      correct: '3',
-      w1: '2',
-      w2: '4',
-      w3: '1',
-    ),
-    q(
-      id: 'Q3',
-      label: '5 + 6 = ?',
-      correct: '11',
-      w1: '10',
-      w2: '12',
-      w3: '9',
-    ),
-    q(
-      id: 'Q4',
-      label: '9 - 5 = ?',
-      correct: '4',
-      w1: '3',
-      w2: '5',
-      w3: '6',
-    ),
+    q(id: 'Q1', label: '2 + 3 = ?', correct: '5', w1: '4', w2: '6', w3: '7'),
+    q(id: 'Q2', label: '7 - 4 = ?', correct: '3', w1: '2', w2: '4', w3: '1'),
+    q(id: 'Q3', label: '5 + 6 = ?', correct: '11', w1: '10', w2: '12', w3: '9'),
+    q(id: 'Q4', label: '9 - 5 = ?', correct: '4', w1: '3', w2: '5', w3: '6'),
     q(
       id: 'Q5',
       label: '8 + 7 = ?',
@@ -1458,9 +1225,7 @@ ModelAssessment _buildMathAssessment() {
     items: items,
     shuffleItems: true,
     shuffleOptions: true,
-    timeLimit: const Duration(
-      minutes: 10,
-    ),
+    timeLimit: const Duration(minutes: 10),
     passScore: 60,
   );
 }
@@ -1474,10 +1239,7 @@ ModelAssessment _buildDigitalArtAssessmentAdvanced() {
     id: 'STD-ART-DIG-ADV',
     label:
         'Domina conceptos avanzados de arte digital y gráficos por computadora',
-    area: ModelCategory(
-      category: 'art',
-      description: 'Arte Digital',
-    ),
+    area: ModelCategory(category: 'art', description: 'Arte Digital'),
     cineLevel: 3,
     code: 'ART.DIG.ADV',
   );
@@ -1515,9 +1277,7 @@ ModelAssessment _buildDigitalArtAssessmentAdvanced() {
       explanation: '',
       attributes: const <ModelAttribute<dynamic>>[],
       achievementOne: indicator,
-      estimatedTimeForAnswer: const Duration(
-        seconds: 20,
-      ),
+      estimatedTimeForAnswer: const Duration(seconds: 20),
       category: const ModelCategory(
         category: 'art',
         description: 'Arte Digital',
@@ -1615,9 +1375,7 @@ ModelAssessment _buildDigitalArtAssessmentAdvanced() {
     items: items,
     shuffleItems: true,
     shuffleOptions: true,
-    timeLimit: const Duration(
-      minutes: 5,
-    ),
+    timeLimit: const Duration(minutes: 5),
     passScore: 70,
   );
 }

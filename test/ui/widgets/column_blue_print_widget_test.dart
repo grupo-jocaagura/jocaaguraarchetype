@@ -1,13 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
 void main() {
   group('ColumnBlueprintWidget', () {
-    testWidgets('renders with indices on desktop config',
-        (WidgetTester tester) async {
+    testWidgets('renders with indices on desktop config', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive resp = BlocResponsive()
         ..setSizeForTesting(const Size(1440, 900)); // desktop → más columnas
 
@@ -25,18 +26,14 @@ void main() {
       expect(find.byType(ColumnBlueprintWidget), findsOneWidget);
     });
 
-    testWidgets('adapts when switching to mobile (fewer columns)',
-        (WidgetTester tester) async {
+    testWidgets('adapts when switching to mobile (fewer columns)', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive resp = BlocResponsive()
         ..setSizeForTesting(const Size(390, 844)); // mobile
 
       await tester.pumpWidget(
-        _wrap(
-          ColumnBlueprintWidget(
-            responsive: resp,
-            height: 150,
-          ),
-        ),
+        _wrap(ColumnBlueprintWidget(responsive: resp, height: 150)),
       );
 
       expect(find.byType(ColumnBlueprintWidget), findsOneWidget);
@@ -55,10 +52,7 @@ void main() {
         _wrap(
           SizedBox(
             height: 120,
-            child: ColumnBlueprintWidget(
-              responsive: resp,
-              opacity: 0.2,
-            ),
+            child: ColumnBlueprintWidget(responsive: resp, opacity: 0.2),
           ),
         ),
       );

@@ -42,8 +42,8 @@ void main() {
       const String raw =
           '{"name":"Demo","description":"x","entryIndex":0,"stepsByIndex":{"0":{"index":0,"title":"A","description":"","failureCode":"F","nextOnSuccessIndex":-1,"nextOnFailureIndex":-1,"cost":{}}}}';
 
-      final Either<ErrorItem, ModelCompleteFlow> res =
-          await bridge.importFromJson(raw);
+      final Either<ErrorItem, ModelCompleteFlow> res = await bridge
+          .importFromJson(raw);
 
       expect(res.isRight, isTrue);
       expect(bloc.state.value.flow, isNotNull);
@@ -55,22 +55,24 @@ void main() {
       bloc.dispose();
     });
 
-    test('importFromJson invalid json marks field invalid and returns left',
-        () async {
-      final BlocEitherFlow bloc = BlocEitherFlow();
-      final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
+    test(
+      'importFromJson invalid json marks field invalid and returns left',
+      () async {
+        final BlocEitherFlow bloc = BlocEitherFlow();
+        final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
 
-      const String raw = '{invalid-json';
-      final Either<ErrorItem, ModelCompleteFlow> res =
-          await bridge.importFromJson(raw);
+        const String raw = '{invalid-json';
+        final Either<ErrorItem, ModelCompleteFlow> res = await bridge
+            .importFromJson(raw);
 
-      expect(res.isLeft, isTrue);
-      expect(bloc.state.value.flow, isNull);
-      expect(bloc.state.value.jsonField.isValid, isFalse);
-      expect(bloc.state.value.jsonField.errorText, isNotEmpty);
+        expect(res.isLeft, isTrue);
+        expect(bloc.state.value.flow, isNull);
+        expect(bloc.state.value.jsonField.isValid, isFalse);
+        expect(bloc.state.value.jsonField.errorText, isNotEmpty);
 
-      bloc.dispose();
-    });
+        bloc.dispose();
+      },
+    );
 
     test('runSimulation writes audit snapshot into bloc', () {
       final BlocEitherFlow bloc = BlocEitherFlow();
@@ -153,8 +155,10 @@ void main() {
     test('save/load uses storage gateway', () async {
       final BlocEitherFlow bloc = BlocEitherFlow();
       final _MemoryStorage storage = _MemoryStorage();
-      final DefaultEitherFlowBridge bridge =
-          DefaultEitherFlowBridge(bloc, storage: storage);
+      final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(
+        bloc,
+        storage: storage,
+      );
 
       const String raw =
           '{"name":"Demo","description":"x","entryIndex":0,"stepsByIndex":{"0":{"index":0,"title":"A","description":"","failureCode":"F","nextOnSuccessIndex":-1,"nextOnFailureIndex":-1,"cost":{}}}}';
@@ -166,8 +170,8 @@ void main() {
       bloc.updateRawJson('');
       expect(bloc.state.value.flow, isNull);
 
-      final Either<ErrorItem, ModelCompleteFlow> loaded =
-          await bridge.loadFromStorage(id: 'x');
+      final Either<ErrorItem, ModelCompleteFlow> loaded = await bridge
+          .loadFromStorage(id: 'x');
       expect(loaded.isRight, isTrue);
       expect(bloc.state.value.flow, isNotNull);
 
@@ -175,16 +179,14 @@ void main() {
     });
   });
   group('DefaultEitherFlowBridge - robustness', () {
-    test(
-        'Given invalid JSON When importFromJson Then isBusy ends false (never stuck)',
-        () async {
+    test('Given invalid JSON When importFromJson Then isBusy ends false (never stuck)', () async {
       final BlocEitherFlow bloc = BlocEitherFlow();
       final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
 
       const String raw = '{invalid-json';
 
-      final Either<ErrorItem, ModelCompleteFlow> res =
-          await bridge.importFromJson(raw);
+      final Either<ErrorItem, ModelCompleteFlow> res = await bridge
+          .importFromJson(raw);
 
       expect(res.isLeft, isTrue);
       expect(bloc.state.value.isBusy, isFalse);
@@ -192,17 +194,15 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'Given JSON with non-object root When importFromJson Then returns left and marks field invalid',
-        () async {
+    test('Given JSON with non-object root When importFromJson Then returns left and marks field invalid', () async {
       final BlocEitherFlow bloc = BlocEitherFlow();
       final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
 
       // Valid JSON, but root is a list -> _safeDecodeJson must reject.
       const String raw = '[]';
 
-      final Either<ErrorItem, ModelCompleteFlow> res =
-          await bridge.importFromJson(raw);
+      final Either<ErrorItem, ModelCompleteFlow> res = await bridge
+          .importFromJson(raw);
 
       expect(res.isLeft, isTrue);
       expect(bloc.state.value.flow, isNull);
@@ -213,9 +213,7 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'Given parsable JSON but weird stepsByIndex When importFromJson Then returns right with empty steps and never stuck busy',
-        () async {
+    test('Given parsable JSON but weird stepsByIndex When importFromJson Then returns right with empty steps and never stuck busy', () async {
       final BlocEitherFlow bloc = BlocEitherFlow();
       final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
 
@@ -224,8 +222,8 @@ void main() {
       const String raw =
           '{"name":"Demo","description":"x","entryIndex":0,"stepsByIndex":[]}';
 
-      final Either<ErrorItem, ModelCompleteFlow> res =
-          await bridge.importFromJson(raw);
+      final Either<ErrorItem, ModelCompleteFlow> res = await bridge
+          .importFromJson(raw);
 
       expect(res.isRight, isTrue);
       expect(bloc.state.value.flow, isNotNull);
@@ -241,9 +239,7 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'Given no flow When validate Then sets and returns an empty validation report (safe behavior)',
-        () {
+    test('Given no flow When validate Then sets and returns an empty validation report (safe behavior)', () {
       final BlocEitherFlow bloc = BlocEitherFlow();
       final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
 
@@ -256,9 +252,7 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'Given no flow When analyze Then sets and returns an empty analysis report (safe behavior)',
-        () {
+    test('Given no flow When analyze Then sets and returns an empty analysis report (safe behavior)', () {
       final BlocEitherFlow bloc = BlocEitherFlow();
       final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
 
@@ -271,9 +265,7 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'Given no flow When startStepSimulation Then does nothing and does not flip busy',
-        () {
+    test('Given no flow When startStepSimulation Then does nothing and does not flip busy', () {
       final BlocEitherFlow bloc = BlocEitherFlow();
       final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
 
@@ -286,9 +278,7 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'Given started step simulation When clearSimulation Then session and audit are cleared',
-        () {
+    test('Given started step simulation When clearSimulation Then session and audit are cleared', () {
       final BlocEitherFlow bloc = BlocEitherFlow();
       final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
 
@@ -325,17 +315,15 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'Given storage not configured When saveToStorage/loadFromStorage Then returns left',
-        () async {
+    test('Given storage not configured When saveToStorage/loadFromStorage Then returns left', () async {
       final BlocEitherFlow bloc = BlocEitherFlow();
       final DefaultEitherFlowBridge bridge = DefaultEitherFlowBridge(bloc);
 
       final Either<ErrorItem, Unit> saved = await bridge.saveToStorage(id: 'x');
       expect(saved.isLeft, isTrue);
 
-      final Either<ErrorItem, ModelCompleteFlow> loaded =
-          await bridge.loadFromStorage(id: 'x');
+      final Either<ErrorItem, ModelCompleteFlow> loaded = await bridge
+          .loadFromStorage(id: 'x');
       expect(loaded.isLeft, isTrue);
 
       bloc.dispose();

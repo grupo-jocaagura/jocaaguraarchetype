@@ -4,11 +4,11 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// Espía mínimo de PageManager para observar llamadas relevantes del flujo.
 class _SpyPageManager extends PageManager {
   _SpyPageManager()
-      : super(
-          initial: NavStackModel.single(
-            const PageModel(name: 'home', segments: <String>['home']),
-          ),
-        );
+    : super(
+        initial: NavStackModel.single(
+          const PageModel(name: 'home', segments: <String>['home']),
+        ),
+      );
 
   bool goHomeCalled = false;
   String? lastSetFromRouteChain;
@@ -49,28 +49,29 @@ void main() {
 
   group('AppManager · Restore-after-login & helpers', () {
     test(
-        'onAuthenticatedRestorePendingStack() sin intención pendiente → goHome',
-        () {
-      final _SpyPageManager spy = _SpyPageManager();
-      final AppManager manager = AppManager(makeConfigWith(spy));
+      'onAuthenticatedRestorePendingStack() sin intención pendiente → goHome',
+      () {
+        final _SpyPageManager spy = _SpyPageManager();
+        final AppManager manager = AppManager(makeConfigWith(spy));
 
-      // No tenemos forma pública de setear la intención pendiente,
-      // por lo que esta ruta debe mandar a home.
-      manager.onAuthenticatedRestorePendingStack();
+        // No tenemos forma pública de setear la intención pendiente,
+        // por lo que esta ruta debe mandar a home.
+        manager.onAuthenticatedRestorePendingStack();
 
-      expect(
-        spy.goHomeCalled,
-        isTrue,
-        reason: 'Sin intención pendiente se debe limpiar el stack hacia home',
-      );
-      expect(
-        spy.lastSetFromRouteChain,
-        isNull,
-        reason: 'No debe intentar restaurar un route chain inexistente',
-      );
+        expect(
+          spy.goHomeCalled,
+          isTrue,
+          reason: 'Sin intención pendiente se debe limpiar el stack hacia home',
+        );
+        expect(
+          spy.lastSetFromRouteChain,
+          isNull,
+          reason: 'No debe intentar restaurar un route chain inexistente',
+        );
 
-      manager.dispose();
-    });
+        manager.dispose();
+      },
+    );
 
     test('clearPendingIntent() seguido de restore → también va a home', () {
       final _SpyPageManager spy = _SpyPageManager();

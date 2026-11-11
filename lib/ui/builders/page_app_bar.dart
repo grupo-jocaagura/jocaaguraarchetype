@@ -57,11 +57,7 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
     BlocResponsive responsive,
     bool hasDrawer,
   ) {
-    return PageAppBar(
-      app: app,
-      responsive: responsive,
-      hasDrawer: hasDrawer,
-    );
+    return PageAppBar(app: app, responsive: responsive, hasDrawer: hasDrawer);
   }
 
   @override
@@ -75,10 +71,7 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: StreamBuilder<String>(
         stream: app.pageManager.currentTitleStream,
         initialData: app.pageManager.currentTitle,
-        builder: (
-          _,
-          __,
-        ) {
+        builder: (_, __) {
           final String title = app.pageManager.currentTitle;
           return Text(title);
         },
@@ -87,10 +80,7 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
         StreamBuilder<bool>(
           stream: app.pageManager.canPopStream,
           initialData: app.pageManager.canPop,
-          builder: (
-            _,
-            __,
-          ) {
+          builder: (_, __) {
             final bool canPop = app.pageManager.canPop;
             if (!canPop) {
               return const SizedBox.shrink();
@@ -98,8 +88,9 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
             return IconButton(
               iconSize: responsive.marginWidth * 0.85,
               onPressed: () {
-                final RouterDelegate<Object?>? delegate =
-                    Router.maybeOf(context)?.routerDelegate;
+                final RouterDelegate<Object?>? delegate = Router.maybeOf(
+                  context,
+                )?.routerDelegate;
                 if (delegate is MyAppRouterDelegate &&
                     delegate.userBackNavigationPolicy != null) {
                   delegate.requestUserBack(
@@ -114,9 +105,7 @@ class PageAppBar extends StatelessWidget implements PreferredSizeWidget {
             );
           },
         ),
-        SizedBox(
-          width: responsive.marginWidth,
-        ),
+        SizedBox(width: responsive.marginWidth),
       ],
     );
   }

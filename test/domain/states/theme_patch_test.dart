@@ -1,12 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('ThemePatch.applyOn – escala tipográfica (clamp & robustez)', () {
-    test(
-        'Given textScale dentro de rango When applyOn Then se respeta (p. ej. 1.1)',
-        () {
+    test('Given textScale dentro de rango When applyOn Then se respeta (p. ej. 1.1)', () {
       // Arrange
       const ThemePatch patch = ThemePatch(textScale: 1.1);
       final ThemeState base = ThemeState.defaults.copyWith(textScale: 1.0);
@@ -36,9 +34,7 @@ void main() {
       expect(updated.textScale, 1.6);
     });
 
-    test(
-        'Given textScale no finito (infinity) When applyOn Then conserva valor base',
-        () {
+    test('Given textScale no finito (infinity) When applyOn Then conserva valor base', () {
       const ThemePatch patch = ThemePatch(textScale: double.infinity);
       final ThemeState base = ThemeState.defaults.copyWith(textScale: 1.25);
 
@@ -80,9 +76,7 @@ void main() {
       expect(updated.preset, 'designer');
     });
 
-    test(
-        'Given patch vacío When applyOn Then devuelve un estado equivalente al base',
-        () {
+    test('Given patch vacío When applyOn Then devuelve un estado equivalente al base', () {
       const ThemePatch patch = ThemePatch();
       final ThemeState base = ThemeState.defaults.copyWith(
         mode: ThemeMode.light,
@@ -97,55 +91,62 @@ void main() {
   });
 
   group('ThemePatch.applyOn – overrides (reemplazo vs conservación)', () {
-    test('Given overrides nuevos When applyOn Then reemplaza los existentes',
-        () {
-      final ThemeOverrides existing = ThemeOverrides(
-        light: ColorScheme.fromSeed(seedColor: const Color(0xFF6750A4)),
-      );
-      final ThemeOverrides replacement = ThemeOverrides(
-        light: ColorScheme.fromSeed(seedColor: const Color(0xFF006E1C)),
-        dark: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF006E1C),
-          brightness: Brightness.dark,
-        ),
-      );
+    test(
+      'Given overrides nuevos When applyOn Then reemplaza los existentes',
+      () {
+        final ThemeOverrides existing = ThemeOverrides(
+          light: ColorScheme.fromSeed(seedColor: const Color(0xFF6750A4)),
+        );
+        final ThemeOverrides replacement = ThemeOverrides(
+          light: ColorScheme.fromSeed(seedColor: const Color(0xFF006E1C)),
+          dark: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF006E1C),
+            brightness: Brightness.dark,
+          ),
+        );
 
-      final ThemeState base = ThemeState.defaults.copyWith(overrides: existing);
-      final ThemePatch patch = ThemePatch(overrides: replacement);
+        final ThemeState base = ThemeState.defaults.copyWith(
+          overrides: existing,
+        );
+        final ThemePatch patch = ThemePatch(overrides: replacement);
 
-      final ThemeState updated = patch.applyOn(base);
+        final ThemeState updated = patch.applyOn(base);
 
-      expect(updated.overrides, equals(replacement));
-      expect(updated.overrides, isNot(equals(existing)));
-    });
+        expect(updated.overrides, equals(replacement));
+        expect(updated.overrides, isNot(equals(existing)));
+      },
+    );
 
     test(
-        'Given textOverrides nuevos When applyOn Then reemplaza los existentes',
-        () {
-      const TextThemeOverrides existing = TextThemeOverrides(
-        light:
-            TextTheme(bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 12)),
-      );
-      const TextThemeOverrides replacement = TextThemeOverrides(
-        light:
-            TextTheme(bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14)),
-        dark:
-            TextTheme(bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14)),
-      );
+      'Given textOverrides nuevos When applyOn Then reemplaza los existentes',
+      () {
+        const TextThemeOverrides existing = TextThemeOverrides(
+          light: TextTheme(
+            bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 12),
+          ),
+        );
+        const TextThemeOverrides replacement = TextThemeOverrides(
+          light: TextTheme(
+            bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14),
+          ),
+          dark: TextTheme(
+            bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14),
+          ),
+        );
 
-      final ThemeState base =
-          ThemeState.defaults.copyWith(textOverrides: existing);
-      const ThemePatch patch = ThemePatch(textOverrides: replacement);
+        final ThemeState base = ThemeState.defaults.copyWith(
+          textOverrides: existing,
+        );
+        const ThemePatch patch = ThemePatch(textOverrides: replacement);
 
-      final ThemeState updated = patch.applyOn(base);
+        final ThemeState updated = patch.applyOn(base);
 
-      expect(updated.textOverrides, equals(replacement));
-      expect(updated.textOverrides, isNot(equals(existing)));
-    });
+        expect(updated.textOverrides, equals(replacement));
+        expect(updated.textOverrides, isNot(equals(existing)));
+      },
+    );
 
-    test(
-        'Given overrides == null When applyOn Then conserva overrides del base (no nulling)',
-        () {
+    test('Given overrides == null When applyOn Then conserva overrides del base (no nulling)', () {
       final ThemeOverrides existing = ThemeOverrides(
         light: ColorScheme.fromSeed(seedColor: const Color(0xFF6750A4)),
       );
@@ -158,14 +159,13 @@ void main() {
       expect(updated.overrides, equals(existing));
     });
 
-    test(
-        'Given textOverrides == null When applyOn Then conserva textOverrides del base (no nulling)',
-        () {
+    test('Given textOverrides == null When applyOn Then conserva textOverrides del base (no nulling)', () {
       const TextThemeOverrides existing = TextThemeOverrides(
         light: TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w600)),
       );
-      final ThemeState base =
-          ThemeState.defaults.copyWith(textOverrides: existing);
+      final ThemeState base = ThemeState.defaults.copyWith(
+        textOverrides: existing,
+      );
 
       const ThemePatch patch = ThemePatch();
 
@@ -176,9 +176,7 @@ void main() {
   });
 
   group('ThemePatch.copyWith – preserva y reemplaza correctamente', () {
-    test(
-        'Given patch con valores When copyWith parcial Then mezcla manteniendo los no provistos',
-        () {
+    test('Given patch con valores When copyWith parcial Then mezcla manteniendo los no provistos', () {
       const ThemePatch basePatch = ThemePatch(
         mode: ThemeMode.light,
         textScale: 1.2,
@@ -198,23 +196,24 @@ void main() {
     });
 
     test(
-        'Given copyWith con overrides/textOverrides Then actualiza referencias',
-        () {
-      final ThemeOverrides ov = ThemeOverrides(
-        light: ColorScheme.fromSeed(seedColor: const Color(0xFF001122)),
-      );
-      const TextThemeOverrides tov = TextThemeOverrides(
-        dark: TextTheme(bodyMedium: TextStyle(fontSize: 13)),
-      );
+      'Given copyWith con overrides/textOverrides Then actualiza referencias',
+      () {
+        final ThemeOverrides ov = ThemeOverrides(
+          light: ColorScheme.fromSeed(seedColor: const Color(0xFF001122)),
+        );
+        const TextThemeOverrides tov = TextThemeOverrides(
+          dark: TextTheme(bodyMedium: TextStyle(fontSize: 13)),
+        );
 
-      const ThemePatch basePatch = ThemePatch();
-      final ThemePatch p2 = basePatch.copyWith(
-        overrides: ov,
-        textOverrides: tov,
-      );
+        const ThemePatch basePatch = ThemePatch();
+        final ThemePatch p2 = basePatch.copyWith(
+          overrides: ov,
+          textOverrides: tov,
+        );
 
-      expect(p2.overrides, equals(ov));
-      expect(p2.textOverrides, equals(tov));
-    });
+        expect(p2.overrides, equals(ov));
+        expect(p2.textOverrides, equals(tov));
+      },
+    );
   });
 }

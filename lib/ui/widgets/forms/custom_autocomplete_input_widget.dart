@@ -14,7 +14,7 @@ String? _defaultFunction(String? val) {
 ///
 /// ```dart
 /// import 'package:jocaaguraarchetype/custom_autocomplete_input_widget.dart';
-/// import 'package:flutter/material.dart';
+/// import 'package:material_ui/material_ui.dart';
 ///
 /// void main() {
 ///   runApp(MyApp());
@@ -164,80 +164,86 @@ class CustomAutoCompleteInputWidgetState
       },
       optionsViewBuilder:
           (_, void Function(String) onSelected, Iterable<String> options) {
-        return Align(
-          alignment: Alignment.topLeft,
-          child: Material(
-            elevation: 4,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 240, minWidth: 280),
-              child: ListView.separated(
-                padding: EdgeInsets.zero,
-                itemCount: options.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
-                itemBuilder: (_, int i) {
-                  final String option = options.elementAt(i);
-                  return ListTile(
-                    title: Text(option),
-                    onTap: () {
-                      onSelected(
-                        option,
-                      ); // Autocomplete sincroniza el controller
-                      FocusScope.of(context).unfocus();
+            return Align(
+              alignment: Alignment.topLeft,
+              child: Material(
+                elevation: 4,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxHeight: 240,
+                    minWidth: 280,
+                  ),
+                  child: ListView.separated(
+                    padding: EdgeInsets.zero,
+                    itemCount: options.length,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemBuilder: (_, int i) {
+                      final String option = options.elementAt(i);
+                      return ListTile(
+                        title: Text(option),
+                        onTap: () {
+                          onSelected(
+                            option,
+                          ); // Autocomplete sincroniza el controller
+                          FocusScope.of(context).unfocus();
+                        },
+                      );
                     },
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-          ),
-        );
-      },
+            );
+          },
       onSelected: (String val) {
         _onValidate(val);
         FocusScope.of(context).unfocus();
       },
-      fieldViewBuilder: (
-        BuildContext context,
-        TextEditingController controller,
-        FocusNode focusNode,
-        void Function() onEditingComplete,
-      ) {
-        return TextField(
-          controller: controller,
-          focusNode: focusNode,
-          keyboardType: widget.textInputType,
-          textInputAction: TextInputAction.done,
-          textCapitalization: TextCapitalization.sentences,
-          onChanged: _onChangedWithOptionalDebounce,
-          onEditingComplete: () {
-            final String v = controller.text;
-            _errorText = widget.onEditingValidateFunction(v);
-            if (_errorText == null) {
-              widget.onFieldSubmitted(v);
-            }
-            setState(() {});
-            onEditingComplete();
-            FocusScope.of(context).unfocus();
+      fieldViewBuilder:
+          (
+            BuildContext context,
+            TextEditingController controller,
+            FocusNode focusNode,
+            void Function() onEditingComplete,
+          ) {
+            return TextField(
+              controller: controller,
+              focusNode: focusNode,
+              keyboardType: widget.textInputType,
+              textInputAction: TextInputAction.done,
+              textCapitalization: TextCapitalization.sentences,
+              onChanged: _onChangedWithOptionalDebounce,
+              onEditingComplete: () {
+                final String v = controller.text;
+                _errorText = widget.onEditingValidateFunction(v);
+                if (_errorText == null) {
+                  widget.onFieldSubmitted(v);
+                }
+                setState(() {});
+                onEditingComplete();
+                FocusScope.of(context).unfocus();
+              },
+              decoration: InputDecoration(
+                prefixIcon: widget.icondata != null
+                    ? Icon(widget.icondata)
+                    : null,
+                label: widget.label.isNotEmpty ? Text(widget.label) : null,
+                hintText: widget.placeholder,
+                errorText: _errorText,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.orange),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.orange),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.orange),
+                ),
+              ),
+            );
           },
-          decoration: InputDecoration(
-            prefixIcon: widget.icondata != null ? Icon(widget.icondata) : null,
-            label: widget.label.isNotEmpty ? Text(widget.label) : null,
-            hintText: widget.placeholder,
-            errorText: _errorText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.orange),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.orange),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.orange),
-            ),
-          ),
-        );
-      },
     );
   }
 }

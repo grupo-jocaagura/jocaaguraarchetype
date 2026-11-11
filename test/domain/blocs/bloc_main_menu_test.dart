@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('BlocMainMenuDrawer', () {
@@ -35,8 +35,9 @@ void main() {
     test('addMainMenuOption → agrega y emite lista', () async {
       final List<List<ModelMainMenuModel>> emissions =
           <List<ModelMainMenuModel>>[];
-      final StreamSubscription<List<ModelMainMenuModel>> sub =
-          bloc.listMenuOptionsStream.listen(emissions.add);
+      final StreamSubscription<List<ModelMainMenuModel>> sub = bloc
+          .listMenuOptionsStream
+          .listen(emissions.add);
 
       bloc.addMainMenuOption(
         onPressed: () {},
@@ -54,23 +55,25 @@ void main() {
       await sub.cancel();
     });
 
-    test('upsert por label (case-insensitive) → reemplaza, no duplica',
-        () async {
-      bloc
-        ..addMainMenuOption(
-          onPressed: () {},
-          label: 'Profile',
-          iconData: Icons.person,
-        )
-        ..addMainMenuOption(
-          onPressed: () {},
-          label: 'profile',
-          iconData: Icons.person_outline,
-        );
+    test(
+      'upsert por label (case-insensitive) → reemplaza, no duplica',
+      () async {
+        bloc
+          ..addMainMenuOption(
+            onPressed: () {},
+            label: 'Profile',
+            iconData: Icons.person,
+          )
+          ..addMainMenuOption(
+            onPressed: () {},
+            label: 'profile',
+            iconData: Icons.person_outline,
+          );
 
-      expect(bloc.listMenuOptions.length, 1);
-      expect(bloc.listMenuOptions.first.iconData, Icons.person_outline);
-    });
+        expect(bloc.listMenuOptions.length, 1);
+        expect(bloc.listMenuOptions.first.iconData, Icons.person_outline);
+      },
+    );
 
     test('removeMainMenuOption por label (case-insensitive)', () async {
       bloc
@@ -98,17 +101,17 @@ void main() {
       expect(bloc.listMenuOptions, isEmpty);
     });
 
-    test(
-        'retrocompat: listDrawerOptionSizeStream emite igual que listMenuOptionsStream',
-        () async {
+    test('retrocompat: listDrawerOptionSizeStream emite igual que listMenuOptionsStream', () async {
       final List<List<ModelMainMenuModel>> a = <List<ModelMainMenuModel>>[];
       final List<List<ModelMainMenuModel>> b = <List<ModelMainMenuModel>>[];
 
-      final StreamSubscription<List<ModelMainMenuModel>> subA =
-          bloc.listMenuOptionsStream.listen(a.add);
+      final StreamSubscription<List<ModelMainMenuModel>> subA = bloc
+          .listMenuOptionsStream
+          .listen(a.add);
       // ignore: deprecated_member_use_from_same_package
-      final StreamSubscription<List<ModelMainMenuModel>> subB =
-          bloc.listDrawerOptionSizeStream.listen(b.add);
+      final StreamSubscription<List<ModelMainMenuModel>> subB = bloc
+          .listDrawerOptionSizeStream
+          .listen(b.add);
 
       bloc.addMainMenuOption(
         onPressed: () {},

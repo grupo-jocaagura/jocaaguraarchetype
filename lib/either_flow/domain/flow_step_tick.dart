@@ -65,10 +65,7 @@ class FlowStepEvent {
 /// Result of a single step-by-step advancement.
 class FlowStepTick {
   /// Creates a [FlowStepTick].
-  const FlowStepTick({
-    required this.session,
-    required this.event,
-  });
+  const FlowStepTick({required this.session, required this.event});
 
   /// Updated session.
   final FlowSimulationSession session;

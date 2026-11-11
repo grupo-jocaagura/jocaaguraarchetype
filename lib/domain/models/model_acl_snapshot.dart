@@ -36,9 +36,10 @@ class ModelAclSnapshot {
     required Map<String, ModelAclPolicy> policiesById,
     required Map<String, RoleType> userAclByPolicyId,
     required this.lastSyncAtIsoDate,
-  })  : _policiesById = Map<String, ModelAclPolicy>.unmodifiable(policiesById),
-        _userAclByPolicyId =
-            Map<String, RoleType>.unmodifiable(userAclByPolicyId);
+  }) : _policiesById = Map<String, ModelAclPolicy>.unmodifiable(policiesById),
+       _userAclByPolicyId = Map<String, RoleType>.unmodifiable(
+         userAclByPolicyId,
+       );
 
   final Map<String, ModelAclPolicy> _policiesById;
   final Map<String, RoleType> _userAclByPolicyId;
@@ -58,21 +59,22 @@ class ModelAclSnapshot {
   );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        ModelAclSnapshotKeys.policiesById: policiesById.map(
-          (String k, ModelAclPolicy v) =>
-              MapEntry<String, dynamic>(k, v.toJson()),
-        ),
-        ModelAclSnapshotKeys.userAclByPolicyId: userAclByPolicyId.map(
-          (String k, RoleType v) => MapEntry<String, dynamic>(k, v.name),
-        ),
-        ModelAclSnapshotKeys.lastSyncAtIsoDate: lastSyncAtIsoDate,
-      };
+    ModelAclSnapshotKeys.policiesById: policiesById.map(
+      (String k, ModelAclPolicy v) => MapEntry<String, dynamic>(k, v.toJson()),
+    ),
+    ModelAclSnapshotKeys.userAclByPolicyId: userAclByPolicyId.map(
+      (String k, RoleType v) => MapEntry<String, dynamic>(k, v.name),
+    ),
+    ModelAclSnapshotKeys.lastSyncAtIsoDate: lastSyncAtIsoDate,
+  };
 
   static ModelAclSnapshot fromJson(Map<String, dynamic> json) {
-    final Map<String, dynamic> rawPolicies =
-        Utils.mapFromDynamic(json[ModelAclSnapshotKeys.policiesById]);
-    final Map<String, dynamic> rawRoles =
-        Utils.mapFromDynamic(json[ModelAclSnapshotKeys.userAclByPolicyId]);
+    final Map<String, dynamic> rawPolicies = Utils.mapFromDynamic(
+      json[ModelAclSnapshotKeys.policiesById],
+    );
+    final Map<String, dynamic> rawRoles = Utils.mapFromDynamic(
+      json[ModelAclSnapshotKeys.userAclByPolicyId],
+    );
 
     return ModelAclSnapshot(
       policiesById: rawPolicies.map(

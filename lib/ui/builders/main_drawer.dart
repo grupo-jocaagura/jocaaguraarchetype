@@ -55,11 +55,7 @@ class MainDrawer extends StatelessWidget {
     if (items.isEmpty) {
       return null;
     }
-    return MainDrawer(
-      app: app,
-      responsive: responsive,
-      items: items,
-    );
+    return MainDrawer(app: app, responsive: responsive, items: items);
   }
 
   @override
@@ -78,10 +74,7 @@ class MainDrawer extends StatelessWidget {
                 child: StreamBuilder<String>(
                   stream: app.pageManager.currentTitleStream,
                   initialData: app.pageManager.currentTitle,
-                  builder: (
-                    _,
-                    __,
-                  ) {
+                  builder: (_, __) {
                     final String title = app.pageManager.currentTitle;
                     return Text(
                       title,
@@ -104,8 +97,9 @@ class MainDrawer extends StatelessWidget {
                   selected: item.selected,
                   onTap: () {
                     item.onPressed();
-                    final ScaffoldState? scaffoldState =
-                        Scaffold.maybeOf(context);
+                    final ScaffoldState? scaffoldState = Scaffold.maybeOf(
+                      context,
+                    );
                     if (scaffoldState?.isDrawerOpen ?? false) {
                       scaffoldState!.closeDrawer();
                     } else {

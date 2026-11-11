@@ -91,22 +91,13 @@ class _SideBySidePreviewPanel extends StatelessWidget {
                   color: theme.colorScheme.onSurface,
                 ),
                 child: IconTheme(
-                  data: IconThemeData(
-                    color: theme.colorScheme.onSurface,
-                  ),
+                  data: IconThemeData(color: theme.colorScheme.onSurface),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      Text(
-                        label,
-                        style: theme.textTheme.titleMedium,
-                      ),
+                      Text(label, style: theme.textTheme.titleMedium),
                       const SizedBox(height: 12),
-                      Expanded(
-                        child: Center(
-                          child: builder(previewContext),
-                        ),
-                      ),
+                      Expanded(child: Center(child: builder(previewContext))),
                     ],
                   ),
                 ),

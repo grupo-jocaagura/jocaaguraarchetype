@@ -1,13 +1,7 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// Enumerates the serialized fields of [ModelFieldState].
-enum ModelFieldStateEnum {
-  value,
-  errorText,
-  suggestions,
-  isDirty,
-  isValid,
-}
+enum ModelFieldStateEnum { value, errorText, suggestions, isDirty, isValid }
 
 /// Default instance of [ModelFieldState] for fallback/testing.
 ///
@@ -62,8 +56,9 @@ class ModelFieldState {
   factory ModelFieldState.fromJson(Map<String, dynamic> json) {
     return ModelFieldState(
       value: Utils.getStringFromDynamic(json[ModelFieldStateEnum.value.name]),
-      errorText:
-          Utils.getStringFromDynamic(json[ModelFieldStateEnum.errorText.name]),
+      errorText: Utils.getStringFromDynamic(
+        json[ModelFieldStateEnum.errorText.name],
+      ),
       suggestions: Utils.stringListFromDynamic(
         json[ModelFieldStateEnum.suggestions.name],
       ),
@@ -136,12 +131,12 @@ class ModelFieldState {
 
   @override
   int get hashCode => Object.hash(
-        value,
-        errorText,
-        Object.hashAll(suggestions),
-        isDirty,
-        isValid,
-      );
+    value,
+    errorText,
+    Object.hashAll(suggestions),
+    isDirty,
+    isValid,
+  );
 
   @override
   bool operator ==(Object other) {

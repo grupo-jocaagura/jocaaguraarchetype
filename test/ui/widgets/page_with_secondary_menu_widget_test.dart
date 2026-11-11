@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('PageWithSecondaryMenuWidget', () {
@@ -63,8 +63,9 @@ void main() {
 
     // ---- Tests -------------------------------------------------------------
 
-    testWidgets('móvil: muestra overlay inferior cuando hay secondaryMenu',
-        (WidgetTester tester) async {
+    testWidgets('móvil: muestra overlay inferior cuando hay secondaryMenu', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = mobileResp();
       await pumpPage(
         tester,
@@ -89,8 +90,9 @@ void main() {
       expect(find.byKey(const Key('secondary')), findsOneWidget);
     });
 
-    testWidgets('móvil: no muestra overlay si secondaryMenu es null',
-        (WidgetTester tester) async {
+    testWidgets('móvil: no muestra overlay si secondaryMenu es null', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = mobileResp();
       await pumpPage(
         tester,
@@ -105,8 +107,9 @@ void main() {
       );
     });
 
-    testWidgets('escritorio: ancho del panel = widthByColumns(panelColumns)',
-        (WidgetTester tester) async {
+    testWidgets('escritorio: ancho del panel = widthByColumns(panelColumns)', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = desktopResp();
       const int cols = 3;
 
@@ -120,12 +123,14 @@ void main() {
       );
 
       // AnimatedSwitcher del panel (animate=true por defecto)
-      final Finder panelSwitcher =
-          find.byKey(const ValueKey<String>('panel-secondary'));
+      final Finder panelSwitcher = find.byKey(
+        const ValueKey<String>('panel-secondary'),
+      );
       expect(panelSwitcher, findsOneWidget);
 
-      final double expectedPanelW =
-          r.widthByColumns(cols.clamp(1, r.columnsNumber));
+      final double expectedPanelW = r.widthByColumns(
+        cols.clamp(1, r.columnsNumber),
+      );
 
       // Medimos el ancho real del switcher (igual al SizedBox de panel).
       final Size actualSize = tester.getSize(panelSwitcher);
@@ -137,8 +142,9 @@ void main() {
       );
     });
 
-    testWidgets('escritorio: panel a la derecha por defecto',
-        (WidgetTester tester) async {
+    testWidgets('escritorio: panel a la derecha por defecto', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = desktopResp();
 
       await pumpPage(
@@ -159,39 +165,48 @@ void main() {
         ),
       );
 
-      final Offset contentPos =
-          tester.getTopLeft(find.byKey(const Key('content')));
-      final Offset secondaryPos =
-          tester.getTopLeft(find.byKey(const Key('secondary')));
+      final Offset contentPos = tester.getTopLeft(
+        find.byKey(const Key('content')),
+      );
+      final Offset secondaryPos = tester.getTopLeft(
+        find.byKey(const Key('secondary')),
+      );
 
       expect(secondaryPos.dx, greaterThan(contentPos.dx));
     });
 
     testWidgets(
-        'escritorio: panel a la izquierda cuando secondaryOnRight=false',
-        (WidgetTester tester) async {
-      final BlocResponsive r = desktopResp();
+      'escritorio: panel a la izquierda cuando secondaryOnRight=false',
+      (WidgetTester tester) async {
+        final BlocResponsive r = desktopResp();
 
-      await pumpPage(
-        tester,
-        r: r,
-        surfaceSize: desktopSize,
-        content: const SizedBox(key: Key('content'), width: 200, height: 200),
-        secondary:
-            const SizedBox(key: Key('secondary'), width: 120, height: 100),
-        secondaryOnRight: false,
-      );
+        await pumpPage(
+          tester,
+          r: r,
+          surfaceSize: desktopSize,
+          content: const SizedBox(key: Key('content'), width: 200, height: 200),
+          secondary: const SizedBox(
+            key: Key('secondary'),
+            width: 120,
+            height: 100,
+          ),
+          secondaryOnRight: false,
+        );
 
-      final Offset contentPos =
-          tester.getTopLeft(find.byKey(const Key('content')));
-      final Offset secondaryPos =
-          tester.getTopLeft(find.byKey(const Key('secondary')));
+        final Offset contentPos = tester.getTopLeft(
+          find.byKey(const Key('content')),
+        );
+        final Offset secondaryPos = tester.getTopLeft(
+          find.byKey(const Key('secondary')),
+        );
 
-      expect(secondaryPos.dx, lessThan(contentPos.dx));
-    });
+        expect(secondaryPos.dx, lessThan(contentPos.dx));
+      },
+    );
 
-    testWidgets('aplica backgroundColor al contenedor raíz',
-        (WidgetTester tester) async {
+    testWidgets('aplica backgroundColor al contenedor raíz', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = desktopResp();
       const Color bg = Colors.amber;
 
@@ -211,8 +226,9 @@ void main() {
       expect(rootContainer, findsOneWidget);
     });
 
-    testWidgets('safeArea=true envuelve el contenido en SafeArea',
-        (WidgetTester tester) async {
+    testWidgets('safeArea=true envuelve el contenido en SafeArea', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = desktopResp();
 
       await pumpPage(
@@ -226,8 +242,9 @@ void main() {
       expect(find.byType(SafeArea), findsOneWidget);
     });
 
-    testWidgets('safeArea=false no inserta SafeArea',
-        (WidgetTester tester) async {
+    testWidgets('safeArea=false no inserta SafeArea', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = desktopResp();
 
       await pumpPage(
@@ -242,8 +259,9 @@ void main() {
       expect(find.byType(SafeArea), findsNothing);
     });
 
-    testWidgets('animate=false no crea los AnimatedSwitcher con keys',
-        (WidgetTester tester) async {
+    testWidgets('animate=false no crea los AnimatedSwitcher con keys', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = desktopResp();
 
       await pumpPage(
@@ -275,8 +293,9 @@ void main() {
       );
     });
 
-    testWidgets('cuando no hay secondaryMenu, no se reserva ancho de panel',
-        (WidgetTester tester) async {
+    testWidgets('cuando no hay secondaryMenu, no se reserva ancho de panel', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive r = desktopResp();
 
       await pumpPage(

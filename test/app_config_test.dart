@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'mocks/mock_blocs.dart';
 
@@ -71,11 +71,11 @@ class _SpyOnboarding extends BlocOnboarding {
 
 class _SpyPageManager extends PageManager {
   _SpyPageManager()
-      : super(
-          initial: NavStackModel.single(
-            const PageModel(name: 'home', segments: <String>['home']),
-          ),
-        );
+    : super(
+        initial: NavStackModel.single(
+          const PageModel(name: 'home', segments: <String>['home']),
+        ),
+      );
   bool disposedCalled = false;
   @override
   void dispose() {
@@ -105,19 +105,21 @@ class _RepoOk implements RepositoryTheme {
 }
 
 ThemeUsecases _ucsOk() => ThemeUsecases(
-      load: LoadTheme(_RepoOk()),
-      setMode: SetThemeMode(_RepoOk()),
-      setSeed: SetThemeSeed(_RepoOk()),
-      toggleM3: ToggleMaterial3(_RepoOk()),
-      applyPreset: ApplyThemePreset(_RepoOk()),
-      setTextScale: SetThemeTextScale(_RepoOk()),
-      reset: ResetTheme(_RepoOk()),
-      randomize:
-          RandomizeTheme(_RepoOk(), const FakeServiceJocaaguraArchetypeTheme()),
-      applyPatch: ApplyThemePatch(_RepoOk()),
-      setFromState: SetThemeState(_RepoOk()),
-      buildThemeData: const BuildThemeData(),
-    );
+  load: LoadTheme(_RepoOk()),
+  setMode: SetThemeMode(_RepoOk()),
+  setSeed: SetThemeSeed(_RepoOk()),
+  toggleM3: ToggleMaterial3(_RepoOk()),
+  applyPreset: ApplyThemePreset(_RepoOk()),
+  setTextScale: SetThemeTextScale(_RepoOk()),
+  reset: ResetTheme(_RepoOk()),
+  randomize: RandomizeTheme(
+    _RepoOk(),
+    const FakeServiceJocaaguraArchetypeTheme(),
+  ),
+  applyPatch: ApplyThemePatch(_RepoOk()),
+  setFromState: SetThemeState(_RepoOk()),
+  buildThemeData: const BuildThemeData(),
+);
 
 PageRegistry _dummyRegistry() {
   // Un registry mínimo para satisfacer AppConfig.dev; implementa lo que uses.
@@ -137,54 +139,53 @@ class _DummyModuleB extends BlocModule {
 
 void main() {
   group('AppConfig.dev · construcción y wiring', () {
-    test('sin onboardingSteps conserva totalSteps = 0 y crea módulos core',
-        () async {
-      final AppConfig cfg = AppConfig.dev(
-        registry: _dummyRegistry(),
-      );
+    test(
+      'sin onboardingSteps conserva totalSteps = 0 y crea módulos core',
+      () async {
+        final AppConfig cfg = AppConfig.dev(registry: _dummyRegistry());
 
-      // Módulos principales no nulos
-      expect(cfg.blocTheme, isNotNull);
-      expect(cfg.blocUserNotifications, isNotNull);
-      expect(cfg.blocLoading, isNotNull);
-      expect(cfg.blocMainMenuDrawer, isNotNull);
-      expect(cfg.blocSecondaryMenuDrawer, isNotNull);
-      expect(cfg.blocResponsive, isNotNull);
-      expect(cfg.blocOnboarding, isNotNull);
-      expect(cfg.pageManager, isNotNull);
+        // Módulos principales no nulos
+        expect(cfg.blocTheme, isNotNull);
+        expect(cfg.blocUserNotifications, isNotNull);
+        expect(cfg.blocLoading, isNotNull);
+        expect(cfg.blocMainMenuDrawer, isNotNull);
+        expect(cfg.blocSecondaryMenuDrawer, isNotNull);
+        expect(cfg.blocResponsive, isNotNull);
+        expect(cfg.blocOnboarding, isNotNull);
+        expect(cfg.pageManager, isNotNull);
 
-      // Onboarding sin steps explícitos
-      expect(cfg.blocOnboarding.state.totalSteps, 0);
+        // Onboarding sin steps explícitos
+        expect(cfg.blocOnboarding.state.totalSteps, 0);
 
-      // Sanity: blocCore no debe lanzar
-      final BlocCore<dynamic> core = cfg.blocCore();
-      expect(core, isNotNull);
+        // Sanity: blocCore no debe lanzar
+        final BlocCore<dynamic> core = cfg.blocCore();
+        expect(core, isNotNull);
 
-      await cfg.dispose();
-    });
+        await cfg.dispose();
+      },
+    );
 
     test(
-        'con onboardingSteps configura el BlocOnboarding con totalSteps correcto',
-        () async {
-      final List<OnboardingStep> steps = <OnboardingStep>[
-        const OnboardingStep(title: 'Welcome'),
-        const OnboardingStep(title: 'Permissions'),
-      ];
+      'con onboardingSteps configura el BlocOnboarding con totalSteps correcto',
+      () async {
+        final List<OnboardingStep> steps = <OnboardingStep>[
+          const OnboardingStep(title: 'Welcome'),
+          const OnboardingStep(title: 'Permissions'),
+        ];
 
-      final AppConfig cfg = AppConfig.dev(
-        registry: _dummyRegistry(),
-        onboardingSteps: steps,
-      );
+        final AppConfig cfg = AppConfig.dev(
+          registry: _dummyRegistry(),
+          onboardingSteps: steps,
+        );
 
-      expect(cfg.blocOnboarding.state.totalSteps, steps.length);
+        expect(cfg.blocOnboarding.state.totalSteps, steps.length);
 
-      await cfg.dispose();
-    });
+        await cfg.dispose();
+      },
+    );
 
     test('BlocTheme dentro de AppConfig.dev responde a setMode()', () async {
-      final AppConfig cfg = AppConfig.dev(
-        registry: _dummyRegistry(),
-      );
+      final AppConfig cfg = AppConfig.dev(registry: _dummyRegistry());
 
       await cfg.blocTheme.setMode(ThemeMode.dark);
       expect(cfg.blocTheme.stateOrDefault.mode, ThemeMode.dark);
@@ -211,11 +212,9 @@ void main() {
         blocResponsive: MockBlocResponsive(),
         blocOnboarding: MockBlocOnboarding(),
         pageManager: MockBlocNavigator(
-          initial: NavStackModel(
-            const <PageModel>[
-              PageModel(name: '/', segments: <String>['home']),
-            ],
-          ),
+          initial: NavStackModel(const <PageModel>[
+            PageModel(name: '/', segments: <String>['home']),
+          ]),
         ),
       );
 
@@ -340,9 +339,7 @@ void main() {
         blocResponsive: base.blocResponsive,
         blocOnboarding: base.blocOnboarding,
         pageManager: base.pageManager,
-        blocModuleList: <String, BlocModule>{
-          'onlyA': _DummyModuleA(),
-        },
+        blocModuleList: <String, BlocModule>{'onlyA': _DummyModuleA()},
       );
 
       expect(
@@ -351,28 +348,32 @@ void main() {
       );
     });
 
-    test('requireModuleByKey<T> resuelve case-insensitive y tipado correcto',
-        () {
-      final AppConfig cfg = AppConfig(
-        blocTheme: base.blocTheme,
-        blocUserNotifications: base.blocUserNotifications,
-        blocLoading: base.blocLoading,
-        blocMainMenuDrawer: base.blocMainMenuDrawer,
-        blocSecondaryMenuDrawer: base.blocSecondaryMenuDrawer,
-        blocResponsive: base.blocResponsive,
-        blocOnboarding: base.blocOnboarding,
-        pageManager: base.pageManager,
-        blocModuleList: <String, BlocModule>{
-          'Canvas': _DummyModuleA(),
-        },
-      );
+    test(
+      'requireModuleByKey<T> resuelve case-insensitive y tipado correcto',
+      () {
+        final AppConfig cfg = AppConfig(
+          blocTheme: base.blocTheme,
+          blocUserNotifications: base.blocUserNotifications,
+          blocLoading: base.blocLoading,
+          blocMainMenuDrawer: base.blocMainMenuDrawer,
+          blocSecondaryMenuDrawer: base.blocSecondaryMenuDrawer,
+          blocResponsive: base.blocResponsive,
+          blocOnboarding: base.blocOnboarding,
+          pageManager: base.pageManager,
+          blocModuleList: <String, BlocModule>{'Canvas': _DummyModuleA()},
+        );
 
-      final _DummyModuleA m1 = cfg.requireModuleByKey<_DummyModuleA>('canvas');
-      final _DummyModuleA m2 = cfg.requireModuleByKey<_DummyModuleA>('CANVAS');
+        final _DummyModuleA m1 = cfg.requireModuleByKey<_DummyModuleA>(
+          'canvas',
+        );
+        final _DummyModuleA m2 = cfg.requireModuleByKey<_DummyModuleA>(
+          'CANVAS',
+        );
 
-      expect(m1, isA<_DummyModuleA>());
-      expect(identical(m1, m2), isTrue);
-    });
+        expect(m1, isA<_DummyModuleA>());
+        expect(identical(m1, m2), isTrue);
+      },
+    );
 
     test('requireModuleByKey<T> lanza cuando la key no existe', () {
       final AppConfig cfg = AppConfig(
@@ -393,26 +394,25 @@ void main() {
     });
 
     test(
-        'requireModuleByKey<T> lanza si el tipo T no coincide con el registrado',
-        () {
-      final AppConfig cfg = AppConfig(
-        blocTheme: base.blocTheme,
-        blocUserNotifications: base.blocUserNotifications,
-        blocLoading: base.blocLoading,
-        blocMainMenuDrawer: base.blocMainMenuDrawer,
-        blocSecondaryMenuDrawer: base.blocSecondaryMenuDrawer,
-        blocResponsive: base.blocResponsive,
-        blocOnboarding: base.blocOnboarding,
-        pageManager: base.pageManager,
-        blocModuleList: <String, BlocModule>{
-          'canvas': _DummyModuleA(),
-        },
-      );
+      'requireModuleByKey<T> lanza si el tipo T no coincide con el registrado',
+      () {
+        final AppConfig cfg = AppConfig(
+          blocTheme: base.blocTheme,
+          blocUserNotifications: base.blocUserNotifications,
+          blocLoading: base.blocLoading,
+          blocMainMenuDrawer: base.blocMainMenuDrawer,
+          blocSecondaryMenuDrawer: base.blocSecondaryMenuDrawer,
+          blocResponsive: base.blocResponsive,
+          blocOnboarding: base.blocOnboarding,
+          pageManager: base.pageManager,
+          blocModuleList: <String, BlocModule>{'canvas': _DummyModuleA()},
+        );
 
-      expect(
-        () => cfg.requireModuleByKey<_DummyModuleB>('canvas'),
-        throwsA(isA<UnimplementedError>()),
-      );
-    });
+        expect(
+          () => cfg.requireModuleByKey<_DummyModuleB>('canvas'),
+          throwsA(isA<UnimplementedError>()),
+        );
+      },
+    );
   });
 }

@@ -4,10 +4,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'jocaaguraarchetype.dart';
 
@@ -17,12 +17,12 @@ export 'jocaaguraarchetype_domain.dart';
 part 'app_config.dart';
 part 'consts/app_constants.dart';
 part 'domain/blocs/app_manager.dart';
-part 'domain/blocs/bloc_language.dart';
 part 'domain/blocs/bloc_acl.dart';
 part 'domain/blocs/bloc_app_config.dart';
 part 'domain/blocs/bloc_color.dart';
 part 'domain/blocs/bloc_design_system.dart';
 part 'domain/blocs/bloc_gallery.dart';
+part 'domain/blocs/bloc_language.dart';
 part 'domain/blocs/bloc_main_menu_drawer.dart';
 part 'domain/blocs/bloc_menu_base.dart';
 part 'domain/blocs/bloc_model_version.dart';
@@ -52,6 +52,7 @@ part 'domain/models/session_pages.dart';
 part 'domain/models/toast_message.dart';
 part 'domain/repositories/repository_theme.dart';
 part 'domain/repositories/repository_theme_react.dart';
+part 'domain/services/language_resolution_policy.dart';
 part 'domain/services/service_theme.dart';
 part 'domain/services/service_theme_react.dart';
 part 'domain/states/theme_patch.dart';
@@ -85,9 +86,8 @@ part 'ui/builders/secondary_menu_mobile_layout_builder.dart';
 part 'ui/builders/secondary_menu_side_panel_layout.dart';
 part 'ui/builders/secondary_menu_side_panel_layout_builder.dart';
 part 'ui/builders/secondary_menu_square_button.dart';
-part 'ui/jocaagura_app.dart';
 part 'ui/internationalization/language_locale_mapper.dart';
-part 'domain/services/language_resolution_policy.dart';
+part 'ui/jocaagura_app.dart';
 part 'ui/jocaagura_app_with_sesion.dart';
 part 'ui/navigation/my_app_router_delegate.dart';
 part 'ui/navigation/my_route_information_parser.dart';
@@ -211,8 +211,6 @@ class JocaaguraArchetype {
   /// });
   /// ```
   Future<void> testMe() async {
-    await Future<void>.delayed(
-      const Duration(seconds: 2),
-    );
+    await Future<void>.delayed(const Duration(seconds: 2));
   }
 }

@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('ServiceJocaaguraArchetypeTheme · schemeFromSeed()', () {
@@ -45,23 +45,25 @@ void main() {
       expect(t.visualDensity, VisualDensity.standard);
     });
 
-    test('ThemeMode.dark fuerza Brightness.dark y respeta useMaterial3=false',
-        () {
-      const ThemeState s = ThemeState(
-        mode: ThemeMode.dark,
-        seed: seed,
-        useMaterial3: false,
-      );
+    test(
+      'ThemeMode.dark fuerza Brightness.dark y respeta useMaterial3=false',
+      () {
+        const ThemeState s = ThemeState(
+          mode: ThemeMode.dark,
+          seed: seed,
+          useMaterial3: false,
+        );
 
-      final ThemeData t = svc.toThemeData(
-        s,
-        platformBrightness: Brightness.light, // ignorado en modo dark
-      );
+        final ThemeData t = svc.toThemeData(
+          s,
+          platformBrightness: Brightness.light, // ignorado en modo dark
+        );
 
-      expect(t.colorScheme.brightness, Brightness.dark);
-      expect(t.useMaterial3, isFalse);
-      expect(t.visualDensity, VisualDensity.standard);
-    });
+        expect(t.colorScheme.brightness, Brightness.dark);
+        expect(t.useMaterial3, isFalse);
+        expect(t.visualDensity, VisualDensity.standard);
+      },
+    );
 
     test('ThemeMode.system usa platformBrightness', () {
       const ThemeState s = ThemeState(
@@ -123,36 +125,34 @@ void main() {
     const ServiceJocaaguraArchetypeTheme svc = ServiceJocaaguraArchetypeTheme();
 
     test(
-        'retorna colores opacos dentro de rango 0-255 y suficientemente variados',
-        () {
-      // Tomamos varias muestras para asegurar variedad (probabilidad de colisión muy baja)
-      const int samples = 50;
-      final Set<int> seen = <int>{};
+      'retorna colores opacos dentro de rango 0-255 y suficientemente variados',
+      () {
+        // Tomamos varias muestras para asegurar variedad (probabilidad de colisión muy baja)
+        const int samples = 50;
+        final Set<int> seen = <int>{};
 
-      for (int i = 0; i < samples; i += 1) {
-        final Color c = svc.colorRandom();
-        // Opacidad completa
-        expect(c.a, 1);
-        // Rango válido de componentes
-        expect(c.r, inInclusiveRange(0, 255));
-        expect(c.g, inInclusiveRange(0, 255));
-        expect(c.b, inInclusiveRange(0, 255));
-        seen.add(c.toARGB32());
-      }
+        for (int i = 0; i < samples; i += 1) {
+          final Color c = svc.colorRandom();
+          // Opacidad completa
+          expect(c.a, 1);
+          // Rango válido de componentes
+          expect(c.r, inInclusiveRange(0, 255));
+          expect(c.g, inInclusiveRange(0, 255));
+          expect(c.b, inInclusiveRange(0, 255));
+          seen.add(c.toARGB32());
+        }
 
-      // Debe haber más de un color distinto con altísima probabilidad
-      expect(seen.length, greaterThan(1));
-    });
+        // Debe haber más de un color distinto con altísima probabilidad
+        expect(seen.length, greaterThan(1));
+      },
+    );
 
     test('no debe lanzar excepciones al invocarse repetidamente', () {
-      expect(
-        () {
-          for (int i = 0; i < 200; i += 1) {
-            svc.colorRandom();
-          }
-        },
-        returnsNormally,
-      );
+      expect(() {
+        for (int i = 0; i < 200; i += 1) {
+          svc.colorRandom();
+        }
+      }, returnsNormally);
     });
   });
 }

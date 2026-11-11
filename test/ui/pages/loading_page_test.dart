@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('LoadingPage', () {
@@ -28,10 +28,12 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          theme: theme ??
+          theme:
+              theme ??
               ThemeData.from(
-                colorScheme:
-                    ColorScheme.fromSeed(seedColor: const Color(0xFF0066CC)),
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color(0xFF0066CC),
+                ),
               ),
           darkTheme: darkTheme,
           themeMode: mode,
@@ -41,8 +43,9 @@ void main() {
       await tester.pump(); // asegura primer frame estabilizado
     }
 
-    testWidgets('smoke: renderiza spinner y el texto del mensaje',
-        (WidgetTester tester) async {
+    testWidgets('smoke: renderiza spinner y el texto del mensaje', (
+      WidgetTester tester,
+    ) async {
       await mount(tester, msg: 'Cargando…');
 
       expect(find.byType(Scaffold), findsOneWidget);
@@ -50,12 +53,11 @@ void main() {
       expect(find.text('Cargando…'), findsOneWidget);
     });
 
-    testWidgets('usa colorScheme.error como background (tema claro)',
-        (WidgetTester tester) async {
+    testWidgets('usa colorScheme.error como background (tema claro)', (
+      WidgetTester tester,
+    ) async {
       final ThemeData t = ThemeData.from(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF00BCD4),
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF00BCD4)),
       );
 
       await mount(tester, msg: '...', theme: t);
@@ -64,8 +66,9 @@ void main() {
       expect(sc.backgroundColor, t.colorScheme.error);
     });
 
-    testWidgets('usa colorScheme.error del tema oscuro cuando ThemeMode.dark',
-        (WidgetTester tester) async {
+    testWidgets('usa colorScheme.error del tema oscuro cuando ThemeMode.dark', (
+      WidgetTester tester,
+    ) async {
       final ThemeData dark = ThemeData.from(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFFAA5500),
@@ -73,19 +76,15 @@ void main() {
         ),
       );
 
-      await mount(
-        tester,
-        msg: '...',
-        darkTheme: dark,
-        mode: ThemeMode.dark,
-      );
+      await mount(tester, msg: '...', darkTheme: dark, mode: ThemeMode.dark);
 
       final Scaffold sc = tester.widget<Scaffold>(find.byType(Scaffold));
       expect(sc.backgroundColor, dark.colorScheme.error);
     });
 
-    testWidgets('ocupa el tamaño de MediaQuery (SizedBox ancho/alto)',
-        (WidgetTester tester) async {
+    testWidgets('ocupa el tamaño de MediaQuery (SizedBox ancho/alto)', (
+      WidgetTester tester,
+    ) async {
       const Size sz = Size(800, 600);
       await mount(tester, msg: '...', size: sz);
 
@@ -99,8 +98,9 @@ void main() {
       expect(sizedFinder, findsOneWidget);
     });
 
-    testWidgets('actualiza el texto al cambiar msg (rebuild)',
-        (WidgetTester tester) async {
+    testWidgets('actualiza el texto al cambiar msg (rebuild)', (
+      WidgetTester tester,
+    ) async {
       final ThemeData base = ThemeData.from(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF336699)),
       );

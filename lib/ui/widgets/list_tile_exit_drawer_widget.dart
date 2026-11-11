@@ -108,12 +108,15 @@ class _ListTileExitDrawerWidgetState extends State<ListTileExitDrawerWidget> {
       horizontal: gap,
       vertical: (gap * 0.6).clamp(6.0, 12.0),
     );
-    final double minHeight =
-        (widget.responsive.columnWidth * 0.8).clamp(44.0, 56.0);
+    final double minHeight = (widget.responsive.columnWidth * 0.8).clamp(
+      44.0,
+      56.0,
+    );
 
     // 🎯 Usa `enabled` (no onExit != null)
-    final Color fgNeutral =
-        scheme.onSurface.withValues(alpha: widget.enabled ? 0.1 : 0.62);
+    final Color fgNeutral = scheme.onSurface.withValues(
+      alpha: widget.enabled ? 0.1 : 0.62,
+    );
     final Color bgNeutral = scheme.surfaceContainerLow;
 
     final Color fgDanger = scheme.onErrorContainer;
@@ -123,8 +126,9 @@ class _ListTileExitDrawerWidgetState extends State<ListTileExitDrawerWidget> {
     final Color baseBg = widget.dangerColors ? bgDanger : bgNeutral;
     final Color hoverBg = (widget.dangerColors ? scheme.error : scheme.primary)
         .withValues(alpha: widget.dangerColors ? 0.88 : 0.94);
-    final Color bg =
-        (_hovered || _focused) ? _mix(baseBg, hoverBg, 0.35) : baseBg;
+    final Color bg = (_hovered || _focused)
+        ? _mix(baseBg, hoverBg, 0.35)
+        : baseBg;
 
     final Widget tile = ConstrainedBox(
       constraints: BoxConstraints(minHeight: minHeight),

@@ -44,8 +44,10 @@ abstract class Env {
   final String? modeTest;
 
   /// Raw mode from `--dart-define=APP_MODE=dev|qa|prod` (compile-time).
-  static const String _mode =
-      String.fromEnvironment('APP_MODE', defaultValue: 'dev');
+  static const String _mode = String.fromEnvironment(
+    'APP_MODE',
+    defaultValue: 'dev',
+  );
 
   /// Instance: current [AppMode] (delegates to static).
   AppMode get mode => parseAppMode(modeTest ?? _mode);

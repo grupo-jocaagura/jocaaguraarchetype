@@ -13,14 +13,14 @@ class _UserBackRouteObserver extends NavigatorObserver {
 /// Internal projection of the registry page; never owns navigation state.
 class _UserBackNavigationPage extends Page<dynamic> {
   _UserBackNavigationPage(this.original, this.delegate)
-      : super(
-          key: original.key,
-          name: original.name,
-          arguments: original.arguments,
-          restorationId: original.restorationId,
-          canPop: original.canPop,
-          onPopInvoked: original.onPopInvoked,
-        );
+    : super(
+        key: original.key,
+        name: original.name,
+        arguments: original.arguments,
+        restorationId: original.restorationId,
+        canPop: original.canPop,
+        onPopInvoked: original.onPopInvoked,
+      );
 
   final Page<dynamic> original;
   final MyAppRouterDelegate delegate;
@@ -111,12 +111,12 @@ class _UserBackMaterialRoute extends MaterialPageRoute<dynamic>
     _UserBackNavigationPage page,
     MaterialPage<dynamic> original,
   ) : super(
-          settings: page,
-          builder: _guardedPageChild,
-          maintainState: original.maintainState,
-          fullscreenDialog: original.fullscreenDialog,
-          allowSnapshotting: original.allowSnapshotting,
-        );
+        settings: page,
+        builder: _guardedPageChild,
+        maintainState: original.maintainState,
+        fullscreenDialog: original.fullscreenDialog,
+        allowSnapshotting: original.allowSnapshotting,
+      );
 }
 
 class _UserBackCupertinoRoute extends CupertinoPageRoute<dynamic>
@@ -125,16 +125,16 @@ class _UserBackCupertinoRoute extends CupertinoPageRoute<dynamic>
     _UserBackNavigationPage page,
     CupertinoPage<dynamic> original,
   ) : super(
-          settings: page,
-          builder: _guardedPageChild,
-          title: original.title,
-          maintainState: original.maintainState,
-          fullscreenDialog: original.fullscreenDialog,
-          allowSnapshotting: original.allowSnapshotting,
-        );
+        settings: page,
+        builder: _guardedPageChild,
+        title: original.title,
+        maintainState: original.maintainState,
+        fullscreenDialog: original.fullscreenDialog,
+        allowSnapshotting: original.allowSnapshotting,
+      );
 }
 
 class _UserBackDialogRoute extends DialogRoute<dynamic> with _UserBackRoute {
   _UserBackDialogRoute(_UserBackNavigationPage page, BuildContext context)
-      : super(settings: page, context: context, builder: _guardedPageChild);
+    : super(settings: page, context: context, builder: _guardedPageChild);
 }

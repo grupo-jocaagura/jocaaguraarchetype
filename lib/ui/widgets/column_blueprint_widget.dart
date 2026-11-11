@@ -81,12 +81,15 @@ class ColumnBlueprintWidget extends StatelessWidget {
     }
 
     final ColorScheme scheme = Theme.of(context).colorScheme;
-    final Color colColor =
-        (columnsColor ?? scheme.primary).withValues(alpha: 0.82);
-    final Color gutColor =
-        (guttersColor ?? scheme.outlineVariant).withValues(alpha: 0.45);
-    final Color marColor =
-        (marginsColor ?? scheme.error).withValues(alpha: 0.82);
+    final Color colColor = (columnsColor ?? scheme.primary).withValues(
+      alpha: 0.82,
+    );
+    final Color gutColor = (guttersColor ?? scheme.outlineVariant).withValues(
+      alpha: 0.45,
+    );
+    final Color marColor = (marginsColor ?? scheme.error).withValues(
+      alpha: 0.82,
+    );
 
     final double mh = responsive.marginWidth;
     final int cols = responsive.columnsNumber;
@@ -111,10 +114,10 @@ class ColumnBlueprintWidget extends StatelessWidget {
         radius: radius,
         strokeWidth: strokeWidth,
         textStyle: DefaultTextStyle.of(context).style.copyWith(
-              color: scheme.onSurface.withValues(alpha: 0.3),
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-            ),
+          color: scheme.onSurface.withValues(alpha: 0.3),
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
 
@@ -178,8 +181,12 @@ class _BlueprintPainter extends CustomPainter {
 
     // Margins (left/right bands)
     final Rect leftMargin = Rect.fromLTWH(0, 0, marginWidth, h);
-    final Rect rightMargin =
-        Rect.fromLTWH(fullW - marginWidth, 0, marginWidth, h);
+    final Rect rightMargin = Rect.fromLTWH(
+      fullW - marginWidth,
+      0,
+      marginWidth,
+      h,
+    );
     canvas.drawRect(leftMargin, pMargins);
     canvas.drawRect(rightMargin, pMargins);
 
@@ -202,10 +209,7 @@ class _BlueprintPainter extends CustomPainter {
       if (showIndices) {
         tp.text = TextSpan(text: '${i + 1}', style: textStyle);
         tp.layout(maxWidth: columnWidth);
-        final Offset textOffset = Offset(
-          x + (columnWidth - tp.width) / 2,
-          6.0,
-        );
+        final Offset textOffset = Offset(x + (columnWidth - tp.width) / 2, 6.0);
         tp.paint(canvas, textOffset);
       }
 

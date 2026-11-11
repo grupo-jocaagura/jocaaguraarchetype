@@ -2,23 +2,19 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 /// Shows a compact preview of [ModelThemeData].
 class ModelThemeDataPage extends StatelessWidget {
-  const ModelThemeDataPage({
-    required this.model,
-    super.key,
-  });
+  const ModelThemeDataPage({required this.model, super.key});
 
   final ModelThemeData model;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData lightTheme =
-        model.toThemeData(brightness: Brightness.light);
+    final ThemeData lightTheme = model.toThemeData(
+      brightness: Brightness.light,
+    );
     final ThemeData darkTheme = model.toThemeData(brightness: Brightness.dark);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ModelThemeData'),
-      ),
+      appBar: AppBar(title: const Text('ModelThemeData')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -26,9 +22,7 @@ class ModelThemeDataPage extends StatelessWidget {
           children: <Widget>[
             _DsModelGalleryInfoCard(
               title: 'Theme config',
-              children: <Widget>[
-                Text('useMaterial3: ${model.useMaterial3}'),
-              ],
+              children: <Widget>[Text('useMaterial3: ${model.useMaterial3}')],
             ),
             const SizedBox(height: 16),
             _DsModelGalleryColorSchemeSection(
@@ -77,15 +71,10 @@ class TextThemePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
+      appBar: AppBar(title: Text(title)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: TextThemePreviewWidget(
-          title: title,
-          textTheme: textTheme,
-        ),
+        child: TextThemePreviewWidget(title: title, textTheme: textTheme),
       ),
     );
   }
@@ -106,92 +95,89 @@ class TextThemePreviewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<_DsModelGalleryTextStyleItem> items =
         <_DsModelGalleryTextStyleItem>[
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.displayLarge,
-        style: textTheme.displayLarge,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.displayMedium,
-        style: textTheme.displayMedium,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.displaySmall,
-        style: textTheme.displaySmall,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.headlineLarge,
-        style: textTheme.headlineLarge,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.headlineMedium,
-        style: textTheme.headlineMedium,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.headlineSmall,
-        style: textTheme.headlineSmall,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.titleLarge,
-        style: textTheme.titleLarge,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.titleMedium,
-        style: textTheme.titleMedium,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.titleSmall,
-        style: textTheme.titleSmall,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.bodyLarge,
-        style: textTheme.bodyLarge,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.bodyMedium,
-        style: textTheme.bodyMedium,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.bodySmall,
-        style: textTheme.bodySmall,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.labelLarge,
-        style: textTheme.labelLarge,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.labelMedium,
-        style: textTheme.labelMedium,
-      ),
-      _DsModelGalleryTextStyleItem(
-        name: TextThemeKeys.labelSmall,
-        style: textTheme.labelSmall,
-      ),
-    ];
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.displayLarge,
+            style: textTheme.displayLarge,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.displayMedium,
+            style: textTheme.displayMedium,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.displaySmall,
+            style: textTheme.displaySmall,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.headlineLarge,
+            style: textTheme.headlineLarge,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.headlineMedium,
+            style: textTheme.headlineMedium,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.headlineSmall,
+            style: textTheme.headlineSmall,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.titleLarge,
+            style: textTheme.titleLarge,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.titleMedium,
+            style: textTheme.titleMedium,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.titleSmall,
+            style: textTheme.titleSmall,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.bodyLarge,
+            style: textTheme.bodyLarge,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.bodyMedium,
+            style: textTheme.bodyMedium,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.bodySmall,
+            style: textTheme.bodySmall,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.labelLarge,
+            style: textTheme.labelLarge,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.labelMedium,
+            style: textTheme.labelMedium,
+          ),
+          _DsModelGalleryTextStyleItem(
+            name: TextThemeKeys.labelSmall,
+            style: textTheme.labelSmall,
+          ),
+        ];
 
     return _DsModelGalleryInfoCard(
       title: title,
-      children: items.map((_DsModelGalleryTextStyleItem item) {
-        return _DsModelGalleryTextStylePreview(item: item);
-      }).toList(growable: false),
+      children: items
+          .map((_DsModelGalleryTextStyleItem item) {
+            return _DsModelGalleryTextStylePreview(item: item);
+          })
+          .toList(growable: false),
     );
   }
 }
 
 /// Shows a visual preview of [ModelDsExtendedTokens].
 class ModelDsExtendedTokensPage extends StatelessWidget {
-  const ModelDsExtendedTokensPage({
-    required this.model,
-    super.key,
-  });
+  const ModelDsExtendedTokensPage({required this.model, super.key});
 
   final ModelDsExtendedTokens model;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ModelDsExtendedTokens'),
-      ),
+      appBar: AppBar(title: const Text('ModelDsExtendedTokens')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -220,10 +206,7 @@ class ModelDsExtendedTokensPage extends StatelessWidget {
                   'borderRadiusSm',
                   model.borderRadiusSm,
                 ),
-                _DsModelGalleryNumberToken(
-                  'borderRadius',
-                  model.borderRadius,
-                ),
+                _DsModelGalleryNumberToken('borderRadius', model.borderRadius),
                 _DsModelGalleryNumberToken(
                   'borderRadiusLg',
                   model.borderRadiusLg,
@@ -267,15 +250,9 @@ class ModelDsExtendedTokensPage extends StatelessWidget {
             _DsModelGalleryInfoCard(
               title: 'Animation durations',
               children: <Widget>[
-                Text(
-                  'short: ${model.animationDurationShort.inMilliseconds}ms',
-                ),
-                Text(
-                  'regular: ${model.animationDuration.inMilliseconds}ms',
-                ),
-                Text(
-                  'long: ${model.animationDurationLong.inMilliseconds}ms',
-                ),
+                Text('short: ${model.animationDurationShort.inMilliseconds}ms'),
+                Text('regular: ${model.animationDuration.inMilliseconds}ms'),
+                Text('long: ${model.animationDurationLong.inMilliseconds}ms'),
               ],
             ),
           ],
@@ -299,9 +276,7 @@ class ModelSemanticColorsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
+      appBar: AppBar(title: Text(title)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: _DsModelGalleryInfoCard(
@@ -346,19 +321,14 @@ class ModelSemanticColorsPage extends StatelessWidget {
 
 /// Shows a visual preview of [ModelDataVizPalette].
 class ModelDataVizPalettePage extends StatelessWidget {
-  const ModelDataVizPalettePage({
-    required this.model,
-    super.key,
-  });
+  const ModelDataVizPalettePage({required this.model, super.key});
 
   final ModelDataVizPalette model;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ModelDataVizPalette'),
-      ),
+      appBar: AppBar(title: const Text('ModelDataVizPalette')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

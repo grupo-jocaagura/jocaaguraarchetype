@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../domain/model_flow_constraint.dart';
 
@@ -7,17 +7,15 @@ import '../../domain/model_flow_constraint.dart';
 /// - metrics -> Chip (name/value/unit)
 /// - urls -> ListTile (navigable badge)
 class FlowStepConstraintsPanelWidget extends StatelessWidget {
-  const FlowStepConstraintsPanelWidget({
-    required this.constraints,
-    super.key,
-  });
+  const FlowStepConstraintsPanelWidget({required this.constraints, super.key});
 
   final List<String> constraints;
 
   @override
   Widget build(BuildContext context) {
-    final List<FlowConstraint> parsed =
-        constraints.map((String c) => FlowConstraintUtils.parse(c)).toList();
+    final List<FlowConstraint> parsed = constraints
+        .map((String c) => FlowConstraintUtils.parse(c))
+        .toList();
 
     final List<FlowConstraint> urls = parsed
         .where((FlowConstraint c) => c.kind == FlowConstraintKind.url)

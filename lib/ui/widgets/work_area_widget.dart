@@ -84,11 +84,13 @@ class WorkAreaWidget extends StatelessWidget {
 
     final Widget body = switch (responsive.deviceType) {
       ScreenSizeEnum.mobile => _buildMobile(context, bg),
-      ScreenSizeEnum.tablet =>
-        _buildTabletDesktop(context, bg, isDesktop: false),
+      ScreenSizeEnum.tablet => _buildTabletDesktop(
+        context,
+        bg,
+        isDesktop: false,
+      ),
       ScreenSizeEnum.desktop ||
-      ScreenSizeEnum.tv =>
-        _buildTabletDesktop(context, bg, isDesktop: true),
+      ScreenSizeEnum.tv => _buildTabletDesktop(context, bg, isDesktop: true),
     };
 
     return safeArea ? SafeArea(child: body) : body;
@@ -156,14 +158,15 @@ class WorkAreaWidget extends StatelessWidget {
     final double gridW = (maxW - (mh * 2)).clamp(0.0, maxW);
 
     // Gaps visibles entre panel(es) y contenido
-    final int guttersCount = <bool>[primaryMenu != null, secondaryMenu != null]
-        .where((bool v) => v)
-        .length;
+    final int guttersCount = <bool>[
+      primaryMenu != null,
+      secondaryMenu != null,
+    ].where((bool v) => v).length;
     final double usedGutters = guttersCount > 0 ? gap * guttersCount : 0.0;
 
     // Resto disponible para el contenido dentro del grid
-    final double remaining =
-        (gridW - primaryW - secondaryW - usedGutters).clamp(0.0, gridW);
+    final double remaining = (gridW - primaryW - secondaryW - usedGutters)
+        .clamp(0.0, gridW);
 
     // Reglas:
     // - Tablet: usar 'remaining' tal cual.
@@ -192,8 +195,8 @@ class WorkAreaWidget extends StatelessWidget {
     // Invertir sólo si existe secondary; si no, el flag no aplica
     final List<Widget> ordered =
         (secondaryMenu != null && !secondaryMenuOnRight)
-            ? rowChildren.reversed.toList()
-            : rowChildren;
+        ? rowChildren.reversed.toList()
+        : rowChildren;
 
     // Grid lógico con ancho fijo = gridW
     final Widget grid = SizedBox(
@@ -230,11 +233,7 @@ class WorkAreaWidget extends StatelessWidget {
           child: gridHost,
         ),
         if (floatingActionButton != null)
-          Positioned(
-            right: mh,
-            bottom: mh,
-            child: floatingActionButton!,
-          ),
+          Positioned(right: mh, bottom: mh, child: floatingActionButton!),
       ],
     );
   }

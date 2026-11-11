@@ -10,13 +10,13 @@ class FlowAnalysisReport {
     required List<List<int>> cycles,
     required List<int> terminalSteps,
     required Map<String, double> costByMetric,
-  })  : reachable = List<int>.unmodifiable(reachable),
-        unreachable = List<int>.unmodifiable(unreachable),
-        cycles = List<List<int>>.unmodifiable(
-          cycles.map((List<int> c) => List<int>.unmodifiable(c)),
-        ),
-        terminalSteps = List<int>.unmodifiable(terminalSteps),
-        costByMetric = Map<String, double>.unmodifiable(costByMetric);
+  }) : reachable = List<int>.unmodifiable(reachable),
+       unreachable = List<int>.unmodifiable(unreachable),
+       cycles = List<List<int>>.unmodifiable(
+         cycles.map((List<int> c) => List<int>.unmodifiable(c)),
+       ),
+       terminalSteps = List<int>.unmodifiable(terminalSteps),
+       costByMetric = Map<String, double>.unmodifiable(costByMetric);
 
   /// Hydrates a [FlowAnalysisReport] from JSON.
   ///
@@ -119,7 +119,8 @@ class FlowAnalysisReport {
   }
 
   @override
-  String toString() => 'FlowAnalysisReport('
+  String toString() =>
+      'FlowAnalysisReport('
       'entryIndex=$entryIndex, '
       'reachable=${reachable.length}, '
       'unreachable=${unreachable.length}, '

@@ -49,11 +49,10 @@ class BlocUserNotifications extends BlocModule {
   BlocUserNotifications({
     Duration? autoClose,
     DateTime Function()? now, // for testability
-  })  : _now = now ?? DateTime.now,
-        _debouncer = Debouncer(
-          milliseconds:
-              (autoClose ?? const Duration(seconds: 7)).inMilliseconds,
-        );
+  }) : _now = now ?? DateTime.now,
+       _debouncer = Debouncer(
+         milliseconds: (autoClose ?? const Duration(seconds: 7)).inMilliseconds,
+       );
 
   static const String name = 'BlocUserNotifications';
 
@@ -131,5 +130,5 @@ class BlocUserNotifications extends BlocModule {
   @Deprecated('Use toast.text instead.')
   String get msg => toast.text;
 
-// ------------------------
+  // ------------------------
 }

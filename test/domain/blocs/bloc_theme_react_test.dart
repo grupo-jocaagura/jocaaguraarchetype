@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 // --------------------- Fakes de apoyo ---------------------
 
@@ -111,58 +111,64 @@ class _ServiceThemeFake implements ServiceTheme {
 void main() {
   group('BlocThemeReact • subscription lifecycle', () {
     test(
-        'Given WatchTheme stream When constructing Then subscribes immediately',
-        () async {
-      // Arrange
-      final _RepoFake repo = _RepoFake();
-      final _RepoReactFake reactRepo = _RepoReactFake();
-      final WatchTheme watch = WatchTheme(reactRepo);
-      final ThemeUsecases uc = ThemeUsecases.fromRepo(
-        repo,
-        serviceTheme: const _ServiceThemeFake(),
-      );
+      'Given WatchTheme stream When constructing Then subscribes immediately',
+      () async {
+        // Arrange
+        final _RepoFake repo = _RepoFake();
+        final _RepoReactFake reactRepo = _RepoReactFake();
+        final WatchTheme watch = WatchTheme(reactRepo);
+        final ThemeUsecases uc = ThemeUsecases.fromRepo(
+          repo,
+          serviceTheme: const _ServiceThemeFake(),
+        );
 
-      // Act
-      final BlocThemeReact bloc =
-          BlocThemeReact(themeUsecases: uc, watchTheme: watch);
+        // Act
+        final BlocThemeReact bloc = BlocThemeReact(
+          themeUsecases: uc,
+          watchTheme: watch,
+        );
 
-      // Assert: el stream tiene listener
-      expect(reactRepo.hasListener, isTrue);
+        // Assert: el stream tiene listener
+        expect(reactRepo.hasListener, isTrue);
 
-      // Cleanup
-      bloc.dispose();
-      reactRepo.close();
-    });
+        // Cleanup
+        bloc.dispose();
+        reactRepo.close();
+      },
+    );
 
     test(
-        'Given disposed bloc When emitting Then no listener remains and no throw',
-        () async {
-      final _RepoFake repo = _RepoFake();
-      final _RepoReactFake reactRepo = _RepoReactFake();
-      final WatchTheme watch = WatchTheme(reactRepo);
-      final ThemeUsecases uc = ThemeUsecases.fromRepo(
-        repo,
-        serviceTheme: const _ServiceThemeFake(),
-      );
+      'Given disposed bloc When emitting Then no listener remains and no throw',
+      () async {
+        final _RepoFake repo = _RepoFake();
+        final _RepoReactFake reactRepo = _RepoReactFake();
+        final WatchTheme watch = WatchTheme(reactRepo);
+        final ThemeUsecases uc = ThemeUsecases.fromRepo(
+          repo,
+          serviceTheme: const _ServiceThemeFake(),
+        );
 
-      final BlocThemeReact bloc =
-          BlocThemeReact(themeUsecases: uc, watchTheme: watch);
-      expect(reactRepo.hasListener, isTrue);
+        final BlocThemeReact bloc = BlocThemeReact(
+          themeUsecases: uc,
+          watchTheme: watch,
+        );
+        expect(reactRepo.hasListener, isTrue);
 
-      // Act: dispose cancela suscripción de forma no bloqueante
-      bloc.dispose();
+        // Act: dispose cancela suscripción de forma no bloqueante
+        bloc.dispose();
 
-      // Assert: sin listener
-      // Nota: cancelar es async; damos un microtask para asentarse
-      await Future<void>.delayed(const Duration(milliseconds: 1));
-      expect(reactRepo.hasListener, isFalse);
+        // Assert: sin listener
+        // Nota: cancelar es async; damos un microtask para asentarse
+        await Future<void>.delayed(const Duration(milliseconds: 1));
+        expect(reactRepo.hasListener, isFalse);
 
-      // Emitir después de dispose no debe lanzar
-      reactRepo.emit(const Right<ErrorItem, ThemeState>(ThemeState.defaults));
+        // Emitir después de dispose no debe lanzar
+        reactRepo.emit(const Right<ErrorItem, ThemeState>(ThemeState.defaults));
 
-      // Cleanup
-      reactRepo.close();
-    });
+        // Cleanup
+        reactRepo.close();
+      },
+    );
   });
 
   group('BlocThemeReact • event forwarding tolerance', () {
@@ -175,8 +181,10 @@ void main() {
         serviceTheme: const _ServiceThemeFake(),
       );
 
-      final BlocThemeReact bloc =
-          BlocThemeReact(themeUsecases: uc, watchTheme: watch);
+      final BlocThemeReact bloc = BlocThemeReact(
+        themeUsecases: uc,
+        watchTheme: watch,
+      );
 
       // Emit varios eventos; no debe lanzar
       reactRepo.emit(
@@ -207,8 +215,10 @@ void main() {
         serviceTheme: const _ServiceThemeFake(),
       );
 
-      final BlocThemeReact bloc =
-          BlocThemeReact(themeUsecases: uc, watchTheme: watch);
+      final BlocThemeReact bloc = BlocThemeReact(
+        themeUsecases: uc,
+        watchTheme: watch,
+      );
 
       // Emit error; _apply (en BlocTheme) debe manejar Either
       reactRepo.emit(Left<ErrorItem, ThemeState>(_Err('stream-failure')));
@@ -231,8 +241,10 @@ void main() {
         serviceTheme: const _ServiceThemeFake(),
       );
 
-      final BlocThemeReact bloc =
-          BlocThemeReact(themeUsecases: uc, watchTheme: watch);
+      final BlocThemeReact bloc = BlocThemeReact(
+        themeUsecases: uc,
+        watchTheme: watch,
+      );
 
       // Múltiples disposes no deben lanzar
       bloc.dispose();

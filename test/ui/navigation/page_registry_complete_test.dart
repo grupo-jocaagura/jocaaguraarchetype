@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 class _TestAppConfig extends AppConfig {
   _TestAppConfig({
@@ -15,7 +15,9 @@ class _TestAppConfig extends AppConfig {
   });
 
   @override
-  void dispose() {/* no-op en test */}
+  void dispose() {
+    /* no-op en test */
+  }
 
   @override
   T requireModuleByKey<T extends BlocModule>(String key) =>
@@ -37,8 +39,9 @@ class TestAppManagerProvider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppConfig appConfigDev =
-        AppConfig.dev(registry: PageRegistry.fromDefs(<PageDef>[]));
+    final AppConfig appConfigDev = AppConfig.dev(
+      registry: PageRegistry.fromDefs(<PageDef>[]),
+    );
 
     final AppConfig testConfig = _TestAppConfig(
       pageManager: pm,
@@ -115,65 +118,68 @@ class _Probe extends StatelessWidget {
 void main() {
   group('PageRegistry / build()', () {
     testWidgets(
-        'Given name conocido When build Then renderiza builder asociado',
-        (WidgetTester tester) async {
-      final PageRegistry registry = PageRegistry(<String, PageWidgetBuilder>{
-        'home': (BuildContext ctx, PageModel p) => const Text('HOME'),
-      });
+      'Given name conocido When build Then renderiza builder asociado',
+      (WidgetTester tester) async {
+        final PageRegistry registry = PageRegistry(<String, PageWidgetBuilder>{
+          'home': (BuildContext ctx, PageModel p) => const Text('HOME'),
+        });
 
-      await tester.pumpWidget(
-        _Probe(
-          registry: registry,
-          page: const PageModel(name: 'home'),
-          child: const SizedBox.shrink(),
-        ),
-      );
+        await tester.pumpWidget(
+          _Probe(
+            registry: registry,
+            page: const PageModel(name: 'home'),
+            child: const SizedBox.shrink(),
+          ),
+        );
 
-      expect(find.text('HOME'), findsOneWidget);
-    });
-
-    testWidgets(
-        'Given name desconocido + notFoundBuilder When build Then muestra 404 custom',
-        (WidgetTester tester) async {
-      final PageRegistry registry = PageRegistry(
-        <String, PageWidgetBuilder>{},
-        notFoundBuilder: (BuildContext ctx, PageModel req) =>
-            const Text('C404'),
-      );
-
-      await tester.pumpWidget(
-        _Probe(
-          registry: registry,
-          page: const PageModel(name: 'missing'),
-          child: const SizedBox.shrink(),
-        ),
-      );
-
-      expect(find.text('C404'), findsOneWidget);
-    });
+        expect(find.text('HOME'), findsOneWidget);
+      },
+    );
 
     testWidgets(
-        'Given name desconocido + sin notFound + sin redirects When build Then muestra 404 interno',
-        (WidgetTester tester) async {
-      final PageRegistry registry = PageRegistry(<String, PageWidgetBuilder>{});
+      'Given name desconocido + notFoundBuilder When build Then muestra 404 custom',
+      (WidgetTester tester) async {
+        final PageRegistry registry = PageRegistry(
+          <String, PageWidgetBuilder>{},
+          notFoundBuilder: (BuildContext ctx, PageModel req) =>
+              const Text('C404'),
+        );
 
-      await tester.pumpWidget(
-        _Probe(
-          registry: registry,
-          page: const PageModel(name: 'missing', segments: <String>['x']),
-          child: const SizedBox.shrink(),
-        ),
-      );
+        await tester.pumpWidget(
+          _Probe(
+            registry: registry,
+            page: const PageModel(name: 'missing'),
+            child: const SizedBox.shrink(),
+          ),
+        );
 
-      // `_DefaultNotFoundPage` imprime "404 — <uri>"
-      expect(find.byType(InkWell), findsOneWidget);
-      expect(find.textContaining('404 —'), findsOneWidget);
-    });
+        expect(find.text('C404'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Given name desconocido + sin notFound + sin redirects When build Then muestra 404 interno',
+      (WidgetTester tester) async {
+        final PageRegistry registry = PageRegistry(
+          <String, PageWidgetBuilder>{},
+        );
+
+        await tester.pumpWidget(
+          _Probe(
+            registry: registry,
+            page: const PageModel(name: 'missing', segments: <String>['x']),
+            child: const SizedBox.shrink(),
+          ),
+        );
+
+        // `_DefaultNotFoundPage` imprime "404 — <uri>"
+        expect(find.byType(InkWell), findsOneWidget);
+        expect(find.textContaining('404 —'), findsOneWidget);
+      },
+    );
   });
   group('Inmutabilidad interna de _builders (riesgo crítico cubierto)', () {
-    test(
-        'Given ctor principal When muta el mapa externo Then registro no cambia (inmutable)',
-        () {
+    test('Given ctor principal When muta el mapa externo Then registro no cambia (inmutable)', () {
       final Map<String, PageWidgetBuilder> ext = <String, PageWidgetBuilder>{
         'a': (BuildContext ctx, PageModel p) => const SizedBox.shrink(),
       };
@@ -192,66 +198,72 @@ void main() {
 
   group('Testing widgets', () {
     testWidgets(
-        'Given defaultStack y defaultPage When name desconocido Then usa setStack (tiene mayor precedencia)',
-        (WidgetTester tester) async {
-      final FakePageManager pm = FakePageManager(initial: defaultNavStackModel);
+      'Given defaultStack y defaultPage When name desconocido Then usa setStack (tiene mayor precedencia)',
+      (WidgetTester tester) async {
+        final FakePageManager pm = FakePageManager(
+          initial: defaultNavStackModel,
+        );
 
-      final PageRegistry registry = PageRegistry(
-        <String, PageWidgetBuilder>{},
-        defaultPage: const PageModel(name: 'fallback'),
-        defaultStack: NavStackModel(const <PageModel>[PageModel(name: 'home')]),
-      );
+        final PageRegistry registry = PageRegistry(
+          <String, PageWidgetBuilder>{},
+          defaultPage: const PageModel(name: 'fallback'),
+          defaultStack: NavStackModel(const <PageModel>[
+            PageModel(name: 'home'),
+          ]),
+        );
 
-      await tester.pumpWidget(
-        TestAppManagerProvider(
-          pm: pm,
-          child: _Host(
-            child: Builder(
-              builder: (BuildContext ctx) =>
-                  registry.build(ctx, const PageModel(name: 'missing')),
+        await tester.pumpWidget(
+          TestAppManagerProvider(
+            pm: pm,
+            child: _Host(
+              child: Builder(
+                builder: (BuildContext ctx) =>
+                    registry.build(ctx, const PageModel(name: 'missing')),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      // Ejecuta post-frame callbacks
-      await tester.pump();
+        // Ejecuta post-frame callbacks
+        await tester.pump();
 
-      expect(pm.setStackCalls, 1);
-      expect(pm.replaceTopCalls, 0);
-    });
+        expect(pm.setStackCalls, 1);
+        expect(pm.replaceTopCalls, 0);
+      },
+    );
 
     testWidgets(
-        'Given solo defaultPage When name desconocido Then usa replaceTop',
-        (WidgetTester tester) async {
-      final FakePageManager pm = FakePageManager(initial: defaultNavStackModel);
-      final PageRegistry registry = PageRegistry(
-        <String, PageWidgetBuilder>{},
-        defaultPage: const PageModel(name: 'fallback'),
-      );
+      'Given solo defaultPage When name desconocido Then usa replaceTop',
+      (WidgetTester tester) async {
+        final FakePageManager pm = FakePageManager(
+          initial: defaultNavStackModel,
+        );
+        final PageRegistry registry = PageRegistry(
+          <String, PageWidgetBuilder>{},
+          defaultPage: const PageModel(name: 'fallback'),
+        );
 
-      await tester.pumpWidget(
-        TestAppManagerProvider(
-          pm: pm,
-          child: _Host(
-            child: Builder(
-              builder: (BuildContext ctx) =>
-                  registry.build(ctx, const PageModel(name: 'missing')),
+        await tester.pumpWidget(
+          TestAppManagerProvider(
+            pm: pm,
+            child: _Host(
+              child: Builder(
+                builder: (BuildContext ctx) =>
+                    registry.build(ctx, const PageModel(name: 'missing')),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.pump();
+        await tester.pump();
 
-      expect(pm.setStackCalls, 0);
-      expect(pm.replaceTopCalls, 1);
-    });
+        expect(pm.setStackCalls, 0);
+        expect(pm.replaceTopCalls, 1);
+      },
+    );
   });
   group('Complementary tests', () {
-    test(
-        'Given queries con distinto orden When toPage Then key es estable (orden canónico por clave)',
-        () {
+    test('Given queries con distinto orden When toPage Then key es estable (orden canónico por clave)', () {
       const PageModel a = PageModel(
         name: 'details',
         query: <String, String>{'b': '2', 'a': '1'},
@@ -261,10 +273,10 @@ void main() {
         query: <String, String>{'a': '1', 'b': '2'},
       );
 
-      final Page<dynamic> pa =
-          PageRegistry(<String, PageWidgetBuilder>{}).toPage(a);
-      final Page<dynamic> pb =
-          PageRegistry(<String, PageWidgetBuilder>{}).toPage(b);
+      final Page<dynamic> pa = PageRegistry(<String, PageWidgetBuilder>{})
+          .toPage(a);
+      final Page<dynamic> pb = PageRegistry(<String, PageWidgetBuilder>{})
+          .toPage(b);
 
       expect(
         (pa.key as ValueKey<String>?)?.value,

@@ -18,13 +18,13 @@ class UserBackRouteInformationProvider
     required RouteInformation initialRouteInformation,
     this.enabled = true,
   }) : super(
-          initialRouteInformation: enabled
-              ? _UserHistoryRouteInformation(
-                  uri: initialRouteInformation.uri,
-                  state: initialRouteInformation.state,
-                )
-              : initialRouteInformation,
-        );
+         initialRouteInformation: enabled
+             ? _UserHistoryRouteInformation(
+                 uri: initialRouteInformation.uri,
+                 state: initialRouteInformation.state,
+               )
+             : initialRouteInformation,
+       );
 
   /// Disable to retain PlatformRouteInformationProvider's legacy behavior.
   bool enabled;
@@ -40,8 +40,9 @@ class UserBackRouteInformationProvider
       return super.didPushRouteInformation(routeInformation);
     }
     final Object? state = routeInformation.state;
-    final Object? metadata =
-        state is Map<Object?, Object?> ? state[_historyKey] : null;
+    final Object? metadata = state is Map<Object?, Object?>
+        ? state[_historyKey]
+        : null;
     bool? backward;
     int? stackIndex;
     if (metadata is Map<Object?, Object?> && metadata['session'] == _session) {
@@ -75,7 +76,8 @@ class UserBackRouteInformationProvider
       super.routerReportsNewRouteInformation(routeInformation, type: type);
       return;
     }
-    final bool replace = _platformReportPending ||
+    final bool replace =
+        _platformReportPending ||
         type == RouteInformationReportingType.neglect ||
         (type == RouteInformationReportingType.none &&
             routeInformation.uri == value.uri);
@@ -116,7 +118,7 @@ class _UserHistoryRouteInformation extends RouteInformation {
 
 class _UserHistoryStack extends NavStackModel {
   _UserHistoryStack(NavStackModel stack, this.backward, {this.stackIndex})
-      : super._internal(stack.pages);
+    : super._internal(stack.pages);
 
   final bool? backward;
   final int? stackIndex;

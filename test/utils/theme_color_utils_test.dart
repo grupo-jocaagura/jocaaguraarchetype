@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Helpers
 bool _nearInt(int a, int b, {int tol = 2}) => (a - b).abs() <= tol;
@@ -159,8 +159,11 @@ void main() {
     });
 
     test('estructura del MaterialColor y consistencia del tono 500', () {
-      final MaterialColor mc =
-          ThemeColorUtils.materialColorFromRGB(102, 153, 204); // 0xFF6699CC
+      final MaterialColor mc = ThemeColorUtils.materialColorFromRGB(
+        102,
+        153,
+        204,
+      ); // 0xFF6699CC
       expect(mc.toARGB32(), const Color(0xFF6699CC).toARGB32());
       expect(mc[500], const Color(0xFF6699CC));
 
@@ -183,8 +186,11 @@ void main() {
     });
 
     test('gradiente de luminosidad: 50..400 > 500 > 600..900', () {
-      final MaterialColor mc =
-          ThemeColorUtils.materialColorFromRGB(102, 153, 204);
+      final MaterialColor mc = ThemeColorUtils.materialColorFromRGB(
+        102,
+        153,
+        204,
+      );
       final double l500 = ThemeColorUtils.convertToLab(mc[500]!).lightness;
 
       for (final int k in <int>[50, 100, 200, 300, 400]) {

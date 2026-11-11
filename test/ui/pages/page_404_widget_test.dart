@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('Page404Widget', () {
@@ -17,20 +17,24 @@ void main() {
       ); // solo 1 entrada → sin back
     });
 
-    testWidgets('muestra BackButton cuando historyNames.length > 1',
-        (WidgetTester tester) async {
-      final _FakePageManager pm =
-          _FakePageManager(history: <String>['/home', '/details']);
+    testWidgets('muestra BackButton cuando historyNames.length > 1', (
+      WidgetTester tester,
+    ) async {
+      final _FakePageManager pm = _FakePageManager(
+        history: <String>['/home', '/details'],
+      );
 
       await _pump404(tester, pageManager: pm);
 
       expect(find.byType(BackButton), findsOneWidget);
     });
 
-    testWidgets('tap en BackButton llama a pageManager.pop',
-        (WidgetTester tester) async {
-      final _FakePageManager pm =
-          _FakePageManager(history: <String>['/home', '/details']);
+    testWidgets('tap en BackButton llama a pageManager.pop', (
+      WidgetTester tester,
+    ) async {
+      final _FakePageManager pm = _FakePageManager(
+        history: <String>['/home', '/details'],
+      );
 
       await _pump404(tester, pageManager: pm);
 
@@ -50,9 +54,7 @@ Future<void> _pump404(
   required PageManager pageManager,
 }) async {
   await tester.pumpWidget(
-    MaterialApp(
-      home: Page404Widget(pageManager: pageManager),
-    ),
+    MaterialApp(home: Page404Widget(pageManager: pageManager)),
   );
   await tester.pumpAndSettle();
 }
@@ -61,7 +63,7 @@ Future<void> _pump404(
 /// Si tu PageManager real tiene más miembros, añade stubs aquí.
 class _FakePageManager implements PageManager {
   _FakePageManager({required List<String> history})
-      : _history = List<String>.from(history);
+    : _history = List<String>.from(history);
 
   final List<String> _history;
   bool popped = false;

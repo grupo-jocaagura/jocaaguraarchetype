@@ -19,10 +19,7 @@ void main() {
       );
       addTearDown(bloc.dispose);
 
-      expect(
-        bloc.language,
-        ModelLanguage.spanishColombia,
-      );
+      expect(bloc.language, ModelLanguage.spanishColombia);
     });
 
     test('resolves initial preferred languages', () {
@@ -32,16 +29,11 @@ void main() {
           ModelLanguage.englishUnitedStates,
         ],
         fallbackLanguage: ModelLanguage.englishUnitedStates,
-        preferredLanguages: const <ModelLanguage>[
-          spanishMexico,
-        ],
+        preferredLanguages: const <ModelLanguage>[spanishMexico],
       );
       addTearDown(bloc.dispose);
 
-      expect(
-        bloc.language,
-        ModelLanguage.spanishColombia,
-      );
+      expect(bloc.language, ModelLanguage.spanishColombia);
     });
 
     test('resolves compatible fallback when exact fallback is unavailable', () {
@@ -54,10 +46,7 @@ void main() {
       );
       addTearDown(bloc.dispose);
 
-      expect(
-        bloc.language,
-        englishUnitedKingdom,
-      );
+      expect(bloc.language, englishUnitedKingdom);
     });
 
     test('uses fallback when supported languages are empty', () {
@@ -67,10 +56,7 @@ void main() {
       );
       addTearDown(bloc.dispose);
 
-      expect(
-        bloc.language,
-        ModelLanguage.spanishColombia,
-      );
+      expect(bloc.language, ModelLanguage.spanishColombia);
       expect(bloc.supportedLanguages, isEmpty);
     });
 
@@ -88,18 +74,13 @@ void main() {
 
       supportedLanguages.clear();
 
-      expect(
-        bloc.supportedLanguages,
-        const <ModelLanguage>[
-          ModelLanguage.spanishColombia,
-          ModelLanguage.englishUnitedStates,
-        ],
-      );
+      expect(bloc.supportedLanguages, const <ModelLanguage>[
+        ModelLanguage.spanishColombia,
+        ModelLanguage.englishUnitedStates,
+      ]);
 
       expect(
-        () => bloc.supportedLanguages.add(
-          ModelLanguage.portugueseBrazil,
-        ),
+        () => bloc.supportedLanguages.add(ModelLanguage.portugueseBrazil),
         throwsA(isA<UnsupportedError>()),
       );
     });
@@ -116,20 +97,11 @@ void main() {
       );
       addTearDown(bloc.dispose);
 
-      expect(
-        bloc.isSupported(ModelLanguage.spanishColombia),
-        isTrue,
-      );
+      expect(bloc.isSupported(ModelLanguage.spanishColombia), isTrue);
 
-      expect(
-        bloc.isSupported(spanishMexico),
-        isFalse,
-      );
+      expect(bloc.isSupported(spanishMexico), isFalse);
 
-      expect(
-        bloc.isSupported(ModelLanguage.portugueseBrazil),
-        isFalse,
-      );
+      expect(bloc.isSupported(ModelLanguage.portugueseBrazil), isFalse);
     });
   });
 
@@ -149,10 +121,7 @@ void main() {
       );
 
       expect(result, isTrue);
-      expect(
-        bloc.language,
-        ModelLanguage.englishUnitedStates,
-      );
+      expect(bloc.language, ModelLanguage.englishUnitedStates);
     });
 
     test('rejects unsupported language and preserves current state', () {
@@ -165,15 +134,10 @@ void main() {
       );
       addTearDown(bloc.dispose);
 
-      final bool result = bloc.selectLanguage(
-        spanishMexico,
-      );
+      final bool result = bloc.selectLanguage(spanishMexico);
 
       expect(result, isFalse);
-      expect(
-        bloc.language,
-        ModelLanguage.spanishColombia,
-      );
+      expect(bloc.language, ModelLanguage.spanishColombia);
     });
 
     test('does not emit duplicate language snapshots', () async {
@@ -188,18 +152,14 @@ void main() {
 
       final List<ModelLanguage> emissions = <ModelLanguage>[];
 
-      final StreamSubscription<ModelLanguage> subscription =
-          bloc.stream.listen(emissions.add);
+      final StreamSubscription<ModelLanguage> subscription = bloc.stream.listen(
+        emissions.add,
+      );
       addTearDown(subscription.cancel);
 
       await Future<void>.delayed(Duration.zero);
 
-      expect(
-        emissions,
-        const <ModelLanguage>[
-          ModelLanguage.spanishColombia,
-        ],
-      );
+      expect(emissions, const <ModelLanguage>[ModelLanguage.spanishColombia]);
 
       final bool sameLanguageResult = bloc.selectLanguage(
         ModelLanguage.spanishColombia,
@@ -208,26 +168,16 @@ void main() {
       await Future<void>.delayed(Duration.zero);
 
       expect(sameLanguageResult, isTrue);
-      expect(
-        emissions,
-        const <ModelLanguage>[
-          ModelLanguage.spanishColombia,
-        ],
-      );
+      expect(emissions, const <ModelLanguage>[ModelLanguage.spanishColombia]);
 
-      bloc.selectLanguage(
-        ModelLanguage.englishUnitedStates,
-      );
+      bloc.selectLanguage(ModelLanguage.englishUnitedStates);
 
       await Future<void>.delayed(Duration.zero);
 
-      expect(
-        emissions,
-        const <ModelLanguage>[
-          ModelLanguage.spanishColombia,
-          ModelLanguage.englishUnitedStates,
-        ],
-      );
+      expect(emissions, const <ModelLanguage>[
+        ModelLanguage.spanishColombia,
+        ModelLanguage.englishUnitedStates,
+      ]);
     });
   });
 
@@ -243,19 +193,11 @@ void main() {
       addTearDown(bloc.dispose);
 
       final ModelLanguage result = bloc.resolvePreferredLanguages(
-        const <ModelLanguage>[
-          spanishMexico,
-        ],
+        const <ModelLanguage>[spanishMexico],
       );
 
-      expect(
-        result,
-        ModelLanguage.spanishColombia,
-      );
-      expect(
-        bloc.language,
-        ModelLanguage.spanishColombia,
-      );
+      expect(result, ModelLanguage.spanishColombia);
+      expect(bloc.language, ModelLanguage.spanishColombia);
     });
 
     test('uses fallback when preferences cannot be resolved', () {
@@ -269,19 +211,11 @@ void main() {
       addTearDown(bloc.dispose);
 
       final ModelLanguage result = bloc.resolvePreferredLanguages(
-        const <ModelLanguage>[
-          ModelLanguage.germanGermany,
-        ],
+        const <ModelLanguage>[ModelLanguage.germanGermany],
       );
 
-      expect(
-        result,
-        ModelLanguage.englishUnitedStates,
-      );
-      expect(
-        bloc.language,
-        ModelLanguage.englishUnitedStates,
-      );
+      expect(result, ModelLanguage.englishUnitedStates);
+      expect(bloc.language, ModelLanguage.englishUnitedStates);
     });
   });
 
@@ -296,20 +230,12 @@ void main() {
       );
       addTearDown(bloc.dispose);
 
-      bloc.selectLanguage(
-        ModelLanguage.englishUnitedStates,
-      );
+      bloc.selectLanguage(ModelLanguage.englishUnitedStates);
 
       final ModelLanguage result = bloc.reset();
 
-      expect(
-        result,
-        ModelLanguage.spanishColombia,
-      );
-      expect(
-        bloc.language,
-        ModelLanguage.spanishColombia,
-      );
+      expect(result, ModelLanguage.spanishColombia);
+      expect(bloc.language, ModelLanguage.spanishColombia);
     });
 
     test('resolves compatible fallback language', () {
@@ -322,29 +248,18 @@ void main() {
       );
       addTearDown(bloc.dispose);
 
-      bloc.selectLanguage(
-        ModelLanguage.spanishColombia,
-      );
+      bloc.selectLanguage(ModelLanguage.spanishColombia);
 
       final ModelLanguage result = bloc.reset();
 
-      expect(
-        result,
-        englishUnitedKingdom,
-      );
-      expect(
-        bloc.language,
-        englishUnitedKingdom,
-      );
+      expect(result, englishUnitedKingdom);
+      expect(bloc.language, englishUnitedKingdom);
     });
   });
 
   group('BlocLanguage metadata', () {
     test('exposes its canonical registry name', () {
-      expect(
-        BlocLanguage.name,
-        'BlocLanguage',
-      );
+      expect(BlocLanguage.name, 'BlocLanguage');
     });
   });
 }

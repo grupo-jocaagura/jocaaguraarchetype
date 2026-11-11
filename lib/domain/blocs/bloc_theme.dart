@@ -45,8 +45,8 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// See also: [BlocThemeReact] for fully reactive flows.
 class BlocTheme extends BlocModule {
   BlocTheme({required this.themeUsecases})
-      : _state = BlocGeneral<ThemeState>(ThemeState.defaults),
-        _error = BlocGeneral<ErrorItem?>(null);
+    : _state = BlocGeneral<ThemeState>(ThemeState.defaults),
+      _error = BlocGeneral<ErrorItem?>(null);
 
   static const String name = 'BlocTheme';
 
@@ -116,9 +116,7 @@ class BlocTheme extends BlocModule {
       return _run(() => uc.call(next));
     }
     return _run(
-      () => themeUsecases.applyPatch.call(
-        ThemePatch(textOverrides: next),
-      ),
+      () => themeUsecases.applyPatch.call(ThemePatch(textOverrides: next)),
     );
   }
 

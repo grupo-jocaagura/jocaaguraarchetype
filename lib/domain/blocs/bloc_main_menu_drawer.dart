@@ -25,13 +25,12 @@ class BlocMainMenuDrawer extends BlocMenuBase {
     required String label,
     required IconData iconData,
     String description = '',
-  }) =>
-      upsertOption(
-        onPressed: onPressed,
-        label: label,
-        iconData: iconData,
-        description: description,
-      );
+  }) => upsertOption(
+    onPressed: onPressed,
+    label: label,
+    iconData: iconData,
+    description: description,
+  );
 
   void removeMainMenuOption(String label) => removeByLabel(label);
   // ---- Deprecated aliases (kept for binary/source compat) ----

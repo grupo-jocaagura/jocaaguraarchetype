@@ -54,10 +54,7 @@ class BuildThemeData {
     final TextTheme resolved = baseTextTheme ?? t.textTheme;
     final TextTheme scaled = _applyTextScaleSafely(resolved, s.textScale);
 
-    return t.copyWith(
-      textTheme: scaled,
-      visualDensity: VisualDensity.standard,
-    );
+    return t.copyWith(textTheme: scaled, visualDensity: VisualDensity.standard);
   }
 
   ColorScheme _mergeOverrides(ColorScheme base, ColorScheme? ovr) {

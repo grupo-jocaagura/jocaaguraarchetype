@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,30 +19,33 @@ double _tokOr(
 }
 
 EdgeInsets _padAll(BuildContext context, double fallback) {
-  final double v =
-      _tokOr(context, (ModelDsExtendedTokens t) => t.spacingSm, fallback);
+  final double v = _tokOr(
+    context,
+    (ModelDsExtendedTokens t) => t.spacingSm,
+    fallback,
+  );
   return EdgeInsets.all(v);
 }
 
 Widget gapXs(BuildContext context) => SizedBox(
-      height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingXs, 4),
-    );
+  height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingXs, 4),
+);
 
 Widget gapSm(BuildContext context) => SizedBox(
-      height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingSm, 8),
-    );
+  height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingSm, 8),
+);
 
 Widget gap(BuildContext context) => SizedBox(
-      height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacing, 16),
-    );
+  height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacing, 16),
+);
 
 Widget gapLg(BuildContext context) => SizedBox(
-      height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingLg, 24),
-    );
+  height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingLg, 24),
+);
 
 Widget gapXl(BuildContext context) => SizedBox(
-      height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingXl, 32),
-    );
+  height: _tokOr(context, (ModelDsExtendedTokens t) => t.spacingXl, 32),
+);
 
 /// ---------------------------------------------------------------------------
 /// App
@@ -98,8 +101,10 @@ class _DsMainWidgetState extends State<DsMainWidget> {
 
         // Para ThemeData usamos DS válido (si hay error, el último del bloc).
 
-        final ModelDesignSystem dsForTheme =
-            either.fold((_) => dsBloc.lastGoodDs, (ModelDesignSystem v) => v);
+        final ModelDesignSystem dsForTheme = either.fold(
+          (_) => dsBloc.lastGoodDs,
+          (ModelDesignSystem v) => v,
+        );
         return MaterialApp(
           title: 'Design System Example',
           scaffoldMessengerKey: _messengerKey,
@@ -155,17 +160,11 @@ class _Home extends StatelessWidget {
       ),
       body: Row(
         children: <Widget>[
-          SideBarMenuWidget(
-            dsBloc: dsBloc,
-          ),
+          SideBarMenuWidget(dsBloc: dsBloc),
           Expanded(
             child: Padding(
               padding: EdgeInsets.all(
-                _tokOr(
-                  context,
-                  (ModelDsExtendedTokens t) => t.spacingSm,
-                  12,
-                ),
+                _tokOr(context, (ModelDsExtendedTokens t) => t.spacingSm, 12),
               ),
               child: ListView(
                 children: <Widget>[
@@ -200,16 +199,15 @@ class _Home extends StatelessWidget {
 }
 
 class SideBarMenuWidget extends StatelessWidget {
-  const SideBarMenuWidget({
-    required this.dsBloc,
-    super.key,
-  });
+  const SideBarMenuWidget({required this.dsBloc, super.key});
 
   final BlocDesignSystem dsBloc;
   @override
   Widget build(BuildContext context) {
-    final double menuWidth =
-        (MediaQuery.of(context).size.width * 0.25).clamp(100.0, 220.0);
+    final double menuWidth = (MediaQuery.of(context).size.width * 0.25).clamp(
+      100.0,
+      220.0,
+    );
     return SizedBox(
       width: menuWidth,
       height: MediaQuery.of(context).size.height,
@@ -256,10 +254,7 @@ class SideBarMenuWidget extends StatelessWidget {
 /// ---------------------------------------------------------------------------
 
 class _ThemeModeSegmented extends StatelessWidget {
-  const _ThemeModeSegmented({
-    required this.value,
-    required this.onChanged,
-  });
+  const _ThemeModeSegmented({required this.value, required this.onChanged});
 
   final ThemeMode value;
   final ValueChanged<ThemeMode> onChanged;
@@ -330,8 +325,9 @@ class _DsPreview extends StatefulWidget {
 }
 
 class _DsPreviewState extends State<_DsPreview> {
-  final TextEditingController _controller =
-      TextEditingController(text: 'Texto');
+  final TextEditingController _controller = TextEditingController(
+    text: 'Texto',
+  );
   bool _switchValue = true;
   double _sliderValue = 0.6;
 
@@ -585,18 +581,15 @@ class _DsPreviewState extends State<_DsPreview> {
                 const Text('Sequential scale'),
                 gapSm(context),
                 Row(
-                  children: List<Widget>.generate(
-                    8,
-                    (int i) {
-                      final double v = i / 7.0;
-                      return Expanded(
-                        child: Container(
-                          height: tok.spacingLg,
-                          color: viz.sequentialAt(v),
-                        ),
-                      );
-                    },
-                  ),
+                  children: List<Widget>.generate(8, (int i) {
+                    final double v = i / 7.0;
+                    return Expanded(
+                      child: Container(
+                        height: tok.spacingLg,
+                        color: viz.sequentialAt(v),
+                      ),
+                    );
+                  }),
                 ),
                 gapSm(context),
                 const Text('Mini chart'),
@@ -618,8 +611,9 @@ class _DsPreviewState extends State<_DsPreview> {
                   context: context,
                   builder: (_) => AlertDialog(
                     title: const Text('Dialog title'),
-                    content:
-                        const Text('Dialog content preview with DS shapes.'),
+                    content: const Text(
+                      'Dialog content preview with DS shapes.',
+                    ),
                     actions: <Widget>[
                       TextButton(
                         onPressed: () => Navigator.pop(context),
@@ -720,8 +714,11 @@ class _SectionTitle extends StatelessWidget {
         children: <Widget>[
           Text(title, style: t.textTheme.titleLarge),
           SizedBox(
-            height:
-                _tokOr(context, (ModelDsExtendedTokens t) => t.spacingXs, 4),
+            height: _tokOr(
+              context,
+              (ModelDsExtendedTokens t) => t.spacingXs,
+              4,
+            ),
           ),
           Text(subtitle, style: t.textTheme.bodySmall),
         ],
@@ -802,8 +799,11 @@ class _Swatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double r =
-        _tokOr(context, (ModelDsExtendedTokens t) => t.borderRadiusSm, 6);
+    final double r = _tokOr(
+      context,
+      (ModelDsExtendedTokens t) => t.borderRadiusSm,
+      6,
+    );
 
     return Container(
       width: 28,
@@ -869,9 +869,7 @@ class _SemanticBanner extends StatelessWidget {
               children: <Widget>[
                 Text(
                   title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
+                  style: Theme.of(context).textTheme.titleMedium
                       ?.copyWith(color: fg),
                 ),
                 SizedBox(
@@ -941,8 +939,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .primary,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(primary: c),
@@ -956,8 +955,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .onPrimary,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(onPrimary: c),
@@ -971,8 +971,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .primaryContainer,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(primaryContainer: c),
@@ -986,8 +987,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .onPrimaryContainer,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(onPrimaryContainer: c),
@@ -1001,8 +1003,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .inversePrimary,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(inversePrimary: c),
@@ -1016,8 +1019,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .secondary,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(secondary: c),
@@ -1031,8 +1035,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .onSecondary,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(onSecondary: c),
@@ -1046,8 +1051,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .secondaryContainer,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(secondaryContainer: c),
@@ -1061,8 +1067,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .onSecondaryContainer,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(onSecondaryContainer: c),
@@ -1076,8 +1083,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .tertiary,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(tertiary: c),
@@ -1091,8 +1099,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .onTertiary,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(onTertiary: c),
@@ -1106,8 +1115,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .tertiaryContainer,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(tertiaryContainer: c),
@@ -1121,8 +1131,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .onTertiaryContainer,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(onTertiaryContainer: c),
@@ -1136,8 +1147,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .error,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(error: c),
@@ -1151,8 +1163,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .onError,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(onError: c),
@@ -1166,8 +1179,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .errorContainer,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(errorContainer: c),
@@ -1181,8 +1195,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .onErrorContainer,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(onErrorContainer: c),
@@ -1196,8 +1211,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .surface,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(surface: c),
@@ -1211,8 +1227,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .onSurface,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(onSurface: c),
@@ -1226,8 +1243,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .surfaceTint,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(surfaceTint: c),
@@ -1241,8 +1259,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .inverseSurface,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(inverseSurface: c),
@@ -1256,8 +1275,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .onInverseSurface,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(onInverseSurface: c),
@@ -1271,8 +1291,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .outline,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(outline: c),
@@ -1286,8 +1307,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .outlineVariant,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(outlineVariant: c),
@@ -1301,8 +1323,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .shadow,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(shadow: c),
@@ -1316,8 +1339,9 @@ List<ColorPaletteEditWidget> colorEditorsBuilder(
           .colorScheme
           .scrim,
       onChangeColorAttempt: (Color c) {
-        final DsThemeTarget target =
-            dsBloc.dsThemeTargetFromBrightness(Theme.of(context).brightness);
+        final DsThemeTarget target = dsBloc.dsThemeTargetFromBrightness(
+          Theme.of(context).brightness,
+        );
         dsBloc.patchThemeScheme(
           target: target,
           builder: (ColorScheme s) => s.copyWith(scrim: c),

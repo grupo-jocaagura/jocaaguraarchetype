@@ -71,10 +71,12 @@ class GutterBlueprintWidget extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
         child: SizedBox(
-          width:
-              axis == Axis.vertical ? thickness : (extent ?? double.infinity),
-          height:
-              axis == Axis.horizontal ? thickness : (extent ?? double.infinity),
+          width: axis == Axis.vertical
+              ? thickness
+              : (extent ?? double.infinity),
+          height: axis == Axis.horizontal
+              ? thickness
+              : (extent ?? double.infinity),
           child: painter,
         ),
       ),

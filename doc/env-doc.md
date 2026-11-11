@@ -44,7 +44,7 @@ Copia y pega tal cual:
 
 ```dart
 import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// --- AppMode y Env minimalistas (idénticos a los del paquete) ---
 

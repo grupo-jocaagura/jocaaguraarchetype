@@ -1,29 +1,26 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('DsInteractiveBuilder', () {
-    testWidgets(
-      'Given enabled state When rendered Then uses enabled builder',
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: DsInteractiveBuilder(
-              state: const ModelInteractiveState(),
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('enabled');
-              },
-            ),
+    testWidgets('Given enabled state When rendered Then uses enabled builder', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DsInteractiveBuilder(
+            state: const ModelInteractiveState(),
+            enabledBuilder:
+                (BuildContext context, ModelInteractiveState state) {
+                  return const Text('enabled');
+                },
           ),
-        );
+        ),
+      );
 
-        expect(find.text('enabled'), findsOneWidget);
-      },
-    );
+      expect(find.text('enabled'), findsOneWidget);
+    });
 
     testWidgets(
       'Given hidden state without hiddenBuilder When rendered Then renders shrink',
@@ -32,12 +29,10 @@ void main() {
           MaterialApp(
             home: DsInteractiveBuilder(
               state: const ModelInteractiveState(isVisible: false),
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('enabled');
-              },
+              enabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('enabled');
+                  },
             ),
           ),
         );
@@ -54,18 +49,14 @@ void main() {
           MaterialApp(
             home: DsInteractiveBuilder(
               state: const ModelInteractiveState(isVisible: false),
-              hiddenBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('hidden');
-              },
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('enabled');
-              },
+              hiddenBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('hidden');
+                  },
+              enabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('enabled');
+                  },
             ),
           ),
         );
@@ -75,43 +66,36 @@ void main() {
       },
     );
 
-    testWidgets(
-      'Given loading state When rendered Then uses loading builder',
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: DsInteractiveBuilder(
-              state: const ModelInteractiveState(
-                isLoading: true,
-                isEnabled: false,
-              ),
-              loadingBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('loading');
-              },
-              disabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('disabled');
-              },
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('enabled');
-              },
+    testWidgets('Given loading state When rendered Then uses loading builder', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DsInteractiveBuilder(
+            state: const ModelInteractiveState(
+              isLoading: true,
+              isEnabled: false,
             ),
+            loadingBuilder:
+                (BuildContext context, ModelInteractiveState state) {
+                  return const Text('loading');
+                },
+            disabledBuilder:
+                (BuildContext context, ModelInteractiveState state) {
+                  return const Text('disabled');
+                },
+            enabledBuilder:
+                (BuildContext context, ModelInteractiveState state) {
+                  return const Text('enabled');
+                },
           ),
-        );
+        ),
+      );
 
-        expect(find.text('loading'), findsOneWidget);
-        expect(find.text('disabled'), findsNothing);
-        expect(find.text('enabled'), findsNothing);
-      },
-    );
+      expect(find.text('loading'), findsOneWidget);
+      expect(find.text('disabled'), findsNothing);
+      expect(find.text('enabled'), findsNothing);
+    });
 
     testWidgets(
       'Given loading state without loadingBuilder When rendered Then falls back to disabled builder',
@@ -123,18 +107,14 @@ void main() {
                 isLoading: true,
                 isEnabled: false,
               ),
-              disabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('disabled');
-              },
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('enabled');
-              },
+              disabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('disabled');
+                  },
+              enabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('enabled');
+                  },
             ),
           ),
         );
@@ -154,12 +134,10 @@ void main() {
                 isLoading: true,
                 isEnabled: false,
               ),
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return Text('enabled ${state.isLoading}');
-              },
+              enabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return Text('enabled ${state.isLoading}');
+                  },
             ),
           ),
         );
@@ -168,42 +146,32 @@ void main() {
       },
     );
 
-    testWidgets(
-      'Given error state When rendered Then uses error builder',
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: DsInteractiveBuilder(
-              state: const ModelInteractiveState(
-                errorText: 'Something failed',
-              ),
-              errorBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return Text('error ${state.errorText}');
-              },
-              disabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('disabled');
-              },
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('enabled');
-              },
-            ),
+    testWidgets('Given error state When rendered Then uses error builder', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DsInteractiveBuilder(
+            state: const ModelInteractiveState(errorText: 'Something failed'),
+            errorBuilder: (BuildContext context, ModelInteractiveState state) {
+              return Text('error ${state.errorText}');
+            },
+            disabledBuilder:
+                (BuildContext context, ModelInteractiveState state) {
+                  return const Text('disabled');
+                },
+            enabledBuilder:
+                (BuildContext context, ModelInteractiveState state) {
+                  return const Text('enabled');
+                },
           ),
-        );
+        ),
+      );
 
-        expect(find.text('error Something failed'), findsOneWidget);
-        expect(find.text('disabled'), findsNothing);
-        expect(find.text('enabled'), findsNothing);
-      },
-    );
+      expect(find.text('error Something failed'), findsOneWidget);
+      expect(find.text('disabled'), findsNothing);
+      expect(find.text('enabled'), findsNothing);
+    });
 
     testWidgets(
       'Given error state without errorBuilder When rendered Then falls back to disabled builder',
@@ -211,21 +179,15 @@ void main() {
         await tester.pumpWidget(
           MaterialApp(
             home: DsInteractiveBuilder(
-              state: const ModelInteractiveState(
-                errorText: 'Something failed',
-              ),
-              disabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('disabled');
-              },
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('enabled');
-              },
+              state: const ModelInteractiveState(errorText: 'Something failed'),
+              disabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('disabled');
+                  },
+              enabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('enabled');
+                  },
             ),
           ),
         );
@@ -242,18 +204,14 @@ void main() {
           MaterialApp(
             home: DsInteractiveBuilder(
               state: const ModelInteractiveState(isSelected: true),
-              selectedBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('selected');
-              },
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('enabled');
-              },
+              selectedBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('selected');
+                  },
+              enabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('enabled');
+                  },
             ),
           ),
         );
@@ -270,12 +228,10 @@ void main() {
           MaterialApp(
             home: DsInteractiveBuilder(
               state: const ModelInteractiveState(isSelected: true),
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return Text('enabled selected ${state.isSelected}');
-              },
+              enabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return Text('enabled selected ${state.isSelected}');
+                  },
             ),
           ),
         );
@@ -294,18 +250,14 @@ void main() {
                 isEnabled: false,
                 reasonText: 'Not allowed',
               ),
-              disabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return Text('disabled ${state.reasonText}');
-              },
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('enabled');
-              },
+              disabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return Text('disabled ${state.reasonText}');
+                  },
+              enabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('enabled');
+                  },
             ),
           ),
         );
@@ -325,12 +277,10 @@ void main() {
                 isEnabled: false,
                 reasonText: 'Not allowed',
               ),
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return Text('enabled fallback ${state.canInteract}');
-              },
+              enabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return Text('enabled fallback ${state.canInteract}');
+                  },
             ),
           ),
         );
@@ -352,42 +302,30 @@ void main() {
                 isSelected: true,
                 errorText: 'Error',
               ),
-              hiddenBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('hidden');
-              },
-              loadingBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('loading');
-              },
-              errorBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('error');
-              },
-              selectedBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('selected');
-              },
-              disabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('disabled');
-              },
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('enabled');
-              },
+              hiddenBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('hidden');
+                  },
+              loadingBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('loading');
+                  },
+              errorBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('error');
+                  },
+              selectedBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('selected');
+                  },
+              disabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('disabled');
+                  },
+              enabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('enabled');
+                  },
             ),
           ),
         );
@@ -413,36 +351,26 @@ void main() {
                 isSelected: true,
                 errorText: 'Error',
               ),
-              loadingBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('loading');
-              },
-              errorBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('error');
-              },
-              selectedBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('selected');
-              },
-              disabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('disabled');
-              },
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('enabled');
-              },
+              loadingBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('loading');
+                  },
+              errorBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('error');
+                  },
+              selectedBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('selected');
+                  },
+              disabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('disabled');
+                  },
+              enabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('enabled');
+                  },
             ),
           ),
         );
@@ -466,30 +394,22 @@ void main() {
                 isSelected: true,
                 errorText: 'Error',
               ),
-              errorBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('error');
-              },
-              selectedBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('selected');
-              },
-              disabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('disabled');
-              },
-              enabledBuilder: (
-                BuildContext context,
-                ModelInteractiveState state,
-              ) {
-                return const Text('enabled');
-              },
+              errorBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('error');
+                  },
+              selectedBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('selected');
+                  },
+              disabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('disabled');
+                  },
+              enabledBuilder:
+                  (BuildContext context, ModelInteractiveState state) {
+                    return const Text('enabled');
+                  },
             ),
           ),
         );

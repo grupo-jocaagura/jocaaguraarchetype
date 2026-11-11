@@ -54,10 +54,12 @@ void main() {
 
       AppConfig? a;
       AppConfig? b;
-      final StreamSubscription<AppConfig> subA =
-          bloc.stream.listen((AppConfig c) => a = c);
-      final StreamSubscription<AppConfig> subB =
-          bloc.stream.listen((AppConfig c) => b = c);
+      final StreamSubscription<AppConfig> subA = bloc.stream.listen(
+        (AppConfig c) => a = c,
+      );
+      final StreamSubscription<AppConfig> subB = bloc.stream.listen(
+        (AppConfig c) => b = c,
+      );
 
       bloc.switchTo(next);
 
@@ -76,9 +78,7 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'switchTo(resetStack: true) también emite (la app shell decide aplicar el reset)',
-        () async {
+    test('switchTo(resetStack: true) también emite (la app shell decide aplicar el reset)', () async {
       final AppConfig initial = _makeDev();
       final AppConfig next = _makeDev();
 
@@ -96,19 +96,21 @@ void main() {
       bloc.dispose();
     });
 
-    test('dispose() cierra stream; luego de dispose, switchTo lanza StateError',
-        () async {
-      final AppConfig initial = _makeDev();
-      final AppConfig next = _makeDev();
+    test(
+      'dispose() cierra stream; luego de dispose, switchTo lanza StateError',
+      () async {
+        final AppConfig initial = _makeDev();
+        final AppConfig next = _makeDev();
 
-      final BlocAppConfig bloc = BlocAppConfig(initial: initial);
-      bloc.dispose();
+        final BlocAppConfig bloc = BlocAppConfig(initial: initial);
+        bloc.dispose();
 
-      // No se puede volver a emitir tras cerrar el StreamController.
-      expect(() => bloc.switchTo(next), throwsStateError);
+        // No se puede volver a emitir tras cerrar el StreamController.
+        expect(() => bloc.switchTo(next), throwsStateError);
 
-      await initial.dispose();
-      await next.dispose();
-    });
+        await initial.dispose();
+        await next.dispose();
+      },
+    );
   });
 }

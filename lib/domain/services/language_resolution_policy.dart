@@ -54,29 +54,23 @@ class LanguageResolutionPolicy {
     required Iterable<ModelLanguage> supportedLanguages,
     required ModelLanguage fallbackLanguage,
   }) {
-    final List<ModelLanguage> supported =
-        supportedLanguages.toList(growable: false);
+    final List<ModelLanguage> supported = supportedLanguages.toList(
+      growable: false,
+    );
 
     if (supported.isEmpty) {
       return fallbackLanguage;
     }
 
     for (final ModelLanguage preferred in preferredLanguages) {
-      final ModelLanguage? resolved = _resolveLanguage(
-        preferred,
-        supported,
-      );
+      final ModelLanguage? resolved = _resolveLanguage(preferred, supported);
 
       if (resolved != null) {
         return resolved;
       }
     }
 
-    return _resolveLanguage(
-          fallbackLanguage,
-          supported,
-        ) ??
-        supported.first;
+    return _resolveLanguage(fallbackLanguage, supported) ?? supported.first;
   }
 
   ModelLanguage? _resolveLanguage(
@@ -131,10 +125,7 @@ class LanguageResolutionPolicy {
     return null;
   }
 
-  bool _scriptsAreCompatible(
-    ModelLanguage preferred,
-    ModelLanguage candidate,
-  ) {
+  bool _scriptsAreCompatible(ModelLanguage preferred, ModelLanguage candidate) {
     return preferred.scriptCode.isEmpty ||
         candidate.scriptCode.isEmpty ||
         preferred.scriptCode == candidate.scriptCode;

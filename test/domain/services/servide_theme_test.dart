@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 TextTheme _materializeFontSizes(TextTheme base) {
   final TextTheme def = ThemeData.fallback().textTheme;
@@ -36,10 +36,8 @@ TextTheme _scaleTextTheme(TextTheme base, double factor) {
     return base;
   }
 
-  TextStyle scale(TextStyle? ts) =>
-      (ts ?? const TextStyle(fontSize: 14)).copyWith(
-        fontSize: (ts?.fontSize ?? 14) * factor,
-      );
+  TextStyle scale(TextStyle? ts) => (ts ?? const TextStyle(fontSize: 14))
+      .copyWith(fontSize: (ts?.fontSize ?? 14) * factor);
 
   return base.copyWith(
     displayLarge: scale(base.displayLarge),
@@ -77,8 +75,10 @@ class FakeServiceTheme extends ServiceTheme {
   @override
   ThemeData lightTheme(ThemeState state) {
     final ColorScheme scheme = schemeFromSeed(state.seed, Brightness.light);
-    final ThemeData base =
-        ThemeData.from(colorScheme: scheme, useMaterial3: state.useMaterial3);
+    final ThemeData base = ThemeData.from(
+      colorScheme: scheme,
+      useMaterial3: state.useMaterial3,
+    );
 
     final TextTheme materialized = _materializeFontSizes(base.textTheme);
     final TextTheme scaled = _scaleTextTheme(materialized, state.textScale);
@@ -89,8 +89,10 @@ class FakeServiceTheme extends ServiceTheme {
   @override
   ThemeData darkTheme(ThemeState state) {
     final ColorScheme scheme = schemeFromSeed(state.seed, Brightness.dark);
-    final ThemeData base =
-        ThemeData.from(colorScheme: scheme, useMaterial3: state.useMaterial3);
+    final ThemeData base = ThemeData.from(
+      colorScheme: scheme,
+      useMaterial3: state.useMaterial3,
+    );
 
     final TextTheme materialized = _materializeFontSizes(base.textTheme);
     final TextTheme scaled = _scaleTextTheme(materialized, state.textScale);
@@ -113,40 +115,57 @@ void main() {
     );
     const ServiceTheme svc = FakeServiceTheme();
 
-    test('Given seed+brightness When schemeFromSeed Then respeta brightness',
-        () {
-      final ColorScheme light = svc.schemeFromSeed(base.seed, Brightness.light);
-      final ColorScheme dark = svc.schemeFromSeed(base.seed, Brightness.dark);
+    test(
+      'Given seed+brightness When schemeFromSeed Then respeta brightness',
+      () {
+        final ColorScheme light = svc.schemeFromSeed(
+          base.seed,
+          Brightness.light,
+        );
+        final ColorScheme dark = svc.schemeFromSeed(base.seed, Brightness.dark);
 
-      expect(light.brightness, Brightness.light);
-      expect(dark.brightness, Brightness.dark);
-    });
+        expect(light.brightness, Brightness.light);
+        expect(dark.brightness, Brightness.dark);
+      },
+    );
 
-    test('Given platformBrightness light When toThemeData Then usa lightTheme',
-        () {
-      final ThemeData td =
-          svc.toThemeData(base, platformBrightness: Brightness.light);
-      expect(td.colorScheme.brightness, Brightness.light);
-      // Verifica que el factor de texto se haya aplicado (heurística simple)
-      expect(td.textTheme.bodyMedium?.fontSize, isNotNull);
-    });
+    test(
+      'Given platformBrightness light When toThemeData Then usa lightTheme',
+      () {
+        final ThemeData td = svc.toThemeData(
+          base,
+          platformBrightness: Brightness.light,
+        );
+        expect(td.colorScheme.brightness, Brightness.light);
+        // Verifica que el factor de texto se haya aplicado (heurística simple)
+        expect(td.textTheme.bodyMedium?.fontSize, isNotNull);
+      },
+    );
 
-    test('Given platformBrightness dark When toThemeData Then usa darkTheme',
-        () {
-      final ThemeData td =
-          svc.toThemeData(base, platformBrightness: Brightness.dark);
-      expect(td.colorScheme.brightness, Brightness.dark);
-    });
+    test(
+      'Given platformBrightness dark When toThemeData Then usa darkTheme',
+      () {
+        final ThemeData td = svc.toThemeData(
+          base,
+          platformBrightness: Brightness.dark,
+        );
+        expect(td.colorScheme.brightness, Brightness.dark);
+      },
+    );
 
     test('ColorRandom not deterministic', () {
       expect(svc.colorRandom(), isA<Color>()); // idem
     });
 
     test('Given mismos inputs When toThemeData Then idempotente', () {
-      final ThemeData a =
-          svc.toThemeData(base, platformBrightness: Brightness.dark);
-      final ThemeData b =
-          svc.toThemeData(base, platformBrightness: Brightness.dark);
+      final ThemeData a = svc.toThemeData(
+        base,
+        platformBrightness: Brightness.dark,
+      );
+      final ThemeData b = svc.toThemeData(
+        base,
+        platformBrightness: Brightness.dark,
+      );
       // ThemeData no implementa == profundo, comparamos propiedades clave
       expect(a.colorScheme, b.colorScheme);
       expect(a.useMaterial3, b.useMaterial3);

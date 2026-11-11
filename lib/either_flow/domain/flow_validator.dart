@@ -211,10 +211,15 @@ class FlowValidator {
       return raw;
     }
 
-    final ModelCompleteFlow flow =
-        ModelCompleteFlow.immutable(steps: steps, name: '', description: '');
-    final FlowValidationReport built =
-        validateFlow(flow, strictLoops: strictLoops);
+    final ModelCompleteFlow flow = ModelCompleteFlow.immutable(
+      steps: steps,
+      name: '',
+      description: '',
+    );
+    final FlowValidationReport built = validateFlow(
+      flow,
+      strictLoops: strictLoops,
+    );
 
     return FlowValidationReport(
       errors: <FlowValidationIssue>[...raw.errors, ...built.errors],

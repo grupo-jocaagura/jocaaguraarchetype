@@ -3,10 +3,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// Panel transversal para editar TextTheme (usa dsBloc.patchThemeTextTheme).
 /// Seguro ante cambios de Theme/DS (no depende de Theme.of en initState).
 class DsTextThemeEditorWidget extends StatefulWidget {
-  const DsTextThemeEditorWidget({
-    required this.dsBloc,
-    super.key,
-  });
+  const DsTextThemeEditorWidget({required this.dsBloc, super.key});
 
   final BlocDesignSystem dsBloc;
 
@@ -114,10 +111,7 @@ class _DsTextThemeEditorWidgetState extends State<DsTextThemeEditorWidget> {
               style: t.textTheme.bodySmall,
             ),
             SizedBox(height: tok.spacing),
-            _TextThemePreview(
-              title: _selected.label,
-              style: previewStyle,
-            ),
+            _TextThemePreview(title: _selected.label, style: previewStyle),
             SizedBox(height: tok.spacing),
             Wrap(
               spacing: tok.spacingSm,
@@ -187,7 +181,8 @@ class _DsTextThemeEditorWidgetState extends State<DsTextThemeEditorWidget> {
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text('Italic'),
-              value: (previewStyle.fontStyle ?? FontStyle.normal) ==
+              value:
+                  (previewStyle.fontStyle ?? FontStyle.normal) ==
                   FontStyle.italic,
               onChanged: (bool v) => _patchSelectedStyle(
                 (TextStyle s) => s.copyWith(
@@ -216,10 +211,7 @@ class _DsTextThemeEditorWidgetState extends State<DsTextThemeEditorWidget> {
 /// ---------------------------------------------------------------------------
 
 class _TextThemePreview extends StatelessWidget {
-  const _TextThemePreview({
-    required this.title,
-    required this.style,
-  });
+  const _TextThemePreview({required this.title, required this.style});
 
   final String title;
   final TextStyle style;
@@ -233,9 +225,7 @@ class _TextThemePreview extends StatelessWidget {
       padding: EdgeInsets.all(tok.spacingSm),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(tok.borderRadiusSm),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
-        ),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,10 +240,7 @@ class _TextThemePreview extends StatelessWidget {
             style: style,
           ),
           SizedBox(height: tok.spacingXs),
-          Text(
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789',
-            style: style,
-          ),
+          Text('ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789', style: style),
         ],
       ),
     );
@@ -393,10 +380,8 @@ class _DsDropdown<T> extends StatelessWidget {
             isExpanded: true,
             items: items
                 .map(
-                  (T v) => DropdownMenuItem<T>(
-                    value: v,
-                    child: Text(toLabel(v)),
-                  ),
+                  (T v) =>
+                      DropdownMenuItem<T>(value: v, child: Text(toLabel(v))),
                 )
                 .toList(),
             onChanged: (T? v) {

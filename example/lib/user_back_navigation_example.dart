@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Run from example/: flutter run -d chrome -t lib/user_back_navigation_example.dart
 void main() => runApp(const UserBackNavigationExample());
@@ -31,8 +31,11 @@ class _UserBackNavigationExampleState extends State<UserBackNavigationExample> {
 
   Widget _buildPage(BuildContext context, PageModel page) {
     return Scaffold(
-      appBar:
-          PageAppBar(app: _app, responsive: _app.responsive, hasDrawer: false),
+      appBar: PageAppBar(
+        app: _app,
+        responsive: _app.responsive,
+        hasDrawer: false,
+      ),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: <Widget>[
@@ -49,8 +52,9 @@ class _UserBackNavigationExampleState extends State<UserBackNavigationExample> {
           const SizedBox(height: 16),
           if (page.name != 'review')
             FilledButton(
-              onPressed: () => _app.pageManager
-                  .pushNamed(page.name == 'home' ? 'details' : 'review'),
+              onPressed: () => _app.pageManager.pushNamed(
+                page.name == 'home' ? 'details' : 'review',
+              ),
               child: const Text('Abrir siguiente página'),
             ),
           const SizedBox(height: 16),
@@ -67,10 +71,10 @@ class _UserBackNavigationExampleState extends State<UserBackNavigationExample> {
 
   @override
   Widget build(BuildContext context) => JocaaguraApp(
-        appManager: _app,
-        registry: _registry,
-        userBackNavigationPolicy: _allowBack,
-      );
+    appManager: _app,
+    registry: _registry,
+    userBackNavigationPolicy: _allowBack,
+  );
 
   @override
   void dispose() {
