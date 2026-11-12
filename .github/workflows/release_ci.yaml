@@ -1,0 +1,25 @@
+name: Release CI
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: flutter-actions/setup-flutter@v4
+        with:
+          version: '3.50.0'
+          channel: stable
+      - run: python3 -m pip install -r .github/scripts/requirements.txt
+      - run: python3 -m unittest discover -s .github/scripts/tests
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed .
+      - run: flutter analyze
+      - run: flutter test
+      - run: flutter pub get && flutter analyze && flutter build web --release
+        working-directory: example

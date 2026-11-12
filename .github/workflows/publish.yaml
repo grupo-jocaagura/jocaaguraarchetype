@@ -1,0 +1,162 @@
+name: Publish package
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pub-dev-release
+  cancel-in-progress: false
+
+jobs:
+  release_validation:
+    name: Validate release
+    permissions:
+      contents: read
+      pull-requests: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      state: ${{ steps.eligibility.outputs.state }}
+    steps:
+      - name: Require a tag dispatch or human-pushed tag
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          SENDER_TYPE: ${{ github.event.sender.type }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = grupo-jocaagura/jocaaguraarchetype
+          test "$REF_TYPE" = tag
+          case "$EVENT_NAME" in
+            workflow_dispatch) ;;
+            push) test "$SENDER_TYPE" = User ;;
+            *) exit 1 ;;
+          esac
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require completed CP-0 for dispatch publication
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          python3 -m pip install --disable-pip-version-check -r .github/scripts/requirements.txt
+          python3 -c "import json,sys; sys.path.insert(0,'.github/scripts'); from release_dispatch import require_cp0; require_cp0(json.load(open('.github/evidence/cp0-5.1.0.json')))"
+      - name: Require a release from master
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor HEAD origin/master
+      - name: Check release eligibility and merged PR provenance
+        id: eligibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python3 -m pip install --disable-pip-version-check -r .github/scripts/requirements.txt
+          python3 .github/scripts/publication_policy.py --tag "$RELEASE_TAG" --commit "$(git rev-parse HEAD)"
+      - name: Validate tag and changelog
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python3 .github/scripts/release_notes.py "$RELEASE_TAG" --output "$RUNNER_TEMP/release-notes.md"
+      - uses: flutter-actions/setup-flutter@v4
+        with:
+          version: '3.50.0'
+          channel: stable
+      - run: flutter pub get
+      - name: Validate publication without publishing
+        run: flutter pub publish --dry-run
+
+  ci:
+    name: Release CI
+    needs: release_validation
+    uses: ./.github/workflows/release_ci.yaml
+
+  publish:
+    name: Publish to pub.dev
+    needs: [ci, release_validation]
+    if: needs.release_validation.outputs.state == 'ready_to_publish'
+    environment: pub.dev
+    permissions:
+      contents: read
+      pull-requests: read
+      id-token: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - run: python3 -m pip install --disable-pip-version-check -r .github/scripts/requirements.txt
+      - uses: flutter-actions/setup-flutter@v4
+        with:
+          version: '3.50.0'
+          channel: stable
+      - name: Verify signed OIDC identity without exposing the bearer token
+        run: python3 .github/scripts/oidc_policy.py --mode publish --output "$RUNNER_TEMP/oidc-claims.json"
+      - name: Configure official short-lived pub.dev credentials
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: '3.14.0'
+      - run: flutter pub get
+      - run: flutter pub publish --dry-run
+      - name: Recheck immutable source and public version immediately before upload
+        id: eligibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          git diff --exit-code
+          python3 .github/scripts/publication_policy.py --tag "$RELEASE_TAG" --commit "$GITHUB_SHA"
+      - name: Upload eligible version
+        if: steps.eligibility.outputs.state == 'ready_to_publish'
+        run: flutter pub publish --force
+      - name: Verify pub.dev exposes the exact released package version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python3 .github/scripts/verify_publication.py "$RELEASE_TAG"
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: publication-identity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/oidc-claims.json
+          retention-days: 90
+
+  github_release:
+    name: Create GitHub release
+    needs: [release_validation, ci, publish]
+    if: >-
+      always() && needs.ci.result == 'success' &&
+      (needs.publish.result == 'success' ||
+       (needs.release_validation.outputs.state == 'already_published' && needs.publish.result == 'skipped'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Extract release notes
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: python3 .github/scripts/release_notes.py "$RELEASE_TAG" --output "$RUNNER_TEMP/release-notes.md"
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          existing="$(gh release list --json tagName --limit 1000)"
+          if jq -e --arg tag "$RELEASE_TAG" 'any(.[]; .tagName == $tag)' <<< "$existing" >/dev/null; then
+            gh release edit "$RELEASE_TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
+          else
+            gh release create "$RELEASE_TAG" --verify-tag \
+              --title "$RELEASE_TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
+          fi

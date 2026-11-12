@@ -217,6 +217,9 @@ Esto ayuda a detectar rápido tres tipos de regresión:
 
 ## Contribución
 
+El pipeline automático y sus checkpoints se describen en
+[Publicación desde master](doc/workflows/publication.md).
+
 Flujo recomendado:
 
 - `develop` para trabajo diario vía PR

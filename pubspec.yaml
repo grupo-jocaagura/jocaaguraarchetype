@@ -4,8 +4,8 @@ description: Starter archetype for Flutter apps with Jocaagura Clean Architectur
 version: 5.0.0
 
 
-homepage: https://github.com/jocaagura/jocaaguraarchetype
-repository: https://github.com/jocaagura/jocaaguraarchetype
+homepage: https://github.com/grupo-jocaagura/jocaaguraarchetype
+repository: https://github.com/grupo-jocaagura/jocaaguraarchetype
 
 environment:
   sdk: '>=3.14.0 <4.0.0'

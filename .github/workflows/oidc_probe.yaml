@@ -1,0 +1,32 @@
+name: OIDC readiness (no publication)
+
+on:
+  pull_request:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: Verify signed pub.dev OIDC identity
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    environment: pub.dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - run: python3 -m pip install --disable-pip-version-check -r .github/scripts/requirements.txt
+      - name: Verify issuer signature and exact identity (does not contact upload APIs)
+        run: python3 .github/scripts/oidc_policy.py --mode probe --output "$RUNNER_TEMP/oidc-readiness.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oidc-readiness-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/oidc-readiness.json
+          retention-days: 90
