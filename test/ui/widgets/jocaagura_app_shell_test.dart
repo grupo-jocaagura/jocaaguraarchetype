@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 // -----------------------------------------------------------------------------
 // Fakes mínimos (sin paquetes externos)
@@ -123,13 +123,11 @@ PageRegistry _minimalRegistry() {
   // return PageRegistry.fromMap(<String, WidgetBuilder>{ ... });
   //
   // Debes garantizar que 'home' y 'dashboard' existan (según tests).
-  return PageRegistry(
-    <String, PageWidgetBuilder>{
-      'home': (_, __) => const SizedBox(key: Key('page_home')),
-      'dashboard': (_, __) => const SizedBox(key: Key('page_dashboard')),
-      'start': (_, __) => const SizedBox(key: Key('page_start')),
-    },
-  );
+  return PageRegistry(<String, PageWidgetBuilder>{
+    'home': (_, __) => const SizedBox(key: Key('page_home')),
+    'dashboard': (_, __) => const SizedBox(key: Key('page_dashboard')),
+    'start': (_, __) => const SizedBox(key: Key('page_start')),
+  });
 }
 
 ThemeMode _themeModeFromMaterialApp(WidgetTester tester) {
@@ -160,8 +158,9 @@ void main() {
         final _FakeBlocResponsive responsive = _FakeBlocResponsive();
         final _FakeAppManager manager = _FakeAppManager(
           theme: _FakeBlocTheme(
-            stateOrDefaultValue:
-                ThemeState.defaults.copyWith(mode: ThemeMode.light),
+            stateOrDefaultValue: ThemeState.defaults.copyWith(
+              mode: ThemeMode.light,
+            ),
             streamValue: themeCtrl.stream,
           ),
           onboarding: _FakeBlocOnboarding(
@@ -174,11 +173,11 @@ void main() {
 
         final JocaaguraAppShellController controller =
             JocaaguraAppShellController(
-          appManager: manager,
-          themeStream: themeCtrl.stream,
-          onboardingStream: onboardingCtrl.stream,
-          scheduler: (void Function() f) => f(),
-        );
+              appManager: manager,
+              themeStream: themeCtrl.stream,
+              onboardingStream: onboardingCtrl.stream,
+              scheduler: (void Function() f) => f(),
+            );
 
         // Act
         await tester.pumpWidget(
@@ -224,8 +223,9 @@ void main() {
         final _FakeBlocResponsive responsive = _FakeBlocResponsive();
         final _FakeAppManager manager = _FakeAppManager(
           theme: _FakeBlocTheme(
-            stateOrDefaultValue:
-                ThemeState.defaults.copyWith(mode: ThemeMode.dark),
+            stateOrDefaultValue: ThemeState.defaults.copyWith(
+              mode: ThemeMode.dark,
+            ),
             streamValue: themeCtrl.stream,
           ),
           onboarding: _FakeBlocOnboarding(
@@ -283,8 +283,9 @@ void main() {
         // Manager común (para no mover PageManager en este test)
         final _FakeAppManager manager = _FakeAppManager(
           theme: _FakeBlocTheme(
-            stateOrDefaultValue:
-                ThemeState.defaults.copyWith(mode: ThemeMode.light),
+            stateOrDefaultValue: ThemeState.defaults.copyWith(
+              mode: ThemeMode.light,
+            ),
             streamValue: theme1.stream,
           ),
           onboarding: _FakeBlocOnboarding(
@@ -368,8 +369,9 @@ void main() {
 
         final _FakeAppManager managerA = _FakeAppManager(
           theme: _FakeBlocTheme(
-            stateOrDefaultValue:
-                ThemeState.defaults.copyWith(mode: ThemeMode.light),
+            stateOrDefaultValue: ThemeState.defaults.copyWith(
+              mode: ThemeMode.light,
+            ),
             streamValue: themeA.stream,
           ),
           onboarding: _FakeBlocOnboarding(
@@ -382,8 +384,9 @@ void main() {
 
         final _FakeAppManager managerB = _FakeAppManager(
           theme: _FakeBlocTheme(
-            stateOrDefaultValue:
-                ThemeState.defaults.copyWith(mode: ThemeMode.dark),
+            stateOrDefaultValue: ThemeState.defaults.copyWith(
+              mode: ThemeMode.dark,
+            ),
             streamValue: themeB.stream,
           ),
           onboarding: _FakeBlocOnboarding(
@@ -424,12 +427,12 @@ void main() {
 
         await tester.pump();
 
-// Act: forzar valor en el stream nuevo para que StreamBuilder actualice snapshot
+        // Act: forzar valor en el stream nuevo para que StreamBuilder actualice snapshot
         themeB.add(ThemeState.defaults.copyWith(mode: ThemeMode.dark));
         await tester.pump();
         await tester.pump();
 
-// Assert
+        // Assert
         expect(_themeModeFromMaterialApp(tester), ThemeMode.dark);
       },
     );
@@ -451,8 +454,9 @@ void main() {
         final _FakeBlocResponsive responsive = _FakeBlocResponsive();
         final _FakeAppManager manager = _FakeAppManager(
           theme: _FakeBlocTheme(
-            stateOrDefaultValue:
-                ThemeState.defaults.copyWith(mode: ThemeMode.light),
+            stateOrDefaultValue: ThemeState.defaults.copyWith(
+              mode: ThemeMode.light,
+            ),
             streamValue: themeCtrl.stream,
           ),
           onboarding: _FakeBlocOnboarding(
@@ -466,11 +470,11 @@ void main() {
         // Controller con scheduler sync para determinismo
         final JocaaguraAppShellController controller =
             JocaaguraAppShellController(
-          appManager: manager,
-          themeStream: themeCtrl.stream,
-          onboardingStream: onboardingCtrl.stream,
-          scheduler: (void Function() f) => f(),
-        );
+              appManager: manager,
+              themeStream: themeCtrl.stream,
+              onboardingStream: onboardingCtrl.stream,
+              scheduler: (void Function() f) => f(),
+            );
 
         await tester.pumpWidget(
           JocaaguraAppShell(
@@ -486,8 +490,9 @@ void main() {
         await tester.pump();
 
         // Act: trigger lifecycle change
-        tester.binding
-            .handleAppLifecycleStateChanged(AppLifecycleState.detached);
+        tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.detached,
+        );
         await tester.pump();
 
         // Assert

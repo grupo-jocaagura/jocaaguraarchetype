@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 BlocResponsive _desktopResp() {
   final BlocResponsive r = BlocResponsive();
@@ -16,10 +16,10 @@ BlocResponsive _mobileResp() {
 }
 
 List<MainMenuItem> _items() => const <MainMenuItem>[
-      MainMenuItem(id: 'home', label: 'Home', icon: Icons.home),
-      MainMenuItem(id: 'dash', label: 'Dashboard', icon: Icons.dashboard),
-      MainMenuItem(id: 'settings', label: 'Settings', icon: Icons.settings),
-    ];
+  MainMenuItem(id: 'home', label: 'Home', icon: Icons.home),
+  MainMenuItem(id: 'dash', label: 'Dashboard', icon: Icons.dashboard),
+  MainMenuItem(id: 'settings', label: 'Settings', icon: Icons.settings),
+];
 
 Future<void> _pumpMenu(
   WidgetTester tester, {
@@ -68,8 +68,9 @@ Future<void> _pumpMenu(
 
 void main() {
   group('MainMenuWidget', () {
-    testWidgets('vertical full: muestra labels y dispara onSelect',
-        (WidgetTester tester) async {
+    testWidgets('vertical full: muestra labels y dispara onSelect', (
+      WidgetTester tester,
+    ) async {
       String? tapped;
       await _pumpMenu(
         tester,
@@ -88,8 +89,9 @@ void main() {
       expect(tapped, 'dash');
     });
 
-    testWidgets('vertical: item disabled NO dispara onSelect',
-        (WidgetTester tester) async {
+    testWidgets('vertical: item disabled NO dispara onSelect', (
+      WidgetTester tester,
+    ) async {
       String? tapped;
       final List<MainMenuItem> items = <MainMenuItem>[
         const MainMenuItem(id: 'home', label: 'Home', icon: Icons.home),
@@ -114,67 +116,71 @@ void main() {
     });
 
     testWidgets(
-        'vertical colapsado (forzado): oculta labels y muestra tooltips',
-        (WidgetTester tester) async {
-      await _pumpMenu(
-        tester,
-        r: _desktopResp(),
-        collapsed: true, // fuerza rail icon-only
-      );
+      'vertical colapsado (forzado): oculta labels y muestra tooltips',
+      (WidgetTester tester) async {
+        await _pumpMenu(
+          tester,
+          r: _desktopResp(),
+          collapsed: true, // fuerza rail icon-only
+        );
 
-      // En colapsado no deben renderizarse los textos de las opciones
-      expect(find.text('Home'), findsNothing);
-      expect(find.text('Dashboard'), findsNothing);
-      expect(find.text('Settings'), findsNothing);
+        // En colapsado no deben renderizarse los textos de las opciones
+        expect(find.text('Home'), findsNothing);
+        expect(find.text('Dashboard'), findsNothing);
+        expect(find.text('Settings'), findsNothing);
 
-      // Pero sí iconos con Tooltips (al menos uno)
-      expect(find.byType(Tooltip), findsWidgets);
-    });
+        // Pero sí iconos con Tooltips (al menos uno)
+        expect(find.byType(Tooltip), findsWidgets);
+      },
+    );
 
     testWidgets(
-        'vertical: autoCollapse cuando maxWidthColumns<=1 (manteniendo desktop)',
-        (WidgetTester tester) async {
-      await _pumpMenu(
-        tester,
-        r: _desktopResp(),
-        maxWidthColumns: 1, // → colapsa automáticamente
-        // autoCollapse = true por defecto
-      );
-      expect(find.text('Home'), findsNothing);
-      expect(find.byType(Tooltip), findsWidgets);
-    });
+      'vertical: autoCollapse cuando maxWidthColumns<=1 (manteniendo desktop)',
+      (WidgetTester tester) async {
+        await _pumpMenu(
+          tester,
+          r: _desktopResp(),
+          maxWidthColumns: 1, // → colapsa automáticamente
+          // autoCollapse = true por defecto
+        );
+        expect(find.text('Home'), findsNothing);
+        expect(find.byType(Tooltip), findsWidgets);
+      },
+    );
 
-    testWidgets('vertical: autoCollapse por isMobile aunque maxWidthColumns>1',
-        (WidgetTester tester) async {
-      await _pumpMenu(
-        tester,
-        r: _mobileResp(), // móvil → responsive.isMobile = true
-        maxWidthColumns: 3,
-      );
-      expect(find.text('Home'), findsNothing);
-      expect(find.byType(Tooltip), findsWidgets);
-    });
+    testWidgets(
+      'vertical: autoCollapse por isMobile aunque maxWidthColumns>1',
+      (WidgetTester tester) async {
+        await _pumpMenu(
+          tester,
+          r: _mobileResp(), // móvil → responsive.isMobile = true
+          maxWidthColumns: 3,
+        );
+        expect(find.text('Home'), findsNothing);
+        expect(find.byType(Tooltip), findsWidgets);
+      },
+    );
 
-    testWidgets('horizontal (top bar): usa scroll horizontal y muestra labels',
-        (WidgetTester tester) async {
-      await _pumpMenu(
-        tester,
-        r: _desktopResp(),
-        axis: Axis.horizontal,
-      );
+    testWidgets(
+      'horizontal (top bar): usa scroll horizontal y muestra labels',
+      (WidgetTester tester) async {
+        await _pumpMenu(tester, r: _desktopResp(), axis: Axis.horizontal);
 
-      final Finder scroller = find.byWidgetPredicate(
-        (Widget w) =>
-            w is SingleChildScrollView && w.scrollDirection == Axis.horizontal,
-      );
-      expect(scroller, findsOneWidget);
-      expect(find.text('Home'), findsOneWidget);
-      expect(find.text('Dashboard'), findsOneWidget);
-      expect(find.text('Settings'), findsOneWidget);
-    });
+        final Finder scroller = find.byWidgetPredicate(
+          (Widget w) =>
+              w is SingleChildScrollView &&
+              w.scrollDirection == Axis.horizontal,
+        );
+        expect(scroller, findsOneWidget);
+        expect(find.text('Home'), findsOneWidget);
+        expect(find.text('Dashboard'), findsOneWidget);
+        expect(find.text('Settings'), findsOneWidget);
+      },
+    );
 
-    testWidgets('semanticsLabel se aplica al contenedor',
-        (WidgetTester tester) async {
+    testWidgets('semanticsLabel se aplica al contenedor', (
+      WidgetTester tester,
+    ) async {
       final SemanticsHandle handle = tester.ensureSemantics();
 
       await _pumpMenu(
@@ -188,8 +194,9 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('safeArea: true envuelve, false no',
-        (WidgetTester tester) async {
+    testWidgets('safeArea: true envuelve, false no', (
+      WidgetTester tester,
+    ) async {
       await _pumpMenu(tester, r: _desktopResp());
       expect(find.byType(SafeArea), findsOneWidget);
 
@@ -197,16 +204,12 @@ void main() {
       expect(find.byType(SafeArea), findsNothing);
     });
 
-    testWidgets('backgroundColor y padding se aplican al contenedor',
-        (WidgetTester tester) async {
+    testWidgets('backgroundColor y padding se aplican al contenedor', (
+      WidgetTester tester,
+    ) async {
       const Color bg = Colors.teal;
       const EdgeInsets pad = EdgeInsets.all(24);
-      await _pumpMenu(
-        tester,
-        r: _desktopResp(),
-        background: bg,
-        padding: pad,
-      );
+      await _pumpMenu(tester, r: _desktopResp(), background: bg, padding: pad);
 
       final bool hasBg = find
           .byWidgetPredicate(
@@ -229,37 +232,42 @@ void main() {
     });
 
     testWidgets(
-        'vertical: respeta maxWidthColumns con ConstrainedBox(maxWidth)',
-        (WidgetTester tester) async {
-      final BlocResponsive r = _desktopResp();
-      const int maxCols = 3;
+      'vertical: respeta maxWidthColumns con ConstrainedBox(maxWidth)',
+      (WidgetTester tester) async {
+        final BlocResponsive r = _desktopResp();
+        const int maxCols = 3;
 
-      await _pumpMenu(
-        tester,
-        r: r,
-        maxWidthColumns: maxCols,
-        collapsed: false,
-      );
+        await _pumpMenu(
+          tester,
+          r: r,
+          maxWidthColumns: maxCols,
+          collapsed: false,
+        );
 
-      final double expected =
-          r.widthByColumns(maxCols.clamp(1, r.columnsNumber));
+        final double expected = r.widthByColumns(
+          maxCols.clamp(1, r.columnsNumber),
+        );
 
-      // Cada opción en vertical se encapsula en ConstrainedBox(maxWidth: maxW)
-      final Iterable<Element> cb =
-          find.byType(ConstrainedBox).evaluate().where((Element e) {
-        final ConstrainedBox w = e.widget as ConstrainedBox;
-        return (w.constraints.maxWidth - expected).abs() < 0.01;
-      });
+        // Cada opción en vertical se encapsula en ConstrainedBox(maxWidth: maxW)
+        final Iterable<Element> cb = find
+            .byType(ConstrainedBox)
+            .evaluate()
+            .where((Element e) {
+              final ConstrainedBox w = e.widget as ConstrainedBox;
+              return (w.constraints.maxWidth - expected).abs() < 0.01;
+            });
 
-      expect(
-        cb.isNotEmpty,
-        isTrue,
-        reason: 'Debe existir un ConstrainedBox con maxWidth=$expected',
-      );
-    });
+        expect(
+          cb.isNotEmpty,
+          isTrue,
+          reason: 'Debe existir un ConstrainedBox con maxWidth=$expected',
+        );
+      },
+    );
 
-    testWidgets('onSelect se propaga con item seleccionado inicial',
-        (WidgetTester tester) async {
+    testWidgets('onSelect se propaga con item seleccionado inicial', (
+      WidgetTester tester,
+    ) async {
       String? tapped;
       await _pumpMenu(
         tester,

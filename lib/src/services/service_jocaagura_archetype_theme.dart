@@ -30,19 +30,21 @@ class ServiceJocaaguraArchetypeTheme extends ServiceTheme {
       ThemeMode.system => platformBrightness,
     };
     final ColorScheme scheme = schemeFromSeed(state.seed, b);
-    return ThemeData.from(colorScheme: scheme, useMaterial3: state.useMaterial3)
-        .copyWith(visualDensity: VisualDensity.standard);
+    return ThemeData.from(
+      colorScheme: scheme,
+      useMaterial3: state.useMaterial3,
+    ).copyWith(visualDensity: VisualDensity.standard);
   }
 
   @override
   ThemeData lightTheme(ThemeState state) => ThemeData.from(
-        colorScheme: schemeFromSeed(state.seed, Brightness.light),
-        useMaterial3: state.useMaterial3,
-      );
+    colorScheme: schemeFromSeed(state.seed, Brightness.light),
+    useMaterial3: state.useMaterial3,
+  );
 
   @override
   ThemeData darkTheme(ThemeState state) => ThemeData.from(
-        colorScheme: schemeFromSeed(state.seed, Brightness.dark),
-        useMaterial3: state.useMaterial3,
-      );
+    colorScheme: schemeFromSeed(state.seed, Brightness.dark),
+    useMaterial3: state.useMaterial3,
+  );
 }

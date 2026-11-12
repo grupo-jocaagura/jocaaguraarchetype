@@ -1,25 +1,23 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
-PageModel _p(String name, {PageKind kind = PageKind.material}) => PageModel(
-      name: name,
-      segments: <String>[name],
-      kind: kind,
-    );
+PageModel _p(String name, {PageKind kind = PageKind.material}) =>
+    PageModel(name: name, segments: <String>[name], kind: kind);
 
 // Builder simple: muestra el name plano.
 Widget _w(BuildContext _, PageModel page) => Text(page.name);
 
 Widget _host(MyAppRouterDelegate del) => AnimatedBuilder(
-      animation: del,
-      builder: (BuildContext ctx, _) => del.build(ctx),
-    );
+  animation: del,
+  builder: (BuildContext ctx, _) => del.build(ctx),
+);
 
 void main() {
   group('MyAppRouterDelegate.build()', () {
-    testWidgets('projectorMode=false: materializa todas las pages del stack',
-        (WidgetTester tester) async {
+    testWidgets('projectorMode=false: materializa todas las pages del stack', (
+      WidgetTester tester,
+    ) async {
       final PageRegistry reg = PageRegistry(const <String, PageWidgetBuilder>{
         'home': _w,
         'profile': _w,
@@ -44,8 +42,9 @@ void main() {
       pm.dispose();
     });
 
-    testWidgets('projectorMode=true: sólo renderiza el top del stack',
-        (WidgetTester tester) async {
+    testWidgets('projectorMode=true: sólo renderiza el top del stack', (
+      WidgetTester tester,
+    ) async {
       final PageRegistry reg = PageRegistry(const <String, PageWidgetBuilder>{
         'home': _w,
         'profile': _w,
@@ -73,9 +72,11 @@ void main() {
 
   group('MyAppRouterDelegate acciones', () {
     test('push/pop delegan en PageManager', () {
-      final PageRegistry reg = PageRegistry(
-        const <String, PageWidgetBuilder>{'home': _w, 'a': _w, 'b': _w},
-      );
+      final PageRegistry reg = PageRegistry(const <String, PageWidgetBuilder>{
+        'home': _w,
+        'a': _w,
+        'b': _w,
+      });
       final PageManager pm = PageManager(
         initial: NavStackModel.single(_p('home')),
       );
@@ -96,22 +97,19 @@ void main() {
       expect(del.currentConfiguration.pages.isNotEmpty, isTrue);
       del.popRoute();
       expect(popped, isTrue);
-      expect(pm.historyNames, <String>[
-        'home',
-      ]);
+      expect(pm.historyNames, <String>['home']);
 
       pm.dispose();
       del.dispose();
-      expect(
-        del.isDisposed,
-        isTrue,
-      );
+      expect(del.isDisposed, isTrue);
     });
 
     test('setNewRoutePath sustituye el stack completo', () async {
-      final PageRegistry reg = PageRegistry(
-        const <String, PageWidgetBuilder>{'home': _w, 'x': _w, 'y': _w},
-      );
+      final PageRegistry reg = PageRegistry(const <String, PageWidgetBuilder>{
+        'home': _w,
+        'x': _w,
+        'y': _w,
+      });
       final PageManager pm = PageManager(
         initial: NavStackModel.single(_p('home')),
       );

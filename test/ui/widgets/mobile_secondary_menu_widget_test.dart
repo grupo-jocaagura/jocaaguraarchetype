@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('MobileSecondaryMenuWidget', () {
-    testWidgets('renders items and toggles visibility',
-        (WidgetTester tester) async {
+    testWidgets('renders items and toggles visibility', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive resp = BlocResponsive()
         ..setSizeForTesting(const Size(390, 844));
       bool tapped = false;
@@ -57,8 +58,9 @@ void main() {
           ),
         ),
       );
-      await tester
-          .pump(const Duration(milliseconds: 250)); // complete animation
+      await tester.pump(
+        const Duration(milliseconds: 250),
+      ); // complete animation
       expect(find.byType(MobileSecondaryOptionWidget), findsNothing);
     });
   });

@@ -49,8 +49,9 @@ abstract class BlocMenuBase extends BlocModule {
     required IconData iconData,
     String description = '',
   }) {
-    final List<ModelMainMenuModel> list =
-        List<ModelMainMenuModel>.from(_itemsCtrl.value);
+    final List<ModelMainMenuModel> list = List<ModelMainMenuModel>.from(
+      _itemsCtrl.value,
+    );
 
     final String key = label.toLowerCase();
     list.removeWhere((ModelMainMenuModel m) => m.label.toLowerCase() == key);
@@ -69,8 +70,9 @@ abstract class BlocMenuBase extends BlocModule {
 
   /// Remove by label (case-insensitive).
   void removeByLabel(String label) {
-    final List<ModelMainMenuModel> list =
-        List<ModelMainMenuModel>.from(_itemsCtrl.value);
+    final List<ModelMainMenuModel> list = List<ModelMainMenuModel>.from(
+      _itemsCtrl.value,
+    );
     list.removeWhere(
       (ModelMainMenuModel m) => m.label.toLowerCase() == label.toLowerCase(),
     );

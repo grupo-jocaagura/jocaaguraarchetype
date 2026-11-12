@@ -5,19 +5,21 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
   group('PageModel · fromUri()', () {
-    test('parsea segmentos, query y fragment; infiere name del primer segmento',
-        () {
-      final Uri uri = Uri.parse('/products/42?ref=home#gallery');
-      final PageModel p = PageModel.fromUri(uri);
+    test(
+      'parsea segmentos, query y fragment; infiere name del primer segmento',
+      () {
+        final Uri uri = Uri.parse('/products/42?ref=home#gallery');
+        final PageModel p = PageModel.fromUri(uri);
 
-      expect(p.name, 'products');
-      expect(p.segments, <String>['products', '42']);
-      expect(p.query, <String, String>{'ref': 'home'});
-      expect(p.fragment, 'gallery');
-      expect(p.kind, PageKind.material, reason: 'default kind');
-      expect(p.requiresAuth, isFalse);
-      expect(p.state, isEmpty);
-    });
+        expect(p.name, 'products');
+        expect(p.segments, <String>['products', '42']);
+        expect(p.query, <String, String>{'ref': 'home'});
+        expect(p.fragment, 'gallery');
+        expect(p.kind, PageKind.material, reason: 'default kind');
+        expect(p.requiresAuth, isFalse);
+        expect(p.state, isEmpty);
+      },
+    );
 
     test('si path vacío → name = "root", segments vacíos, fragment null', () {
       final PageModel p = PageModel.fromUri(Uri.parse('/'));
@@ -71,17 +73,12 @@ void main() {
     });
 
     test('sin query ni fragment → sólo la ruta con slash inicial', () {
-      const PageModel p = PageModel(
-        name: 'home',
-        segments: <String>['home'],
-      );
+      const PageModel p = PageModel(name: 'home', segments: <String>['home']);
       expect(p.toUriString(), '/home');
     });
 
     test('segmentos vacíos → "/"', () {
-      const PageModel p = PageModel(
-        name: 'root',
-      );
+      const PageModel p = PageModel(name: 'root');
       expect(p.toUriString(), '/');
     });
   });
@@ -208,53 +205,14 @@ void main() {
         state: <String, dynamic>{'k': 'v'},
       );
 
+      expect(base == base.copyWith(name: 'b'), isFalse);
+      expect(base == base.copyWith(segments: <String>['x', 'y']), isFalse);
+      expect(base == base.copyWith(query: <String, String>{'q': '2'}), isFalse);
+      expect(base == base.copyWith(fragment: 'g'), isFalse);
+      expect(base == base.copyWith(kind: PageKind.cupertino), isFalse);
+      expect(base == base.copyWith(requiresAuth: true), isFalse);
       expect(
-        base ==
-            base.copyWith(
-              name: 'b',
-            ),
-        isFalse,
-      );
-      expect(
-        base ==
-            base.copyWith(
-              segments: <String>['x', 'y'],
-            ),
-        isFalse,
-      );
-      expect(
-        base ==
-            base.copyWith(
-              query: <String, String>{'q': '2'},
-            ),
-        isFalse,
-      );
-      expect(
-        base ==
-            base.copyWith(
-              fragment: 'g',
-            ),
-        isFalse,
-      );
-      expect(
-        base ==
-            base.copyWith(
-              kind: PageKind.cupertino,
-            ),
-        isFalse,
-      );
-      expect(
-        base ==
-            base.copyWith(
-              requiresAuth: true,
-            ),
-        isFalse,
-      );
-      expect(
-        base ==
-            base.copyWith(
-              state: <String, dynamic>{'k': 'different'},
-            ),
+        base == base.copyWith(state: <String, dynamic>{'k': 'different'}),
         isFalse,
       );
     });
@@ -277,32 +235,31 @@ void main() {
     });
 
     test('query vacío se omite en toUriString', () {
-      const PageModel p = PageModel(
-        name: 'home',
-        segments: <String>['home'],
-      );
+      const PageModel p = PageModel(name: 'home', segments: <String>['home']);
       expect(p.toUriString(), '/home');
     });
 
-    test('query con caracteres especiales se encodea/decodifica correctamente',
-        () {
-      const PageModel p = PageModel(
-        name: 'q',
-        segments: <String>['q'],
-        query: <String, String>{
-          'space': 'a b',
-          'amp': 'x&y',
-          'unicode': 'á/ñ',
-        },
-      );
+    test(
+      'query con caracteres especiales se encodea/decodifica correctamente',
+      () {
+        const PageModel p = PageModel(
+          name: 'q',
+          segments: <String>['q'],
+          query: <String, String>{
+            'space': 'a b',
+            'amp': 'x&y',
+            'unicode': 'á/ñ',
+          },
+        );
 
-      final String uri = p.toUriString();
-      final PageModel parsed = PageModel.fromUri(Uri.parse(uri));
+        final String uri = p.toUriString();
+        final PageModel parsed = PageModel.fromUri(Uri.parse(uri));
 
-      expect(parsed.query['space'], 'a b');
-      expect(parsed.query['amp'], 'x&y');
-      expect(parsed.query['unicode'], 'á/ñ');
-    });
+        expect(parsed.query['space'], 'a b');
+        expect(parsed.query['amp'], 'x&y');
+        expect(parsed.query['unicode'], 'á/ñ');
+      },
+    );
   });
 
   group('PageModel · JSON roundtrip', () {
@@ -382,9 +339,15 @@ void main() {
 
   group('PageModel · coerceStringList', () {
     test('coacciona dinámicos a List<String> y descarta vacíos', () {
-      final List<String> out = PageModel.coerceStringList(
-        <dynamic>['a', 1, true, null, '', '  ', 3.14],
-      );
+      final List<String> out = PageModel.coerceStringList(<dynamic>[
+        'a',
+        1,
+        true,
+        null,
+        '',
+        '  ',
+        3.14,
+      ]);
       // Política actual: stringify + trim + descartar vacíos
       expect(out, <String>['a', '1', 'true', '3.14']);
     });
@@ -414,15 +377,12 @@ void main() {
           'nullKey': null,
         },
       );
-      expect(
-        out,
-        <String, String>{
-          'a': '1',
-          'k': ' ',
-          '2': 'b',
-          'nullKey': '',
-        },
-      );
+      expect(out, <String, String>{
+        'a': '1',
+        'k': ' ',
+        '2': 'b',
+        'nullKey': '',
+      });
     });
 
     test('map vacío o inválido -> map vacío', () {

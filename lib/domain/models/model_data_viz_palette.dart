@@ -9,10 +9,7 @@ abstract final class ModelDataVizPaletteKeys {
   static const String categorical = 'categorical';
   static const String sequential = 'sequential';
 
-  static const List<String> all = <String>[
-    categorical,
-    sequential,
-  ];
+  static const List<String> all = <String>[categorical, sequential];
 }
 
 /// Defines a data visualization palette with categorical and sequential colors.
@@ -28,7 +25,7 @@ abstract final class ModelDataVizPaletteKeys {
 ///
 /// Functional example:
 /// ```dart
-/// import 'package:flutter/material.dart';
+/// import 'package:material_ui/material_ui.dart';
 ///
 /// void main() {
 ///   final ModelDataVizPalette palette = ModelDataVizPalette.fallback();
@@ -136,11 +133,13 @@ class ModelDataVizPalette {
   final List<Color> sequential;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        ModelDataVizPaletteKeys.categorical:
-            categorical.map((Color c) => c.toARGB32()).toList(growable: false),
-        ModelDataVizPaletteKeys.sequential:
-            sequential.map((Color c) => c.toARGB32()).toList(growable: false),
-      };
+    ModelDataVizPaletteKeys.categorical: categorical
+        .map((Color c) => c.toARGB32())
+        .toList(growable: false),
+    ModelDataVizPaletteKeys.sequential: sequential
+        .map((Color c) => c.toARGB32())
+        .toList(growable: false),
+  };
 
   void _validate() {
     if (categorical.isEmpty) {

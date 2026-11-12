@@ -182,13 +182,14 @@ class FlowStepSimulator {
     final FlowDecisionSource? source = useManual
         ? FlowDecisionSource.manual
         : forced != null
-            ? FlowDecisionSource.forced
-            : decision != null
-                ? FlowDecisionSource.manual
-                : null;
+        ? FlowDecisionSource.forced
+        : decision != null
+        ? FlowDecisionSource.manual
+        : null;
 
-    final FlowBranch? branch =
-        useManual ? decision.branch : forced?.branch ?? decision?.branch;
+    final FlowBranch? branch = useManual
+        ? decision.branch
+        : forced?.branch ?? decision?.branch;
 
     final String? override = useManual
         ? decision.failureCodeOverride
@@ -225,8 +226,8 @@ class FlowStepSimulator {
 
     final String? effectiveFailureCode = branch == FlowBranch.failure
         ? (override?.trim().isNotEmpty ?? false)
-            ? override!.trim()
-            : step.failureCode
+              ? override!.trim()
+              : step.failureCode
         : null;
 
     final String? lastFailureCode =

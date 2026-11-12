@@ -1,22 +1,20 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'user_back_navigation_test.dart' show Harness, page;
 
 ModalRoute<dynamic> activeRoute(WidgetTester tester, [String name = 'b']) =>
-    ModalRoute.of(
-      tester.element(find.byKey(ValueKey<String>('view-$name'))),
-    )!;
+    ModalRoute.of(tester.element(find.byKey(ValueKey<String>('view-$name'))))!;
 
 class ResultRegistry extends PageRegistry {
   ResultRegistry(this.onResult)
-      : super(<String, PageWidgetBuilder>{
-          for (final String name in <String>['home', 'a', 'b', 'login'])
-            name: (_, __) => Text(name, key: ValueKey<String>('view-$name')),
-        });
+    : super(<String, PageWidgetBuilder>{
+        for (final String name in <String>['home', 'a', 'b', 'login'])
+          name: (_, __) => Text(name, key: ValueKey<String>('view-$name')),
+      });
 
   final void Function(bool, dynamic) onResult;
 
@@ -51,9 +49,9 @@ class CounterPageState extends State<CounterPage> {
 
   @override
   Widget build(BuildContext context) => TextButton(
-        onPressed: () => setState(() => count++),
-        child: Text('Count $count'),
-      );
+    onPressed: () => setState(() => count++),
+    child: Text('Count $count'),
+  );
 }
 
 void main() {
@@ -77,9 +75,7 @@ void main() {
             final ModalRoute<dynamic> route = activeRoute(tester);
             bool removed = false;
             route.addLocalHistoryEntry(
-              LocalHistoryEntry(
-                onRemove: () => removed = true,
-              ),
+              LocalHistoryEntry(onRemove: () => removed = true),
             );
             await tester.pumpAndSettle();
             h.delegate.navigatorKey.currentState!.pop();
@@ -92,35 +88,34 @@ void main() {
         );
       }
 
-      testWidgets(
-        'Given $kind and async approval When Navigator pops a result '
-        'Then complete the route with that result and mutate once',
-        (WidgetTester tester) async {
-          final Completer<bool> approval = Completer<bool>();
-          final Harness h = Harness(kind: kind, policy: (_) => approval.future);
-          addTearDown(h.dispose);
-          await h.mount(tester);
-          final ModalRoute<dynamic> route = activeRoute(tester);
-          final Object result = Object();
-          Object? received = 'pending';
-          route.popped.then((dynamic value) => received = value);
-          final List<NavStackModel> emissions = <NavStackModel>[];
-          final StreamSubscription<NavStackModel> sub =
-              h.manager.stackStream.listen(emissions.add);
-          addTearDown(sub.cancel);
-          await tester.pump();
-          emissions.clear();
-          h.delegate.navigatorKey.currentState!.pop(result);
-          await tester.pumpAndSettle();
-          expect(received, 'pending');
-          expect(emissions, isEmpty);
-          approval.complete(true);
-          await tester.pumpAndSettle();
-          expect(received, same(result));
-          expect(emissions, hasLength(1));
-          expect(h.manager.historyNames, <String>['home', 'a']);
-        },
-      );
+      testWidgets('Given $kind and async approval When Navigator pops a result '
+          'Then complete the route with that result and mutate once', (
+        WidgetTester tester,
+      ) async {
+        final Completer<bool> approval = Completer<bool>();
+        final Harness h = Harness(kind: kind, policy: (_) => approval.future);
+        addTearDown(h.dispose);
+        await h.mount(tester);
+        final ModalRoute<dynamic> route = activeRoute(tester);
+        final Object result = Object();
+        Object? received = 'pending';
+        route.popped.then((dynamic value) => received = value);
+        final List<NavStackModel> emissions = <NavStackModel>[];
+        final StreamSubscription<NavStackModel> sub = h.manager.stackStream
+            .listen(emissions.add);
+        addTearDown(sub.cancel);
+        await tester.pump();
+        emissions.clear();
+        h.delegate.navigatorKey.currentState!.pop(result);
+        await tester.pumpAndSettle();
+        expect(received, 'pending');
+        expect(emissions, isEmpty);
+        approval.complete(true);
+        await tester.pumpAndSettle();
+        expect(received, same(result));
+        expect(emissions, hasLength(1));
+        expect(h.manager.historyNames, <String>['home', 'a']);
+      });
     }
 
     testWidgets(
@@ -137,9 +132,7 @@ void main() {
         await h.mount(tester);
         bool removed = false;
         activeRoute(tester).addLocalHistoryEntry(
-          LocalHistoryEntry(
-            onRemove: () => removed = true,
-          ),
+          LocalHistoryEntry(onRemove: () => removed = true),
         );
         await tester.pumpAndSettle();
         await tester.binding.handlePopRoute();
@@ -334,9 +327,11 @@ void main() {
             await tester.pumpAndSettle();
           }
           Router.navigate(
-              activeRoute(tester, consecutive ? 'a' : 'b').subtreeContext!, () {
-            h.manager.push(page('a'), allowDuplicate: true);
-          });
+            activeRoute(tester, consecutive ? 'a' : 'b').subtreeContext!,
+            () {
+              h.manager.push(page('a'), allowDuplicate: true);
+            },
+          );
           await tester.pumpAndSettle();
           if (!consecutive) {
             h.manager.push(page('login'));

@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('BuildThemeData', () {
@@ -66,9 +66,7 @@ void main() {
   });
 
   group('BuildThemeData.fromState • básicos', () {
-    test(
-        'Given ThemeState light When fromState Then brightness is light and useMaterial3 forwarded',
-        () {
+    test('Given ThemeState light When fromState Then brightness is light and useMaterial3 forwarded', () {
       // Arrange
       final ThemeState s = ThemeState.defaults.copyWith(
         mode: ThemeMode.light,
@@ -98,44 +96,42 @@ void main() {
 
   group('BuildThemeData.fromState • overrides merge', () {
     ColorScheme makeLightOverride() => const ColorScheme.light(
-          primary: Color(0xFF111111),
-          onPrimary: Color(0xFF222222),
-          secondary: Color(0xFF333333),
-          onSecondary: Color(0xFF444444),
-          tertiary: Color(0xFF555555),
-          onTertiary: Color(0xFF666666),
-          error: Color(0xFF777777),
-          onError: Color(0xFF888888),
-          surface: Color(0xFF999999),
-          onSurface: Color(0xFFAAAAAA),
-          surfaceTint: Color(0xFFBBBBBB),
-          outline: Color(0xFFCCCCCC),
-          onSurfaceVariant: Color(0xFFDDDDDD),
-          inverseSurface: Color(0xFFEEEEEE),
-          inversePrimary: Color(0xFF0000FF),
-        );
+      primary: Color(0xFF111111),
+      onPrimary: Color(0xFF222222),
+      secondary: Color(0xFF333333),
+      onSecondary: Color(0xFF444444),
+      tertiary: Color(0xFF555555),
+      onTertiary: Color(0xFF666666),
+      error: Color(0xFF777777),
+      onError: Color(0xFF888888),
+      surface: Color(0xFF999999),
+      onSurface: Color(0xFFAAAAAA),
+      surfaceTint: Color(0xFFBBBBBB),
+      outline: Color(0xFFCCCCCC),
+      onSurfaceVariant: Color(0xFFDDDDDD),
+      inverseSurface: Color(0xFFEEEEEE),
+      inversePrimary: Color(0xFF0000FF),
+    );
 
     ColorScheme makeDarkOverride() => const ColorScheme.dark(
-          primary: Color(0xFF010101),
-          onPrimary: Color(0xFF020202),
-          secondary: Color(0xFF030303),
-          onSecondary: Color(0xFF040404),
-          tertiary: Color(0xFF050505),
-          onTertiary: Color(0xFF060606),
-          error: Color(0xFF070707),
-          onError: Color(0xFF080808),
-          surface: Color(0xFF090909),
-          onSurface: Color(0xFF0A0A0A),
-          surfaceTint: Color(0xFF0B0B0B),
-          outline: Color(0xFF0C0C0C),
-          onSurfaceVariant: Color(0xFF0D0D0D),
-          inverseSurface: Color(0xFF0E0E0E),
-          inversePrimary: Color(0xFF00FF00),
-        );
+      primary: Color(0xFF010101),
+      onPrimary: Color(0xFF020202),
+      secondary: Color(0xFF030303),
+      onSecondary: Color(0xFF040404),
+      tertiary: Color(0xFF050505),
+      onTertiary: Color(0xFF060606),
+      error: Color(0xFF070707),
+      onError: Color(0xFF080808),
+      surface: Color(0xFF090909),
+      onSurface: Color(0xFF0A0A0A),
+      surfaceTint: Color(0xFF0B0B0B),
+      outline: Color(0xFF0C0C0C),
+      onSurfaceVariant: Color(0xFF0D0D0D),
+      inverseSurface: Color(0xFF0E0E0E),
+      inversePrimary: Color(0xFF00FF00),
+    );
 
-    test(
-        'Given light mode with light overrides When fromState Then effective scheme matches overrides',
-        () {
+    test('Given light mode with light overrides When fromState Then effective scheme matches overrides', () {
       // Arrange
       final ThemeOverrides ov = ThemeOverrides(light: makeLightOverride());
       final ThemeState s = ThemeState.defaults.copyWith(
@@ -154,9 +150,7 @@ void main() {
       expect(t.colorScheme.inversePrimary, const Color(0xFF0000FF));
     });
 
-    test(
-        'Given dark mode with dark overrides When fromState Then effective scheme matches overrides',
-        () {
+    test('Given dark mode with dark overrides When fromState Then effective scheme matches overrides', () {
       final ThemeOverrides ov = ThemeOverrides(dark: makeDarkOverride());
       final ThemeState s = ThemeState.defaults.copyWith(
         mode: ThemeMode.dark,
@@ -172,25 +166,24 @@ void main() {
     });
 
     test(
-        'Given no overrides When fromState Then base scheme is used (no crash)',
-        () {
-      final ThemeState s = ThemeState.defaults.copyWith(
-        mode: ThemeMode.light,
-      );
-      const BuildThemeData builder = BuildThemeData();
+      'Given no overrides When fromState Then base scheme is used (no crash)',
+      () {
+        final ThemeState s = ThemeState.defaults.copyWith(
+          mode: ThemeMode.light,
+        );
+        const BuildThemeData builder = BuildThemeData();
 
-      final ThemeData t = builder.fromState(s);
+        final ThemeData t = builder.fromState(s);
 
-      // No aserción de valores exactos (fromSeed es determinístico pero interno);
-      // sólo validamos que produzca un scheme válido.
-      expect(t.colorScheme, isA<ColorScheme>());
-    });
+        // No aserción de valores exactos (fromSeed es determinístico pero interno);
+        // sólo validamos que produzca un scheme válido.
+        expect(t.colorScheme, isA<ColorScheme>());
+      },
+    );
   });
 
   group('BuildThemeData.fromState • text scaling', () {
-    test(
-        'Given baseTextTheme with font sizes When scale 1.2 Then multiplies only non-null fontSize',
-        () {
+    test('Given baseTextTheme with font sizes When scale 1.2 Then multiplies only non-null fontSize', () {
       // Arrange
       const TextTheme baseText = TextTheme(
         bodyMedium: TextStyle(fontSize: 10),
@@ -215,9 +208,7 @@ void main() {
     });
 
     test('Given scale == 1.0 When fromState Then textTheme unchanged', () {
-      const TextTheme baseText = TextTheme(
-        bodySmall: TextStyle(fontSize: 8),
-      );
+      const TextTheme baseText = TextTheme(bodySmall: TextStyle(fontSize: 8));
       final ThemeState s = ThemeState.defaults.copyWith(textScale: 1.0);
       const BuildThemeData builder = BuildThemeData();
 
@@ -227,9 +218,7 @@ void main() {
     });
 
     test('Given scale is NaN When fromState Then textTheme unchanged', () {
-      const TextTheme baseText = TextTheme(
-        labelLarge: TextStyle(fontSize: 20),
-      );
+      const TextTheme baseText = TextTheme(labelLarge: TextStyle(fontSize: 20));
       final ThemeState s = ThemeState.defaults.copyWith(textScale: double.nan);
       const BuildThemeData builder = BuildThemeData();
 
@@ -238,9 +227,7 @@ void main() {
       expect(t.textTheme.labelLarge!.fontSize, 20.0);
     });
 
-    test(
-        'Given no baseTextTheme When fromState Then scales default theme text if sizes are present',
-        () {
+    test('Given no baseTextTheme When fromState Then scales default theme text if sizes are present', () {
       // Arrange: Many default TextTheme slots have sizes; verificamos que no falle y cambie al menos uno.
       final ThemeState s = ThemeState.defaults.copyWith(textScale: 1.1);
       const BuildThemeData builder = BuildThemeData();
@@ -276,9 +263,7 @@ void main() {
     });
 
     test('Forwards provided baseTextTheme before scaling', () {
-      const TextTheme baseText = TextTheme(
-        bodyMedium: TextStyle(fontSize: 10),
-      );
+      const TextTheme baseText = TextTheme(bodyMedium: TextStyle(fontSize: 10));
       final ThemeState s = ThemeState.defaults.copyWith(textScale: 1.5);
       const BuildThemeData builder = BuildThemeData();
 

@@ -49,7 +49,8 @@ class MyAppButtonWidget extends StatelessWidget {
     final _SizeTokens t = _resolveSizeTokens(responsive, size);
     final bool isEnabled = enabled && onPressed != null && !loading;
 
-    final Widget? leadingWidget = leading ??
+    final Widget? leadingWidget =
+        leading ??
         (leadingIcon != null
             ? Icon(
                 leadingIcon,
@@ -57,7 +58,8 @@ class MyAppButtonWidget extends StatelessWidget {
                 color: _iconColor(scheme, isEnabled),
               )
             : null);
-    final Widget? trailingWidget = trailing ??
+    final Widget? trailingWidget =
+        trailing ??
         (trailingIcon != null
             ? Icon(
                 trailingIcon,
@@ -78,33 +80,29 @@ class MyAppButtonWidget extends StatelessWidget {
       isEnabled: isEnabled,
     );
 
-    final ButtonStyle style = _buildStyle(
-      scheme: scheme,
-      t: t,
-      danger: danger,
-    );
+    final ButtonStyle style = _buildStyle(scheme: scheme, t: t, danger: danger);
 
     final Widget button = switch (variant) {
       AppButtonVariant.filled => FilledButton(
-          onPressed: isEnabled ? onPressed : null,
-          style: style,
-          child: content,
-        ),
+        onPressed: isEnabled ? onPressed : null,
+        style: style,
+        child: content,
+      ),
       AppButtonVariant.tonal => FilledButton.tonal(
-          onPressed: isEnabled ? onPressed : null,
-          style: style,
-          child: content,
-        ),
+        onPressed: isEnabled ? onPressed : null,
+        style: style,
+        child: content,
+      ),
       AppButtonVariant.outlined => OutlinedButton(
-          onPressed: isEnabled ? onPressed : null,
-          style: style,
-          child: content,
-        ),
+        onPressed: isEnabled ? onPressed : null,
+        style: style,
+        child: content,
+      ),
       AppButtonVariant.text => TextButton(
-          onPressed: isEnabled ? onPressed : null,
-          style: style,
-          child: content,
-        ),
+        onPressed: isEnabled ? onPressed : null,
+        style: style,
+        child: content,
+      ),
     };
 
     final double? maxW = (maxWidthColumns != null)
@@ -118,10 +116,7 @@ class MyAppButtonWidget extends StatelessWidget {
         minHeight: t.minHeight,
         maxWidth: maxW ?? double.infinity,
       ),
-      child: SizedBox(
-        width: fullWidth ? double.infinity : null,
-        child: button,
-      ),
+      child: SizedBox(width: fullWidth ? double.infinity : null, child: button),
     );
 
     final Widget withTooltip = (tooltip == null)
@@ -168,8 +163,10 @@ class MyAppButtonWidget extends StatelessWidget {
     final Widget baseRow = ConstrainedBox(
       constraints: BoxConstraints(minHeight: minHeight),
       child: Padding(
-        padding:
-            EdgeInsets.symmetric(horizontal: spacing, vertical: spacing * 0.5),
+        padding: EdgeInsets.symmetric(
+          horizontal: spacing,
+          vertical: spacing * 0.5,
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -184,11 +181,9 @@ class MyAppButtonWidget extends StatelessWidget {
 
     final Color spinnerColor = switch (variant) {
       AppButtonVariant.filled ||
-      AppButtonVariant.tonal =>
-        (danger ? scheme.onError : scheme.onPrimary),
+      AppButtonVariant.tonal => (danger ? scheme.onError : scheme.onPrimary),
       AppButtonVariant.outlined ||
-      AppButtonVariant.text =>
-        (danger ? scheme.error : scheme.primary),
+      AppButtonVariant.text => (danger ? scheme.error : scheme.primary),
     };
 
     final double spinner = (minHeight * 0.5).clamp(14.0, 20.0);
@@ -226,10 +221,12 @@ class MyAppButtonWidget extends StatelessWidget {
     final Color bgFilled = danger ? scheme.error : scheme.primary;
     final Color fgFilled = danger ? scheme.onError : scheme.onPrimary;
 
-    final Color bgTonal =
-        danger ? scheme.errorContainer : scheme.secondaryContainer;
-    final Color fgTonal =
-        danger ? scheme.onErrorContainer : scheme.onSecondaryContainer;
+    final Color bgTonal = danger
+        ? scheme.errorContainer
+        : scheme.secondaryContainer;
+    final Color fgTonal = danger
+        ? scheme.onErrorContainer
+        : scheme.onSecondaryContainer;
 
     final Color fgPlain = danger ? scheme.error : scheme.primary;
 
@@ -260,8 +257,8 @@ class MyAppButtonWidget extends StatelessWidget {
       final double o = pressed
           ? 0.16
           : (hovered || focused)
-              ? 0.10
-              : 0.06;
+          ? 0.10
+          : 0.06;
       final Color base = danger ? scheme.error : scheme.primary;
       return base.withValues(alpha: o);
     }
@@ -293,9 +290,9 @@ class MyAppButtonWidget extends StatelessWidget {
   TextStyle _labelTextStyle(TextTheme textTheme, _SizeTokens t) {
     final TextStyle base = (t.text == _TextToken.large)
         ? textTheme.labelLarge ??
-            const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)
+              const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)
         : textTheme.labelMedium ??
-            const TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
+              const TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
     return base.copyWith(letterSpacing: 0.2);
   }
 

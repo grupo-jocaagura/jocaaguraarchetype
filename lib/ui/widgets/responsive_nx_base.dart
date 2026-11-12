@@ -35,8 +35,9 @@ abstract class ResponsiveNxBase extends StatelessWidget {
   Widget build(BuildContext context) {
     final double mh = responsive.marginWidth;
     final double maxW = responsive.workAreaSize.width;
-    final double w =
-        responsive.widthByColumns(columns.clamp(1, responsive.columnsNumber));
+    final double w = responsive.widthByColumns(
+      columns.clamp(1, responsive.columnsNumber),
+    );
 
     return Align(
       alignment: alignment,
@@ -44,9 +45,7 @@ abstract class ResponsiveNxBase extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: mh)
             .add(padding ?? EdgeInsets.zero),
         child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: w.clamp(0.0, maxW),
-          ),
+          constraints: BoxConstraints(maxWidth: w.clamp(0.0, maxW)),
           child: child,
         ),
       ),

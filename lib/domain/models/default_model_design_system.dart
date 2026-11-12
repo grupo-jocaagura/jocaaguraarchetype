@@ -6,9 +6,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ModelDesignSystem defaultModelDesignSystem() {
   return ModelDesignSystem(
     theme: ModelThemeData(
-      lightScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF6750A4),
-      ),
+      lightScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6750A4)),
       darkScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF6750A4),
         brightness: Brightness.dark,

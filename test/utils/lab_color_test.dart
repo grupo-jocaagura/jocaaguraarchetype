@@ -1,8 +1,8 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('LabColor · colorToLab (conocidos sRGB→Lab aprox)', () {
@@ -41,8 +41,9 @@ void main() {
         final int g = rnd.nextInt(256);
         final int b = rnd.nextInt(256);
 
-        final List<double> lab =
-            LabColor.colorToLab(Color.fromARGB(255, r, g, b));
+        final List<double> lab = LabColor.colorToLab(
+          Color.fromARGB(255, r, g, b),
+        );
         final List<int> rgb = LabColor.labToColor(lab[0], lab[1], lab[2]);
 
         expect((rgb[0] - r).abs(), lessThanOrEqualTo(1));
@@ -57,8 +58,11 @@ void main() {
       const Color base = Color(0xFF4A90E2); // azul medio
       final List<double> lab0 = LabColor.colorToLab(base);
 
-      final List<int> rgbUp =
-          LabColor.labToColor(lab0[0] + 10.0, lab0[1], lab0[2]);
+      final List<int> rgbUp = LabColor.labToColor(
+        lab0[0] + 10.0,
+        lab0[1],
+        lab0[2],
+      );
       final List<double> labUp = LabColor.colorToLab(
         Color.fromARGB(255, rgbUp[0], rgbUp[1], rgbUp[2]),
       );
@@ -70,8 +74,11 @@ void main() {
       const Color base = Color(0xFF4A90E2);
       final List<double> lab0 = LabColor.colorToLab(base);
 
-      final List<int> rgbDown =
-          LabColor.labToColor(lab0[0] - 10.0, lab0[1], lab0[2]);
+      final List<int> rgbDown = LabColor.labToColor(
+        lab0[0] - 10.0,
+        lab0[1],
+        lab0[2],
+      );
       final List<double> labDown = LabColor.colorToLab(
         Color.fromARGB(255, rgbDown[0], rgbDown[1], rgbDown[2]),
       );

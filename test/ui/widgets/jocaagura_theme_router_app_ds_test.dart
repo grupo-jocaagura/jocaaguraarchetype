@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Reutiliza tus fakes de Router si ya existen en el archivo.
 /// Si no, copia los del grupo legacy (NullRouterDelegate, parsers, providers).
@@ -61,12 +61,11 @@ Either<L, R> _left<L, R>(L l) => Left<L, R>(l);
 Either<L, R> _right<L, R>(R r) => Right<L, R>(r);
 
 class _FakeBlocDesignSystem implements BlocDesignSystem {
-  _FakeBlocDesignSystem({
-    required ModelDesignSystem initial,
-  })  : _ctrl =
-            StreamController<Either<ErrorItem, ModelDesignSystem>>.broadcast(),
-        _current = _right<ErrorItem, ModelDesignSystem>(initial),
-        _lastGood = initial;
+  _FakeBlocDesignSystem({required ModelDesignSystem initial})
+    : _ctrl =
+          StreamController<Either<ErrorItem, ModelDesignSystem>>.broadcast(),
+      _current = _right<ErrorItem, ModelDesignSystem>(initial),
+      _lastGood = initial;
 
   final StreamController<Either<ErrorItem, ModelDesignSystem>> _ctrl;
 
@@ -103,10 +102,7 @@ class _FakeBlocDesignSystem implements BlocDesignSystem {
 }
 
 class _FakeAppManagerWithDs implements AbstractAppManager {
-  _FakeAppManagerWithDs({
-    required this.responsive,
-    required BlocDesignSystem ds,
-  }) : _ds = ds;
+  _FakeAppManagerWithDs({required this.responsive, required this._ds});
 
   @override
   final BlocResponsive responsive;
@@ -163,13 +159,16 @@ void main() {
 
         final ModelDesignSystem ds1 = _buildDsWithRadius(8);
 
-        final _FakeBlocDesignSystem dsBloc =
-            _FakeBlocDesignSystem(initial: ds1);
+        final _FakeBlocDesignSystem dsBloc = _FakeBlocDesignSystem(
+          initial: ds1,
+        );
         addTearDown(() async => dsBloc.dispose());
 
         final _FakeBlocResponsive responsive = _FakeBlocResponsive();
-        final AbstractAppManager appManager =
-            _FakeAppManagerWithDs(responsive: responsive, ds: dsBloc);
+        final AbstractAppManager appManager = _FakeAppManagerWithDs(
+          responsive: responsive,
+          ds: dsBloc,
+        );
 
         await tester.pumpWidget(
           JocaaguraThemedRouterApp(
@@ -184,13 +183,14 @@ void main() {
 
         await tester.pump();
 
-        final MaterialApp app =
-            tester.widget<MaterialApp>(find.byType(MaterialApp));
+        final MaterialApp app = tester.widget<MaterialApp>(
+          find.byType(MaterialApp),
+        );
         final ThemeData t = app.theme!;
 
         // ✅ Ensure DS token extension is attached
-        final DsExtendedTokensExtension? ext =
-            t.extension<DsExtendedTokensExtension>();
+        final DsExtendedTokensExtension? ext = t
+            .extension<DsExtendedTokensExtension>();
         expect(ext, isNotNull);
         expect(ext!.tokens.borderRadius, 8);
 
@@ -208,13 +208,16 @@ void main() {
         final ModelDesignSystem ds1 = _buildDsWithRadius(8);
         final ModelDesignSystem ds2 = _buildDsWithRadius(16);
 
-        final _FakeBlocDesignSystem dsBloc =
-            _FakeBlocDesignSystem(initial: ds1);
+        final _FakeBlocDesignSystem dsBloc = _FakeBlocDesignSystem(
+          initial: ds1,
+        );
         addTearDown(() async => dsBloc.dispose());
 
         final _FakeBlocResponsive responsive = _FakeBlocResponsive();
-        final AbstractAppManager appManager =
-            _FakeAppManagerWithDs(responsive: responsive, ds: dsBloc);
+        final AbstractAppManager appManager = _FakeAppManagerWithDs(
+          responsive: responsive,
+          ds: dsBloc,
+        );
 
         await tester.pumpWidget(
           JocaaguraThemedRouterApp(
@@ -229,8 +232,8 @@ void main() {
         await tester.pump();
 
         MaterialApp app = tester.widget<MaterialApp>(find.byType(MaterialApp));
-        DsExtendedTokensExtension? ext =
-            app.theme!.extension<DsExtendedTokensExtension>();
+        DsExtendedTokensExtension? ext = app.theme!
+            .extension<DsExtendedTokensExtension>();
         expect(ext!.tokens.borderRadius, 8);
 
         final int callsBefore = responsive.setSizeCalls;
@@ -259,13 +262,16 @@ void main() {
         final ModelDesignSystem ds1 = _buildDsWithRadius(8);
         final ModelDesignSystem ds2 = _buildDsWithRadius(16);
 
-        final _FakeBlocDesignSystem dsBloc =
-            _FakeBlocDesignSystem(initial: ds1);
+        final _FakeBlocDesignSystem dsBloc = _FakeBlocDesignSystem(
+          initial: ds1,
+        );
         addTearDown(() async => dsBloc.dispose());
 
         final _FakeBlocResponsive responsive = _FakeBlocResponsive();
-        final AbstractAppManager appManager =
-            _FakeAppManagerWithDs(responsive: responsive, ds: dsBloc);
+        final AbstractAppManager appManager = _FakeAppManagerWithDs(
+          responsive: responsive,
+          ds: dsBloc,
+        );
 
         await tester.pumpWidget(
           JocaaguraThemedRouterApp(
@@ -285,8 +291,8 @@ void main() {
         await tester.pump();
 
         MaterialApp app = tester.widget<MaterialApp>(find.byType(MaterialApp));
-        DsExtendedTokensExtension? ext =
-            app.theme!.extension<DsExtendedTokensExtension>();
+        DsExtendedTokensExtension? ext = app.theme!
+            .extension<DsExtendedTokensExtension>();
         expect(ext!.tokens.borderRadius, 16);
 
         // Act: emit error
@@ -315,18 +321,23 @@ void main() {
         addTearDown(() async => themeCtrl.close());
 
         final ModelDesignSystem ds1 = _buildDsWithRadius(8);
-        final _FakeBlocDesignSystem dsBloc =
-            _FakeBlocDesignSystem(initial: ds1);
+        final _FakeBlocDesignSystem dsBloc = _FakeBlocDesignSystem(
+          initial: ds1,
+        );
         addTearDown(() async => dsBloc.dispose());
 
         final _FakeBlocResponsive responsive = _FakeBlocResponsive();
-        final AbstractAppManager appManager =
-            _FakeAppManagerWithDs(responsive: responsive, ds: dsBloc);
+        final AbstractAppManager appManager = _FakeAppManagerWithDs(
+          responsive: responsive,
+          ds: dsBloc,
+        );
 
-        final ThemeState initial =
-            ThemeState.defaults.copyWith(mode: ThemeMode.light);
-        final ThemeState dark =
-            ThemeState.defaults.copyWith(mode: ThemeMode.dark);
+        final ThemeState initial = ThemeState.defaults.copyWith(
+          mode: ThemeMode.light,
+        );
+        final ThemeState dark = ThemeState.defaults.copyWith(
+          mode: ThemeMode.dark,
+        );
 
         await tester.pumpWidget(
           JocaaguraThemedRouterApp(

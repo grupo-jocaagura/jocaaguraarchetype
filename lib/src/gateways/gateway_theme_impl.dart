@@ -71,9 +71,9 @@ class GatewayThemeImpl implements GatewayTheme {
     ServiceTheme? themeService,
     ErrorMapper? errorMapper,
     Map<String, dynamic>? initial,
-  })  : _theme = themeService ?? const FakeServiceJocaaguraArchetypeTheme(),
-        _mapper = errorMapper ?? const DefaultErrorMapper(),
-        _doc = initial == null ? null : Map<String, dynamic>.from(initial);
+  }) : _theme = themeService ?? const FakeServiceJocaaguraArchetypeTheme(),
+       _mapper = errorMapper ?? const DefaultErrorMapper(),
+       _doc = initial == null ? null : Map<String, dynamic>.from(initial);
 
   final ServiceTheme _theme;
   final ErrorMapper _mapper;
@@ -178,8 +178,8 @@ class GatewayThemeImpl implements GatewayTheme {
     final bool useM3 = (json['useM3'] ??= true) == true;
 
     // textScale (bounded)
-    final double textScale =
-        ((json['textScale'] as num?)?.toDouble() ?? 1.0).clamp(0.8, 1.6);
+    final double textScale = ((json['textScale'] as num?)?.toDouble() ?? 1.0)
+        .clamp(0.8, 1.6);
 
     // preset
     final String preset = (json['preset'] as String?) ?? 'brand';

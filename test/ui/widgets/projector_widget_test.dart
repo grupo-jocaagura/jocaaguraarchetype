@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('ProjectorWidget', () {
@@ -10,8 +10,10 @@ void main() {
         // Arrange
         const double designWidth = 200;
         const double designHeight = 400; // aspect = 0.5
-        const Size hostSize =
-            Size(300, 800); // widthScale=300 heightScale=600 (<=800)
+        const Size hostSize = Size(
+          300,
+          800,
+        ); // widthScale=300 heightScale=600 (<=800)
         const Key childKey = Key('child');
 
         await tester.pumpWidget(

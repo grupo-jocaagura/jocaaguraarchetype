@@ -1,17 +1,13 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-enum DsThemeTarget {
-  light,
-  dark,
-  both,
-}
+enum DsThemeTarget { light, dark, both }
 
 class BlocDesignSystem extends BlocModule {
   BlocDesignSystem(this.ds)
-      : _lastGoodDs = ds,
-        _dsBloc = BlocGeneral<Either<ErrorItem, ModelDesignSystem>>(
-          Right<ErrorItem, ModelDesignSystem>(ds),
-        );
+    : _lastGoodDs = ds,
+      _dsBloc = BlocGeneral<Either<ErrorItem, ModelDesignSystem>>(
+        Right<ErrorItem, ModelDesignSystem>(ds),
+      );
 
   final ModelDesignSystem ds;
   static const String name = 'BlocDesignSystem';
@@ -22,10 +18,8 @@ class BlocDesignSystem extends BlocModule {
   bool _isDisposed = false;
   bool get isDisposed => _isDisposed;
 
-  ErrorItem? get currentErrorOrNull => _dsBloc.value.when(
-        (ErrorItem e) => e,
-        (ModelDesignSystem _) => null,
-      );
+  ErrorItem? get currentErrorOrNull =>
+      _dsBloc.value.when((ErrorItem e) => e, (ModelDesignSystem _) => null);
   DsThemeTarget dsThemeTargetFromBrightness(Brightness? brightness) {
     if (brightness == null) {
       return DsThemeTarget.both;
@@ -177,9 +171,7 @@ class BlocDesignSystem extends BlocModule {
           }
           return Right<ErrorItem, ModelDesignSystem>(next);
         } catch (e, st) {
-          return Left<ErrorItem, ModelDesignSystem>(
-            _errorFromException(e, st),
-          );
+          return Left<ErrorItem, ModelDesignSystem>(_errorFromException(e, st));
         }
       },
     );
@@ -208,9 +200,7 @@ class BlocDesignSystem extends BlocModule {
           final ModelDesignSystem next = builder(current);
           return Right<ErrorItem, ModelDesignSystem>(next);
         } catch (e, st) {
-          return Left<ErrorItem, ModelDesignSystem>(
-            _errorFromException(e, st),
-          );
+          return Left<ErrorItem, ModelDesignSystem>(_errorFromException(e, st));
         }
       },
     );
@@ -256,10 +246,12 @@ class BlocDesignSystem extends BlocModule {
 
   void deriveSemanticFromCurrentTheme() {
     tryUpdate((ModelDesignSystem c) {
-      final ColorScheme lightCs =
-          c.theme.toThemeData(brightness: Brightness.light).colorScheme;
-      final ColorScheme darkCs =
-          c.theme.toThemeData(brightness: Brightness.dark).colorScheme;
+      final ColorScheme lightCs = c.theme
+          .toThemeData(brightness: Brightness.light)
+          .colorScheme;
+      final ColorScheme darkCs = c.theme
+          .toThemeData(brightness: Brightness.dark)
+          .colorScheme;
 
       return c.copyWith(
         semanticLight: ModelSemanticColors.fromColorScheme(lightCs),
@@ -335,10 +327,7 @@ class BlocDesignSystem extends BlocModule {
     });
   }
 
-  void patchDataViz({
-    List<Color>? categorical,
-    List<Color>? sequential,
-  }) {
+  void patchDataViz({List<Color>? categorical, List<Color>? sequential}) {
     tryUpdate((ModelDesignSystem c) {
       final ModelDataVizPalette next = ModelDataVizPalette(
         categorical: categorical ?? c.dataViz.categorical,
@@ -364,8 +353,9 @@ class BlocDesignSystem extends BlocModule {
     Color? onInfoContainer,
   }) {
     tryUpdate((ModelDesignSystem c) {
-      final ModelSemanticColors base =
-          (brightness == Brightness.dark) ? c.semanticDark : c.semanticLight;
+      final ModelSemanticColors base = (brightness == Brightness.dark)
+          ? c.semanticDark
+          : c.semanticLight;
 
       final ModelSemanticColors next = base.copyWith(
         success: success,
@@ -581,9 +571,7 @@ class BlocDesignSystem extends BlocModule {
     _dsBloc.value = next;
   }
 
-  void patchTheme(
-    ModelThemeData Function(ModelThemeData current) builder,
-  ) {
+  void patchTheme(ModelThemeData Function(ModelThemeData current) builder) {
     tryUpdate((ModelDesignSystem c) {
       final ModelThemeData next = builder(c.theme);
       if (next == c.theme) {

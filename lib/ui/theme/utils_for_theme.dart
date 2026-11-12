@@ -3,10 +3,13 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 class UtilsForTheme {
   const UtilsForTheme();
 
-// Returns canonical HEX string as #AARRGGBB (uppercase)
+  // Returns canonical HEX string as #AARRGGBB (uppercase)
   static String colorToHex(Color c) {
-    final String v =
-        c.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase();
+    final String v = c
+        .toARGB32()
+        .toRadixString(16)
+        .padLeft(8, '0')
+        .toUpperCase();
     return '#$v';
   }
 

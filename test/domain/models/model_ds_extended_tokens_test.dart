@@ -3,9 +3,7 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
   group('ModelDsExtendedTokensKeys', () {
-    test(
-        'Given keys registry When all is used Then it contains every expected key and no duplicates',
-        () {
+    test('Given keys registry When all is used Then it contains every expected key and no duplicates', () {
       // Arrange
       const List<String> keys = ModelDsExtendedTokensKeys.all;
 
@@ -22,9 +20,7 @@ void main() {
   });
 
   group('ModelDsExtendedTokens - defaults', () {
-    test(
-        'Given default ctor When instance created Then it is valid and has expected defaults',
-        () {
+    test('Given default ctor When instance created Then it is valid and has expected defaults', () {
       // Arrange
       const ModelDsExtendedTokens tokens = ModelDsExtendedTokens();
 
@@ -39,9 +35,7 @@ void main() {
       expect(tokens.animationDurationLong, const Duration(milliseconds: 800));
     });
 
-    test(
-        'Given default ctor When comparing equality Then identical values are equal and hashCodes match',
-        () {
+    test('Given default ctor When comparing equality Then identical values are equal and hashCodes match', () {
       // Arrange
       const ModelDsExtendedTokens a = ModelDsExtendedTokens();
       const ModelDsExtendedTokens b = ModelDsExtendedTokens();
@@ -53,9 +47,7 @@ void main() {
   });
 
   group('ModelDsExtendedTokens.copyWith', () {
-    test(
-        'Given no params When copyWith called Then returns same instance (optimization)',
-        () {
+    test('Given no params When copyWith called Then returns same instance (optimization)', () {
       // Arrange
       const ModelDsExtendedTokens tokens = ModelDsExtendedTokens();
 
@@ -66,9 +58,7 @@ void main() {
       expect(identical(tokens, out), isTrue);
     });
 
-    test(
-        'Given a param override When copyWith called Then returns new instance with that value',
-        () {
+    test('Given a param override When copyWith called Then returns new instance with that value', () {
       // Arrange
       const ModelDsExtendedTokens tokens = ModelDsExtendedTokens();
 
@@ -82,39 +72,41 @@ void main() {
       expect(out.spacingXs, tokens.spacingXs);
     });
 
-    test('Given invalid override When copyWith called Then throws RangeError',
-        () {
-      // Arrange
-      const ModelDsExtendedTokens tokens = ModelDsExtendedTokens();
+    test(
+      'Given invalid override When copyWith called Then throws RangeError',
+      () {
+        // Arrange
+        const ModelDsExtendedTokens tokens = ModelDsExtendedTokens();
 
-      // Act + Assert: break ascending rule
-      expect(
-        () => tokens.copyWith(spacingSm: 1.0), // spacingXs default is 4.0
-        throwsA(isA<RangeError>()),
-      );
-    });
+        // Act + Assert: break ascending rule
+        expect(
+          () => tokens.copyWith(spacingSm: 1.0), // spacingXs default is 4.0
+          throwsA(isA<RangeError>()),
+        );
+      },
+    );
   });
 
   group('ModelDsExtendedTokens.toJson/fromJson', () {
     test(
-        'Given a valid instance When toJson then fromJson Then round-trip equals',
-        () {
-      // Arrange
-      final ModelDsExtendedTokens tokens = ModelDsExtendedTokens.fromFactor();
+      'Given a valid instance When toJson then fromJson Then round-trip equals',
+      () {
+        // Arrange
+        final ModelDsExtendedTokens tokens = ModelDsExtendedTokens.fromFactor();
 
-      // Act
-      final Map<String, dynamic> json = tokens.toJson();
-      final ModelDsExtendedTokens restored =
-          ModelDsExtendedTokens.fromJson(json);
+        // Act
+        final Map<String, dynamic> json = tokens.toJson();
+        final ModelDsExtendedTokens restored = ModelDsExtendedTokens.fromJson(
+          json,
+        );
 
-      // Assert
-      expect(restored, equals(tokens));
-      expect(restored.hashCode, equals(tokens.hashCode));
-    });
+        // Assert
+        expect(restored, equals(tokens));
+        expect(restored.hashCode, equals(tokens.hashCode));
+      },
+    );
 
-    test(
-        'Given json missing a required key When fromJson Then throws FormatException',
-        () {
+    test('Given json missing a required key When fromJson Then throws FormatException', () {
       // Arrange
       final Map<String, dynamic> json = const ModelDsExtendedTokens().toJson();
       json.remove(ModelDsExtendedTokensKeys.spacingXs);
@@ -126,38 +118,41 @@ void main() {
       );
     });
 
-    test('Given json with invalid alpha When fromJson Then throws RangeError',
-        () {
-      // Arrange
-      final Map<String, dynamic> json = const ModelDsExtendedTokens().toJson();
-      json[ModelDsExtendedTokensKeys.withAlpha] = 2.0; // out of 0..1
+    test(
+      'Given json with invalid alpha When fromJson Then throws RangeError',
+      () {
+        // Arrange
+        final Map<String, dynamic> json = const ModelDsExtendedTokens()
+            .toJson();
+        json[ModelDsExtendedTokensKeys.withAlpha] = 2.0; // out of 0..1
 
-      // Act + Assert
-      expect(
-        () => ModelDsExtendedTokens.fromJson(json),
-        throwsA(isA<RangeError>()),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => ModelDsExtendedTokens.fromJson(json),
+          throwsA(isA<RangeError>()),
+        );
+      },
+    );
 
     test(
-        'Given json with negative duration When fromJson Then throws RangeError',
-        () {
-      // Arrange
-      final Map<String, dynamic> json = const ModelDsExtendedTokens().toJson();
-      json[ModelDsExtendedTokensKeys.animationDuration] = -1;
+      'Given json with negative duration When fromJson Then throws RangeError',
+      () {
+        // Arrange
+        final Map<String, dynamic> json = const ModelDsExtendedTokens()
+            .toJson();
+        json[ModelDsExtendedTokensKeys.animationDuration] = -1;
 
-      // Act + Assert
-      expect(
-        () => ModelDsExtendedTokens.fromJson(json),
-        throwsA(isA<RangeError>()),
-      );
-    });
+        // Act + Assert
+        expect(
+          () => ModelDsExtendedTokens.fromJson(json),
+          throwsA(isA<RangeError>()),
+        );
+      },
+    );
   });
 
   group('ModelDsExtendedTokens.fromFactor - behavior', () {
-    test(
-        'Given known factors When fromFactor Then generates expected geometric values',
-        () {
+    test('Given known factors When fromFactor Then generates expected geometric values', () {
       // Arrange + Act
       final ModelDsExtendedTokens t = ModelDsExtendedTokens.fromFactor();
 
@@ -191,9 +186,7 @@ void main() {
       expect(t.animationDurationLong, const Duration(milliseconds: 900));
     });
 
-    test(
-        'Given alpha factor that would exceed 1 When fromFactor Then alpha values are clamped within 0..1',
-        () {
+    test('Given alpha factor that would exceed 1 When fromFactor Then alpha values are clamped within 0..1', () {
       // Arrange + Act
       final ModelDsExtendedTokens t = ModelDsExtendedTokens.fromFactor(
         withAlphaFactor: 10.0,
@@ -216,14 +209,10 @@ void main() {
       expect(t.withAlphaXl <= t.withAlphaXXl, isTrue);
     });
 
-    test(
-        'Given factor that breaks ascending When fromFactor Then throws RangeError',
-        () {
+    test('Given factor that breaks ascending When fromFactor Then throws RangeError', () {
       // Arrange: spacingFactor < 1 makes spacingSm < spacingXs (unless initialSpacing is 0)
       expect(
-        () => ModelDsExtendedTokens.fromFactor(
-          spacingFactor: 0.5,
-        ),
+        () => ModelDsExtendedTokens.fromFactor(spacingFactor: 0.5),
         throwsA(isA<RangeError>()),
       );
     });
@@ -237,9 +226,7 @@ void main() {
   });
 
   group('ModelDsExtendedTokens - equality negative cases', () {
-    test(
-        'Given one different field When comparing Then not equal and hashCode may differ',
-        () {
+    test('Given one different field When comparing Then not equal and hashCode may differ', () {
       // Arrange
       const ModelDsExtendedTokens a = ModelDsExtendedTokens();
       const ModelDsExtendedTokens b = ModelDsExtendedTokens(spacing: 17.0);

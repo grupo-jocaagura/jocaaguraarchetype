@@ -56,7 +56,7 @@ abstract final class ModelSemanticColorsKeys {
 ///
 /// Functional example:
 /// ```dart
-/// import 'package:flutter/material.dart';
+/// import 'package:material_ui/material_ui.dart';
 ///
 /// void main() {
 ///   final ColorScheme cs = ColorScheme.fromSeed(
@@ -272,21 +272,19 @@ class ModelSemanticColors {
   ///
   /// Colors are encoded as ARGB 32-bit integers.
   Map<String, dynamic> toJson() => <String, dynamic>{
-        ModelSemanticColorsKeys.success: success.toARGB32(),
-        ModelSemanticColorsKeys.onSuccess: onSuccess.toARGB32(),
-        ModelSemanticColorsKeys.successContainer: successContainer.toARGB32(),
-        ModelSemanticColorsKeys.onSuccessContainer:
-            onSuccessContainer.toARGB32(),
-        ModelSemanticColorsKeys.warning: warning.toARGB32(),
-        ModelSemanticColorsKeys.onWarning: onWarning.toARGB32(),
-        ModelSemanticColorsKeys.warningContainer: warningContainer.toARGB32(),
-        ModelSemanticColorsKeys.onWarningContainer:
-            onWarningContainer.toARGB32(),
-        ModelSemanticColorsKeys.info: info.toARGB32(),
-        ModelSemanticColorsKeys.onInfo: onInfo.toARGB32(),
-        ModelSemanticColorsKeys.infoContainer: infoContainer.toARGB32(),
-        ModelSemanticColorsKeys.onInfoContainer: onInfoContainer.toARGB32(),
-      };
+    ModelSemanticColorsKeys.success: success.toARGB32(),
+    ModelSemanticColorsKeys.onSuccess: onSuccess.toARGB32(),
+    ModelSemanticColorsKeys.successContainer: successContainer.toARGB32(),
+    ModelSemanticColorsKeys.onSuccessContainer: onSuccessContainer.toARGB32(),
+    ModelSemanticColorsKeys.warning: warning.toARGB32(),
+    ModelSemanticColorsKeys.onWarning: onWarning.toARGB32(),
+    ModelSemanticColorsKeys.warningContainer: warningContainer.toARGB32(),
+    ModelSemanticColorsKeys.onWarningContainer: onWarningContainer.toARGB32(),
+    ModelSemanticColorsKeys.info: info.toARGB32(),
+    ModelSemanticColorsKeys.onInfo: onInfo.toARGB32(),
+    ModelSemanticColorsKeys.infoContainer: infoContainer.toARGB32(),
+    ModelSemanticColorsKeys.onInfoContainer: onInfoContainer.toARGB32(),
+  };
 
   /// Returns a copy with optional overrides.
   ///

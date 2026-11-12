@@ -49,18 +49,16 @@ class BlocUserNotifications extends BlocModule {
   BlocUserNotifications({
     Duration? autoClose,
     DateTime Function()? now, // for testability
-  })  : _now = now ?? DateTime.now,
-        _debouncer = Debouncer(
-          milliseconds:
-              (autoClose ?? const Duration(seconds: 7)).inMilliseconds,
-        );
+  }) : _now = now ?? DateTime.now,
+       _autoClose = autoClose ?? const Duration(seconds: 7);
 
   static const String name = 'BlocUserNotifications';
 
   final BlocGeneral<ToastMessage> _controller = BlocGeneral<ToastMessage>(
     ToastMessage.empty(),
   );
-  final Debouncer _debouncer;
+  final Duration _autoClose;
+  Timer? _autoCloseTimer;
   final DateTime Function() _now;
 
   /// Emits the current toast state (including timestamp).
@@ -82,6 +80,8 @@ class BlocUserNotifications extends BlocModule {
 
   /// Clears the current toast to an empty sentinel.
   void clear() {
+    _autoCloseTimer?.cancel();
+    _autoCloseTimer = null;
     if (isDisposed) {
       return;
     }
@@ -103,10 +103,8 @@ class BlocUserNotifications extends BlocModule {
     _controller.value = next;
 
     // Restart auto-clear window.
-    final Debouncer d = (duration == null)
-        ? _debouncer
-        : Debouncer(milliseconds: duration.inMilliseconds);
-    d.call(clear);
+    _autoCloseTimer?.cancel();
+    _autoCloseTimer = Timer(duration ?? _autoClose, clear);
   }
 
   bool isDisposed = false;
@@ -117,6 +115,8 @@ class BlocUserNotifications extends BlocModule {
       return;
     }
     isDisposed = true;
+    _autoCloseTimer?.cancel();
+    _autoCloseTimer = null;
     _controller.dispose();
   }
   // ------------------------
@@ -131,5 +131,5 @@ class BlocUserNotifications extends BlocModule {
   @Deprecated('Use toast.text instead.')
   String get msg => toast.text;
 
-// ------------------------
+  // ------------------------
 }

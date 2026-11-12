@@ -3,8 +3,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ---------------------------------------------------------------------------
 /// DESIGN SYSTEM JSON (placeholder)
@@ -992,7 +992,7 @@ const Map<String, DemoRole> kPolicyMinRoles = <String, DemoRole>{
 
 class BlocAclDemo extends BlocModule {
   BlocAclDemo({required String initialEmail})
-      : _actingEmail = BlocGeneral<String>(initialEmail);
+    : _actingEmail = BlocGeneral<String>(initialEmail);
 
   static const String name = 'BlocAclDemo';
 
@@ -1054,7 +1054,7 @@ class BlocAclDemo extends BlocModule {
 
 class _FakeRepositoryAuth implements RepositoryAuth {
   _FakeRepositoryAuth()
-      : _ctrl = StreamController<Either<ErrorItem, UserModel?>>.broadcast();
+    : _ctrl = StreamController<Either<ErrorItem, UserModel?>>.broadcast();
 
   final StreamController<Either<ErrorItem, UserModel?>> _ctrl;
   UserModel? _current;
@@ -1272,8 +1272,10 @@ class RepositoryThemeForExample implements RepositoryTheme {
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
   static const String name = 'splash';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -1285,8 +1287,10 @@ class SplashPage extends StatelessWidget {
 class HomePublicPage extends StatelessWidget {
   const HomePublicPage({super.key});
   static const String name = 'homePublic';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -1315,8 +1319,10 @@ class HomePublicPage extends StatelessWidget {
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
   static const String name = 'login';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -1380,8 +1386,9 @@ class _LoginPageState extends State<LoginPage> {
                 TextField(
                   controller: _pass,
                   enabled: !authenticating,
-                  decoration:
-                      const InputDecoration(labelText: 'Password (demo)'),
+                  decoration: const InputDecoration(
+                    labelText: 'Password (demo)',
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
@@ -1399,8 +1406,9 @@ class _LoginPageState extends State<LoginPage> {
                               jds.blocAcl.setEmail(u.email);
                               // Normalmente SessionAppManager te llevará a homeAuthenticated.
                               // Igual lo hacemos explícito para que sea determinístico.
-                              jds.pageManager
-                                  .resetTo(HomeAuthenticatedPage.pageModel);
+                              jds.pageManager.resetTo(
+                                HomeAuthenticatedPage.pageModel,
+                              );
                             },
                           );
                         },
@@ -1460,8 +1468,10 @@ class HomeAuthenticatedPage extends StatelessWidget {
 class SessionClosedPage extends StatelessWidget {
   const SessionClosedPage({super.key});
   static const String name = 'sessionClosed';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -1480,8 +1490,10 @@ class SessionClosedPage extends StatelessWidget {
 class AuthenticatingPage extends StatelessWidget {
   const AuthenticatingPage({super.key});
   static const String name = 'authenticating';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -1495,21 +1507,22 @@ class AuthenticatingPage extends StatelessWidget {
 class SessionErrorPage extends StatelessWidget {
   const SessionErrorPage({super.key});
   static const String name = 'sessionError';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
     final AbstractAppManager app = context.appManager;
-    final BlocSession bloc =
-        app.requireModuleByKey<BlocSession>(BlocSession.name);
+    final BlocSession bloc = app.requireModuleByKey<BlocSession>(
+      BlocSession.name,
+    );
 
     return PageBuilder(
       page: InkWell(
         onTap: () => app.pageManager.resetTo(HomePublicPage.pageModel),
-        child: Center(
-          child: Text('Session Error · ${bloc.state}'),
-        ),
+        child: Center(child: Text('Session Error · ${bloc.state}')),
       ),
     );
   }
@@ -1518,8 +1531,10 @@ class SessionErrorPage extends StatelessWidget {
 class ForbiddenPage extends StatelessWidget {
   const ForbiddenPage({super.key});
   static const String name = 'forbidden';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -1604,10 +1619,7 @@ class AdminPage extends StatelessWidget {
 }
 
 class _ProtectedPage extends StatelessWidget {
-  const _ProtectedPage({
-    required this.title,
-    required this.policyId,
-  });
+  const _ProtectedPage({required this.title, required this.policyId});
 
   final String title;
   final String policyId;
@@ -1682,15 +1694,17 @@ class _SessionCard extends StatelessWidget {
                               final Either<ErrorItem, void>? r =
                                   await appManager.blocSession.logOut();
                               if (r == null) {
-                                appManager.pageManager
-                                    .resetTo(HomePublicPage.pageModel);
+                                appManager.pageManager.resetTo(
+                                  HomePublicPage.pageModel,
+                                );
                                 return;
                               }
                               r.fold(
                                 (ErrorItem e) =>
                                     appManager.notifications.showToast(e.title),
-                                (_) => appManager.pageManager
-                                    .resetTo(SessionClosedPage.pageModel),
+                                (_) => appManager.pageManager.resetTo(
+                                  SessionClosedPage.pageModel,
+                                ),
                               );
                             }
                           : null,
@@ -1723,8 +1737,8 @@ class _DsCard extends StatelessWidget {
           stream: appManager.blocDesignSystem.dsStream,
           initialData: appManager.blocDesignSystem.currentEither,
           builder: (_, __) {
-            final ModelDesignSystem ds =
-                appManager.blocDesignSystem.requireDs();
+            final ModelDesignSystem ds = appManager.blocDesignSystem
+                .requireDs();
             final ModelDsExtendedTokens t = ds.tokens;
 
             return Column(
@@ -1747,8 +1761,9 @@ class _DsCard extends StatelessWidget {
                         appManager.blocDesignSystem.patchTokens(
                           borderRadius: t.borderRadius + 2,
                         );
-                        appManager.notifications
-                            .showToast('Token patch (borderRadius +2)');
+                        appManager.notifications.showToast(
+                          'Token patch (borderRadius +2)',
+                        );
                       },
                       child: const Text('Patch radius +2'),
                     ),
@@ -1760,8 +1775,9 @@ class _DsCard extends StatelessWidget {
                           return;
                         }
                         appManager.blocDesignSystem.importFromJson(decoded);
-                        appManager.notifications
-                            .showToast('importFromJson() ejecutado');
+                        appManager.notifications.showToast(
+                          'importFromJson() ejecutado',
+                        );
                       },
                       child: const Text('Import DS JSON'),
                     ),
@@ -1781,8 +1797,9 @@ class _DsCard extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        final Map<String, dynamic> json =
-                            appManager.blocDesignSystem.exportToJson();
+                        final Map<String, dynamic> json = appManager
+                            .blocDesignSystem
+                            .exportToJson();
                         appManager.notifications.showToast(
                           'Export DS JSON keys: ${json.keys.join(', ')}',
                         );
@@ -1855,8 +1872,9 @@ class _AclCard extends StatelessWidget {
               appManager: appManager,
               policyId: DemoPolicies.admin,
               child: FilledButton(
-                onPressed: () => appManager.notifications
-                    .showToast('Botón SOLO admin visible'),
+                onPressed: () => appManager.notifications.showToast(
+                  'Botón SOLO admin visible',
+                ),
                 child: const Text('Admin-only button'),
               ),
             ),
@@ -1868,22 +1886,23 @@ class _AclCard extends StatelessWidget {
             SizedBox(height: tok.spacingSm),
             OutlinedButton(
               onPressed: () async {
-                final Either<ErrorItem, Unit> r =
-                    await appManager.executeWithAcl<Unit>(
-                  policyId: DemoPolicies.editor,
-                  action: () async {
-                    await Future<void>.delayed(
-                      const Duration(milliseconds: 120),
+                final Either<ErrorItem, Unit> r = await appManager
+                    .executeWithAcl<Unit>(
+                      policyId: DemoPolicies.editor,
+                      action: () async {
+                        await Future<void>.delayed(
+                          const Duration(milliseconds: 120),
+                        );
+                        return const Right<ErrorItem, Unit>(unit);
+                      },
                     );
-                    return const Right<ErrorItem, Unit>(unit);
-                  },
-                );
 
                 r.when(
                   (ErrorItem e) =>
                       appManager.notifications.showToast('DENIED: ${e.title}'),
-                  (_) => appManager.notifications
-                      .showToast('OK: operación ejecutada'),
+                  (_) => appManager.notifications.showToast(
+                    'OK: operación ejecutada',
+                  ),
                 );
               },
               child: const Text('Execute (editor+)'),
@@ -1993,13 +2012,10 @@ void _setupMenusForLoggedIn(AbstractAppManager app) {
         _setupMenusForLoggedOut(jds);
         return;
       }
-      r.fold(
-        (ErrorItem e) => jds.notifications.showToast(e.title),
-        (_) {
-          _setupMenusForLoggedOut(jds);
-          jds.pageManager.resetTo(SessionClosedPage.pageModel);
-        },
-      );
+      r.fold((ErrorItem e) => jds.notifications.showToast(e.title), (_) {
+        _setupMenusForLoggedOut(jds);
+        jds.pageManager.resetTo(SessionClosedPage.pageModel);
+      });
     },
   );
 }
@@ -2021,8 +2037,9 @@ const SessionPages sessionPages = SessionPages(
 JdsAppManager buildAppManager(PageManager pageManager, PageRegistry registry) {
   // Theme mínimo requerido por AppConfig.
   final RepositoryTheme repositoryTheme = RepositoryThemeForExample();
-  final BlocTheme blocTheme =
-      BlocTheme(themeUsecases: ThemeUsecases.fromRepo(repositoryTheme));
+  final BlocTheme blocTheme = BlocTheme(
+    themeUsecases: ThemeUsecases.fromRepo(repositoryTheme),
+  );
 
   // Design System inicial (fallback).
   final ModelDesignSystem initialDs = ModelDesignSystem(
@@ -2046,12 +2063,14 @@ JdsAppManager buildAppManager(PageManager pageManager, PageRegistry registry) {
   );
 
   final BlocDesignSystem blocDs = BlocDesignSystem(initialDs);
-  final BlocAclDemo blocAcl =
-      BlocAclDemo(initialEmail: 'viewer@jocaaguraarchetype.com');
+  final BlocAclDemo blocAcl = BlocAclDemo(
+    initialEmail: 'viewer@jocaaguraarchetype.com',
+  );
 
   final _FakeRepositoryAuth repoAuth = _FakeRepositoryAuth();
-  final BlocSession blocSession =
-      BlocSession.fromRepository(repository: repoAuth);
+  final BlocSession blocSession = BlocSession.fromRepository(
+    repository: repoAuth,
+  );
 
   // Onboarding (Splash manda: mientras top==Splash, SessionAppManager no toca).
   final BlocOnboarding onboarding = BlocOnboarding()
@@ -2163,11 +2182,14 @@ void main() {
     PageDef(model: AdminPage.pageModel, builder: (_, __) => const AdminPage()),
   ];
 
-  final PageRegistry registry =
-      PageRegistry.fromDefs(defs, defaultPage: HomePublicPage.pageModel);
+  final PageRegistry registry = PageRegistry.fromDefs(
+    defs,
+    defaultPage: HomePublicPage.pageModel,
+  );
 
-  final PageManager pageManager =
-      PageManager(initial: NavStackModel.single(SplashPage.pageModel));
+  final PageManager pageManager = PageManager(
+    initial: NavStackModel.single(SplashPage.pageModel),
+  );
 
   final JdsAppManager appManager = buildAppManager(pageManager, registry);
 
@@ -2176,8 +2198,9 @@ void main() {
     appManager.onboarding.start();
   }
 
-  final BlocSession sessionBloc =
-      appManager.requireModuleByKey<BlocSession>(BlocSession.name);
+  final BlocSession sessionBloc = appManager.requireModuleByKey<BlocSession>(
+    BlocSession.name,
+  );
 
   runApp(
     JocaaguraAppWithSession(

@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   // Claves para identificar qué child se renderiza
@@ -68,7 +68,7 @@ void main() {
       // 3:1 exacto
       await pumpWithBox(tester, w: 900, h: 300);
       await tester.pump();
-//      expect(find.byKey(kWide3x1), findsOneWidget);
+      //      expect(find.byKey(kWide3x1), findsOneWidget);
 
       // 2.94: dentro de la tolerancia
       await pumpWithBox(tester, w: 614, h: 200);
@@ -76,21 +76,24 @@ void main() {
       expect(find.byKey(kWide3x1), findsOneWidget);
     });
 
-    testWidgets('Selecciona horizontal genérico (>1, sin snap)',
-        (WidgetTester tester) async {
+    testWidgets('Selecciona horizontal genérico (>1, sin snap)', (
+      WidgetTester tester,
+    ) async {
       // 1.3 no debe "snapear" a 1:1/2:1/3:1
       await pumpWithBox(tester, w: 13, h: 10);
       expect(find.byKey(kHorizontal), findsOneWidget);
     });
 
-    testWidgets('Selecciona vertical genérico (<1)',
-        (WidgetTester tester) async {
+    testWidgets('Selecciona vertical genérico (<1)', (
+      WidgetTester tester,
+    ) async {
       await pumpWithBox(tester, w: 300, h: 500);
       expect(find.byKey(kVertical), findsOneWidget);
     });
 
-    testWidgets('Respeta snapTolerance custom (más estricto)',
-        (WidgetTester tester) async {
+    testWidgets('Respeta snapTolerance custom (más estricto)', (
+      WidgetTester tester,
+    ) async {
       // Con tolerancia más estricta 0.01, 1.94 ya NO debe snapear a 2.0
       await pumpWithBox(tester, w: 970, h: 500, snapTolerance: 0.01);
       expect(find.byKey(kHorizontal), findsOneWidget);

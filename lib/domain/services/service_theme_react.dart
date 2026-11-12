@@ -63,9 +63,7 @@ abstract class ServiceThemeReact {
     _themeStateJson.addFunctionToProcessTValueOnStream(key, function);
   }
 
-  void deleteFunctionToProcessValueOnStream(
-    String key,
-  ) {
+  void deleteFunctionToProcessValueOnStream(String key) {
     _themeStateJson.deleteFunctionToProcessTValueOnStream(key);
   }
 

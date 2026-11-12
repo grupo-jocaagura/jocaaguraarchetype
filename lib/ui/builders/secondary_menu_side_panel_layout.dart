@@ -53,20 +53,25 @@ class SecondaryMenuSidePanelLayout extends StatelessWidget {
     final double mh = responsive.marginWidth;
     final double gap = responsive.gutterWidth;
 
-    final int maxPanelColumns =
-        (responsive.columnsNumber - 1).clamp(1, responsive.columnsNumber);
+    final int maxPanelColumns = (responsive.columnsNumber - 1).clamp(
+      1,
+      responsive.columnsNumber,
+    );
     final int effectivePanelColumns = panelColumns.clamp(1, maxPanelColumns);
 
-    final double panelW =
-        _hasPanel ? responsive.widthByColumns(effectivePanelColumns) : 0.0;
+    final double panelW = _hasPanel
+        ? responsive.widthByColumns(effectivePanelColumns)
+        : 0.0;
 
     final double screenW = responsive.size.width;
     final double contentGap = _hasPanel ? gap : 0.0;
 
     final double designW = responsive.workAreaSize.width;
 
-    final double contentMaxWidth =
-        (screenW - panelW - contentGap).clamp(360.0, designW);
+    final double contentMaxWidth = (screenW - panelW - contentGap).clamp(
+      360.0,
+      designW,
+    );
 
     final List<Widget> rowChildren = <Widget>[
       Flexible(
@@ -87,8 +92,9 @@ class SecondaryMenuSidePanelLayout extends StatelessWidget {
       ],
     ];
 
-    final List<Widget> ordered =
-        secondaryOnRight ? rowChildren : rowChildren.reversed.toList();
+    final List<Widget> ordered = secondaryOnRight
+        ? rowChildren
+        : rowChildren.reversed.toList();
 
     return Container(
       color: backgroundColor,

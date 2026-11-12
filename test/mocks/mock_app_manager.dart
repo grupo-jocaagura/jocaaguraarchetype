@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 
@@ -20,11 +20,9 @@ final AppConfig mockAppConfig = AppConfig(
   blocResponsive: MockBlocResponsive(),
   blocOnboarding: MockBlocOnboarding(),
   pageManager: MockBlocNavigator(
-    initial: NavStackModel(
-      const <PageModel>[
-        PageModel(name: '/', segments: <String>['home']),
-      ],
-    ),
+    initial: NavStackModel(const <PageModel>[
+      PageModel(name: '/', segments: <String>['home']),
+    ]),
   ),
 );
 
@@ -45,22 +43,20 @@ class MockAppManager extends AppManager {
 
   @override
   BlocTheme get theme => MockBlocTheme(
-        themeUsecases: ThemeUsecases.fromRepo(
-          RepositoryThemeImpl(
-            gateway: GatewayThemeImpl(
-              themeService: const ServiceJocaaguraArchetypeTheme(),
-            ),
-          ),
+    themeUsecases: ThemeUsecases.fromRepo(
+      RepositoryThemeImpl(
+        gateway: GatewayThemeImpl(
+          themeService: const ServiceJocaaguraArchetypeTheme(),
         ),
-      );
+      ),
+    ),
+  );
 
   PageManager get navigator => MockBlocNavigator(
-        initial: NavStackModel(
-          const <PageModel>[
-            PageModel(name: '/', segments: <String>['home']),
-          ],
-        ),
-      );
+    initial: NavStackModel(const <PageModel>[
+      PageModel(name: '/', segments: <String>['home']),
+    ]),
+  );
 
   @override
   BlocOnboarding get onboarding => MockBlocOnboarding();

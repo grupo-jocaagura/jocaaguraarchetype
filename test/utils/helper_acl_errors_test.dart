@@ -3,9 +3,7 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
   group('AclErrors', () {
-    test(
-        'Given policyId/appName When unauthorized Then builds deterministic ErrorItem with meta and code',
-        () {
+    test('Given policyId/appName When unauthorized Then builds deterministic ErrorItem with meta and code', () {
       // Arrange
       const String policyId = 'bienvenido.user.creation';
       const String appName = 'bienvenido';
@@ -28,9 +26,7 @@ void main() {
       expect(err.errorLevel, ErrorLevelEnum.severe);
     });
 
-    test(
-        'Given custom description When unauthorized Then uses provided description',
-        () {
+    test('Given custom description When unauthorized Then uses provided description', () {
       // Arrange
       const String description = 'Custom';
 

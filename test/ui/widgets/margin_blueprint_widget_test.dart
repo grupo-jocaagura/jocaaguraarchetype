@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 void main() {
-  testWidgets('should render GutterBlueprintWidget',
-      (WidgetTester tester) async {
+  testWidgets('should render GutterBlueprintWidget', (
+    WidgetTester tester,
+  ) async {
     const double width = 8.0;
     const double height = 400.0;
 
@@ -14,10 +15,7 @@ void main() {
         home: Material(
           child: Row(
             children: <Widget>[
-              MarginBlueprintWidget(
-                width: width,
-                height: height,
-              ),
+              MarginBlueprintWidget(width: width, height: height),
             ],
           ),
         ),

@@ -11,8 +11,9 @@ void main() {
       );
 
       final List<String> emissions = <String>[];
-      final StreamSubscription<String> sub =
-          bloc.toastStream.listen(emissions.add);
+      final StreamSubscription<String> sub = bloc.toastStream.listen(
+        emissions.add,
+      );
 
       bloc.showToast('Hello');
       await Future<void>.delayed(const Duration(milliseconds: 5));
@@ -50,8 +51,9 @@ void main() {
       final BlocUserNotifications bloc = BlocUserNotifications();
 
       // Nos suscribimos filtrando vacíos para evitar el valor inicial empty().
-      final Future<ToastMessage> firstNonEmpty =
-          bloc.stream.firstWhere((ToastMessage t) => t.isNotEmpty);
+      final Future<ToastMessage> firstNonEmpty = bloc.stream.firstWhere(
+        (ToastMessage t) => t.isNotEmpty,
+      );
 
       bloc.showToast('hola stream');
 
@@ -61,9 +63,7 @@ void main() {
       await bloc.dispose();
     });
 
-    test(
-        'distinctStream NO re-emite si llega el mismo mensaje en el mismo instante',
-        () async {
+    test('distinctStream NO re-emite si llega el mismo mensaje en el mismo instante', () async {
       // Inyectamos un "reloj" fijo para que dos showToast queden con el MISMO timestamp.
       final DateTime fixedNow = DateTime(2025, 01, 21, 12);
       final BlocUserNotifications bloc = BlocUserNotifications(
@@ -71,8 +71,9 @@ void main() {
       );
 
       final List<ToastMessage> received = <ToastMessage>[];
-      final StreamSubscription<ToastMessage> sub =
-          bloc.distinctStream.listen(received.add);
+      final StreamSubscription<ToastMessage> sub = bloc.distinctStream.listen(
+        received.add,
+      );
 
       // Mismo mensaje, misma marca de tiempo => el segundo se considera igual y no se emite.
       bloc.showToast('dup');
@@ -97,8 +98,7 @@ void main() {
       await bloc.dispose();
     });
 
-    test('showToast con duration usa Debouncer override y limpia el mensaje',
-        () async {
+    test('showToast con duration usa Debouncer override y limpia el mensaje', () async {
       final BlocUserNotifications bloc = BlocUserNotifications();
 
       // Usamos una ventana muy corta para que el test sea veloz.
@@ -117,16 +117,19 @@ void main() {
       await bloc.dispose();
     });
 
-    test('textStream refleja únicamente el texto (sanity check auxiliar)',
-        () async {
-      final BlocUserNotifications bloc = BlocUserNotifications();
-      final Future<String> firstText =
-          bloc.textStream.firstWhere((String s) => s.isNotEmpty);
+    test(
+      'textStream refleja únicamente el texto (sanity check auxiliar)',
+      () async {
+        final BlocUserNotifications bloc = BlocUserNotifications();
+        final Future<String> firstText = bloc.textStream.firstWhere(
+          (String s) => s.isNotEmpty,
+        );
 
-      bloc.showToast('solo texto');
-      expect(await firstText, 'solo texto');
+        bloc.showToast('solo texto');
+        expect(await firstText, 'solo texto');
 
-      await bloc.dispose();
-    });
+        await bloc.dispose();
+      },
+    );
   });
 }

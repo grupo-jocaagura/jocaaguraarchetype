@@ -1,17 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('DsGalleryPage', () {
     testWidgets(
       'Given gallery page When index is tapped Then shows index page',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: DsGalleryPage(),
-          ),
-        );
+        await tester.pumpWidget(const MaterialApp(home: DsGalleryPage()));
 
         await tester.tap(find.text('Index'));
         await tester.pumpAndSettle();
@@ -25,11 +21,7 @@ void main() {
     testWidgets(
       'Given index page When ModelDataVizPalette tile is tapped Then opens data viz page',
       (WidgetTester tester) async {
-        await tester.pumpWidget(
-          const MaterialApp(
-            home: DsGalleryPage(),
-          ),
-        );
+        await tester.pumpWidget(const MaterialApp(home: DsGalleryPage()));
 
         await tester.tap(find.text('Index'));
         await tester.pumpAndSettle();

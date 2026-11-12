@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ----------------- Helpers -----------------
 
@@ -29,16 +29,15 @@ Future<void> _mount(
 
 AppManager _managerWithRegistry({Size size = const Size(800, 600)}) {
   const PageModel home = PageModel(name: 'home', segments: <String>['home']);
-  const PageModel settings =
-      PageModel(name: 'settings', segments: <String>['settings']);
-
-  final PageRegistry registry = PageRegistry.fromDefs(
-    <PageDef>[
-      PageDef(model: home, builder: (_, __) => const SizedBox()),
-      PageDef(model: settings, builder: (_, __) => const SizedBox()),
-    ],
-    defaultPage: home,
+  const PageModel settings = PageModel(
+    name: 'settings',
+    segments: <String>['settings'],
   );
+
+  final PageRegistry registry = PageRegistry.fromDefs(<PageDef>[
+    PageDef(model: home, builder: (_, __) => const SizedBox()),
+    PageDef(model: settings, builder: (_, __) => const SizedBox()),
+  ], defaultPage: home);
 
   final AppConfig cfg = AppConfig.dev(registry: registry);
   final AppManager m = AppManager(cfg);
@@ -54,8 +53,9 @@ AppManager _managerWithRegistry({Size size = const Size(800, 600)}) {
 
 void main() {
   group('PageBuilder', () {
-    testWidgets('inyecta AppManager y muestra el page dado',
-        (WidgetTester tester) async {
+    testWidgets('inyecta AppManager y muestra el page dado', (
+      WidgetTester tester,
+    ) async {
       final AppManager m = _managerWithRegistry(size: const Size(360, 640));
 
       await _mount(
@@ -69,44 +69,47 @@ void main() {
     });
 
     testWidgets(
-        'AppBar title usa currentTitle; al navegar se actualiza (sin remontar)',
-        (WidgetTester tester) async {
-      final AppManager m = _managerWithRegistry();
+      'AppBar title usa currentTitle; al navegar se actualiza (sin remontar)',
+      (WidgetTester tester) async {
+        final AppManager m = _managerWithRegistry();
 
-      await _mount(tester, manager: m, page: const SizedBox());
-      expect(find.text('Home'), findsOneWidget);
+        await _mount(tester, manager: m, page: const SizedBox());
+        expect(find.text('Home'), findsOneWidget);
 
-      m.pageManager.replaceTopNamed('settings', title: 'Ajustes');
-      await tester.pumpAndSettle();
+        m.pageManager.replaceTopNamed('settings', title: 'Ajustes');
+        await tester.pumpAndSettle();
 
-      expect(find.text('Ajustes'), findsOneWidget);
-    });
+        expect(find.text('Ajustes'), findsOneWidget);
+      },
+    );
 
-    testWidgets('con opciones -> Drawer aparece y callback se dispara y cierra',
-        (WidgetTester tester) async {
-      final AppManager m = _managerWithRegistry(size: const Size(390, 780));
+    testWidgets(
+      'con opciones -> Drawer aparece y callback se dispara y cierra',
+      (WidgetTester tester) async {
+        final AppManager m = _managerWithRegistry(size: const Size(390, 780));
 
-      bool tapped = false;
-      m.mainMenu.addMainMenuOption(
-        onPressed: () => tapped = true,
-        label: 'Inicio',
-        iconData: Icons.home,
-      );
+        bool tapped = false;
+        m.mainMenu.addMainMenuOption(
+          onPressed: () => tapped = true,
+          label: 'Inicio',
+          iconData: Icons.home,
+        );
 
-      await _mount(tester, manager: m, page: const SizedBox());
+        await _mount(tester, manager: m, page: const SizedBox());
 
-      await tester.tap(find.byTooltip('Open navigation menu'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.byTooltip('Open navigation menu'));
+        await tester.pumpAndSettle();
 
-      expect(find.byType(Drawer), findsOneWidget);
+        expect(find.byType(Drawer), findsOneWidget);
 
-      final Finder option = find.byType(DrawerOptionWidget).first;
-      await tester.tap(option);
-      await tester.pumpAndSettle();
+        final Finder option = find.byType(DrawerOptionWidget).first;
+        await tester.tap(option);
+        await tester.pumpAndSettle();
 
-      expect(tapped, isTrue);
-      expect(find.byType(Drawer), findsNothing);
-    });
+        expect(tapped, isTrue);
+        expect(find.byType(Drawer), findsNothing);
+      },
+    );
 
     testWidgets(
       'emite toast -> aparece el overlay (Close visible) y drenamos timer (rápido)',
@@ -155,12 +158,18 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 1));
 
-        final bool sawLoadingWidget =
-            find.byType(LoadingPage).evaluate().isNotEmpty;
-        final bool sawSpinner =
-            find.byType(CircularProgressIndicator).evaluate().isNotEmpty;
-        final bool sawLoadingText =
-            find.textContaining('Cargando').evaluate().isNotEmpty;
+        final bool sawLoadingWidget = find
+            .byType(LoadingPage)
+            .evaluate()
+            .isNotEmpty;
+        final bool sawSpinner = find
+            .byType(CircularProgressIndicator)
+            .evaluate()
+            .isNotEmpty;
+        final bool sawLoadingText = find
+            .textContaining('Cargando')
+            .evaluate()
+            .isNotEmpty;
 
         expect(sawLoadingWidget || sawSpinner || sawLoadingText, isTrue);
 
@@ -174,50 +183,52 @@ void main() {
       },
     );
 
-    testWidgets('cambia AppManager -> se re-vinculan streams (menú principal)',
-        (WidgetTester tester) async {
-      final AppManager m1 = _managerWithRegistry();
-      final AppManager m2 = _managerWithRegistry(size: const Size(1200, 800));
+    testWidgets(
+      'cambia AppManager -> se re-vinculan streams (menú principal)',
+      (WidgetTester tester) async {
+        final AppManager m1 = _managerWithRegistry();
+        final AppManager m2 = _managerWithRegistry(size: const Size(1200, 800));
 
-      m1.mainMenu.addMainMenuOption(
-        onPressed: () {},
-        label: 'X',
-        iconData: Icons.star,
-      );
+        m1.mainMenu.addMainMenuOption(
+          onPressed: () {},
+          label: 'X',
+          iconData: Icons.star,
+        );
 
-      await _mount(tester, manager: m1, page: const SizedBox());
+        await _mount(tester, manager: m1, page: const SizedBox());
 
-      await tester.tap(find.byTooltip('Open navigation menu'));
-      await tester.pumpAndSettle();
-      expect(find.byType(Drawer), findsOneWidget);
-      await tester.tap(find.text('X'));
-      await tester.pumpAndSettle();
-      expect(find.byType(Drawer), findsNothing);
+        await tester.tap(find.byTooltip('Open navigation menu'));
+        await tester.pumpAndSettle();
+        expect(find.byType(Drawer), findsOneWidget);
+        await tester.tap(find.text('X'));
+        await tester.pumpAndSettle();
+        expect(find.byType(Drawer), findsNothing);
 
-      await tester.pumpWidget(
-        AppManagerProvider(
-          appManager: m2,
-          child: MaterialApp(
-            theme: ThemeData(useMaterial3: true),
-            home: const MediaQuery(
-              data: MediaQueryData(size: Size(1200, 800)),
-              child: PageBuilder(page: SizedBox()),
+        await tester.pumpWidget(
+          AppManagerProvider(
+            appManager: m2,
+            child: MaterialApp(
+              theme: ThemeData(useMaterial3: true),
+              home: const MediaQuery(
+                data: MediaQueryData(size: Size(1200, 800)),
+                child: PageBuilder(page: SizedBox()),
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      m2.mainMenu.addMainMenuOption(
-        onPressed: () {},
-        label: 'Y',
-        iconData: Icons.alarm,
-      );
-      await tester.pumpAndSettle();
+        m2.mainMenu.addMainMenuOption(
+          onPressed: () {},
+          label: 'Y',
+          iconData: Icons.alarm,
+        );
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.byTooltip('Open navigation menu'));
-      await tester.pumpAndSettle();
-      expect(find.text('Y'), findsOneWidget);
-    });
+        await tester.tap(find.byTooltip('Open navigation menu'));
+        await tester.pumpAndSettle();
+        expect(find.text('Y'), findsOneWidget);
+      },
+    );
   });
 }

@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2026-11-12
+
+### Changed
+
+- Reconcile the previous 4.6.0 release history with develop so the validated
+  5.0.0 release can merge into master without reverting its SDK or API migration.
+- **Breaking:** use standalone `material_ui ^1.11.0` and `cupertino_ui ^1.1.6`
+  throughout the public theme/navigation APIs, tests, examples and documentation.
+  Consumers must migrate design-library dependencies and imports together.
+- **Breaking:** require Flutter >=3.50.0 and Dart >=3.14.0 <4.0.0,
+  matching the domain candidate's homologated SDK requirements.
+- Adopt the official hosted `jocaagura_domain ^2.0.0` release, with transitive
+  `jocaagura_domain_core ^1.3.0`, replacing the previously certified Git snapshot.
+- Remove the root `publish_to: none` integration restriction now that all
+  package dependencies are published. Keep the example non-publishable.
+- Remove obsolete lint rules and adopt Dart 3.13 initializing formals without
+  changing public argument names. Document consumer migration and release steps.
+- Reformat the source with the formatter enabled by the Dart 3.13 language
+  constraint. Update the example's web bootstrap and include Cupertino icon fonts.
+- Revalidate the homologated domain candidate on Flutter 3.50.0/Dart 3.14.0,
+  publish the integration certificate, and skip repeated PR version increments
+  when the version already matches the increment calculated from the PR base.
+- Validate the hosted domain 2.0.0 release before publication, replace the
+  wall-clock-dependent delay test with deterministic virtual time, and exclude
+  the temporary local review diff from package archives.
+
+### Fixed
+
+- Cancel pending default and custom toast timers when `AppManager` disposes
+  `BlocUserNotifications`, preserving idempotent disposal. Fixes #133.
+- Cancel previous auto-close timers when clearing or replacing toasts so older
+  notifications cannot dismiss their replacements prematurely.
+- Add eight deterministic regression tests for notification disposal and
+  replacement across default and custom durations.
+
 ## [4.6.0] - 2026-09-09
 
 ### Added

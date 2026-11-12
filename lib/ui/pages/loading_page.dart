@@ -10,10 +10,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// const LoadingPage(message: 'Syncing...');
 /// ```
 class LoadingPage extends StatelessWidget {
-  const LoadingPage({
-    required this.msg,
-    super.key,
-  });
+  const LoadingPage({required this.msg, super.key});
 
   final String msg;
 
@@ -26,10 +23,7 @@ class LoadingPage extends StatelessWidget {
         height: MediaQuery.of(context).size.height,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const CircularProgressIndicator(),
-            Text(msg),
-          ],
+          children: <Widget>[const CircularProgressIndicator(), Text(msg)],
         ),
       ),
     );

@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// --- Fakes mínimos para Router (sin paquetes externos) ---
 
@@ -149,10 +149,12 @@ void main() {
             StreamController<ThemeState>.broadcast(sync: true);
         addTearDown(() async => themeCtrl.close());
 
-        final ThemeState initial =
-            ThemeState.defaults.copyWith(mode: ThemeMode.light);
-        final ThemeState dark =
-            ThemeState.defaults.copyWith(mode: ThemeMode.dark);
+        final ThemeState initial = ThemeState.defaults.copyWith(
+          mode: ThemeMode.light,
+        );
+        final ThemeState dark = ThemeState.defaults.copyWith(
+          mode: ThemeMode.dark,
+        );
 
         final _FakeBlocResponsive responsive = _FakeBlocResponsive();
         final AbstractAppManager appManager = _FakeAppManager(responsive);

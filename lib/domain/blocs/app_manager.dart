@@ -15,11 +15,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// - `home` behaves as singleTop via [clearAndGoHome].
 /// - Pages may set `requiresAuth`; coordinator redirects to `/login`.
 class AppManager implements AbstractAppManager {
-  AppManager(
-    this._config, {
-    this.onAppLifecycleChanged,
-    this.env = defaultEnv,
-  });
+  AppManager(this._config, {this.onAppLifecycleChanged, this.env = defaultEnv});
   AppConfig _config;
   bool _disposed = false;
 
@@ -184,11 +180,7 @@ class AppManager implements AbstractAppManager {
     String label = 'Loading…',
     Duration minShow = Duration.zero,
   }) {
-    return loading.loadingWhile<T>(
-      label,
-      () async => future,
-      minShow: minShow,
-    );
+    return loading.loadingWhile<T>(label, () async => future, minShow: minShow);
   }
 
   @override
@@ -197,11 +189,7 @@ class AppManager implements AbstractAppManager {
     String label = 'Loading…',
     Duration minShow = Duration.zero,
   }) {
-    return loading.queueLoadingWhile<T>(
-      label,
-      task,
-      minShow: minShow,
-    );
+    return loading.queueLoadingWhile<T>(label, task, minShow: minShow);
   }
 
   // --------------------------------------------------------------------------

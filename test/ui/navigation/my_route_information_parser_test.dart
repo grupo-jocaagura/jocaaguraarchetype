@@ -4,18 +4,20 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
   group('MyRouteInformationParser.parseRouteInformation', () {
-    test('"/" devuelve stack con defaultRouteName y segmentos vacíos',
-        () async {
-      const MyRouteInformationParser p = MyRouteInformationParser();
+    test(
+      '"/" devuelve stack con defaultRouteName y segmentos vacíos',
+      () async {
+        const MyRouteInformationParser p = MyRouteInformationParser();
 
-      final NavStackModel s = await p.parseRouteInformation(
-        RouteInformation(uri: Uri.parse('/')),
-      );
+        final NavStackModel s = await p.parseRouteInformation(
+          RouteInformation(uri: Uri.parse('/')),
+        );
 
-      expect(s.pages.length, 1);
-      expect(s.top.name, 'home');
-      expect(s.top.segments, isEmpty);
-    });
+        expect(s.pages.length, 1);
+        expect(s.top.name, 'home');
+        expect(s.top.segments, isEmpty);
+      },
+    );
 
     test('mapea slug con slugToName y separa segmentos y query', () async {
       const MyRouteInformationParser p = MyRouteInformationParser(

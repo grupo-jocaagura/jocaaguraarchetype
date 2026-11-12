@@ -3,47 +3,51 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
   group('FlowValidationIssue', () {
-    test('Given minimal fields When created Then exposes required properties',
-        () {
-      // Arrange
-      const FlowValidationIssue issue = FlowValidationIssue(
-        code: FlowValidationCode.emptyFlow,
-        severity: FlowValidationSeverity.error,
-        message: 'Flow has no steps.',
-      );
+    test(
+      'Given minimal fields When created Then exposes required properties',
+      () {
+        // Arrange
+        const FlowValidationIssue issue = FlowValidationIssue(
+          code: FlowValidationCode.emptyFlow,
+          severity: FlowValidationSeverity.error,
+          message: 'Flow has no steps.',
+        );
 
-      // Assert
-      expect(issue.code, FlowValidationCode.emptyFlow);
-      expect(issue.severity, FlowValidationSeverity.error);
-      expect(issue.message, 'Flow has no steps.');
-      expect(issue.stepIndex, isNull);
-      expect(issue.refIndex, isNull);
-      expect(issue.cyclePath, isNull);
-    });
+        // Assert
+        expect(issue.code, FlowValidationCode.emptyFlow);
+        expect(issue.severity, FlowValidationSeverity.error);
+        expect(issue.message, 'Flow has no steps.');
+        expect(issue.stepIndex, isNull);
+        expect(issue.refIndex, isNull);
+        expect(issue.cyclePath, isNull);
+      },
+    );
 
-    test('Given all optional fields When toString Then contains key fields',
-        () {
-      // Arrange
-      const FlowValidationIssue issue = FlowValidationIssue(
-        code: FlowValidationCode.loopDetected,
-        severity: FlowValidationSeverity.error,
-        message: 'Cycle detected.',
-        stepIndex: 1,
-        refIndex: 2,
-        cyclePath: <int>[1, 2, 3, 1],
-      );
+    test(
+      'Given all optional fields When toString Then contains key fields',
+      () {
+        // Arrange
+        const FlowValidationIssue issue = FlowValidationIssue(
+          code: FlowValidationCode.loopDetected,
+          severity: FlowValidationSeverity.error,
+          message: 'Cycle detected.',
+          stepIndex: 1,
+          refIndex: 2,
+          cyclePath: <int>[1, 2, 3, 1],
+        );
 
-      // Act
-      final String s = issue.toString();
+        // Act
+        final String s = issue.toString();
 
-      // Assert (contains instead of exact match to avoid brittle tests)
-      expect(s, contains('code=FlowValidationCode.loopDetected'));
-      expect(s, contains('severity=FlowValidationSeverity.error'));
-      expect(s, contains('stepIndex=1'));
-      expect(s, contains('refIndex=2'));
-      expect(s, contains('message="Cycle detected."'));
-      expect(s, contains('cyclePath=[1, 2, 3, 1]'));
-    });
+        // Assert (contains instead of exact match to avoid brittle tests)
+        expect(s, contains('code=FlowValidationCode.loopDetected'));
+        expect(s, contains('severity=FlowValidationSeverity.error'));
+        expect(s, contains('stepIndex=1'));
+        expect(s, contains('refIndex=2'));
+        expect(s, contains('message="Cycle detected."'));
+        expect(s, contains('cyclePath=[1, 2, 3, 1]'));
+      },
+    );
   });
 
   group('FlowValidationReport', () {
@@ -75,9 +79,7 @@ void main() {
       expect(report.isValid, isFalse);
     });
 
-    test(
-        'Given errors and warnings When all Then returns errors first then warnings',
-        () {
+    test('Given errors and warnings When all Then returns errors first then warnings', () {
       // Arrange
       const FlowValidationIssue e1 = FlowValidationIssue(
         code: FlowValidationCode.emptyFlow,
@@ -105,29 +107,31 @@ void main() {
       expect(all[1], same(w1));
     });
 
-    test('Given report.all When trying to mutate Then throws UnsupportedError',
-        () {
-      // Arrange
-      const FlowValidationReport report = FlowValidationReport(
-        errors: <FlowValidationIssue>[],
-        warnings: <FlowValidationIssue>[],
-      );
+    test(
+      'Given report.all When trying to mutate Then throws UnsupportedError',
+      () {
+        // Arrange
+        const FlowValidationReport report = FlowValidationReport(
+          errors: <FlowValidationIssue>[],
+          warnings: <FlowValidationIssue>[],
+        );
 
-      // Act
-      final List<FlowValidationIssue> all = report.all;
+        // Act
+        final List<FlowValidationIssue> all = report.all;
 
-      // Assert
-      expect(
-        () => all.add(
-          const FlowValidationIssue(
-            code: FlowValidationCode.noTerminalStep,
-            severity: FlowValidationSeverity.error,
-            message: 'No terminal step.',
+        // Assert
+        expect(
+          () => all.add(
+            const FlowValidationIssue(
+              code: FlowValidationCode.noTerminalStep,
+              severity: FlowValidationSeverity.error,
+              message: 'No terminal step.',
+            ),
           ),
-        ),
-        throwsUnsupportedError,
-      );
-    });
+          throwsUnsupportedError,
+        );
+      },
+    );
 
     test('Given report When toString Then contains summary counts', () {
       // Arrange

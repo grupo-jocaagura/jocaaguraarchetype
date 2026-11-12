@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Harness controlado que simula al BLoC/parent:
 /// - guarda `value` y lo actualiza cuando el widget emite onChangedAttempt/onSubmittedAttempt.
@@ -103,9 +103,7 @@ Future<void> _pumpHarness(
       home: MediaQuery(
         data: MediaQueryData(size: surface),
         child: Scaffold(
-          body: Center(
-            child: SizedBox(width: 300, child: harness),
-          ),
+          body: Center(child: SizedBox(width: 300, child: harness)),
         ),
       ),
     ),
@@ -117,8 +115,9 @@ Finder _textFieldFinder() => find.byType(TextField);
 
 void main() {
   group('JocaaguraAutocompleteInputWidget (controlado)', () {
-    testWidgets('render básico, label/placeholder, icono y errorText',
-        (WidgetTester tester) async {
+    testWidgets('render básico, label/placeholder, icono y errorText', (
+      WidgetTester tester,
+    ) async {
       final List<String> changed = <String>[];
       final List<String> submitted = <String>[];
 
@@ -149,8 +148,9 @@ void main() {
       expect(find.text('Ups'), findsOneWidget);
     });
 
-    testWidgets('sync externo: el padre cambia value y el campo se actualiza',
-        (WidgetTester tester) async {
+    testWidgets('sync externo: el padre cambia value y el campo se actualiza', (
+      WidgetTester tester,
+    ) async {
       final List<String> changed = <String>[];
       final List<String> submitted = <String>[];
 
@@ -172,80 +172,84 @@ void main() {
       expect(find.text('Err'), findsOneWidget);
     });
 
-    testWidgets('onChangedAttempt y filtrado de sugerencias (case-insensitive)',
-        (WidgetTester tester) async {
-      final List<String> changed = <String>[];
-      final List<String> submitted = <String>[];
+    testWidgets(
+      'onChangedAttempt y filtrado de sugerencias (case-insensitive)',
+      (WidgetTester tester) async {
+        final List<String> changed = <String>[];
+        final List<String> submitted = <String>[];
 
-      final List<String> suggestions = <String>[
-        'Apple',
-        'Banana',
-        'Grape',
-        'Pineapple',
-        'Orange',
-      ];
+        final List<String> suggestions = <String>[
+          'Apple',
+          'Banana',
+          'Grape',
+          'Pineapple',
+          'Orange',
+        ];
 
-      final _Harness harness = _Harness(
-        initialValue: '',
-        onChangedLog: changed,
-        onSubmittedLog: submitted,
-        suggestList: suggestions,
-      );
+        final _Harness harness = _Harness(
+          initialValue: '',
+          onChangedLog: changed,
+          onSubmittedLog: submitted,
+          suggestList: suggestions,
+        );
 
-      await _pumpHarness(tester, harness: harness);
+        await _pumpHarness(tester, harness: harness);
 
-      await tester.tap(_textFieldFinder());
-      await tester.pumpAndSettle();
+        await tester.tap(_textFieldFinder());
+        await tester.pumpAndSettle();
 
-      await tester.enterText(
-        _textFieldFinder(),
-        'ap',
-      ); // Apple, Grape, Pineapple
-      await tester.pumpAndSettle();
+        await tester.enterText(
+          _textFieldFinder(),
+          'ap',
+        ); // Apple, Grape, Pineapple
+        await tester.pumpAndSettle();
 
-      expect(changed, isNotEmpty);
-      expect(find.text('Apple'), findsOneWidget);
-      expect(find.text('Grape'), findsOneWidget);
-      expect(find.text('Pineapple'), findsOneWidget);
-      expect(find.text('Banana'), findsNothing);
-    });
+        expect(changed, isNotEmpty);
+        expect(find.text('Apple'), findsOneWidget);
+        expect(find.text('Grape'), findsOneWidget);
+        expect(find.text('Pineapple'), findsOneWidget);
+        expect(find.text('Banana'), findsNothing);
+      },
+    );
 
     testWidgets(
-        'onSelected: al tocar una sugerencia actualiza value (controlado)',
-        (WidgetTester tester) async {
-      final List<String> changed = <String>[];
-      final List<String> submitted = <String>[];
+      'onSelected: al tocar una sugerencia actualiza value (controlado)',
+      (WidgetTester tester) async {
+        final List<String> changed = <String>[];
+        final List<String> submitted = <String>[];
 
-      final _Harness harness = _Harness(
-        initialValue: '',
-        onChangedLog: changed,
-        onSubmittedLog: submitted,
-        suggestList: const <String>['alpha', 'beta', 'gamma'],
-      );
+        final _Harness harness = _Harness(
+          initialValue: '',
+          onChangedLog: changed,
+          onSubmittedLog: submitted,
+          suggestList: const <String>['alpha', 'beta', 'gamma'],
+        );
 
-      await _pumpHarness(tester, harness: harness);
+        await _pumpHarness(tester, harness: harness);
 
-      await tester.tap(_textFieldFinder());
-      await tester.pumpAndSettle();
+        await tester.tap(_textFieldFinder());
+        await tester.pumpAndSettle();
 
-      await tester.enterText(_textFieldFinder(), 'a');
-      await tester.pumpAndSettle();
+        await tester.enterText(_textFieldFinder(), 'a');
+        await tester.pumpAndSettle();
 
-      // Tocar 'gamma'
-      await tester.tap(find.text('gamma'));
-      await tester.pumpAndSettle();
+        // Tocar 'gamma'
+        await tester.tap(find.text('gamma'));
+        await tester.pumpAndSettle();
 
-      // Cambios registrados y el TextField queda con 'gamma'
-      expect(changed, contains('gamma'));
-      final TextField tf = tester.widget(_textFieldFinder());
-      expect(tf.controller!.text, 'gamma');
+        // Cambios registrados y el TextField queda con 'gamma'
+        expect(changed, contains('gamma'));
+        final TextField tf = tester.widget(_textFieldFinder());
+        expect(tf.controller!.text, 'gamma');
 
-      // Overlay debe cerrarse (la opción tocada ya no está)
-      expect(find.text('beta'), findsNothing);
-    });
+        // Overlay debe cerrarse (la opción tocada ya no está)
+        expect(find.text('beta'), findsNothing);
+      },
+    );
 
-    testWidgets('submit (IME action) dispara onSubmittedAttempt con el valor',
-        (WidgetTester tester) async {
+    testWidgets('submit (IME action) dispara onSubmittedAttempt con el valor', (
+      WidgetTester tester,
+    ) async {
       final List<String> changed = <String>[];
       final List<String> submitted = <String>[];
 
@@ -270,8 +274,9 @@ void main() {
       expect(submitted.last, 'hola');
     });
 
-    testWidgets('obscureText + toggle de visibilidad',
-        (WidgetTester tester) async {
+    testWidgets('obscureText + toggle de visibilidad', (
+      WidgetTester tester,
+    ) async {
       const _Harness harness = _Harness(
         initialValue: 'secret',
         onChangedLog: <String>[],
@@ -293,8 +298,9 @@ void main() {
       expect(tf.obscureText, isFalse);
     });
 
-    testWidgets('sin toggle cuando showToggleObscure=false',
-        (WidgetTester tester) async {
+    testWidgets('sin toggle cuando showToggleObscure=false', (
+      WidgetTester tester,
+    ) async {
       const _Harness harness = _Harness(
         initialValue: 'secret',
         onChangedLog: <String>[],
@@ -307,10 +313,13 @@ void main() {
       expect(find.byType(IconButton), findsNothing);
     });
 
-    testWidgets('overlay: respeta minOptionsWidth y maxOptionsHeight',
-        (WidgetTester tester) async {
-      final List<String> suggestions =
-          List<String>.generate(50, (int i) => 'item $i');
+    testWidgets('overlay: respeta minOptionsWidth y maxOptionsHeight', (
+      WidgetTester tester,
+    ) async {
+      final List<String> suggestions = List<String>.generate(
+        50,
+        (int i) => 'item $i',
+      );
       final List<String> onchanged = <String>[];
       final List<String> onSubmittedLog = <String>[];
 
@@ -345,28 +354,30 @@ void main() {
     });
 
     testWidgets(
-        'Semantics: label/hint personalizados y autofillHints propagados',
-        (WidgetTester tester) async {
-      const _Harness harness = _Harness(
-        initialValue: '',
-        onChangedLog: <String>[],
-        onSubmittedLog: <String>[],
-        semanticsLabel: 'Campo Ultra',
-        semanticsHint: 'Ingresa algo',
-        autofillHints: <String>[AutofillHints.password],
-      );
+      'Semantics: label/hint personalizados y autofillHints propagados',
+      (WidgetTester tester) async {
+        const _Harness harness = _Harness(
+          initialValue: '',
+          onChangedLog: <String>[],
+          onSubmittedLog: <String>[],
+          semanticsLabel: 'Campo Ultra',
+          semanticsHint: 'Ingresa algo',
+          autofillHints: <String>[AutofillHints.password],
+        );
 
-      await _pumpHarness(tester, harness: harness);
+        await _pumpHarness(tester, harness: harness);
 
-      // Verificamos autofillHints en el TextField
-      final TextField tf = tester.widget(_textFieldFinder());
-      expect(tf.autofillHints, isNotNull);
-      expect(tf.autofillHints!.contains(AutofillHints.password), isTrue);
+        // Verificamos autofillHints en el TextField
+        final TextField tf = tester.widget(_textFieldFinder());
+        expect(tf.autofillHints, isNotNull);
+        expect(tf.autofillHints!.contains(AutofillHints.password), isTrue);
 
-      // Buscamos el Semantics que nuestro widget crea con ese label/hint.
-      final Finder semanticsFinder =
-          find.byWidgetPredicate((Widget w) => w is Semantics);
-      expect(semanticsFinder, findsAtLeast(1));
-    });
+        // Buscamos el Semantics que nuestro widget crea con ese label/hint.
+        final Finder semanticsFinder = find.byWidgetPredicate(
+          (Widget w) => w is Semantics,
+        );
+        expect(semanticsFinder, findsAtLeast(1));
+      },
+    );
   });
 }

@@ -3,15 +3,15 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
   group('FlowConstraintUtils.formatUrl', () {
-    test(
-        'Given label/url valid When format Then returns normalized url constraint',
-        () {
+    test('Given label/url valid When format Then returns normalized url constraint', () {
       // Arrange
       final Uri url = Uri.parse('https://example.com/docs');
 
       // Act
-      final String c =
-          FlowConstraintUtils.formatUrl(label: '  Figma  ', url: url);
+      final String c = FlowConstraintUtils.formatUrl(
+        label: '  Figma  ',
+        url: url,
+      );
 
       // Assert
       expect(c, 'url:figma|https://example.com/docs');
@@ -36,9 +36,7 @@ void main() {
   });
 
   group('FlowConstraintUtils.formatMetric', () {
-    test(
-        'Given finite value When format Then returns normalized metric constraint',
-        () {
+    test('Given finite value When format Then returns normalized metric constraint', () {
       final String c = FlowConstraintUtils.formatMetric(
         name: ' Sugar ',
         value: 2,
@@ -73,20 +71,17 @@ void main() {
       expect(c.raw, '');
     });
 
-    test(
-        'Given url constraint When parse Then returns url kind with label and uri',
-        () {
-      final FlowConstraint c =
-          FlowConstraintUtils.parse('url:figma|https://example.com/a');
+    test('Given url constraint When parse Then returns url kind with label and uri', () {
+      final FlowConstraint c = FlowConstraintUtils.parse(
+        'url:figma|https://example.com/a',
+      );
       expect(c.kind, FlowConstraintKind.url);
       expect(c.label, 'figma');
       expect(c.url, isNotNull);
       expect(c.url.toString(), 'https://example.com/a');
     });
 
-    test(
-        'Given url constraint with missing url When parse Then url may be null or empty uri but kind is url',
-        () {
+    test('Given url constraint with missing url When parse Then url may be null or empty uri but kind is url', () {
       final FlowConstraint c = FlowConstraintUtils.parse('url:docs|');
       expect(c.kind, FlowConstraintKind.url);
       expect(c.label, 'docs');
@@ -96,20 +91,22 @@ void main() {
     });
 
     test(
-        'Given metric constraint When parse Then returns metric kind with fields',
-        () {
-      final FlowConstraint c = FlowConstraintUtils.parse('metric:sugar|2|tbsp');
-      expect(c.kind, FlowConstraintKind.metric);
-      expect(c.key, 'sugar');
-      expect(c.value, 2.0);
-      expect(c.unit, 'tbsp');
-    });
+      'Given metric constraint When parse Then returns metric kind with fields',
+      () {
+        final FlowConstraint c = FlowConstraintUtils.parse(
+          'metric:sugar|2|tbsp',
+        );
+        expect(c.kind, FlowConstraintKind.metric);
+        expect(c.key, 'sugar');
+        expect(c.value, 2.0);
+        expect(c.unit, 'tbsp');
+      },
+    );
 
-    test(
-        'Given metric constraint with non-numeric value When parse Then value is null',
-        () {
-      final FlowConstraint c =
-          FlowConstraintUtils.parse('metric:sugar|two|tbsp');
+    test('Given metric constraint with non-numeric value When parse Then value is null', () {
+      final FlowConstraint c = FlowConstraintUtils.parse(
+        'metric:sugar|two|tbsp',
+      );
       expect(c.kind, FlowConstraintKind.metric);
       expect(c.key, 'sugar');
       expect(c.value, isNull);
@@ -117,8 +114,9 @@ void main() {
     });
 
     test('Given flag constraint When parse Then returns flag with key', () {
-      final FlowConstraint c =
-          FlowConstraintUtils.parse('flag:requiresInternet');
+      final FlowConstraint c = FlowConstraintUtils.parse(
+        'flag:requiresInternet',
+      );
       expect(c.kind, FlowConstraintKind.flag);
       expect(c.key, 'requiresInternet');
     });
@@ -164,22 +162,22 @@ void main() {
       );
     }
 
-    test('Given no existing url constraint When withUrlConstraint Then adds it',
-        () {
-      final ModelFlowStep step = makeStep();
-      final ModelFlowStep updated = step.withUrlConstraint(
-        label: 'docs',
-        url: Uri.parse('https://example.com/docs'),
-      );
-
-      expect(step.constraints, isEmpty);
-      expect(updated.constraints.length, 1);
-      expect(updated.constraints.first, 'url:docs|https://example.com/docs');
-    });
-
     test(
-        'Given existing exact url constraint When withUrlConstraint Then does not duplicate',
-        () {
+      'Given no existing url constraint When withUrlConstraint Then adds it',
+      () {
+        final ModelFlowStep step = makeStep();
+        final ModelFlowStep updated = step.withUrlConstraint(
+          label: 'docs',
+          url: Uri.parse('https://example.com/docs'),
+        );
+
+        expect(step.constraints, isEmpty);
+        expect(updated.constraints.length, 1);
+        expect(updated.constraints.first, 'url:docs|https://example.com/docs');
+      },
+    );
+
+    test('Given existing exact url constraint When withUrlConstraint Then does not duplicate', () {
       final ModelFlowStep step = makeStep(
         constraints: <String>['url:docs|https://example.com/docs'],
       );
@@ -192,9 +190,7 @@ void main() {
       expect(updated.constraints.length, 1);
     });
 
-    test(
-        'Given metric constraint When withMetricConstraint Then adds it and stays deeply immutable',
-        () {
+    test('Given metric constraint When withMetricConstraint Then adds it and stays deeply immutable', () {
       final ModelFlowStep step = makeStep();
       final ModelFlowStep updated = step.withMetricConstraint(
         name: 'sugar',
@@ -209,26 +205,27 @@ void main() {
     });
   });
   group('FlowConstraint.isNavigableUrl', () {
-    test('Given https absolute URL When parsed Then isNavigableUrl is true',
-        () {
-      // Arrange
-      const String raw = 'url:docs|https://example.com/a';
-
-      // Act
-      final FlowConstraint c = FlowConstraintUtils.parse(raw);
-
-      // Assert
-      expect(c.kind, FlowConstraintKind.url);
-      expect(c.isNavigableUrl, isTrue);
-      expect(c.url, isNotNull);
-      expect(c.url.toString(), 'https://example.com/a');
-    });
-
     test(
-        'Given http absolute URL When parsed Then isNavigableUrl is false (https-only)',
-        () {
-      final FlowConstraint c =
-          FlowConstraintUtils.parse('url:docs|http://example.com/a');
+      'Given https absolute URL When parsed Then isNavigableUrl is true',
+      () {
+        // Arrange
+        const String raw = 'url:docs|https://example.com/a';
+
+        // Act
+        final FlowConstraint c = FlowConstraintUtils.parse(raw);
+
+        // Assert
+        expect(c.kind, FlowConstraintKind.url);
+        expect(c.isNavigableUrl, isTrue);
+        expect(c.url, isNotNull);
+        expect(c.url.toString(), 'https://example.com/a');
+      },
+    );
+
+    test('Given http absolute URL When parsed Then isNavigableUrl is false (https-only)', () {
+      final FlowConstraint c = FlowConstraintUtils.parse(
+        'url:docs|http://example.com/a',
+      );
 
       expect(c.kind, FlowConstraintKind.url);
       expect(c.url, isNotNull);
@@ -251,35 +248,41 @@ void main() {
       expect(c.isNavigableUrl, isFalse);
     });
 
-    test('Given URL without scheme When parsed Then isNavigableUrl is false',
-        () {
-      final FlowConstraint c =
-          FlowConstraintUtils.parse('url:docs|example.com/a');
+    test(
+      'Given URL without scheme When parsed Then isNavigableUrl is false',
+      () {
+        final FlowConstraint c = FlowConstraintUtils.parse(
+          'url:docs|example.com/a',
+        );
 
-      expect(c.kind, FlowConstraintKind.url);
-      // Puede parsear como Uri relativa (path), pero sin scheme.
-      expect(c.isNavigableUrl, isFalse);
-    });
-
-    test('Given non-url constraint When evaluated Then isNavigableUrl is false',
-        () {
-      final FlowConstraint metric =
-          FlowConstraintUtils.parse('metric:sugar|2|tbsp');
-      final FlowConstraint flag =
-          FlowConstraintUtils.parse('requiresInternet'); // legacy
-
-      expect(metric.kind, FlowConstraintKind.metric);
-      expect(metric.isNavigableUrl, isFalse);
-
-      expect(flag.kind, FlowConstraintKind.flag);
-      expect(flag.isNavigableUrl, isFalse);
-    });
+        expect(c.kind, FlowConstraintKind.url);
+        // Puede parsear como Uri relativa (path), pero sin scheme.
+        expect(c.isNavigableUrl, isFalse);
+      },
+    );
 
     test(
-        'Given URL with leading/trailing spaces When parsed Then trimming still allows navigation',
-        () {
-      final FlowConstraint c =
-          FlowConstraintUtils.parse('  url:docs|https://example.com/a  ');
+      'Given non-url constraint When evaluated Then isNavigableUrl is false',
+      () {
+        final FlowConstraint metric = FlowConstraintUtils.parse(
+          'metric:sugar|2|tbsp',
+        );
+        final FlowConstraint flag = FlowConstraintUtils.parse(
+          'requiresInternet',
+        ); // legacy
+
+        expect(metric.kind, FlowConstraintKind.metric);
+        expect(metric.isNavigableUrl, isFalse);
+
+        expect(flag.kind, FlowConstraintKind.flag);
+        expect(flag.isNavigableUrl, isFalse);
+      },
+    );
+
+    test('Given URL with leading/trailing spaces When parsed Then trimming still allows navigation', () {
+      final FlowConstraint c = FlowConstraintUtils.parse(
+        '  url:docs|https://example.com/a  ',
+      );
 
       expect(c.kind, FlowConstraintKind.url);
       expect(c.isNavigableUrl, isTrue);
@@ -300,18 +303,19 @@ void main() {
     });
 
     test(
-        'Given formatUrl with empty label When parse Then isNavigableUrl false',
-        () {
-      final String raw = FlowConstraintUtils.formatUrl(
-        label: '   ',
-        url: Uri.parse('https://example.com/docs'),
-      );
+      'Given formatUrl with empty label When parse Then isNavigableUrl false',
+      () {
+        final String raw = FlowConstraintUtils.formatUrl(
+          label: '   ',
+          url: Uri.parse('https://example.com/docs'),
+        );
 
-      final FlowConstraint c = FlowConstraintUtils.parse(raw);
+        final FlowConstraint c = FlowConstraintUtils.parse(raw);
 
-      // raw == url:unknown|
-      expect(c.kind, FlowConstraintKind.url);
-      expect(c.isNavigableUrl, isFalse);
-    });
+        // raw == url:unknown|
+        expect(c.kind, FlowConstraintKind.url);
+        expect(c.isNavigableUrl, isFalse);
+      },
+    );
   });
 }

@@ -70,8 +70,9 @@ class NavStackModel extends Model {
   const NavStackModel._internal(this.pages);
 
   /// Instancia especial que representa una ruta no encontrada.
-  static const NavStackModel notFound =
-      NavStackModel._internal(<PageModel>[PageModel(name: defaultName)]);
+  static const NavStackModel notFound = NavStackModel._internal(<PageModel>[
+    PageModel(name: defaultName),
+  ]);
 
   static const String defaultName = 'notFound';
   static const String pagesKey = 'pages';
@@ -127,8 +128,9 @@ class NavStackModel extends Model {
   static const String _kNameMeta = '__n';
 
   static String routeFromPage(PageModel p) {
-    final List<String> segs =
-        p.segments.isNotEmpty ? p.segments : <String>[p.name];
+    final List<String> segs = p.segments.isNotEmpty
+        ? p.segments
+        : <String>[p.name];
     final String path = '/${segs.join('/')}';
 
     final Map<String, String> q = <String, String>{};
@@ -144,10 +146,8 @@ class NavStackModel extends Model {
 
     String queryStr = '';
     if (q.isNotEmpty) {
-      queryStr = '?${q.entries.map(
-            (MapEntry<String, String> e) =>
-                '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}',
-          ).join('&')}';
+      queryStr =
+          '?${q.entries.map((MapEntry<String, String> e) => '${Uri.encodeQueryComponent(e.key)}=${Uri.encodeQueryComponent(e.value)}').join('&')}';
     }
 
     final String fragStr = (p.fragment == null || p.fragment!.isEmpty)
@@ -308,10 +308,7 @@ class NavStackModel extends Model {
   /// Empuja [page] garantizando que solo exista una instancia "igual" según [equals].
   ///
   /// Si ya existe en la pila, la remueve y agrega [page] al tope.
-  NavStackModel pushOnce(
-    PageModel page, {
-    PageEquals equals = routeEquals,
-  }) {
+  NavStackModel pushOnce(PageModel page, {PageEquals equals = routeEquals}) {
     if (pages.isEmpty) {
       return NavStackModel.single(page);
     }

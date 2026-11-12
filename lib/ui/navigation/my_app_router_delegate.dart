@@ -38,22 +38,18 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<NavStackModel> {
   /// Crea un delegate de navegación que observa el `PageManager` y construye las `pages`.
   ///
-  /// - [registry]: registro capaz de convertir `PageModel` en `Page`.
-  /// - [pageManager]: fuente de verdad del stack.
-  /// - [projectorMode]: si es `true`, solo se renderiza la página del tope.
-  /// - [userBackNavigationPolicy]: optional decision before user back navigation leaves a page.
-  /// - [onPageRemoved]: callback opcional cuando el `Navigator` reporta una página removida.
+  /// - [_registry]: registro capaz de convertir `PageModel` en `Page`.
+  /// - [_pageManager]: fuente de verdad del stack.
+  /// - [_projectorMode]: si es `true`, solo se renderiza la página del tope.
+  /// - [_userBackNavigationPolicy]: optional decision before user back navigation leaves a page.
+  /// - [_onPageRemoved]: callback opcional cuando el `Navigator` reporta una página removida.
   MyAppRouterDelegate({
-    required PageRegistry registry,
-    required PageManager pageManager,
-    bool projectorMode = false,
-    UserBackNavigationPolicy? userBackNavigationPolicy,
-    void Function(Page<Object?> removedPage)? onPageRemoved,
-  })  : _registry = registry,
-        _pageManager = pageManager,
-        _projectorMode = projectorMode,
-        _userBackNavigationPolicy = userBackNavigationPolicy,
-        _onPageRemoved = onPageRemoved {
+    required this._registry,
+    required this._pageManager,
+    this._projectorMode = false,
+    this._userBackNavigationPolicy,
+    this._onPageRemoved,
+  }) {
     _sub = _pageManager.stackStream.listen(_onStackChanged);
   }
 
@@ -176,14 +172,15 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
       final NavStackModel stack = _pageManager.stack;
       bool popped = false;
       final bool allowed = await _allowsUserBack(
-          UserBackNavigationRequest(
-            source: source,
-            currentPage: stack.top,
-            targetPage:
-                stack.isRoot ? null : stack.pages[stack.pages.length - 2],
-          ), () {
-        popped = _consumeFlutterBack() || _popFromDelegate();
-      });
+        UserBackNavigationRequest(
+          source: source,
+          currentPage: stack.top,
+          targetPage: stack.isRoot ? null : stack.pages[stack.pages.length - 2],
+        ),
+        () {
+          popped = _consumeFlutterBack() || _popFromDelegate();
+        },
+      );
       return !allowed || popped;
     }
     return _popFromDelegate();
@@ -224,8 +221,9 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
       UserBackNavigationRequest(
         source: UserBackNavigationSource.navigator,
         currentPage: snapshot.top,
-        targetPage:
-            snapshot.isRoot ? null : snapshot.pages[snapshot.pages.length - 2],
+        targetPage: snapshot.isRoot
+            ? null
+            : snapshot.pages[snapshot.pages.length - 2],
       ),
       () {
         if (!route.isCurrent || !manager.canPop) {
@@ -350,8 +348,8 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
     final List<Page<dynamic>> pages = _userBackNavigationPolicy == null
         ? registryPages
         : registryPages
-            .map((Page<dynamic> page) => _UserBackNavigationPage(page, this))
-            .toList(growable: false);
+              .map((Page<dynamic> page) => _UserBackNavigationPage(page, this))
+              .toList(growable: false);
 
     if (!_navigatorSyncedOnce) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -423,19 +421,22 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
   Future<void> setNewRoutePath(NavStackModel configuration) async {
     final int request = ++_routeRequest;
     if (_userBackNavigationPolicy != null && _handledInitialRoute) {
-      final bool historyRequest = configuration is! _UserHistoryStack ||
+      final bool historyRequest =
+          configuration is! _UserHistoryStack ||
           (configuration.backward ?? true);
       if (historyRequest) {
         await _allowsUserBack(
-            UserBackNavigationRequest(
-              source: UserBackNavigationSource.browserHistory,
-              currentPage: _pageManager.stack.top,
-              targetPage: configuration.top,
-            ), () {
-          if (request == _routeRequest) {
-            _applyUserHistoryPath(configuration);
-          }
-        });
+          UserBackNavigationRequest(
+            source: UserBackNavigationSource.browserHistory,
+            currentPage: _pageManager.stack.top,
+            targetPage: configuration.top,
+          ),
+          () {
+            if (request == _routeRequest) {
+              _applyUserHistoryPath(configuration);
+            }
+          },
+        );
         // Router republishes currentConfiguration when this Future completes.
         // UserBackRouteInformationProvider replaces the rejected browser URL.
         return;
@@ -448,10 +449,12 @@ class MyAppRouterDelegate extends RouterDelegate<NavStackModel>
 
   void _applyUserHistoryPath(NavStackModel configuration) {
     final List<PageModel> pages = _pageManager.stack.pages;
-    final int? historyIndex =
-        configuration is _UserHistoryStack ? configuration.stackIndex : null;
+    final int? historyIndex = configuration is _UserHistoryStack
+        ? configuration.stackIndex
+        : null;
     final String uri = configuration.top.toUriString();
-    final int index = historyIndex != null &&
+    final int index =
+        historyIndex != null &&
             historyIndex >= 0 &&
             historyIndex < pages.length &&
             pages[historyIndex].toUriString() == uri

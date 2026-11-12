@@ -95,8 +95,8 @@ class FlowSimulator {
 
       final String? effectiveFailureCode = branch == FlowBranch.failure
           ? (forced?.failureCodeOverride?.trim().isNotEmpty ?? false)
-              ? forced!.failureCodeOverride!.trim()
-              : step.failureCode
+                ? forced!.failureCodeOverride!.trim()
+                : step.failureCode
           : null;
 
       if (effectiveFailureCode != null) {

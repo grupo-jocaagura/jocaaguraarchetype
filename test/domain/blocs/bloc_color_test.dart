@@ -1,12 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('BlocColor', () {
-    test(
-        'Given external DS update When UI echoes same text Then it does not mark dirty nor re-apply',
-        () async {
+    test('Given external DS update When UI echoes same text Then it does not mark dirty nor re-apply', () async {
       int applyCount = 0;
       Color? lastApplied;
 
@@ -41,30 +39,29 @@ void main() {
     });
 
     test(
-        'Given invalid hex When user types Then it sets error and does not apply',
-        () async {
-      int applyCount = 0;
+      'Given invalid hex When user types Then it sets error and does not apply',
+      () async {
+        int applyCount = 0;
 
-      final BlocColor bloc = BlocColor(
-        const Color(0xFF000000),
-        onChangeColorAttempt: (_) => applyCount++,
-      );
+        final BlocColor bloc = BlocColor(
+          const Color(0xFF000000),
+          onChangeColorAttempt: (_) => applyCount++,
+        );
 
-      bloc.onColorChangedAttempt('#GGGGGG');
+        bloc.onColorChangedAttempt('#GGGGGG');
 
-      expect(bloc.colorState.isDirty, isTrue);
-      expect(bloc.colorState.isValid, isFalse);
-      expect(bloc.colorState.errorText, isNotNull);
+        expect(bloc.colorState.isDirty, isTrue);
+        expect(bloc.colorState.isValid, isFalse);
+        expect(bloc.colorState.errorText, isNotNull);
 
-      await Future<void>.delayed(const Duration(milliseconds: 350));
-      expect(applyCount, 0);
+        await Future<void>.delayed(const Duration(milliseconds: 350));
+        expect(applyCount, 0);
 
-      bloc.dispose();
-    });
+        bloc.dispose();
+      },
+    );
 
-    test(
-        'Given rapid valid inputs When user types quickly Then it applies only last (debounced)',
-        () async {
+    test('Given rapid valid inputs When user types quickly Then it applies only last (debounced)', () async {
       int applyCount = 0;
       Color? lastApplied;
 
@@ -105,92 +102,83 @@ void main() {
     });
   });
   group('BlocColor + DisposableDebouncer collisions', () {
-    test(
-      'Given invalid input When external DS updates Then state is clean and has no error',
-      () async {
-        final List<Color> applied = <Color>[];
+    test('Given invalid input When external DS updates Then state is clean and has no error', () async {
+      final List<Color> applied = <Color>[];
 
-        final BlocColor bloc = BlocColor(
-          const Color(0xFF000000),
-          onChangeColorAttempt: (Color c) => applied.add(c),
-        );
+      final BlocColor bloc = BlocColor(
+        const Color(0xFF000000),
+        onChangeColorAttempt: (Color c) => applied.add(c),
+      );
 
-        // User types invalid.
-        bloc.onColorChangedAttempt('#GGGGGG');
-        expect(bloc.colorState.isDirty, isTrue);
-        expect(bloc.colorState.isValid, isFalse);
-        expect(bloc.colorState.errorText, isNotNull);
+      // User types invalid.
+      bloc.onColorChangedAttempt('#GGGGGG');
+      expect(bloc.colorState.isDirty, isTrue);
+      expect(bloc.colorState.isValid, isFalse);
+      expect(bloc.colorState.errorText, isNotNull);
 
-        // External DS rescues the field.
-        const Color dsColor = Color(0xFF112233);
-        bloc.onExternalDsChange(dsColor);
+      // External DS rescues the field.
+      const Color dsColor = Color(0xFF112233);
+      bloc.onExternalDsChange(dsColor);
 
-        expect(bloc.colorState.value, ThemeColorUtils.toHex(dsColor));
-        expect(bloc.colorState.isDirty, isFalse);
-        expect(bloc.colorState.isValid, isTrue);
-        expect(bloc.colorState.errorText, isEmpty);
-        expect(bloc.colorState.errorTextToInput, isNull);
+      expect(bloc.colorState.value, ThemeColorUtils.toHex(dsColor));
+      expect(bloc.colorState.isDirty, isFalse);
+      expect(bloc.colorState.isValid, isTrue);
+      expect(bloc.colorState.errorText, isEmpty);
+      expect(bloc.colorState.errorTextToInput, isNull);
 
-        // Invalid input should not have scheduled any apply.
-        await Future<void>.delayed(const Duration(milliseconds: 350));
-        expect(applied, isEmpty);
+      // Invalid input should not have scheduled any apply.
+      await Future<void>.delayed(const Duration(milliseconds: 350));
+      expect(applied, isEmpty);
 
-        bloc.dispose();
-      },
-    );
+      bloc.dispose();
+    });
 
-    test(
-      'Given valid input scheduled When external DS updates before debounce fires Then it must not apply stale user color',
-      () async {
-        final List<Color> applied = <Color>[];
+    test('Given valid input scheduled When external DS updates before debounce fires Then it must not apply stale user color', () async {
+      final List<Color> applied = <Color>[];
 
-        final BlocColor bloc = BlocColor(
-          const Color(0xFF000000),
-          onChangeColorAttempt: (Color c) => applied.add(c),
-        );
+      final BlocColor bloc = BlocColor(
+        const Color(0xFF000000),
+        onChangeColorAttempt: (Color c) => applied.add(c),
+      );
 
-        // User types valid -> schedules debounced apply.
-        bloc.onColorChangedAttempt('#112233');
+      // User types valid -> schedules debounced apply.
+      bloc.onColorChangedAttempt('#112233');
 
-        // External DS updates BEFORE debounce window ends.
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-        const Color dsColor = Color(0xFF445566);
-        bloc.onExternalDsChange(dsColor);
+      // External DS updates BEFORE debounce window ends.
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      const Color dsColor = Color(0xFF445566);
+      bloc.onExternalDsChange(dsColor);
 
-        // State should be DS and clean.
-        expect(bloc.colorState.value, ThemeColorUtils.toHex(dsColor));
-        expect(bloc.colorState.isDirty, isFalse);
-        expect(bloc.colorState.isValid, isTrue);
-        expect(bloc.colorState.errorTextToInput, isNull);
-        expect(bloc.colorState.errorText, isEmpty);
+      // State should be DS and clean.
+      expect(bloc.colorState.value, ThemeColorUtils.toHex(dsColor));
+      expect(bloc.colorState.isDirty, isFalse);
+      expect(bloc.colorState.isValid, isTrue);
+      expect(bloc.colorState.errorTextToInput, isNull);
+      expect(bloc.colorState.errorText, isEmpty);
 
-        // Wait past debounce.
-        await Future<void>.delayed(const Duration(milliseconds: 350));
+      // Wait past debounce.
+      await Future<void>.delayed(const Duration(milliseconds: 350));
 
-        // ✅ Ideal: no stale apply happens.
-        // ❌ If this fails (applied.length == 1), you still have "stale debounce" collision.
-        expect(applied.length, 0);
+      // ✅ Ideal: no stale apply happens.
+      // ❌ If this fails (applied.length == 1), you still have "stale debounce" collision.
+      expect(applied.length, 0);
 
-        bloc.dispose();
-      },
-    );
+      bloc.dispose();
+    });
 
-    test(
-      'Given pending debounced apply When bloc is disposed Then it must not apply after dispose',
-      () async {
-        final List<Color> applied = <Color>[];
+    test('Given pending debounced apply When bloc is disposed Then it must not apply after dispose', () async {
+      final List<Color> applied = <Color>[];
 
-        final BlocColor bloc = BlocColor(
-          const Color(0xFF000000),
-          onChangeColorAttempt: (Color c) => applied.add(c),
-        );
+      final BlocColor bloc = BlocColor(
+        const Color(0xFF000000),
+        onChangeColorAttempt: (Color c) => applied.add(c),
+      );
 
-        bloc.onColorChangedAttempt('#112233'); // schedules
-        bloc.dispose(); // should cancel timer via wrapper
+      bloc.onColorChangedAttempt('#112233'); // schedules
+      bloc.dispose(); // should cancel timer via wrapper
 
-        await Future<void>.delayed(const Duration(milliseconds: 350));
-        expect(applied, isEmpty);
-      },
-    );
+      await Future<void>.delayed(const Duration(milliseconds: 350));
+      expect(applied, isEmpty);
+    });
   });
 }

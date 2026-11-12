@@ -68,10 +68,12 @@ class JocaaguraThemedRouterApp extends StatelessWidget {
           routeInformationParser: routeInformationParser,
           routeInformationProvider: routeInformationProvider,
           restorationScopeId: 'app',
-          theme: const BuildThemeData()
-              .fromState(s.copyWith(mode: ThemeMode.light)),
-          darkTheme: const BuildThemeData()
-              .fromState(s.copyWith(mode: ThemeMode.dark)),
+          theme: const BuildThemeData().fromState(
+            s.copyWith(mode: ThemeMode.light),
+          ),
+          darkTheme: const BuildThemeData().fromState(
+            s.copyWith(mode: ThemeMode.dark),
+          ),
           themeMode: s.mode,
           builder: (BuildContext context, Widget? child) {
             appManager.responsive.setSizeFromContext(context);
@@ -90,8 +92,9 @@ class JocaaguraThemedRouterApp extends StatelessWidget {
         final ThemeState s = snap.data ?? initialTheme;
 
         // DS builds full themes (extensions + component themes)
-        final ThemeData lightBase =
-            ds.toThemeData(brightness: Brightness.light);
+        final ThemeData lightBase = ds.toThemeData(
+          brightness: Brightness.light,
+        );
         final ThemeData darkBase = ds.toThemeData(brightness: Brightness.dark);
 
         // Apply ONLY user prefs that should remain global knobs.

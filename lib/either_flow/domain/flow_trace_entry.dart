@@ -23,9 +23,9 @@ class FlowTraceEntry {
     required this.wasForced,
     required this.effectiveFailureCode,
     required Map<String, double> costAddedByMetric,
-  }) : costAddedByMetric = Map<String, double>.unmodifiable(
-          <String, double>{...costAddedByMetric},
-        );
+  }) : costAddedByMetric = Map<String, double>.unmodifiable(<String, double>{
+         ...costAddedByMetric,
+       });
 
   /// Hydrates a [FlowTraceEntry] from JSON.
   ///
@@ -84,8 +84,8 @@ class FlowTraceEntry {
       wasForced: boolValue(json['wasForced']),
       effectiveFailureCode:
           (json['effectiveFailureCode'] ?? '').toString().trim().isEmpty
-              ? null
-              : (json['effectiveFailureCode'] ?? '').toString(),
+          ? null
+          : (json['effectiveFailureCode'] ?? '').toString(),
       costAddedByMetric: cost(json['costAddedByMetric']),
     );
   }

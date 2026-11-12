@@ -9,7 +9,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ## Example
 ///
 /// ```dart
-/// import 'package:flutter/material.dart';
+/// import 'package:material_ui/material_ui.dart';
 /// import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// void main() {
@@ -64,8 +64,8 @@ class AppManagerProvider extends InheritedWidget {
   /// final appManager = AppManagerProvider.of(context);
   /// ```
   static AbstractAppManager of(BuildContext context) {
-    final AppManagerProvider? result =
-        context.dependOnInheritedWidgetOfExactType<AppManagerProvider>();
+    final AppManagerProvider? result = context
+        .dependOnInheritedWidgetOfExactType<AppManagerProvider>();
     assert(result != null, 'No AppManager found in context');
     return result!.appManager;
   }
@@ -79,8 +79,8 @@ class AppManagerProvider extends InheritedWidget {
 
   /// Versión "segura": no assertea; devuelve null si no existe el provider.
   static AbstractAppManager? maybeOf(BuildContext context) {
-    final AppManagerProvider? result =
-        context.dependOnInheritedWidgetOfExactType<AppManagerProvider>();
+    final AppManagerProvider? result = context
+        .dependOnInheritedWidgetOfExactType<AppManagerProvider>();
     return result?.appManager;
   }
 }

@@ -1,10 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class CostPanelWidget extends StatelessWidget {
-  const CostPanelWidget({
-    required this.cost,
-    super.key,
-  });
+  const CostPanelWidget({required this.cost, super.key});
 
   final Map<String, double> cost;
 

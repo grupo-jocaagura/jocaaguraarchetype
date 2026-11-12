@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/diagnostics.dart';
+import 'package:material_ui/material_ui.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 class MockBuildContext extends BuildContext {
@@ -85,7 +85,7 @@ class MockBuildContext extends BuildContext {
 
   @override
   InheritedElement?
-      getElementForInheritedWidgetOfExactType<T extends InheritedWidget>() {
+  getElementForInheritedWidgetOfExactType<T extends InheritedWidget>() {
     throw UnimplementedError();
   }
 

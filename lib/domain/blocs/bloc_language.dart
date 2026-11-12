@@ -64,8 +64,9 @@ class BlocLanguage extends BlocModule {
     Iterable<ModelLanguage> preferredLanguages = const <ModelLanguage>[],
     LanguageResolutionPolicy policy = const LanguageResolutionPolicy(),
   }) {
-    final List<ModelLanguage> supported =
-        List<ModelLanguage>.unmodifiable(supportedLanguages);
+    final List<ModelLanguage> supported = List<ModelLanguage>.unmodifiable(
+      supportedLanguages,
+    );
 
     final ModelLanguage initialLanguage = policy.resolve(
       preferredLanguages: preferredLanguages,
@@ -82,14 +83,12 @@ class BlocLanguage extends BlocModule {
   }
 
   BlocLanguage._({
-    required List<ModelLanguage> supportedLanguages,
+    required this._supportedLanguages,
     required this.fallbackLanguage,
-    required LanguageResolutionPolicy policy,
+    required this._policy,
     required ModelLanguage initialLanguage,
-  })  : _supportedLanguages = supportedLanguages,
-        _policy = policy,
-        _language = BlocGeneral<ModelLanguage>(initialLanguage),
-        super();
+  }) : _language = BlocGeneral<ModelLanguage>(initialLanguage),
+       super();
 
   /// Canonical registry name for this BLoC.
   static const String name = 'BlocLanguage';
