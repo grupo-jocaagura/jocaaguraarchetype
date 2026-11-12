@@ -1,4 +1,5 @@
 # Changelog
+<!-- master-sync: 8a7713a49b277493658349cb6424dcd8657407f5 -->
 
 All notable changes to this project will be documented in this file.
 
