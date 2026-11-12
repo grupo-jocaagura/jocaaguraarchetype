@@ -5,7 +5,7 @@ se mantiene en el PR #134 y no forma parte de esta rama.
 
 ## SDK y dependencias
 
-Usa Flutter >=3.47.0 con Dart >=3.13.2 y <4.0.0. El paquete declara
+Usa Flutter >=3.50.0 con Dart >=3.14.0 y <4.0.0. El paquete declara
 `material_ui: ^1.11.0` y `cupertino_ui: ^1.1.6`.
 
 La integración usa exactamente:
@@ -15,7 +15,7 @@ dependencies:
   jocaagura_domain:
     git:
       url: https://github.com/grupo-jocaagura/jocaagura_domain.git
-      ref: 87ee1b879d089e6a05a2b3ec485f979529a16bf9
+      ref: ec8d831db3305b7e036f1e403aee7727e0a95e2d
 ```
 
 Ese commit declara domain **1.43.2**, aunque prepara la arquitectura prevista
@@ -23,6 +23,9 @@ para domain 2.0.0. Core `^1.3.0` se resuelve transitivamente. No agregues
 `dependency_overrides`: cambiarían la implementación que estamos validando.
 El barrel de domain del arquetipo conserva sus reexports y permite seguir
 consumiendo modelos, contratos y BLoCs desde el arquetipo.
+
+La homologación de este commit con Flutter 3.50.0/Dart 3.14.0 está documentada
+en la [certificación de integración](workflows/evidence/135/certification-ec8d831.md).
 
 ## Imports y tipos de diseño
 
@@ -81,10 +84,11 @@ navegación Material/Cupertino y los contratos de dominio consumidos.
 
 ## Versión y publicación
 
-El PR se dirige a `develop` con etiqueta `major`. El workflow actual incrementa
-`pubspec.yaml` desde 4.x a 5.0.0 después de validar el PR. No incrementes la
-versión manualmente antes de ese paso; provocarías otro incremento major.
-El changelog ya contiene la sección prevista para 5.0.0.
+El PR se dirige a `develop` con etiqueta `major`. El workflow ya incrementó
+`pubspec.yaml` desde 4.x a 5.0.0. El changelog contiene la sección prevista para
+5.0.0. El workflow calcula el incremento desde la versión base del PR y omite
+el commit si la versión ya coincide con la esperada. Así, los siguientes pushes
+de homologación y evidencias conservan 5.0.0.
 
 Este snapshot tiene `publish_to: none`, ya que pub.dev no admite dependencias
 Git en paquetes publicados. Antes del release:

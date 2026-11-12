@@ -3,7 +3,7 @@
 Un proyecto transversal para desarrollo de las aplicaciones transversales
 
 Este ejemplo consume la integración de 5.0.0 por ruta local. Requiere Flutter
->=3.47.0 y Dart >=3.13.2 <4.0.0, y usa `material_ui` en sus imports.
+>=3.50.0 y Dart >=3.14.0 <4.0.0, y usa `material_ui` en sus imports.
 Consulta la [guía de migración](../doc/migration-5.md) para el pin exacto de
 domain y las condiciones previas a la publicación.
 

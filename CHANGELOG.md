@@ -12,9 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** use standalone `material_ui ^1.11.0` and `cupertino_ui ^1.1.6`
   throughout the public theme/navigation APIs, tests, examples and documentation.
   Consumers must migrate design-library dependencies and imports together.
-- **Breaking:** require Flutter >=3.47.0 and Dart >=3.13.2 <4.0.0.
+- **Breaking:** require Flutter >=3.50.0 and Dart >=3.14.0 <4.0.0,
+  matching the domain candidate's homologated SDK requirements.
 - Pin the domain/core integration to `jocaagura_domain` commit
-  `87ee1b879d089e6a05a2b3ec485f979529a16bf9`, with transitive
+  `ec8d831db3305b7e036f1e403aee7727e0a95e2d`, with transitive
   `jocaagura_domain_core ^1.3.0`. This commit still declares domain 1.43.2;
   integration does not claim a published domain 2.0.0 dependency.
 - Mark this Git-dependent integration snapshot `publish_to: none`. Replace
@@ -24,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   changing public argument names. Document consumer migration and release steps.
 - Reformat the source with the formatter enabled by the Dart 3.13 language
   constraint. Update the example's web bootstrap and include Cupertino icon fonts.
+- Revalidate the homologated domain candidate on Flutter 3.50.0/Dart 3.14.0,
+  publish the integration certificate, and skip repeated PR version increments
+  when the version already matches the increment calculated from the PR base.
 
 ## [4.6.0] - 2026-09-09
 

@@ -5,9 +5,9 @@ Arquetipo base para aplicaciones Flutter con enfoque de Clean Architecture, BLoC
 ## Estado actual
 
 - Migración a **5.0.0** con `material_ui` y `cupertino_ui` independientes del SDK de Flutter.
-- Requiere **Flutter >=3.47.0** y **Dart >=3.13.2 <4.0.0**.
+- Requiere **Flutter >=3.50.0** y **Dart >=3.14.0 <4.0.0**.
 - Integración de `jocaagura_domain` fijada al commit
-  `87ee1b879d089e6a05a2b3ec485f979529a16bf9`, que declara versión `1.43.2`
+  `ec8d831db3305b7e036f1e403aee7727e0a95e2d`, que declara versión `1.43.2`
   y resuelve `jocaagura_domain_core: ^1.3.0` de forma transitiva.
 - Esta rama de integración tiene `publish_to: none` hasta adoptar la versión
   publicada de domain. La versión `2.0.0` de domain todavía no es la dependencia

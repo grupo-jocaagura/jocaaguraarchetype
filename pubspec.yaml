@@ -10,8 +10,8 @@ homepage: https://github.com/jocaagura/jocaaguraarchetype
 repository: https://github.com/jocaagura/jocaaguraarchetype
 
 environment:
-  sdk: '>=3.13.2 <4.0.0'
-  flutter: ">=3.47.0"
+  sdk: '>=3.14.0 <4.0.0'
+  flutter: '>=3.50.0'
 
 dependencies:
   flutter:
@@ -22,7 +22,7 @@ dependencies:
   jocaagura_domain:
     git:
       url: https://github.com/grupo-jocaagura/jocaagura_domain.git
-      ref: 87ee1b879d089e6a05a2b3ec485f979529a16bf9
+      ref: ec8d831db3305b7e036f1e403aee7727e0a95e2d
 
 dev_dependencies:
   flutter_test:
