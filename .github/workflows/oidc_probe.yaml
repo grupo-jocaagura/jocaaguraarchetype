@@ -1,8 +1,6 @@
 name: OIDC readiness (no publication)
 
 on:
-  pull_request:
-    branches: [develop]
   workflow_dispatch:
 
 permissions:
