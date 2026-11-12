@@ -29,6 +29,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   wall-clock-dependent delay test with deterministic virtual time, and exclude
   the temporary local review diff from package archives.
 
+### Fixed
+
+- Cancel pending default and custom toast timers when `AppManager` disposes
+  `BlocUserNotifications`, preserving idempotent disposal. Fixes #133.
+- Cancel previous auto-close timers when clearing or replacing toasts so older
+  notifications cannot dismiss their replacements prematurely.
+- Add eight deterministic regression tests for notification disposal and
+  replacement across default and custom durations.
+
 ## [4.6.0] - 2026-09-09
 
 ### Added

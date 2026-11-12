@@ -88,6 +88,17 @@ jobs:
 
           LABELS=$(echo "$LABELS_RESPONSE" | jq -r '.[].name')
 
+          # Corrections included in the current, not-yet-published release.
+          if echo "$LABELS" | grep -qx "skip-version-bump"; then
+            CHANGELOG_VERSION=$(sed -n 's/^## \[\([0-9]\+\.[0-9]\+\.[0-9]\+\)\].*/\1/p' CHANGELOG.md | head -1)
+            if [[ "$CURRENT_VERSION" != "$BASE_VERSION" || "$CHANGELOG_VERSION" != "$CURRENT_VERSION" ]]; then
+              echo "Version and changelog must match the PR base when skipping the bump."
+              exit 1
+            fi
+            echo "Keeping $CURRENT_VERSION for a correction included in this release."
+            exit 0
+          fi
+
           if echo "$LABELS" | grep -q "major"; then
             UPDATED_VERSION=$(echo "$BASE_VERSION" | awk -F. '{$1+=1; $2=0; $3=0}1' OFS=".")
           elif echo "$LABELS" | grep -q "minor"; then

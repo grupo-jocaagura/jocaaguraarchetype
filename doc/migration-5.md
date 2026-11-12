@@ -1,7 +1,7 @@
 # Migración a JocaaguraArchetype 5.0.0
 
-Esta migración corresponde al issue #135. La corrección de notificaciones #133
-se mantiene en el PR #134 y no forma parte de esta rama.
+Esta migración corresponde al issue #135. La versión 5.0.0 incorpora también
+la corrección de temporizadores de notificaciones #133 mediante el PR #134.
 
 ## SDK y dependencias
 
