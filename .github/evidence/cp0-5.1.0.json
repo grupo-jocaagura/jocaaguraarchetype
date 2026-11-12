@@ -1,9 +1,27 @@
 {
-  "status": "pending",
+  "status": "passed",
   "package": "jocaaguraarchetype",
   "repository": "grupo-jocaagura/jocaaguraarchetype",
   "version": "5.1.0",
   "trusted_publisher_configured": true,
-  "probe_run_url": null,
-  "observed_claims": null
+  "probe_run_url": "https://github.com/grupo-jocaagura/jocaaguraarchetype/actions/runs/43260989494",
+  "observed_claims": {
+    "iss": "https://token.actions.githubusercontent.com",
+    "aud": "https://pub.dev",
+    "repository": "grupo-jocaagura/jocaaguraarchetype",
+    "repository_id": "769937954",
+    "repository_owner_id": "193098028",
+    "sub": "repo:grupo-jocaagura/jocaaguraarchetype:environment:pub.dev",
+    "environment": "pub.dev",
+    "sha": "266050ed145f21ecfcaae16ebbb9cebabd2d622e",
+    "ref": "refs/pull/140/merge",
+    "ref_type": "branch",
+    "event_name": "pull_request",
+    "run_id": "43260989494",
+    "runner_environment": "github-hosted",
+    "workflow_ref": "grupo-jocaagura/jocaaguraarchetype/.github/workflows/oidc_probe.yaml@refs/pull/140/merge",
+    "mode": "probe",
+    "result": "signed_claims_verified",
+    "pub_dev_upload": "not_executed"
+  }
 }
