@@ -3,19 +3,13 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 @immutable
 class DsExtendedTokensExtension
     extends ThemeExtension<DsExtendedTokensExtension> {
-  const DsExtendedTokensExtension({
-    required this.tokens,
-  });
+  const DsExtendedTokensExtension({required this.tokens});
 
   final ModelDsExtendedTokens tokens;
 
   @override
-  DsExtendedTokensExtension copyWith({
-    ModelDsExtendedTokens? tokens,
-  }) {
-    return DsExtendedTokensExtension(
-      tokens: tokens ?? this.tokens,
-    );
+  DsExtendedTokensExtension copyWith({ModelDsExtendedTokens? tokens}) {
+    return DsExtendedTokensExtension(tokens: tokens ?? this.tokens);
   }
 
   @override
@@ -35,8 +29,8 @@ class DsExtendedTokensExtension
     double Function(ModelDsExtendedTokens t) pick,
     double fallback,
   ) {
-    final DsExtendedTokensExtension? ext =
-        Theme.of(context).extension<DsExtendedTokensExtension>();
+    final DsExtendedTokensExtension? ext = Theme.of(context)
+        .extension<DsExtendedTokensExtension>();
     final ModelDsExtendedTokens? tok = ext?.tokens;
     if (tok == null) {
       return fallback;
@@ -47,8 +41,8 @@ class DsExtendedTokensExtension
 
 extension DsTokensContextX on BuildContext {
   ModelDsExtendedTokens get dsTokens {
-    final DsExtendedTokensExtension? ext =
-        Theme.of(this).extension<DsExtendedTokensExtension>();
+    final DsExtendedTokensExtension? ext = Theme.of(this)
+        .extension<DsExtendedTokensExtension>();
     if (ext == null) {
       throw StateError(
         'Missing DsExtendedTokensExtension in ThemeData.extensions',

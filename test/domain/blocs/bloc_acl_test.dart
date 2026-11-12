@@ -3,9 +3,7 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
   group('BlocAcl.refresh', () {
-    test(
-        'Given bridge success When refresh Then updates snapshot and returns Right',
-        () async {
+    test('Given bridge success When refresh Then updates snapshot and returns Right', () async {
       // Arrange
       const ModelAclPolicy policy = ModelAclPolicy(
         id: 'bienvenido.user.creation',
@@ -52,14 +50,11 @@ void main() {
       expect(bridge.fetchUserAclCalls, 1);
 
       expect(result.isRight, isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (ModelAclSnapshot snap) {
-          expect(snap.policiesById[policy.id], policy);
-          expect(snap.userAclByPolicyId[policy.id], RoleType.admin);
-          expect(snap.lastSyncAtIsoDate, isNotEmpty);
-        },
-      );
+      result.fold((_) => fail('Expected Right'), (ModelAclSnapshot snap) {
+        expect(snap.policiesById[policy.id], policy);
+        expect(snap.userAclByPolicyId[policy.id], RoleType.admin);
+        expect(snap.lastSyncAtIsoDate, isNotEmpty);
+      });
 
       // Snapshot stored in bloc as well
       expect(bloc.snapshot.policiesById.containsKey(policy.id), isTrue);
@@ -67,9 +62,7 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'Given policies failure When refresh Then returns Left and does not call fetchUserAcl',
-        () async {
+    test('Given policies failure When refresh Then returns Left and does not call fetchUserAcl', () async {
       // Arrange
       final _FakeAclBridge bridge = _FakeAclBridge(
         policiesResult: const Left<ErrorItem, List<ModelAclPolicy>>(
@@ -97,9 +90,7 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'Given userAcl failure When refresh Then returns Left and snapshot stays unchanged',
-        () async {
+    test('Given userAcl failure When refresh Then returns Left and snapshot stays unchanged', () async {
       // Arrange
       const ModelAclPolicy policy = ModelAclPolicy(
         id: 'bienvenido.user.creation',
@@ -141,26 +132,29 @@ void main() {
   });
 
   group('BlocAcl.canAccessByPolicyId', () {
-    test('Given missing policy When canAccessByPolicyId Then deny-by-default',
-        () async {
-      // Arrange
-      final BlocAcl bloc = BlocAcl(
-        bridge: _FakeAclBridge(
-          policiesResult:
-              const Right<ErrorItem, List<ModelAclPolicy>>(<ModelAclPolicy>[]),
-          userAclResult: const Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[]),
-        ),
-        appName: 'a',
-        userEmail: 'u@x.com',
-      );
+    test(
+      'Given missing policy When canAccessByPolicyId Then deny-by-default',
+      () async {
+        // Arrange
+        final BlocAcl bloc = BlocAcl(
+          bridge: _FakeAclBridge(
+            policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+              <ModelAclPolicy>[],
+            ),
+            userAclResult: const Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[]),
+          ),
+          appName: 'a',
+          userEmail: 'u@x.com',
+        );
 
-      await bloc.refresh();
+        await bloc.refresh();
 
-      // Act + Assert
-      expect(bloc.canAccessByPolicyId('a.b'), isFalse);
+        // Act + Assert
+        expect(bloc.canAccessByPolicyId('a.b'), isFalse);
 
-      bloc.dispose();
-    });
+        bloc.dispose();
+      },
+    );
 
     test('Given inactive policy When canAccessByPolicyId Then deny', () async {
       // Arrange
@@ -201,9 +195,7 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'Given active policy and sufficient role When canAccessByPolicyId Then allow',
-        () async {
+    test('Given active policy and sufficient role When canAccessByPolicyId Then allow', () async {
       // Arrange
       const ModelAclPolicy policy = ModelAclPolicy(
         id: 'a.b',
@@ -245,100 +237,106 @@ void main() {
 
   group('BlocAcl.revalidateIfNeeded / executeWithAcl / canNavigateWithAcl', () {
     test(
-        'Given viewer policy When revalidateIfNeeded Then does not refresh again',
-        () async {
-      // Arrange
-      const ModelAclPolicy policy = ModelAclPolicy(
-        id: 'a.b',
-        minRoleType: RoleType.viewer,
-        appName: 'a',
-        feature: 'b',
-        isActive: true,
-        note: '',
-        upsertAtIsoDate: '',
-        upsertBy: '',
-      );
+      'Given viewer policy When revalidateIfNeeded Then does not refresh again',
+      () async {
+        // Arrange
+        const ModelAclPolicy policy = ModelAclPolicy(
+          id: 'a.b',
+          minRoleType: RoleType.viewer,
+          appName: 'a',
+          feature: 'b',
+          isActive: true,
+          note: '',
+          upsertAtIsoDate: '',
+          upsertBy: '',
+        );
 
-      final _FakeAclBridge bridge = _FakeAclBridge(
-        policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
-          <ModelAclPolicy>[policy],
-        ),
-        userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
-          _grant(
-            appName: 'a',
-            userEmail: 'u@x.com',
-            policyId: 'a.b',
-            roleType: RoleType.viewer,
+        final _FakeAclBridge bridge = _FakeAclBridge(
+          policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+            <ModelAclPolicy>[policy],
           ),
-        ]),
-      );
+          userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
+            _grant(
+              appName: 'a',
+              userEmail: 'u@x.com',
+              policyId: 'a.b',
+              roleType: RoleType.viewer,
+            ),
+          ]),
+        );
 
-      final BlocAcl bloc =
-          BlocAcl(bridge: bridge, appName: 'a', userEmail: 'u@x.com');
-      await bloc.refresh();
+        final BlocAcl bloc = BlocAcl(
+          bridge: bridge,
+          appName: 'a',
+          userEmail: 'u@x.com',
+        );
+        await bloc.refresh();
 
-      final int policiesCallsBefore = bridge.fetchPoliciesCalls;
-      final int userAclCallsBefore = bridge.fetchUserAclCalls;
+        final int policiesCallsBefore = bridge.fetchPoliciesCalls;
+        final int userAclCallsBefore = bridge.fetchUserAclCalls;
 
-      // Act
-      await bloc.revalidateIfNeeded('a.b');
+        // Act
+        await bloc.revalidateIfNeeded('a.b');
 
-      // Assert: no extra refresh
-      expect(bridge.fetchPoliciesCalls, policiesCallsBefore);
-      expect(bridge.fetchUserAclCalls, userAclCallsBefore);
+        // Assert: no extra refresh
+        expect(bridge.fetchPoliciesCalls, policiesCallsBefore);
+        expect(bridge.fetchUserAclCalls, userAclCallsBefore);
 
-      bloc.dispose();
-    });
+        bloc.dispose();
+      },
+    );
 
     test(
-        'Given editor policy When revalidateIfNeeded Then refresh is triggered',
-        () async {
-      // Arrange
-      const ModelAclPolicy policy = ModelAclPolicy(
-        id: 'a.b',
-        minRoleType: RoleType.editor,
-        appName: 'a',
-        feature: 'b',
-        isActive: true,
-        note: '',
-        upsertAtIsoDate: '',
-        upsertBy: '',
-      );
+      'Given editor policy When revalidateIfNeeded Then refresh is triggered',
+      () async {
+        // Arrange
+        const ModelAclPolicy policy = ModelAclPolicy(
+          id: 'a.b',
+          minRoleType: RoleType.editor,
+          appName: 'a',
+          feature: 'b',
+          isActive: true,
+          note: '',
+          upsertAtIsoDate: '',
+          upsertBy: '',
+        );
 
-      final _FakeAclBridge bridge = _FakeAclBridge(
-        policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
-          <ModelAclPolicy>[policy],
-        ),
-        userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
-          _grant(
-            appName: 'a',
-            userEmail: 'u@x.com',
-            policyId: 'a.b',
-            roleType: RoleType.admin,
+        final _FakeAclBridge bridge = _FakeAclBridge(
+          policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+            <ModelAclPolicy>[policy],
           ),
-        ]),
-      );
+          userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
+            _grant(
+              appName: 'a',
+              userEmail: 'u@x.com',
+              policyId: 'a.b',
+              roleType: RoleType.admin,
+            ),
+          ]),
+        );
 
-      final BlocAcl bloc =
-          BlocAcl(bridge: bridge, appName: 'a', userEmail: 'u@x.com');
-      await bloc.refresh();
+        final BlocAcl bloc = BlocAcl(
+          bridge: bridge,
+          appName: 'a',
+          userEmail: 'u@x.com',
+        );
+        await bloc.refresh();
 
-      final int policiesCallsBefore = bridge.fetchPoliciesCalls;
-      final int userAclCallsBefore = bridge.fetchUserAclCalls;
+        final int policiesCallsBefore = bridge.fetchPoliciesCalls;
+        final int userAclCallsBefore = bridge.fetchUserAclCalls;
 
-      // Act
-      await bloc.revalidateIfNeeded('a.b');
+        // Act
+        await bloc.revalidateIfNeeded('a.b');
 
-      // Assert: one more refresh call
-      expect(bridge.fetchPoliciesCalls, policiesCallsBefore + 1);
-      expect(bridge.fetchUserAclCalls, userAclCallsBefore + 1);
+        // Assert: one more refresh call
+        expect(bridge.fetchPoliciesCalls, policiesCallsBefore + 1);
+        expect(bridge.fetchUserAclCalls, userAclCallsBefore + 1);
 
-      bloc.dispose();
-    });
+        bloc.dispose();
+      },
+    );
 
-    test(
-        'Given denied access When executeWithAcl Then returns Left(unauthorized) and does not call action',
-        () async {
+    test('Given denied access When executeWithAcl Then returns Left(unauthorized) and does not call action', () async {
       // Arrange
       const ModelAclPolicy policy = ModelAclPolicy(
         id: 'a.b',
@@ -365,8 +363,11 @@ void main() {
         ]),
       );
 
-      final BlocAcl bloc =
-          BlocAcl(bridge: bridge, appName: 'a', userEmail: 'u@x.com');
+      final BlocAcl bloc = BlocAcl(
+        bridge: bridge,
+        appName: 'a',
+        userEmail: 'u@x.com',
+      );
       await bloc.refresh();
 
       bool actionCalled = false;
@@ -393,9 +394,7 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'Given allowed access When executeWithAcl Then calls action and returns its result',
-        () async {
+    test('Given allowed access When executeWithAcl Then calls action and returns its result', () async {
       // Arrange
       const ModelAclPolicy policy = ModelAclPolicy(
         id: 'a.b',
@@ -438,64 +437,60 @@ void main() {
 
       // Assert
       expect(result.isRight, isTrue);
-      result.fold(
-        (_) => fail('Expected Right'),
-        (int v) => expect(v, 42),
-      );
+      result.fold((_) => fail('Expected Right'), (int v) => expect(v, 42));
 
       bloc.dispose();
     });
 
-    test('Given allowed access When canNavigateWithAcl Then returns true',
-        () async {
-      // Arrange
-      const ModelAclPolicy policy = ModelAclPolicy(
-        id: 'a.b',
-        minRoleType: RoleType.viewer,
-        appName: 'a',
-        feature: 'b',
-        isActive: true,
-        note: '',
-        upsertAtIsoDate: '',
-        upsertBy: '',
-      );
+    test(
+      'Given allowed access When canNavigateWithAcl Then returns true',
+      () async {
+        // Arrange
+        const ModelAclPolicy policy = ModelAclPolicy(
+          id: 'a.b',
+          minRoleType: RoleType.viewer,
+          appName: 'a',
+          feature: 'b',
+          isActive: true,
+          note: '',
+          upsertAtIsoDate: '',
+          upsertBy: '',
+        );
 
-      final BlocAcl bloc = BlocAcl(
-        bridge: _FakeAclBridge(
-          policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
-            <ModelAclPolicy>[policy],
-          ),
-          userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
-            _grant(
-              appName: 'a',
-              userEmail: 'u@x.com',
-              policyId: 'a.b',
-              roleType: RoleType.viewer,
+        final BlocAcl bloc = BlocAcl(
+          bridge: _FakeAclBridge(
+            policiesResult: const Right<ErrorItem, List<ModelAclPolicy>>(
+              <ModelAclPolicy>[policy],
             ),
-          ]),
-        ),
-        appName: 'a',
-        userEmail: 'u@x.com',
-      );
+            userAclResult: Right<ErrorItem, List<ModelAcl>>(<ModelAcl>[
+              _grant(
+                appName: 'a',
+                userEmail: 'u@x.com',
+                policyId: 'a.b',
+                roleType: RoleType.viewer,
+              ),
+            ]),
+          ),
+          appName: 'a',
+          userEmail: 'u@x.com',
+        );
 
-      await bloc.refresh();
+        await bloc.refresh();
 
-      // Act
-      final bool allowed = await bloc.canNavigateWithAcl('a.b');
+        // Act
+        final bool allowed = await bloc.canNavigateWithAcl('a.b');
 
-      // Assert
-      expect(allowed, isTrue);
+        // Assert
+        expect(allowed, isTrue);
 
-      bloc.dispose();
-    });
+        bloc.dispose();
+      },
+    );
   });
 }
 
 class _FakeAclBridge implements AclBridge {
-  _FakeAclBridge({
-    required this.policiesResult,
-    required this.userAclResult,
-  });
+  _FakeAclBridge({required this.policiesResult, required this.userAclResult});
 
   Either<ErrorItem, List<ModelAclPolicy>> policiesResult;
   Either<ErrorItem, List<ModelAcl>> userAclResult;

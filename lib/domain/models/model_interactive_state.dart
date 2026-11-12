@@ -179,10 +179,7 @@ class ModelInteractiveState {
 
   /// Returns a new state with empty feedback texts.
   ModelInteractiveState clearFeedback() {
-    return copyWith(
-      reasonText: '',
-      errorText: '',
-    );
+    return copyWith(reasonText: '', errorText: '');
   }
 
   Map<String, dynamic> toJson() {
@@ -214,14 +211,14 @@ class ModelInteractiveState {
 
   @override
   int get hashCode => Object.hash(
-        isEnabled,
-        isLoading,
-        isVisible,
-        isSelected,
-        reasonText,
-        errorText,
-        semantic,
-      );
+    isEnabled,
+    isLoading,
+    isVisible,
+    isSelected,
+    reasonText,
+    errorText,
+    semantic,
+  );
 
   @override
   bool operator ==(Object other) {

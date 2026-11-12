@@ -70,8 +70,8 @@ class PageRegistry {
     this.defaultPage,
     this.defaultStack,
   }) : _builders = Map<String, PageWidgetBuilder>.unmodifiable(
-          Map<String, PageWidgetBuilder>.from(builders),
-        );
+         Map<String, PageWidgetBuilder>.from(builders),
+       );
 
   /// Crea un registro a partir de una lista de definiciones de página.
   ///
@@ -82,11 +82,11 @@ class PageRegistry {
     this.defaultPage,
     this.defaultStack,
   }) : _builders = Map<String, PageWidgetBuilder>.unmodifiable(
-          <String, PageWidgetBuilder>{
-            for (final PageDef pageDef in defs)
-              pageDef.model.name: pageDef.builder,
-          },
-        );
+         <String, PageWidgetBuilder>{
+           for (final PageDef pageDef in defs)
+             pageDef.model.name: pageDef.builder,
+         },
+       );
 
   /// Mapa inmutable `name -> PageWidgetBuilder`.
   final Map<String, PageWidgetBuilder> _builders;
@@ -274,10 +274,6 @@ class DialogPage<T> extends Page<T> {
 
   @override
   Route<T> createRoute(BuildContext context) {
-    return DialogRoute<T>(
-      context: context,
-      builder: builder,
-      settings: this,
-    );
+    return DialogRoute<T>(context: context, builder: builder, settings: this);
   }
 }

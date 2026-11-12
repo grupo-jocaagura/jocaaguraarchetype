@@ -3,19 +3,13 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 @immutable
 class DsDataVizPaletteExtension
     extends ThemeExtension<DsDataVizPaletteExtension> {
-  const DsDataVizPaletteExtension({
-    required this.palette,
-  });
+  const DsDataVizPaletteExtension({required this.palette});
 
   final ModelDataVizPalette palette;
 
   @override
-  DsDataVizPaletteExtension copyWith({
-    ModelDataVizPalette? palette,
-  }) {
-    return DsDataVizPaletteExtension(
-      palette: palette ?? this.palette,
-    );
+  DsDataVizPaletteExtension copyWith({ModelDataVizPalette? palette}) {
+    return DsDataVizPaletteExtension(palette: palette ?? this.palette);
   }
 
   @override
@@ -32,8 +26,8 @@ class DsDataVizPaletteExtension
 
 extension DsDataVizContextX on BuildContext {
   ModelDataVizPalette get dsDataViz {
-    final DsDataVizPaletteExtension? ext =
-        Theme.of(this).extension<DsDataVizPaletteExtension>();
+    final DsDataVizPaletteExtension? ext = Theme.of(this)
+        .extension<DsDataVizPaletteExtension>();
     if (ext == null) {
       throw StateError(
         'Missing DsDataVizPaletteExtension in ThemeData.extensions',

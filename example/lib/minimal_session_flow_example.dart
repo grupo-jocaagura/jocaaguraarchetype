@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ===========================================
 /// 0) ENV VARS (compile-time)
@@ -9,8 +9,10 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 const String env = String.fromEnvironment('APP_MODE', defaultValue: 'dev');
 
 /// Decide si la app inicia con sesión iniciada (por defecto TRUE)
-const bool kIsSessionInitialized =
-    bool.fromEnvironment('IS_SESSION_INITIALIZATED', defaultValue: true);
+const bool kIsSessionInitialized = bool.fromEnvironment(
+  'IS_SESSION_INITIALIZATED',
+  defaultValue: true,
+);
 
 /// Delay para steps automáticos del Splash (ajustable por env si quieres)
 const Duration autoAdvanceAfter = Duration(
@@ -23,27 +25,30 @@ const Duration autoAdvanceAfter = Duration(
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
   static const String name = 'home';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
-    return const PageBuilder(
-      page: Center(child: Text('HOME · Bienvenid@')),
-    );
+    return const PageBuilder(page: Center(child: Text('HOME · Bienvenid@')));
   }
 }
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
   static const String name = 'login';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
-    final BlocSession bloc =
-        context.appManager.requireModuleByKey(BlocSession.name);
+    final BlocSession bloc = context.appManager.requireModuleByKey(
+      BlocSession.name,
+    );
 
     String email = bloc.email;
     String pass = '';
@@ -128,8 +133,10 @@ class LoginPage extends StatelessWidget {
 class SessionClosedPage extends StatelessWidget {
   const SessionClosedPage({super.key});
   static const String name = 'session_closed';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -142,8 +149,10 @@ class SessionClosedPage extends StatelessWidget {
 class CounterPage extends StatefulWidget {
   const CounterPage({super.key});
   static const String name = 'counter';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   State<CounterPage> createState() => _CounterPageState();
@@ -281,11 +290,7 @@ class BlocSession extends BlocModule {
       return const Right<ErrorItem, Unit>(Unit.value);
     }
     return const Left<ErrorItem, Unit>(
-      ErrorItem(
-        title: 'Credenciales inválidas',
-        code: '',
-        description: '',
-      ),
+      ErrorItem(title: 'Credenciales inválidas', code: '', description: ''),
     );
   }
 
@@ -435,14 +440,17 @@ final List<PageDef> defs = <PageDef>[
   ),
 ];
 
-final PageRegistry registry =
-    PageRegistry.fromDefs(defs, defaultPage: HomePage.pageModel);
+final PageRegistry registry = PageRegistry.fromDefs(
+  defs,
+  defaultPage: HomePage.pageModel,
+);
 
 PageModel initial() =>
     _onboardingDone ? HomePage.pageModel : SplashPage.pageModel;
 
-final PageManager pageManager =
-    PageManager(initial: NavStackModel.single(initial()));
+final PageManager pageManager = PageManager(
+  initial: NavStackModel.single(initial()),
+);
 
 AppManager buildAppManager() {
   // Theme mínimo (igual a tus ejemplos)
@@ -468,8 +476,9 @@ AppManager buildAppManager() {
         title: 'Check Session',
         description: 'Verificando sesión y menús…',
         onEnter: () {
-          final SessionNavCoordinator coord =
-              SessionNavCoordinator(appManagerProd!); // se setea luego
+          final SessionNavCoordinator coord = SessionNavCoordinator(
+            appManagerProd!,
+          ); // se setea luego
           coord.setupMainMenuForCurrentSession();
           return const Right<ErrorItem, Unit>(Unit.value);
         },
@@ -488,8 +497,10 @@ AppManager buildAppManager() {
 
   // AppConfig
   final AppConfig cfg = AppConfig(
-    blocTheme:
-        BlocThemeReact(themeUsecases: themeUsecases, watchTheme: watchTheme),
+    blocTheme: BlocThemeReact(
+      themeUsecases: themeUsecases,
+      watchTheme: watchTheme,
+    ),
     blocUserNotifications: BlocUserNotifications(),
     blocLoading: BlocLoading(),
     blocMainMenuDrawer: BlocMainMenuDrawer(),
@@ -510,14 +521,14 @@ AppManager buildAppManager() {
 class AuthenticatingPage extends StatelessWidget {
   const AuthenticatingPage({super.key});
   static const String name = 'authenticating';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
-    return const PageBuilder(
-      page: Center(child: CircularProgressIndicator()),
-    );
+    return const PageBuilder(page: Center(child: CircularProgressIndicator()));
   }
 }
 

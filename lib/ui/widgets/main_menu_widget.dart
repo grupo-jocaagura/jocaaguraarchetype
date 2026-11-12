@@ -199,10 +199,7 @@ class MainMenuWidget extends StatelessWidget {
 
     return Align(
       alignment: Alignment.topCenter,
-      child: SizedBox(
-        width: maxW,
-        child: list,
-      ),
+      child: SizedBox(width: maxW, child: list),
     );
   }
 
@@ -321,14 +318,16 @@ class _CollapsedRailItemState extends State<_CollapsedRailItem> {
     final double side = (widget.responsive.columnWidth * 1.0).clamp(44.0, 72.0);
 
     final Color fgSelected = scheme.onPrimaryContainer;
-    final Color fgBase =
-        scheme.onSurface.withValues(alpha: widget.enabled ? 0.05 : 0.62);
+    final Color fgBase = scheme.onSurface.withValues(
+      alpha: widget.enabled ? 0.05 : 0.62,
+    );
     final Color fg = widget.selected ? fgSelected : fgBase;
 
     final Color bgBase = scheme.surfaceContainerLow;
     final Color bgSelected = scheme.primaryContainer;
-    final Color bgHover =
-        scheme.primary.withValues(alpha: widget.selected ? 0.9 : 0.94);
+    final Color bgHover = scheme.primary.withValues(
+      alpha: widget.selected ? 0.9 : 0.94,
+    );
     final Color bg = widget.selected
         ? (_hovered || _focused ? _mix(bgSelected, bgHover, 0.35) : bgSelected)
         : (_hovered || _focused ? _mix(bgBase, bgHover, 0.35) : bgBase);
@@ -366,10 +365,7 @@ class _CollapsedRailItemState extends State<_CollapsedRailItem> {
         child: InkWell(
           borderRadius: radius,
           onTap: widget.enabled ? widget.onTap : null,
-          child: Padding(
-            padding: EdgeInsets.all(gap * 0.25),
-            child: body,
-          ),
+          child: Padding(padding: EdgeInsets.all(gap * 0.25), child: body),
         ),
       ),
     );
@@ -383,7 +379,7 @@ class _CollapsedRailItemState extends State<_CollapsedRailItem> {
     );
   }
 
-// En _CollapsedRailItemState
+  // En _CollapsedRailItemState
   Color _mix(Color a, Color b, double t) {
     final double tt = t.clamp(0.0, 1.0);
     return Color.lerp(a, b, tt)!;

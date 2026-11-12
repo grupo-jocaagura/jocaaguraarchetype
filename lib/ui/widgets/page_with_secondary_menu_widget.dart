@@ -72,8 +72,7 @@ class PageWithSecondaryMenuWidget extends StatelessWidget {
       ScreenSizeEnum.mobile => _mobile(context, bg),
       ScreenSizeEnum.tablet => _tabletDesktop(context, bg, isDesktop: false),
       ScreenSizeEnum.desktop ||
-      ScreenSizeEnum.tv =>
-        _tabletDesktop(context, bg, isDesktop: true),
+      ScreenSizeEnum.tv => _tabletDesktop(context, bg, isDesktop: true),
     };
 
     return safeArea ? SafeArea(child: body) : body;
@@ -131,8 +130,9 @@ class PageWithSecondaryMenuWidget extends StatelessWidget {
     final double mh = responsive.marginWidth;
     final double gap = responsive.gutterWidth;
     final double panelW = secondaryMenu != null
-        ? responsive
-            .widthByColumns(panelColumns.clamp(1, responsive.columnsNumber))
+        ? responsive.widthByColumns(
+            panelColumns.clamp(1, responsive.columnsNumber),
+          )
         : 0.0;
 
     final double maxW = responsive.workAreaSize.width;
@@ -156,8 +156,9 @@ class PageWithSecondaryMenuWidget extends StatelessWidget {
       ],
     ];
 
-    final List<Widget> ordered =
-        secondaryOnRight ? rowChildren : rowChildren.reversed.toList();
+    final List<Widget> ordered = secondaryOnRight
+        ? rowChildren
+        : rowChildren.reversed.toList();
 
     return Container(
       color: bg,

@@ -14,12 +14,7 @@ enum PageModelEnum {
   state,
 }
 
-enum PageKind {
-  material,
-  cupertino,
-  dialog,
-  fullScreenDialog,
-}
+enum PageKind { material, cupertino, dialog, fullScreenDialog }
 
 /// Describe de forma inmutable una intención de ruta/página dentro de la app.
 ///
@@ -115,23 +110,26 @@ class PageModel extends Model {
 
     final String name =
         Utils.getStringFromDynamic(safe[PageModelEnum.name.name]).isEmpty
-            ? 'root'
-            : Utils.getStringFromDynamic(safe[PageModelEnum.name.name]);
+        ? 'root'
+        : Utils.getStringFromDynamic(safe[PageModelEnum.name.name]);
 
     // kind
-    final String kindStr =
-        Utils.getStringFromDynamic(safe[PageModelEnum.kind.name]);
+    final String kindStr = Utils.getStringFromDynamic(
+      safe[PageModelEnum.kind.name],
+    );
     final PageKind k = PageKind.values.firstWhere(
       (PageKind e) => e.name == kindStr,
       orElse: () => PageKind.material,
     );
     // requiresAuth
-    final bool requiresAuth =
-        Utils.getBoolFromDynamic(safe[PageModelEnum.requiresAuth.name]);
+    final bool requiresAuth = Utils.getBoolFromDynamic(
+      safe[PageModelEnum.requiresAuth.name],
+    );
 
     // fragment (nullable)
-    final String fragRaw =
-        Utils.getStringFromDynamic(safe[PageModelEnum.fragment.name]);
+    final String fragRaw = Utils.getStringFromDynamic(
+      safe[PageModelEnum.fragment.name],
+    );
     final String? fragment = fragRaw.isEmpty ? null : fragRaw;
 
     // segments -> List<String>
@@ -141,13 +139,15 @@ class PageModel extends Model {
     );
 
     // query -> Map<String, String>
-    final Map<String, dynamic> qDyn =
-        Utils.mapFromDynamic(safe[PageModelEnum.query.name]);
+    final Map<String, dynamic> qDyn = Utils.mapFromDynamic(
+      safe[PageModelEnum.query.name],
+    );
     final Map<String, String> query = coerceStringMap(qDyn);
 
     // state -> Map<String, dynamic>
-    final Map<String, dynamic> state =
-        Utils.mapFromDynamic(safe[PageModelEnum.state.name]);
+    final Map<String, dynamic> state = Utils.mapFromDynamic(
+      safe[PageModelEnum.state.name],
+    );
 
     return PageModel(
       name: name,
@@ -244,12 +244,15 @@ class PageModel extends Model {
     bool? requiresAuth,
     Map<String, dynamic>? state,
   }) {
-    final List<String>? segImmutable =
-        (segments == null) ? null : List<String>.unmodifiable(segments);
-    final Map<String, String>? queryImmutable =
-        (query == null) ? null : Map<String, String>.unmodifiable(query);
-    final Map<String, dynamic>? stateImmutable =
-        (state == null) ? null : Map<String, dynamic>.unmodifiable(state);
+    final List<String>? segImmutable = (segments == null)
+        ? null
+        : List<String>.unmodifiable(segments);
+    final Map<String, String>? queryImmutable = (query == null)
+        ? null
+        : Map<String, String>.unmodifiable(query);
+    final Map<String, dynamic>? stateImmutable = (state == null)
+        ? null
+        : Map<String, dynamic>.unmodifiable(state);
 
     return PageModel(
       name: name ?? this.name,
@@ -313,7 +316,8 @@ class PageModel extends Model {
   /// inserción puede cambiar en tiempo de vida del objeto.
   @override
   int get hashCode {
-    int h = name.hashCode ^
+    int h =
+        name.hashCode ^
         kind.hashCode ^
         (fragment?.hashCode ?? 0) ^
         requiresAuth.hashCode;
@@ -358,7 +362,7 @@ class PageModel extends Model {
     return h;
   }
 
-// Usa una constante "salt" para null (golden ratio 32-bit).
+  // Usa una constante "salt" para null (golden ratio 32-bit).
   static const int _kNullSalt = 0x9e3779b9;
 
   /// Stable, order-insensitive hash for `Map<String, dynamic>`.
@@ -390,7 +394,8 @@ class PageModel extends Model {
 
   /// Hash de identidad de ruta (excluye `state`).
   int routeHash(PageModel m) {
-    int h = m.name.hashCode ^
+    int h =
+        m.name.hashCode ^
         m.kind.hashCode ^
         (m.fragment?.hashCode ?? 0) ^
         m.requiresAuth.hashCode;

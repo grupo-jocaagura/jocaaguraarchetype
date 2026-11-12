@@ -49,8 +49,10 @@ class MobileSecondaryMenuWidget extends StatelessWidget {
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: width),
             child: Padding(
-              padding:
-                  EdgeInsets.symmetric(horizontal: gap, vertical: gap * 0.5),
+              padding: EdgeInsets.symmetric(
+                horizontal: gap,
+                vertical: gap * 0.5,
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[

@@ -37,10 +37,10 @@ class FlowSimulationSession {
     required List<FlowTraceEntry> trace,
     required Map<String, double> totalCostByMetric,
     required this.lastFailureCode,
-  })  : trace = List<FlowTraceEntry>.unmodifiable(trace),
-        totalCostByMetric = Map<String, double>.unmodifiable(
-          <String, double>{...totalCostByMetric},
-        );
+  }) : trace = List<FlowTraceEntry>.unmodifiable(trace),
+       totalCostByMetric = Map<String, double>.unmodifiable(<String, double>{
+         ...totalCostByMetric,
+       });
 
   /// Hydrates a [FlowSimulationSession] from JSON.
   ///
@@ -129,8 +129,9 @@ class FlowSimulationSession {
         ? FlowSimulationPlan.fromJson(planRaw)
         : const FlowSimulationPlan();
 
-    final String lastFailure =
-        (json['lastFailureCode'] ?? '').toString().trim();
+    final String lastFailure = (json['lastFailureCode'] ?? '')
+        .toString()
+        .trim();
 
     return FlowSimulationSession(
       flow: flow,
@@ -194,8 +195,9 @@ class FlowSimulationSession {
       'visitedCount': visitedCount,
       if (lastFailureCode != null) 'lastFailureCode': lastFailureCode,
       'totalCostByMetric': totalCostByMetric,
-      'trace':
-          trace.map((FlowTraceEntry e) => e.toJson()).toList(growable: false),
+      'trace': trace
+          .map((FlowTraceEntry e) => e.toJson())
+          .toList(growable: false),
     };
   }
 

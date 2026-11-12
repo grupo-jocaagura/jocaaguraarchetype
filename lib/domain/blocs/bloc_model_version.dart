@@ -43,8 +43,8 @@ class BlocModelVersion extends BlocModule {
   /// for legacy or offline scenarios.
   BlocModelVersion({
     ModelAppVersion initial = ModelAppVersion.defaultModelAppVersion,
-  })  : _bloc = BlocGeneral<ModelAppVersion>(initial),
-        super();
+  }) : _bloc = BlocGeneral<ModelAppVersion>(initial),
+       super();
 
   /// Canonical name for registry-based access in [AppManager] or similar maps.
   static const String name = 'BlocModelVersion';
@@ -85,10 +85,7 @@ class BlocModelVersion extends BlocModule {
   /// Returns `true` when [candidate] represents a newer version than
   /// the current snapshot. Priority order: buildNumber → semver string → buildAt.
   bool isNewerThanCurrent(ModelAppVersion candidate) {
-    return isCandidateNewerThan(
-      candidate: candidate,
-      current: value,
-    );
+    return isCandidateNewerThan(candidate: candidate, current: value);
   }
 
   /// Compares any [candidate] against a [current] snapshot and returns `true`
@@ -100,15 +97,14 @@ class BlocModelVersion extends BlocModule {
     return isVersionGreater(candidate, current);
   }
 
-  static bool isVersionGreater(
-    ModelAppVersion next,
-    ModelAppVersion current,
-  ) {
+  static bool isVersionGreater(ModelAppVersion next, ModelAppVersion current) {
     if (next.buildNumber != current.buildNumber) {
       return next.buildNumber > current.buildNumber;
     }
-    final int semverDiff =
-        _compareVersionStrings(next.version, current.version);
+    final int semverDiff = _compareVersionStrings(
+      next.version,
+      current.version,
+    );
     if (semverDiff != 0) {
       return semverDiff > 0;
     }

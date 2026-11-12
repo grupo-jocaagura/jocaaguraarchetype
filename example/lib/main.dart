@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ===========================================
 /// 0) ENV VARS (compile-time)
@@ -9,8 +9,10 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 const String env = String.fromEnvironment('APP_MODE', defaultValue: 'dev');
 
 /// Decide si la app inicia con sesión iniciada (por defecto TRUE)
-const bool kIsSessionInitialized =
-    bool.fromEnvironment('IS_SESSION_INITIALIZATED', defaultValue: true);
+const bool kIsSessionInitialized = bool.fromEnvironment(
+  'IS_SESSION_INITIALIZATED',
+  defaultValue: true,
+);
 
 /// Delay para steps automáticos del Splash (ajustable por env si quieres)
 const Duration autoAdvanceAfter = Duration(
@@ -23,27 +25,29 @@ const Duration autoAdvanceAfter = Duration(
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
   static const String name = 'home';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
-    return const PageBuilder(
-      page: Center(child: Text('HOME · Bienvenid@')),
-    );
+    return const PageBuilder(page: Center(child: Text('HOME · Bienvenid@')));
   }
 }
 
 class HomeAuthenticatedPage extends StatelessWidget {
   const HomeAuthenticatedPage({super.key});
   static const String name = 'homeAuthenticated';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
-    final BlocSession blocSession =
-        context.appManager.requireModuleByKey<BlocSession>(BlocSession.name);
+    final BlocSession blocSession = context.appManager
+        .requireModuleByKey<BlocSession>(BlocSession.name);
     return PageBuilder(
       page: Center(child: Text('${blocSession.state} · Bienvenid@')),
     );
@@ -53,22 +57,23 @@ class HomeAuthenticatedPage extends StatelessWidget {
 class SessionErrorPage extends StatelessWidget {
   const SessionErrorPage({super.key});
   static const String name = 'sessionError';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
     final AbstractAppManager app = context.appManager;
-    final BlocSession blocSession =
-        app.requireModuleByKey<BlocSession>(BlocSession.name);
+    final BlocSession blocSession = app.requireModuleByKey<BlocSession>(
+      BlocSession.name,
+    );
     return Scaffold(
       body: InkWell(
         onTap: () {
           app.pageManager.resetTo(HomePage.pageModel);
         },
-        child: Center(
-          child: Text('Session Error · ${blocSession.state}'),
-        ),
+        child: Center(child: Text('Session Error · ${blocSession.state}')),
       ),
     );
   }
@@ -77,8 +82,10 @@ class SessionErrorPage extends StatelessWidget {
 class AuthenticatingPage extends StatelessWidget {
   const AuthenticatingPage({super.key});
   static const String name = 'authenticating';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -92,8 +99,10 @@ class AuthenticatingPage extends StatelessWidget {
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
   static const String name = 'login';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -109,9 +118,7 @@ class LoginPage extends StatelessWidget {
           stream: bloc.stream,
           builder: (_, __) {
             if (bloc.state is Authenticating) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             }
 
             return Column(
@@ -131,8 +138,10 @@ class LoginPage extends StatelessWidget {
                   obscureText: true,
                   onChanged: (String v) => pass = v,
                   onSubmitted: (_) async {
-                    final Either<ErrorItem, UserModel> r =
-                        await bloc.logIn(email: email, password: pass);
+                    final Either<ErrorItem, UserModel> r = await bloc.logIn(
+                      email: email,
+                      password: pass,
+                    );
                     r.fold(
                       (ErrorItem e) => app.notifications.showToast(e.title),
                       (_) => app.notifications.showToast('Login OK'),
@@ -142,8 +151,10 @@ class LoginPage extends StatelessWidget {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () async {
-                    final Either<ErrorItem, UserModel> r =
-                        await bloc.logIn(email: email, password: pass);
+                    final Either<ErrorItem, UserModel> r = await bloc.logIn(
+                      email: email,
+                      password: pass,
+                    );
                     r.fold(
                       (ErrorItem e) => app.notifications.showToast(e.title),
                       (_) {
@@ -165,8 +176,10 @@ class LoginPage extends StatelessWidget {
 class SessionClosedPage extends StatelessWidget {
   const SessionClosedPage({super.key});
   static const String name = 'session_closed';
-  static const PageModel pageModel =
-      PageModel(name: name, segments: <String>[name]);
+  static const PageModel pageModel = PageModel(
+    name: name,
+    segments: <String>[name],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -248,8 +261,8 @@ class _CounterPageState extends State<CounterPage> {
     final AbstractAppManager app = context.appManager;
     final BlocResponsive r = app.responsive;
     r.showAppbar = true;
-    final BlocCounter blocCounter =
-        context.appManager.requireModuleByKey<BlocCounter>(BlocCounter.name);
+    final BlocCounter blocCounter = context.appManager
+        .requireModuleByKey<BlocCounter>(BlocCounter.name);
 
     return PageBuilder(
       page: PageWithSecondaryMenuBuilder(
@@ -374,14 +387,17 @@ final List<PageDef> defs = <PageDef>[
   ),
 ];
 
-final PageRegistry registry =
-    PageRegistry.fromDefs(defs, defaultPage: HomePage.pageModel);
+final PageRegistry registry = PageRegistry.fromDefs(
+  defs,
+  defaultPage: HomePage.pageModel,
+);
 
 PageModel initial() =>
     _onboardingDone ? HomePage.pageModel : SplashPage.pageModel;
 
-final PageManager pageManager =
-    PageManager(initial: NavStackModel.single(initial()));
+final PageManager pageManager = PageManager(
+  initial: NavStackModel.single(initial()),
+);
 
 AppManager buildAppManager() {
   // Theme mínimo
@@ -397,10 +413,12 @@ AppManager buildAppManager() {
       initialUserJson: kIsSessionInitialized ? defaultUserModel.toJson() : null,
     ),
   );
-  final RepositoryAuth repositoryAuthImpl =
-      RepositoryAuthImpl(gateway: gatewayAuth);
-  final BlocSession session =
-      BlocSession.fromRepository(repository: repositoryAuthImpl);
+  final RepositoryAuth repositoryAuthImpl = RepositoryAuthImpl(
+    gateway: gatewayAuth,
+  );
+  final BlocSession session = BlocSession.fromRepository(
+    repository: repositoryAuthImpl,
+  );
 
   // Counter demo
   final BlocCounter counter = BlocCounter();
@@ -432,8 +450,10 @@ AppManager buildAppManager() {
 
   // AppConfig con módulos registrados
   final AppConfig cfg = AppConfig(
-    blocTheme:
-        BlocThemeReact(themeUsecases: themeUsecases, watchTheme: watchTheme),
+    blocTheme: BlocThemeReact(
+      themeUsecases: themeUsecases,
+      watchTheme: watchTheme,
+    ),
     blocUserNotifications: BlocUserNotifications(),
     blocLoading: BlocLoading(),
     blocMainMenuDrawer: BlocMainMenuDrawer(),
@@ -471,8 +491,9 @@ Future<void> main() async {
   if (!_onboardingDone && pageManager.stack.top == SplashPage.pageModel) {
     am.onboarding.start();
   }
-  final BlocSession session =
-      am.requireModuleByKey<BlocSession>(BlocSession.name);
+  final BlocSession session = am.requireModuleByKey<BlocSession>(
+    BlocSession.name,
+  );
   runApp(
     JocaaguraAppWithSession.dev(
       appManager: am,

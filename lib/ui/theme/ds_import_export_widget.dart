@@ -4,10 +4,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// - Export: dsBloc.exportToJson() -> JSON pretty -> Clipboard
 /// - Import: Clipboard -> parse -> dsBloc.importFromJson()
 class DsImportExportWidget extends StatefulWidget {
-  const DsImportExportWidget({
-    required this.dsBloc,
-    super.key,
-  });
+  const DsImportExportWidget({required this.dsBloc, super.key});
 
   final BlocDesignSystem dsBloc;
 
@@ -247,15 +244,9 @@ class _DsImportExportWidgetState extends State<DsImportExportWidget> {
             ),
             SizedBox(height: tok.spacingSm),
             if (_localError != null)
-              _InlineMessage(
-                icon: Icons.error_outline,
-                text: _localError!,
-              )
+              _InlineMessage(icon: Icons.error_outline, text: _localError!)
             else if (_localInfo != null)
-              _InlineMessage(
-                icon: Icons.info_outline,
-                text: _localInfo!,
-              ),
+              _InlineMessage(icon: Icons.info_outline, text: _localInfo!),
             if (_localError != null || _localInfo != null)
               SizedBox(height: tok.spacingSm),
             SizedBox(
@@ -269,9 +260,7 @@ class _DsImportExportWidgetState extends State<DsImportExportWidget> {
                   hintText: '{ ... }',
                   alignLabelWithHint: true,
                 ),
-                style: t.textTheme.bodySmall?.copyWith(
-                  fontFamily: 'monospace',
-                ),
+                style: t.textTheme.bodySmall?.copyWith(fontFamily: 'monospace'),
               ),
             ),
           ],
@@ -282,10 +271,7 @@ class _DsImportExportWidgetState extends State<DsImportExportWidget> {
 }
 
 class _InlineMessage extends StatelessWidget {
-  const _InlineMessage({
-    required this.icon,
-    required this.text,
-  });
+  const _InlineMessage({required this.icon, required this.text});
 
   final IconData icon;
   final String text;
@@ -307,12 +293,7 @@ class _InlineMessage extends StatelessWidget {
         children: <Widget>[
           Icon(icon, size: 18),
           SizedBox(width: tok.spacingSm),
-          Expanded(
-            child: Text(
-              text,
-              style: t.textTheme.bodySmall,
-            ),
-          ),
+          Expanded(child: Text(text, style: t.textTheme.bodySmall)),
         ],
       ),
     );

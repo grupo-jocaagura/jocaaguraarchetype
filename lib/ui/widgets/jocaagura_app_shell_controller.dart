@@ -4,14 +4,11 @@ typedef MicrotaskScheduler = void Function(void Function());
 
 class JocaaguraAppShellController {
   JocaaguraAppShellController({
-    required AbstractAppManager appManager,
-    required Stream<ThemeState> themeStream,
-    required Stream<OnboardingState> onboardingStream,
-    MicrotaskScheduler scheduler = scheduleMicrotask,
-  })  : _appManager = appManager,
-        _themeStream = themeStream,
-        _onboardingStream = onboardingStream,
-        _scheduler = scheduler;
+    required this._appManager,
+    required this._themeStream,
+    required this._onboardingStream,
+    this._scheduler = scheduleMicrotask,
+  });
 
   factory JocaaguraAppShellController.fromManager(
     AbstractAppManager appManager, {

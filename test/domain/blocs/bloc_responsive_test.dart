@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 void main() {
@@ -105,8 +105,9 @@ void main() {
       expect(blocResponsive.appScreenSizeStreamIsClosed, true);
     });
 
-    testWidgets('setSizeFromContext updates size correctly',
-        (WidgetTester tester) async {
+    testWidgets('setSizeFromContext updates size correctly', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Builder(
@@ -131,12 +132,7 @@ void main() {
       await tester.tap(find.byType(ElevatedButton));
       await tester.pump();
       expect(responsiveBloc.isTv, true);
-      expect(
-        responsiveBloc.workAreaSize,
-        equals(
-          const Size(1536.0, 1080.0),
-        ),
-      );
+      expect(responsiveBloc.workAreaSize, equals(const Size(1536.0, 1080.0)));
       tester.view.resetPhysicalSize();
       tester.view.resetDevicePixelRatio();
     });

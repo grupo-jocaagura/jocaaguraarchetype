@@ -89,10 +89,7 @@ class SecondaryMenuMobileLayout extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               for (int i = 0; i < items.length; i++) ...<Widget>[
-                SecondaryMenuSquareButton(
-                  item: items[i],
-                  size: itemSize,
-                ),
+                SecondaryMenuSquareButton(item: items[i], size: itemSize),
                 if (i < items.length - 1) SizedBox(width: gap * 0.5),
               ],
             ],

@@ -27,11 +27,11 @@ class _DummyModuleB extends BlocModule {
 
 class _SpyPageManager extends PageManager {
   _SpyPageManager()
-      : super(
-          initial: NavStackModel.single(
-            const PageModel(name: 'home', segments: <String>['home']),
-          ),
-        );
+    : super(
+        initial: NavStackModel.single(
+          const PageModel(name: 'home', segments: <String>['home']),
+        ),
+      );
 
   PageModel? lastResetTo;
   PageModel? lastPush;
@@ -134,24 +134,24 @@ class _SpySecondaryMenuDrawer extends BlocSecondaryMenuDrawer {}
 
 class _SpyThemeBloc extends BlocTheme {
   _SpyThemeBloc()
-      : super(
-          themeUsecases: ThemeUsecases(
-            load: LoadTheme(_RepoOk()),
-            setMode: SetThemeMode(_RepoOk()),
-            setSeed: SetThemeSeed(_RepoOk()),
-            toggleM3: ToggleMaterial3(_RepoOk()),
-            applyPreset: ApplyThemePreset(_RepoOk()),
-            setTextScale: SetThemeTextScale(_RepoOk()),
-            reset: ResetTheme(_RepoOk()),
-            randomize: RandomizeTheme(
-              _RepoOk(),
-              const FakeServiceJocaaguraArchetypeTheme(),
-            ),
-            applyPatch: ApplyThemePatch(_RepoOk()),
-            setFromState: SetThemeState(_RepoOk()),
-            buildThemeData: const BuildThemeData(),
+    : super(
+        themeUsecases: ThemeUsecases(
+          load: LoadTheme(_RepoOk()),
+          setMode: SetThemeMode(_RepoOk()),
+          setSeed: SetThemeSeed(_RepoOk()),
+          toggleM3: ToggleMaterial3(_RepoOk()),
+          applyPreset: ApplyThemePreset(_RepoOk()),
+          setTextScale: SetThemeTextScale(_RepoOk()),
+          reset: ResetTheme(_RepoOk()),
+          randomize: RandomizeTheme(
+            _RepoOk(),
+            const FakeServiceJocaaguraArchetypeTheme(),
           ),
-        );
+          applyPatch: ApplyThemePatch(_RepoOk()),
+          setFromState: SetThemeState(_RepoOk()),
+          buildThemeData: const BuildThemeData(),
+        ),
+      );
 }
 
 class _RepoOk implements RepositoryTheme {
@@ -263,21 +263,23 @@ void main() {
       m.dispose();
     });
 
-    test('push(location) delega a push con allowDuplicate (por defecto true)',
-        () {
-      final _SpyPageManager pm = _SpyPageManager();
-      final AppManager m = AppManager(_makeConfigWithSpies(pm));
+    test(
+      'push(location) delega a push con allowDuplicate (por defecto true)',
+      () {
+        final _SpyPageManager pm = _SpyPageManager();
+        final AppManager m = AppManager(_makeConfigWithSpies(pm));
 
-      m.push('/orders/123');
-      expect(pm.lastPush, isNotNull);
-      expect(pm.lastPush!.segments, <String>['orders', '123']);
-      expect(pm.lastPushAllowDuplicate, isTrue);
+        m.push('/orders/123');
+        expect(pm.lastPush, isNotNull);
+        expect(pm.lastPush!.segments, <String>['orders', '123']);
+        expect(pm.lastPushAllowDuplicate, isTrue);
 
-      m.push('/orders/123', allowDuplicate: false);
-      expect(pm.lastPushAllowDuplicate, isFalse);
+        m.push('/orders/123', allowDuplicate: false);
+        expect(pm.lastPushAllowDuplicate, isFalse);
 
-      m.dispose();
-    });
+        m.dispose();
+      },
+    );
 
     test('pushOnce(location) delega a pushOnce', () {
       final _SpyPageManager pm = _SpyPageManager();
@@ -390,49 +392,53 @@ void main() {
       m.dispose();
     });
 
-    test('runWithLoading usa BlocLoading.loadingWhile con label y minShow',
-        () async {
-      final _SpyPageManager pm = _SpyPageManager();
-      final AppConfig cfg = _makeConfigWithSpies(pm);
-      final AppManager m = AppManager(cfg);
+    test(
+      'runWithLoading usa BlocLoading.loadingWhile con label y minShow',
+      () async {
+        final _SpyPageManager pm = _SpyPageManager();
+        final AppConfig cfg = _makeConfigWithSpies(pm);
+        final AppManager m = AppManager(cfg);
 
-      final _SpyLoading loading = cfg.blocLoading as _SpyLoading;
+        final _SpyLoading loading = cfg.blocLoading as _SpyLoading;
 
-      final String result = await m.runWithLoading(
-        Future<String>.value('ok'),
-        label: 'Cargando…',
-        minShow: const Duration(milliseconds: 50),
-      );
+        final String result = await m.runWithLoading(
+          Future<String>.value('ok'),
+          label: 'Cargando…',
+          minShow: const Duration(milliseconds: 50),
+        );
 
-      expect(result, 'ok');
-      expect(loading.loadingWhileCalls, 1);
-      expect(loading.lastLabel, 'Cargando…');
-      expect(loading.lastMinShow, const Duration(milliseconds: 50));
+        expect(result, 'ok');
+        expect(loading.loadingWhileCalls, 1);
+        expect(loading.lastLabel, 'Cargando…');
+        expect(loading.lastMinShow, const Duration(milliseconds: 50));
 
-      m.dispose();
-    });
+        m.dispose();
+      },
+    );
 
-    test('queueRunWithLoading usa queueLoadingWhile con label y minShow',
-        () async {
-      final _SpyPageManager pm = _SpyPageManager();
-      final AppConfig cfg = _makeConfigWithSpies(pm);
-      final AppManager m = AppManager(cfg);
+    test(
+      'queueRunWithLoading usa queueLoadingWhile con label y minShow',
+      () async {
+        final _SpyPageManager pm = _SpyPageManager();
+        final AppConfig cfg = _makeConfigWithSpies(pm);
+        final AppManager m = AppManager(cfg);
 
-      final _SpyLoading loading = cfg.blocLoading as _SpyLoading;
+        final _SpyLoading loading = cfg.blocLoading as _SpyLoading;
 
-      final int result = await m.queueRunWithLoading<int>(
-        () async => 7,
-        label: 'Trabajando…',
-        minShow: const Duration(milliseconds: 30),
-      );
+        final int result = await m.queueRunWithLoading<int>(
+          () async => 7,
+          label: 'Trabajando…',
+          minShow: const Duration(milliseconds: 30),
+        );
 
-      expect(result, 7);
-      expect(loading.queueLoadingWhileCalls, 1);
-      expect(loading.lastLabel, 'Trabajando…');
-      expect(loading.lastMinShow, const Duration(milliseconds: 30));
+        expect(result, 7);
+        expect(loading.queueLoadingWhileCalls, 1);
+        expect(loading.lastLabel, 'Trabajando…');
+        expect(loading.lastMinShow, const Duration(milliseconds: 30));
 
-      m.dispose();
-    });
+        m.dispose();
+      },
+    );
   });
 
   group('AppManager · ciclo de vida', () {
@@ -477,62 +483,62 @@ void main() {
       m.dispose();
     });
 
-    test('requireModuleOfType<T>() lanza si no existe un módulo de ese tipo',
-        () async {
-      final _SpyPageManager pm = _SpyPageManager();
+    test(
+      'requireModuleOfType<T>() lanza si no existe un módulo de ese tipo',
+      () async {
+        final _SpyPageManager pm = _SpyPageManager();
 
-      final AppConfig cfg = AppConfig(
-        blocTheme: _SpyThemeBloc(),
-        blocUserNotifications: _SpyUserNotifications(),
-        blocLoading: _SpyLoading(),
-        blocMainMenuDrawer: _SpyMainMenuDrawer(),
-        blocSecondaryMenuDrawer: _SpySecondaryMenuDrawer(),
-        blocResponsive: BlocResponsive(),
-        blocOnboarding: BlocOnboarding(),
-        pageManager: pm,
-        blocModuleList: <String, BlocModule>{
-          'onlyA': _DummyModuleA(),
-        },
-      );
+        final AppConfig cfg = AppConfig(
+          blocTheme: _SpyThemeBloc(),
+          blocUserNotifications: _SpyUserNotifications(),
+          blocLoading: _SpyLoading(),
+          blocMainMenuDrawer: _SpyMainMenuDrawer(),
+          blocSecondaryMenuDrawer: _SpySecondaryMenuDrawer(),
+          blocResponsive: BlocResponsive(),
+          blocOnboarding: BlocOnboarding(),
+          pageManager: pm,
+          blocModuleList: <String, BlocModule>{'onlyA': _DummyModuleA()},
+        );
 
-      final AppManager m = AppManager(cfg);
+        final AppManager m = AppManager(cfg);
 
-      expect(
-        () => m.requireModuleOfType<_DummyModuleB>(),
-        throwsA(isA<UnimplementedError>()),
-      );
+        expect(
+          () => m.requireModuleOfType<_DummyModuleB>(),
+          throwsA(isA<UnimplementedError>()),
+        );
 
-      await m.dispose();
-    });
+        await m.dispose();
+      },
+    );
 
-    test('requireModuleByKey<T>() resuelve case-insensitive y valida tipo',
-        () async {
-      final _SpyPageManager pm = _SpyPageManager();
+    test(
+      'requireModuleByKey<T>() resuelve case-insensitive y valida tipo',
+      () async {
+        final _SpyPageManager pm = _SpyPageManager();
 
-      final AppConfig cfg = AppConfig(
-        blocTheme: _SpyThemeBloc(),
-        blocUserNotifications: _SpyUserNotifications(),
-        blocLoading: _SpyLoading(),
-        blocMainMenuDrawer: _SpyMainMenuDrawer(),
-        blocSecondaryMenuDrawer: _SpySecondaryMenuDrawer(),
-        blocResponsive: BlocResponsive(),
-        blocOnboarding: BlocOnboarding(),
-        pageManager: pm,
-        blocModuleList: <String, BlocModule>{
-          'Canvas': _DummyModuleA(),
-        },
-      );
+        final AppConfig cfg = AppConfig(
+          blocTheme: _SpyThemeBloc(),
+          blocUserNotifications: _SpyUserNotifications(),
+          blocLoading: _SpyLoading(),
+          blocMainMenuDrawer: _SpyMainMenuDrawer(),
+          blocSecondaryMenuDrawer: _SpySecondaryMenuDrawer(),
+          blocResponsive: BlocResponsive(),
+          blocOnboarding: BlocOnboarding(),
+          pageManager: pm,
+          blocModuleList: <String, BlocModule>{'Canvas': _DummyModuleA()},
+        );
 
-      final AppManager m = AppManager(cfg);
+        final AppManager m = AppManager(cfg);
 
-      final _DummyModuleA m1 = m.requireModuleByKey<_DummyModuleA>('canvas');
-      final _DummyModuleA m2 = m.requireModuleByKey<_DummyModuleA>('CANVAS');
+        final _DummyModuleA m1 = m.requireModuleByKey<_DummyModuleA>('canvas');
+        final _DummyModuleA m2 = m.requireModuleByKey<_DummyModuleA>('CANVAS');
 
-      expect(m1, isA<_DummyModuleA>());
-      expect(identical(m1, m2), isTrue);
+        expect(m1, isA<_DummyModuleA>());
+        expect(identical(m1, m2), isTrue);
 
-      await m.dispose();
-    });
+        await m.dispose();
+      },
+    );
 
     test('requireModuleByKey<T>() lanza si la key no existe', () async {
       final _SpyPageManager pm = _SpyPageManager();
@@ -559,33 +565,32 @@ void main() {
     });
 
     test(
-        'requireModuleByKey<T>() lanza si el tipo no coincide con el registrado',
-        () async {
-      final _SpyPageManager pm = _SpyPageManager();
+      'requireModuleByKey<T>() lanza si el tipo no coincide con el registrado',
+      () async {
+        final _SpyPageManager pm = _SpyPageManager();
 
-      final AppConfig cfg = AppConfig(
-        blocTheme: _SpyThemeBloc(),
-        blocUserNotifications: _SpyUserNotifications(),
-        blocLoading: _SpyLoading(),
-        blocMainMenuDrawer: _SpyMainMenuDrawer(),
-        blocSecondaryMenuDrawer: _SpySecondaryMenuDrawer(),
-        blocResponsive: BlocResponsive(),
-        blocOnboarding: BlocOnboarding(),
-        pageManager: pm,
-        blocModuleList: <String, BlocModule>{
-          'canvas': _DummyModuleA(),
-        },
-      );
+        final AppConfig cfg = AppConfig(
+          blocTheme: _SpyThemeBloc(),
+          blocUserNotifications: _SpyUserNotifications(),
+          blocLoading: _SpyLoading(),
+          blocMainMenuDrawer: _SpyMainMenuDrawer(),
+          blocSecondaryMenuDrawer: _SpySecondaryMenuDrawer(),
+          blocResponsive: BlocResponsive(),
+          blocOnboarding: BlocOnboarding(),
+          pageManager: pm,
+          blocModuleList: <String, BlocModule>{'canvas': _DummyModuleA()},
+        );
 
-      final AppManager m = AppManager(cfg);
+        final AppManager m = AppManager(cfg);
 
-      expect(
-        () => m.requireModuleByKey<_DummyModuleB>('canvas'),
-        throwsA(isA<UnimplementedError>()),
-      );
+        expect(
+          () => m.requireModuleByKey<_DummyModuleB>('canvas'),
+          throwsA(isA<UnimplementedError>()),
+        );
 
-      await m.dispose();
-    });
+        await m.dispose();
+      },
+    );
   });
   group('AppManager · navegación con PageModel', () {
     test('goToModel delega a PageManager.resetTo(model)', () {
@@ -608,33 +613,35 @@ void main() {
       m.dispose();
     });
 
-    test('pushModel delega a PageManager.push(model) respetando allowDuplicate',
-        () {
-      final _SpyPageManager pm = _SpyPageManager();
-      final AppManager m = AppManager(_makeConfigWithSpies(pm));
+    test(
+      'pushModel delega a PageManager.push(model) respetando allowDuplicate',
+      () {
+        final _SpyPageManager pm = _SpyPageManager();
+        final AppManager m = AppManager(_makeConfigWithSpies(pm));
 
-      const PageModel first = PageModel(
-        name: 'orders',
-        segments: <String>['orders', '123'],
-      );
+        const PageModel first = PageModel(
+          name: 'orders',
+          segments: <String>['orders', '123'],
+        );
 
-      m.pushModel(first); // por defecto allowDuplicate = true
-      expect(pm.lastPush, isNotNull);
-      expect(pm.lastPush!.segments, <String>['orders', '123']);
-      expect(pm.lastPushAllowDuplicate, isTrue);
+        m.pushModel(first); // por defecto allowDuplicate = true
+        expect(pm.lastPush, isNotNull);
+        expect(pm.lastPush!.segments, <String>['orders', '123']);
+        expect(pm.lastPushAllowDuplicate, isTrue);
 
-      const PageModel second = PageModel(
-        name: 'orders',
-        segments: <String>['orders', '456'],
-      );
+        const PageModel second = PageModel(
+          name: 'orders',
+          segments: <String>['orders', '456'],
+        );
 
-      m.pushModel(second, allowDuplicate: false);
-      expect(pm.lastPush, isNotNull);
-      expect(pm.lastPush!.segments, <String>['orders', '456']);
-      expect(pm.lastPushAllowDuplicate, isFalse);
+        m.pushModel(second, allowDuplicate: false);
+        expect(pm.lastPush, isNotNull);
+        expect(pm.lastPush!.segments, <String>['orders', '456']);
+        expect(pm.lastPushAllowDuplicate, isFalse);
 
-      m.dispose();
-    });
+        m.dispose();
+      },
+    );
 
     test('pushOnceModel delega a PageManager.pushOnce(model)', () {
       final _SpyPageManager pm = _SpyPageManager();
@@ -654,9 +661,7 @@ void main() {
       m.dispose();
     });
 
-    test(
-        'replaceTopModel delega a PageManager.replaceTop(model) respetando allowNoop',
-        () {
+    test('replaceTopModel delega a PageManager.replaceTop(model) respetando allowNoop', () {
       final _SpyPageManager pm = _SpyPageManager();
       final AppManager m = AppManager(_makeConfigWithSpies(pm));
 
@@ -682,8 +687,10 @@ void main() {
     test('expone BlocModelVersion y refleja su snapshot actual', () {
       final _SpyPageManager pm = _SpyPageManager();
       final BlocModelVersion versionBloc = BlocModelVersion();
-      final AppConfig cfg =
-          _makeConfigWithSpies(pm, blocModelVersion: versionBloc);
+      final AppConfig cfg = _makeConfigWithSpies(
+        pm,
+        blocModelVersion: versionBloc,
+      );
       final AppManager m = AppManager(cfg);
 
       expect(m.appVersionBloc, same(versionBloc));

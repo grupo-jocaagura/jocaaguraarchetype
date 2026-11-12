@@ -87,19 +87,18 @@ abstract class EitherFlowBridge {
 class DefaultEitherFlowBridge implements EitherFlowBridge {
   /// Creates a bridge for [bloc].
   ///
-  /// [storage] is optional and only required for save/load features.
+  /// [_storage] is optional and only required for save/load features.
   DefaultEitherFlowBridge(
     this._bloc, {
-    EitherFlowStorageGateway? storage,
+    this._storage,
     FlowValidator? validator,
     FlowAnalyzer? analyzer,
     FlowSimulator? simulator,
     FlowStepSimulator? stepSimulator,
-  })  : _storage = storage,
-        _validator = validator ?? FlowValidator(),
-        _analyzer = analyzer ?? FlowAnalyzer(),
-        _simulator = simulator ?? FlowSimulator(),
-        _stepSimulator = stepSimulator ?? FlowStepSimulator();
+  }) : _validator = validator ?? FlowValidator(),
+       _analyzer = analyzer ?? FlowAnalyzer(),
+       _simulator = simulator ?? FlowSimulator(),
+       _stepSimulator = stepSimulator ?? FlowStepSimulator();
 
   final BlocEitherFlow _bloc;
   final EitherFlowStorageGateway? _storage;
@@ -168,36 +167,40 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
     bloc.updateRawJson(rawJson);
 
     try {
-      final Either<ErrorItem, Map<String, dynamic>> decoded =
-          _safeDecodeJson(rawJson);
+      final Either<ErrorItem, Map<String, dynamic>> decoded = _safeDecodeJson(
+        rawJson,
+      );
 
-      return await decoded.fold((ErrorItem error) {
-        bloc.setImportError(error.description, rawJson: rawJson);
-        return Left<ErrorItem, ModelCompleteFlow>(error);
-      }, (Map<String, dynamic> onRight) {
-        try {
-          final ModelCompleteFlow flow = ModelCompleteFlow.fromJson(onRight);
+      return await decoded.fold(
+        (ErrorItem error) {
+          bloc.setImportError(error.description, rawJson: rawJson);
+          return Left<ErrorItem, ModelCompleteFlow>(error);
+        },
+        (Map<String, dynamic> onRight) {
+          try {
+            final ModelCompleteFlow flow = ModelCompleteFlow.fromJson(onRight);
 
-          final FlowValidationReport report = _validator.validateFlow(flow);
-          final FlowAnalysisReport analysis = _analyzer.analyze(flow);
+            final FlowValidationReport report = _validator.validateFlow(flow);
+            final FlowAnalysisReport analysis = _analyzer.analyze(flow);
 
-          bloc.setImportedFlow(
-            flow: flow,
-            report: report,
-            analysis: analysis,
-          );
+            bloc.setImportedFlow(
+              flow: flow,
+              report: report,
+              analysis: analysis,
+            );
 
-          return Right<ErrorItem, ModelCompleteFlow>(flow);
-        } catch (e) {
-          final ErrorItem err = ErrorItem(
-            code: 'either_flow_import_model_error',
-            description: 'Cannot build ModelCompleteFlow: $e',
-            title: '',
-          );
-          bloc.setImportError(err.description, rawJson: rawJson);
-          return Left<ErrorItem, ModelCompleteFlow>(err);
-        }
-      });
+            return Right<ErrorItem, ModelCompleteFlow>(flow);
+          } catch (e) {
+            final ErrorItem err = ErrorItem(
+              code: 'either_flow_import_model_error',
+              description: 'Cannot build ModelCompleteFlow: $e',
+              title: '',
+            );
+            bloc.setImportError(err.description, rawJson: rawJson);
+            return Left<ErrorItem, ModelCompleteFlow>(err);
+          }
+        },
+      );
     } finally {
       bloc.setBusy(false);
     }
@@ -261,8 +264,11 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
     }
 
     bloc.setBusy(true);
-    final FlowAuditSnapshot snap =
-        _simulator.simulate(flow, plan: plan, maxSteps: maxSteps);
+    final FlowAuditSnapshot snap = _simulator.simulate(
+      flow,
+      plan: plan,
+      maxSteps: maxSteps,
+    );
     bloc.setAuditSnapshot(snap);
     bloc.setBusy(false);
     return snap;
@@ -279,8 +285,11 @@ class DefaultEitherFlowBridge implements EitherFlowBridge {
     }
 
     bloc.setBusy(true);
-    final FlowSimulationSession session =
-        _stepSimulator.start(flow, plan: plan, maxSteps: maxSteps);
+    final FlowSimulationSession session = _stepSimulator.start(
+      flow,
+      plan: plan,
+      maxSteps: maxSteps,
+    );
     bloc.setSimulationSession(session);
     bloc.setAuditSnapshot(_stepSimulator.snapshot(session));
     bloc.setBusy(false);

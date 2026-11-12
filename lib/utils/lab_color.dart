@@ -127,8 +127,9 @@ class LabColor extends EntityUtil {
         (t * t * t > 0.008856) ? (t * t * t) : ((t - 16.0 / 116.0) / 7.787);
 
     final double xr = inv(fx);
-    final double yr =
-        (l > 8.0) ? pow((l + 16.0) / 116.0, 3.0).toDouble() : (l / 903.3);
+    final double yr = (l > 8.0)
+        ? pow((l + 16.0) / 116.0, 3.0).toDouble()
+        : (l / 903.3);
     final double zr = inv(fz);
 
     final double X = xr * Xn;
@@ -136,13 +137,16 @@ class LabColor extends EntityUtil {
     final double Z = zr * Zn;
 
     // XYZ → sRGB lineal
-    final double rLin = 3.2404542 * (X / 100.0) +
+    final double rLin =
+        3.2404542 * (X / 100.0) +
         (-1.5371385) * (Y / 100.0) +
         (-0.4985314) * (Z / 100.0);
-    final double gLin = -0.9692660 * (X / 100.0) +
+    final double gLin =
+        -0.9692660 * (X / 100.0) +
         1.8760108 * (Y / 100.0) +
         0.0415560 * (Z / 100.0);
-    final double bLin = 0.0556434 * (X / 100.0) +
+    final double bLin =
+        0.0556434 * (X / 100.0) +
         (-0.2040259) * (Y / 100.0) +
         1.0572252 * (Z / 100.0);
 

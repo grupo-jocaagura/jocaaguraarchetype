@@ -18,7 +18,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// ## Example
 /// ```dart
-/// import 'package:flutter/material.dart';
+/// import 'package:material_ui/material_ui.dart';
 ///
 /// void main() {
 ///   final ThemeOverrides ov = ThemeOverrides(
@@ -42,10 +42,9 @@ class ThemeOverrides {
       ThemeOverrides(light: light ?? this.light, dark: dark ?? this.dark);
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        ThemeOverridesEnum.light.name:
-            light == null ? null : _schemeToMap(light!),
-        ThemeOverridesEnum.dark.name: dark == null ? null : _schemeToMap(dark!),
-      };
+    ThemeOverridesEnum.light.name: light == null ? null : _schemeToMap(light!),
+    ThemeOverridesEnum.dark.name: dark == null ? null : _schemeToMap(dark!),
+  };
 
   static ThemeOverrides? fromJson(Map<String, dynamic>? json) {
     if (json == null) {
@@ -62,28 +61,29 @@ class ThemeOverrides {
   }
 
   static Map<String, dynamic> _schemeToMap(ColorScheme s) => <String, dynamic>{
-        ColorSchemeEnum.brightness.name: s.brightness.name,
-        ColorSchemeEnum.primary.name: UtilsForTheme.colorToHex(s.primary),
-        ColorSchemeEnum.onPrimary.name: UtilsForTheme.colorToHex(s.onPrimary),
-        ColorSchemeEnum.secondary.name: UtilsForTheme.colorToHex(s.secondary),
-        ColorSchemeEnum.onSecondary.name:
-            UtilsForTheme.colorToHex(s.onSecondary),
-        ColorSchemeEnum.tertiary.name: UtilsForTheme.colorToHex(s.tertiary),
-        ColorSchemeEnum.onTertiary.name: UtilsForTheme.colorToHex(s.onTertiary),
-        ColorSchemeEnum.error.name: UtilsForTheme.colorToHex(s.error),
-        ColorSchemeEnum.onError.name: UtilsForTheme.colorToHex(s.onError),
-        ColorSchemeEnum.surface.name: UtilsForTheme.colorToHex(s.surface),
-        ColorSchemeEnum.onSurface.name: UtilsForTheme.colorToHex(s.onSurface),
-        ColorSchemeEnum.surfaceTint.name:
-            UtilsForTheme.colorToHex(s.surfaceTint),
-        ColorSchemeEnum.outline.name: UtilsForTheme.colorToHex(s.outline),
-        ColorSchemeEnum.onSurfaceVariant.name:
-            UtilsForTheme.colorToHex(s.onSurfaceVariant),
-        ColorSchemeEnum.inverseSurface.name:
-            UtilsForTheme.colorToHex(s.inverseSurface),
-        ColorSchemeEnum.inversePrimary.name:
-            UtilsForTheme.colorToHex(s.inversePrimary),
-      };
+    ColorSchemeEnum.brightness.name: s.brightness.name,
+    ColorSchemeEnum.primary.name: UtilsForTheme.colorToHex(s.primary),
+    ColorSchemeEnum.onPrimary.name: UtilsForTheme.colorToHex(s.onPrimary),
+    ColorSchemeEnum.secondary.name: UtilsForTheme.colorToHex(s.secondary),
+    ColorSchemeEnum.onSecondary.name: UtilsForTheme.colorToHex(s.onSecondary),
+    ColorSchemeEnum.tertiary.name: UtilsForTheme.colorToHex(s.tertiary),
+    ColorSchemeEnum.onTertiary.name: UtilsForTheme.colorToHex(s.onTertiary),
+    ColorSchemeEnum.error.name: UtilsForTheme.colorToHex(s.error),
+    ColorSchemeEnum.onError.name: UtilsForTheme.colorToHex(s.onError),
+    ColorSchemeEnum.surface.name: UtilsForTheme.colorToHex(s.surface),
+    ColorSchemeEnum.onSurface.name: UtilsForTheme.colorToHex(s.onSurface),
+    ColorSchemeEnum.surfaceTint.name: UtilsForTheme.colorToHex(s.surfaceTint),
+    ColorSchemeEnum.outline.name: UtilsForTheme.colorToHex(s.outline),
+    ColorSchemeEnum.onSurfaceVariant.name: UtilsForTheme.colorToHex(
+      s.onSurfaceVariant,
+    ),
+    ColorSchemeEnum.inverseSurface.name: UtilsForTheme.colorToHex(
+      s.inverseSurface,
+    ),
+    ColorSchemeEnum.inversePrimary.name: UtilsForTheme.colorToHex(
+      s.inversePrimary,
+    ),
+  };
 
   static ColorScheme? _mapToScheme(Map<String, dynamic>? m) {
     if (m == null) {

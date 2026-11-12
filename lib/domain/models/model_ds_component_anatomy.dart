@@ -44,21 +44,10 @@ abstract final class ModelDsComponentSlotKeys {
 }
 
 /// Catalog status for documentation lifecycle.
-enum ModelDsComponentStatusEnum {
-  draft,
-  stable,
-  deprecated,
-}
+enum ModelDsComponentStatusEnum { draft, stable, deprecated }
 
 /// Supported platforms for catalog filtering.
-enum ModelDsComponentPlatformEnum {
-  android,
-  ios,
-  web,
-  windows,
-  macos,
-  linux,
-}
+enum ModelDsComponentPlatformEnum { android, ios, web, windows, macos, linux }
 
 /// Represents a labeled documentation link.
 ///
@@ -70,10 +59,7 @@ enum ModelDsComponentPlatformEnum {
 /// - [FormatException] from [fromJson] when fields are missing or invalid.
 @immutable
 class ModelDsComponentLink {
-  const ModelDsComponentLink({
-    required this.label,
-    required this.url,
-  });
+  const ModelDsComponentLink({required this.label, required this.url});
 
   /// Builds a link from strict JSON.
   ///
@@ -95,10 +81,7 @@ class ModelDsComponentLink {
       throw const FormatException('Invalid link url');
     }
 
-    return ModelDsComponentLink(
-      label: labelRaw,
-      url: urlRaw,
-    );
+    return ModelDsComponentLink(label: labelRaw, url: urlRaw);
   }
 
   final String label;
@@ -106,9 +89,9 @@ class ModelDsComponentLink {
 
   /// Serializes this instance into JSON compatible with [fromJson].
   Map<String, dynamic> toJson() => <String, dynamic>{
-        ModelDsComponentLinkKeys.label: label,
-        ModelDsComponentLinkKeys.url: url,
-      };
+    ModelDsComponentLinkKeys.label: label,
+    ModelDsComponentLinkKeys.url: url,
+  };
 
   void _validate() {
     if (label.trim().isEmpty) {
@@ -206,11 +189,11 @@ class ModelDsComponentSlot {
   final List<String> tokensUsed;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        ModelDsComponentSlotKeys.name: name,
-        ModelDsComponentSlotKeys.role: role,
-        ModelDsComponentSlotKeys.rules: rules,
-        ModelDsComponentSlotKeys.tokensUsed: tokensUsed,
-      };
+    ModelDsComponentSlotKeys.name: name,
+    ModelDsComponentSlotKeys.role: role,
+    ModelDsComponentSlotKeys.rules: rules,
+    ModelDsComponentSlotKeys.tokensUsed: tokensUsed,
+  };
 
   void _validate() {
     if (name.trim().isEmpty) {
@@ -367,21 +350,28 @@ class ModelDsComponentAnatomy {
       throw const FormatException('Invalid description');
     }
 
-    final List<String> tags =
-        _readStringListStrict(json[ModelDsComponentAnatomyKeys.tags], 'tags');
+    final List<String> tags = _readStringListStrict(
+      json[ModelDsComponentAnatomyKeys.tags],
+      'tags',
+    );
 
-    final ModelDsComponentStatusEnum status =
-        _readStatusStrict(json[ModelDsComponentAnatomyKeys.status]);
+    final ModelDsComponentStatusEnum status = _readStatusStrict(
+      json[ModelDsComponentAnatomyKeys.status],
+    );
 
-    final List<ModelDsComponentPlatformEnum> platforms =
-        _readPlatformsStrict(json[ModelDsComponentAnatomyKeys.platforms]);
+    final List<ModelDsComponentPlatformEnum> platforms = _readPlatformsStrict(
+      json[ModelDsComponentAnatomyKeys.platforms],
+    );
 
-    final String? previewAssetKey =
-        _readNullableString(json[ModelDsComponentAnatomyKeys.previewAssetKey]);
-    final String? previewUrlImage =
-        _readNullableString(json[ModelDsComponentAnatomyKeys.previewUrlImage]);
-    final String? urlDetailedInfo =
-        _readNullableString(json[ModelDsComponentAnatomyKeys.urlDetailedInfo]);
+    final String? previewAssetKey = _readNullableString(
+      json[ModelDsComponentAnatomyKeys.previewAssetKey],
+    );
+    final String? previewUrlImage = _readNullableString(
+      json[ModelDsComponentAnatomyKeys.previewUrlImage],
+    );
+    final String? urlDetailedInfo = _readNullableString(
+      json[ModelDsComponentAnatomyKeys.urlDetailedInfo],
+    );
 
     final List<ModelDsComponentLink> links = _readLinksStrict(
       json[ModelDsComponentAnatomyKeys.links],
@@ -443,21 +433,24 @@ class ModelDsComponentAnatomy {
   final List<ModelDsComponentSlot> slots;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        ModelDsComponentAnatomyKeys.id: id,
-        ModelDsComponentAnatomyKeys.name: name,
-        ModelDsComponentAnatomyKeys.description: description,
-        ModelDsComponentAnatomyKeys.tags: tags,
-        ModelDsComponentAnatomyKeys.status: status.name,
-        ModelDsComponentAnatomyKeys.platforms:
-            platforms.map((ModelDsComponentPlatformEnum e) => e.name).toList(),
-        ModelDsComponentAnatomyKeys.previewAssetKey: previewAssetKey,
-        ModelDsComponentAnatomyKeys.previewUrlImage: previewUrlImage,
-        ModelDsComponentAnatomyKeys.urlDetailedInfo: urlDetailedInfo,
-        ModelDsComponentAnatomyKeys.links:
-            links.map((ModelDsComponentLink e) => e.toJson()).toList(),
-        ModelDsComponentAnatomyKeys.slots:
-            slots.map((ModelDsComponentSlot e) => e.toJson()).toList(),
-      };
+    ModelDsComponentAnatomyKeys.id: id,
+    ModelDsComponentAnatomyKeys.name: name,
+    ModelDsComponentAnatomyKeys.description: description,
+    ModelDsComponentAnatomyKeys.tags: tags,
+    ModelDsComponentAnatomyKeys.status: status.name,
+    ModelDsComponentAnatomyKeys.platforms: platforms
+        .map((ModelDsComponentPlatformEnum e) => e.name)
+        .toList(),
+    ModelDsComponentAnatomyKeys.previewAssetKey: previewAssetKey,
+    ModelDsComponentAnatomyKeys.previewUrlImage: previewUrlImage,
+    ModelDsComponentAnatomyKeys.urlDetailedInfo: urlDetailedInfo,
+    ModelDsComponentAnatomyKeys.links: links
+        .map((ModelDsComponentLink e) => e.toJson())
+        .toList(),
+    ModelDsComponentAnatomyKeys.slots: slots
+        .map((ModelDsComponentSlot e) => e.toJson())
+        .toList(),
+  };
 
   void _validate() {
     if (id.trim().isEmpty) {

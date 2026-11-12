@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ---------------- Fakes ----------------
 
@@ -137,31 +137,30 @@ _FakeError? _leftError(dynamic either) {
 
 void main() {
   group('RepositoryThemeReactImpl • read', () {
-    test('Given gateway Right(valid map) When read Then Right(ThemeState)',
-        () async {
-      final _GatewayFake g = _GatewayFake();
-      g.nextRead =
-          Right<ErrorItem, Map<String, dynamic>>(ThemeState.defaults.toJson());
-      final RepositoryThemeReactImpl repo = RepositoryThemeReactImpl(
-        gateway: g,
-        errorMapper: const _FakeMapper(),
-      );
-
-      final dynamic r = await repo.read();
-      expect(_isRight(r), isTrue);
-      expect(_rightTheme(r), isA<ThemeState>());
-    });
-
     test(
-        'Given gateway Right(malformed map) When read Then Left(ErrorItem) with location',
-        () async {
+      'Given gateway Right(valid map) When read Then Right(ThemeState)',
+      () async {
+        final _GatewayFake g = _GatewayFake();
+        g.nextRead = Right<ErrorItem, Map<String, dynamic>>(
+          ThemeState.defaults.toJson(),
+        );
+        final RepositoryThemeReactImpl repo = RepositoryThemeReactImpl(
+          gateway: g,
+          errorMapper: const _FakeMapper(),
+        );
+
+        final dynamic r = await repo.read();
+        expect(_isRight(r), isTrue);
+        expect(_rightTheme(r), isA<ThemeState>());
+      },
+    );
+
+    test('Given gateway Right(malformed map) When read Then Left(ErrorItem) with location', () async {
       final _GatewayFake g = _GatewayFake();
       // Mal formado: textScale no finito provoca FormatException en ThemeState.fromJson
-      g.nextRead =
-          const Right<ErrorItem, Map<String, dynamic>>(<String, dynamic>{
-        'useM3': true,
-        'textScale': double.infinity,
-      });
+      g.nextRead = const Right<ErrorItem, Map<String, dynamic>>(
+        <String, dynamic>{'useM3': true, 'textScale': double.infinity},
+      );
 
       final RepositoryThemeReactImpl repo = RepositoryThemeReactImpl(
         gateway: g,
@@ -175,54 +174,57 @@ void main() {
       expect(e!.location, 'RepositoryThemeReactImpl.read');
     });
 
-    test('Given gateway Left(error) When read Then propagates Left as-is',
-        () async {
-      final _GatewayFake g = _GatewayFake();
-      g.nextRead =
-          Left<ErrorItem, Map<String, dynamic>>(_FakeError('gw.read', 'oops'));
-      final RepositoryThemeReactImpl repo = RepositoryThemeReactImpl(
-        gateway: g,
-        errorMapper: const _FakeMapper(),
-      );
+    test(
+      'Given gateway Left(error) When read Then propagates Left as-is',
+      () async {
+        final _GatewayFake g = _GatewayFake();
+        g.nextRead = Left<ErrorItem, Map<String, dynamic>>(
+          _FakeError('gw.read', 'oops'),
+        );
+        final RepositoryThemeReactImpl repo = RepositoryThemeReactImpl(
+          gateway: g,
+          errorMapper: const _FakeMapper(),
+        );
 
-      final dynamic r = await repo.read();
-      expect(_isLeft(r), isTrue);
-    });
+        final dynamic r = await repo.read();
+        expect(_isLeft(r), isTrue);
+      },
+    );
   });
 
   group('RepositoryThemeReactImpl • save', () {
     test(
-        'Given gateway Right(echos json) When save valid Then Right(ThemeState)',
-        () async {
-      final _GatewayFake g = _GatewayFake();
-      final RepositoryThemeReactImpl repo = RepositoryThemeReactImpl(
-        gateway: g,
-        errorMapper: const _FakeMapper(),
-      );
+      'Given gateway Right(echos json) When save valid Then Right(ThemeState)',
+      () async {
+        final _GatewayFake g = _GatewayFake();
+        final RepositoryThemeReactImpl repo = RepositoryThemeReactImpl(
+          gateway: g,
+          errorMapper: const _FakeMapper(),
+        );
 
-      final ThemeState next = ThemeState.defaults.copyWith(
-        mode: ThemeMode.dark,
-        seed: const Color(0xFF112233),
-        textScale: 1.1,
-      );
+        final ThemeState next = ThemeState.defaults.copyWith(
+          mode: ThemeMode.dark,
+          seed: const Color(0xFF112233),
+          textScale: 1.1,
+        );
 
-      final dynamic r = await repo.save(next);
-      expect(_isRight(r), isTrue);
-      final ThemeState? s = _rightTheme(r);
-      expect(s, isNotNull);
-      expect(s!.mode, ThemeMode.dark);
-    });
+        final dynamic r = await repo.save(next);
+        expect(_isRight(r), isTrue);
+        final ThemeState? s = _rightTheme(r);
+        expect(s, isNotNull);
+        expect(s!.mode, ThemeMode.dark);
+      },
+    );
 
-    test(
-        'Given gateway Right(malformed map) When save Then Left(ErrorItem) with location',
-        () async {
+    test('Given gateway Right(malformed map) When save Then Left(ErrorItem) with location', () async {
       final _GatewayFake g = _GatewayFake();
       // Forzamos que el gateway devuelva un mapa roto tras write:
-      g.nextWrite =
-          const Right<ErrorItem, Map<String, dynamic>>(<String, dynamic>{
-        'useM3': true,
-        'textScale': double.nan, // hará fallar ThemeState.fromJson
-      });
+      g.nextWrite = const Right<ErrorItem, Map<String, dynamic>>(
+        <String, dynamic>{
+          'useM3': true,
+          'textScale': double.nan, // hará fallar ThemeState.fromJson
+        },
+      );
 
       final RepositoryThemeReactImpl repo = RepositoryThemeReactImpl(
         gateway: g,
@@ -238,8 +240,9 @@ void main() {
 
     test('Given gateway Left(error) When save Then propagates Left', () async {
       final _GatewayFake g = _GatewayFake();
-      g.nextWrite =
-          Left<ErrorItem, Map<String, dynamic>>(_FakeError('gw.write', 'boom'));
+      g.nextWrite = Left<ErrorItem, Map<String, dynamic>>(
+        _FakeError('gw.write', 'boom'),
+      );
       final RepositoryThemeReactImpl repo = RepositoryThemeReactImpl(
         gateway: g,
         errorMapper: const _FakeMapper(),
@@ -251,38 +254,39 @@ void main() {
   });
 
   group('RepositoryThemeReactImpl • watch', () {
-    test('Given stream Right(valid) When watch Then Right(ThemeState)',
-        () async {
-      final _GatewayFake g = _GatewayFake();
-      final RepositoryThemeReactImpl repo = RepositoryThemeReactImpl(
-        gateway: g,
-        errorMapper: const _FakeMapper(),
-      );
-
-      final Completer<dynamic> c = Completer<dynamic>();
-      final StreamSubscription<Either<ErrorItem, ThemeState>> sub =
-          repo.watch().listen((dynamic e) {
-        if (!c.isCompleted) {
-          c.complete(e);
-        }
-      });
-
-      g.emit(
-        Right<ErrorItem, Map<String, dynamic>>(
-          ThemeState.defaults.copyWith(mode: ThemeMode.dark).toJson(),
-        ),
-      );
-
-      final dynamic first = await c.future;
-      expect(_isRight(first), isTrue);
-      expect(_rightTheme(first)!.mode, ThemeMode.dark);
-
-      await sub.cancel();
-    });
-
     test(
-        'Given stream Right(malformed) When watch Then Left(ErrorItem) with location',
-        () async {
+      'Given stream Right(valid) When watch Then Right(ThemeState)',
+      () async {
+        final _GatewayFake g = _GatewayFake();
+        final RepositoryThemeReactImpl repo = RepositoryThemeReactImpl(
+          gateway: g,
+          errorMapper: const _FakeMapper(),
+        );
+
+        final Completer<dynamic> c = Completer<dynamic>();
+        final StreamSubscription<Either<ErrorItem, ThemeState>> sub = repo
+            .watch()
+            .listen((dynamic e) {
+              if (!c.isCompleted) {
+                c.complete(e);
+              }
+            });
+
+        g.emit(
+          Right<ErrorItem, Map<String, dynamic>>(
+            ThemeState.defaults.copyWith(mode: ThemeMode.dark).toJson(),
+          ),
+        );
+
+        final dynamic first = await c.future;
+        expect(_isRight(first), isTrue);
+        expect(_rightTheme(first)!.mode, ThemeMode.dark);
+
+        await sub.cancel();
+      },
+    );
+
+    test('Given stream Right(malformed) When watch Then Left(ErrorItem) with location', () async {
       final _GatewayFake g = _GatewayFake();
       final RepositoryThemeReactImpl repo = RepositoryThemeReactImpl(
         gateway: g,
@@ -290,12 +294,13 @@ void main() {
       );
 
       final Completer<dynamic> c = Completer<dynamic>();
-      final StreamSubscription<Either<ErrorItem, ThemeState>> sub =
-          repo.watch().listen((dynamic e) {
-        if (!c.isCompleted) {
-          c.complete(e);
-        }
-      });
+      final StreamSubscription<Either<ErrorItem, ThemeState>> sub = repo
+          .watch()
+          .listen((dynamic e) {
+            if (!c.isCompleted) {
+              c.complete(e);
+            }
+          });
 
       g.emit(
         const Right<ErrorItem, Map<String, dynamic>>(<String, dynamic>{
@@ -321,17 +326,16 @@ void main() {
       );
 
       final Completer<dynamic> c = Completer<dynamic>();
-      final StreamSubscription<Either<ErrorItem, ThemeState>> sub =
-          repo.watch().listen((dynamic e) {
-        if (!c.isCompleted) {
-          c.complete(e);
-        }
-      });
+      final StreamSubscription<Either<ErrorItem, ThemeState>> sub = repo
+          .watch()
+          .listen((dynamic e) {
+            if (!c.isCompleted) {
+              c.complete(e);
+            }
+          });
 
       g.emit(
-        Left<ErrorItem, Map<String, dynamic>>(
-          _FakeError('gw.watch', 'nope'),
-        ),
+        Left<ErrorItem, Map<String, dynamic>>(_FakeError('gw.watch', 'nope')),
       );
 
       final dynamic first = await c.future;

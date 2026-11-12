@@ -3,9 +3,7 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
   group('ModelAclSnapshot JSON', () {
-    test(
-        'Given snapshot When toJson->fromJson Then preserves content (policies, roles, lastSyncAtIsoDate)',
-        () {
+    test('Given snapshot When toJson->fromJson Then preserves content (policies, roles, lastSyncAtIsoDate)', () {
       // Arrange
       final ModelAclPolicy policy = ModelAclPolicy(
         id: ModelAclPolicy.buildId(
@@ -44,9 +42,7 @@ void main() {
       );
     });
 
-    test(
-        'Given json without maps When fromJson Then defaults to empty maps (robust parsing)',
-        () {
+    test('Given json without maps When fromJson Then defaults to empty maps (robust parsing)', () {
       // Arrange
       const String rawLastSync = '2026-01-18T10:15:30Z';
       final Map<String, dynamic> json = <String, dynamic>{
@@ -65,9 +61,7 @@ void main() {
       );
     });
 
-    test(
-        'Given json with null maps When fromJson Then maps become empty and lastSyncAtIsoDate normalizes to empty',
-        () {
+    test('Given json with null maps When fromJson Then maps become empty and lastSyncAtIsoDate normalizes to empty', () {
       // Arrange
       final Map<String, dynamic> json = <String, dynamic>{
         'policiesById': null,
@@ -84,9 +78,7 @@ void main() {
       expect(back.lastSyncAtIsoDate, '');
     });
 
-    test(
-        'Given policy json missing id When fromJson Then id is computed from appName + feature',
-        () {
+    test('Given policy json missing id When fromJson Then id is computed from appName + feature', () {
       // Arrange
       final Map<String, dynamic> json = <String, dynamic>{
         'policiesById': <String, dynamic>{
@@ -114,9 +106,7 @@ void main() {
       expect(policy.id, 'bienvenido.user.creation');
     });
 
-    test(
-        'Given policy json with empty appName/feature When fromJson Then computed id becomes empty (and policy keeps raw id if present)',
-        () {
+    test('Given policy json with empty appName/feature When fromJson Then computed id becomes empty (and policy keeps raw id if present)', () {
       // Arrange
       final Map<String, dynamic> json = <String, dynamic>{
         'policiesById': <String, dynamic>{
@@ -143,9 +133,7 @@ void main() {
       expect(back.policiesById.values.single.id, 'manual.id');
     });
 
-    test(
-        'Given json with unknown user role When fromJson Then throws (RoleType.values.byName)',
-        () {
+    test('Given json with unknown user role When fromJson Then throws (RoleType.values.byName)', () {
       // Arrange
       final ModelAclPolicy policy = ModelAclPolicy(
         id: ModelAclPolicy.buildId(
@@ -176,9 +164,7 @@ void main() {
       );
     });
 
-    test(
-        'Given json with unknown policy minRoleType When ModelAclPolicy.fromJson Then falls back to viewer (safe default)',
-        () {
+    test('Given json with unknown policy minRoleType When ModelAclPolicy.fromJson Then falls back to viewer (safe default)', () {
       // Arrange
       final Map<String, dynamic> policyJson = <String, dynamic>{
         ModelAclPolicyEnum.id.name: 'bienvenido.user.creation',
@@ -199,9 +185,7 @@ void main() {
       expect(policy.minRoleType, RoleType.viewer);
     });
 
-    test(
-        'Given snapshot When json payload is mutated after toJson Then original snapshot remains unchanged (immutability by unmodifiable maps)',
-        () {
+    test('Given snapshot When json payload is mutated after toJson Then original snapshot remains unchanged (immutability by unmodifiable maps)', () {
       // Arrange
       const ModelAclPolicy policy = ModelAclPolicy(
         id: 'bienvenido.user.creation',
@@ -233,9 +217,7 @@ void main() {
     });
   });
   group('ModelAclSnapshot JSON', () {
-    test(
-        'Given snapshot When toJson->fromJson Then preserves content (normalized lastSyncAtIsoDate)',
-        () {
+    test('Given snapshot When toJson->fromJson Then preserves content (normalized lastSyncAtIsoDate)', () {
       // Arrange
       final ModelAclPolicy policy = ModelAclPolicy(
         id: ModelAclPolicy.buildId(
@@ -272,9 +254,7 @@ void main() {
       );
     });
 
-    test(
-        'Given json without maps When fromJson Then defaults to empty maps and keeps normalized date',
-        () {
+    test('Given json without maps When fromJson Then defaults to empty maps and keeps normalized date', () {
       // Arrange
       const String rawLastSync = '2026-01-18T10:15:30Z';
       final Map<String, dynamic> json = <String, dynamic>{
@@ -293,9 +273,7 @@ void main() {
       );
     });
 
-    test(
-        'Given json with invalid lastSyncAtIsoDate When fromJson Then normalizes to empty',
-        () {
+    test('Given json with invalid lastSyncAtIsoDate When fromJson Then normalizes to empty', () {
       // Arrange
       final Map<String, dynamic> json = <String, dynamic>{
         ModelAclSnapshotKeys.policiesById: <String, dynamic>{},
@@ -310,9 +288,7 @@ void main() {
       expect(back.lastSyncAtIsoDate, '');
     });
 
-    test(
-        'Given json with unknown user role When fromJson Then throws ArgumentError',
-        () {
+    test('Given json with unknown user role When fromJson Then throws ArgumentError', () {
       // Arrange
       const ModelAclPolicy policy = ModelAclPolicy(
         id: 'bienvenido.user.creation',

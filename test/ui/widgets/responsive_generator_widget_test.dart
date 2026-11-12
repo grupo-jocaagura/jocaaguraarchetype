@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('ResponsiveGeneratorWidget', () {
@@ -11,8 +11,9 @@ void main() {
       responsive.setSize(const Size(1200, 900));
     });
 
-    testWidgets('builds items with spans clamped to columns',
-        (WidgetTester tester) async {
+    testWidgets('builds items with spans clamped to columns', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -32,8 +33,9 @@ void main() {
       expect(find.textContaining('${responsive.columnsNumber}'), findsWidgets);
     });
 
-    testWidgets('applies custom gap and padding overrides',
-        (WidgetTester tester) async {
+    testWidgets('applies custom gap and padding overrides', (
+      WidgetTester tester,
+    ) async {
       const double gap = 32;
       const EdgeInsets padding = EdgeInsets.all(10);
 

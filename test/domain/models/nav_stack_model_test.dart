@@ -47,8 +47,9 @@ void main() {
       expect(s.top.name, 'details');
       expect(s.isRoot, isFalse);
 
-      s = s
-          .replaceTop(p(name: 'details', segments: <String>['products', '99']));
+      s = s.replaceTop(
+        p(name: 'details', segments: <String>['products', '99']),
+      );
       expect(s.top.segments, <String>['products', '99']);
 
       s = s.pop();
@@ -70,38 +71,41 @@ void main() {
   });
 
   group('NavStackModel · JSON round-trip', () {
-    test('toJson/fromJson conserva páginas; fromJson vacío crea root default',
-        () {
-      final NavStackModel s = NavStackModel(<PageModel>[
-        p(name: 'home'),
-        p(
-          name: 'product',
-          segments: <String>['products', '1'],
-          query: <String, String>{'ref': 'home'},
-        ),
-      ]);
+    test(
+      'toJson/fromJson conserva páginas; fromJson vacío crea root default',
+      () {
+        final NavStackModel s = NavStackModel(<PageModel>[
+          p(name: 'home'),
+          p(
+            name: 'product',
+            segments: <String>['products', '1'],
+            query: <String, String>{'ref': 'home'},
+          ),
+        ]);
 
-      final Map<String, dynamic> j = s.toJson();
-      final NavStackModel parsed = NavStackModel.fromJson(j);
+        final Map<String, dynamic> j = s.toJson();
+        final NavStackModel parsed = NavStackModel.fromJson(j);
 
-      expect(parsed.pages.length, 2);
-      expect(parsed.top.name, 'product');
-      expect(
-        listEquals(parsed.top.segments, <String>['products', '1']),
-        isTrue,
-      );
-      expect(
-        mapEquals(parsed.top.query, <String, String>{'ref': 'home'}),
-        isTrue,
-      );
+        expect(parsed.pages.length, 2);
+        expect(parsed.top.name, 'product');
+        expect(
+          listEquals(parsed.top.segments, <String>['products', '1']),
+          isTrue,
+        );
+        expect(
+          mapEquals(parsed.top.query, <String, String>{'ref': 'home'}),
+          isTrue,
+        );
 
-      // fromJson con lista vacía → root default
-      final NavStackModel emptyParsed =
-          NavStackModel.fromJson(const <String, dynamic>{'pages': <dynamic>[]});
-      expect(emptyParsed.pages.length, 1);
-      expect(emptyParsed.top.name, NavStackModel.defaultName);
-      expect(emptyParsed.top.segments, isEmpty);
-    });
+        // fromJson con lista vacía → root default
+        final NavStackModel emptyParsed = NavStackModel.fromJson(
+          const <String, dynamic>{'pages': <dynamic>[]},
+        );
+        expect(emptyParsed.pages.length, 1);
+        expect(emptyParsed.top.name, NavStackModel.defaultName);
+        expect(emptyParsed.top.segments, isEmpty);
+      },
+    );
   });
 
   group('NavStackModel · route chain encode/decode', () {
@@ -113,10 +117,7 @@ void main() {
           segments: <String>['products', '42'],
           query: <String, String>{'ref': 'home'},
         ),
-        p(
-          name: 'about',
-          segments: <String>['about'],
-        ),
+        p(name: 'about', segments: <String>['about']),
       ]);
 
       final String chain = s.encodeAsRouteChain();
@@ -141,26 +142,27 @@ void main() {
 
   group('NavStackModel · igualdad y hashCode', () {
     test(
-        '== compara elemento a elemento (orden y contenido) y hashCode estable',
-        () {
-      final NavStackModel a = NavStackModel(<PageModel>[
-        p(name: 'home'),
-        p(name: 'a'),
-      ]);
-      final NavStackModel b = NavStackModel(<PageModel>[
-        p(name: 'home'),
-        p(name: 'a'),
-      ]);
-      final NavStackModel c = NavStackModel(<PageModel>[
-        p(name: 'home'),
-        p(name: 'b'),
-      ]);
+      '== compara elemento a elemento (orden y contenido) y hashCode estable',
+      () {
+        final NavStackModel a = NavStackModel(<PageModel>[
+          p(name: 'home'),
+          p(name: 'a'),
+        ]);
+        final NavStackModel b = NavStackModel(<PageModel>[
+          p(name: 'home'),
+          p(name: 'a'),
+        ]);
+        final NavStackModel c = NavStackModel(<PageModel>[
+          p(name: 'home'),
+          p(name: 'b'),
+        ]);
 
-      expect(a == b, isTrue);
-      expect(a.hashCode, equals(b.hashCode));
+        expect(a == b, isTrue);
+        expect(a.hashCode, equals(b.hashCode));
 
-      expect(a == c, isFalse);
-    });
+        expect(a == c, isFalse);
+      },
+    );
 
     test('copyWith reemplaza la lista de pages cuando se provee', () {
       final NavStackModel s = NavStackModel(<PageModel>[p(name: 'home')]);
@@ -176,8 +178,10 @@ void main() {
       NavStackModel s = NavStackModel.single(
         p(name: 'home', segments: <String>['home']),
       );
-      final PageModel home2 =
-          p(name: 'home', segments: <String>['home']); // igual ruta
+      final PageModel home2 = p(
+        name: 'home',
+        segments: <String>['home'],
+      ); // igual ruta
       s = s.pushDistinctTop(home2);
       expect(s.pages.length, 1, reason: 'igual al top → no agrega');
 
@@ -191,22 +195,24 @@ void main() {
       expect(s.top.query['ref'], 'x');
     });
 
-    test('con comparador custom (por nombre) evita duplicados de mismo nombre',
-        () {
-      bool nameEquals(PageModel a, PageModel b) => a.name == b.name;
+    test(
+      'con comparador custom (por nombre) evita duplicados de mismo nombre',
+      () {
+        bool nameEquals(PageModel a, PageModel b) => a.name == b.name;
 
-      NavStackModel s = NavStackModel.single(p(name: 'home'));
-      s = s.pushDistinctTop(p(name: 'home'), equals: nameEquals);
-      expect(
-        s.pages.length,
-        1,
-        reason: 'mismo nombre (custom) → evita duplicado',
-      );
+        NavStackModel s = NavStackModel.single(p(name: 'home'));
+        s = s.pushDistinctTop(p(name: 'home'), equals: nameEquals);
+        expect(
+          s.pages.length,
+          1,
+          reason: 'mismo nombre (custom) → evita duplicado',
+        );
 
-      s = s.pushDistinctTop(p(name: 'home2'), equals: nameEquals);
-      expect(s.pages.length, 2);
-      expect(s.top.name, 'home2');
-    });
+        s = s.pushDistinctTop(p(name: 'home2'), equals: nameEquals);
+        expect(s.pages.length, 2);
+        expect(s.top.name, 'home2');
+      },
+    );
   });
 
   group('NavStackModel · pushOnce()', () {
@@ -261,46 +267,48 @@ void main() {
       expect(s.pages[2].name, 'b');
     });
 
-    test('comparador por nombre conserva primer nombre y elimina repetidos',
-        () {
-      bool nameEquals(PageModel a, PageModel b) => a.name == b.name;
-      NavStackModel s = NavStackModel(<PageModel>[
-        p(name: 'x', segments: <String>['x1']),
-        p(name: 'x', segments: <String>['x2']),
-        p(name: 'y'),
-        p(name: 'x', segments: <String>['x3']),
-      ]);
+    test(
+      'comparador por nombre conserva primer nombre y elimina repetidos',
+      () {
+        bool nameEquals(PageModel a, PageModel b) => a.name == b.name;
+        NavStackModel s = NavStackModel(<PageModel>[
+          p(name: 'x', segments: <String>['x1']),
+          p(name: 'x', segments: <String>['x2']),
+          p(name: 'y'),
+          p(name: 'x', segments: <String>['x3']),
+        ]);
 
-      s = s.dedupAll(equals: nameEquals);
-      expect(s.pages.length, 2);
-      expect(
-        s.pages[0].segments,
-        <String>['x1'],
-        reason: 'conserva el primero',
-      );
-      expect(s.pages[1].name, 'y');
-    });
+        s = s.dedupAll(equals: nameEquals);
+        expect(s.pages.length, 2);
+        expect(s.pages[0].segments, <String>[
+          'x1',
+        ], reason: 'conserva el primero');
+        expect(s.pages[1].name, 'y');
+      },
+    );
   });
 
   group('NavStackModel · moveToTopOrPush()', () {
-    test('si existe “igual”, lo mueve al top (removiendo previos); si no, push',
-        () {
-      NavStackModel s = NavStackModel(<PageModel>[
-        p(name: 'home', segments: <String>['home']),
-        p(name: 'a', segments: <String>['a']),
-        p(name: 'b', segments: <String>['b']),
-      ]);
+    test(
+      'si existe “igual”, lo mueve al top (removiendo previos); si no, push',
+      () {
+        NavStackModel s = NavStackModel(<PageModel>[
+          p(name: 'home', segments: <String>['home']),
+          p(name: 'a', segments: <String>['a']),
+          p(name: 'b', segments: <String>['b']),
+        ]);
 
-      // Mover 'a' al top
-      s = s.moveToTopOrPush(p(name: 'a', segments: <String>['a']));
-      expect(s.top.name, 'a');
-      expect(s.pages.where((PageModel x) => x.name == 'a').length, 1);
+        // Mover 'a' al top
+        s = s.moveToTopOrPush(p(name: 'a', segments: <String>['a']));
+        expect(s.top.name, 'a');
+        expect(s.pages.where((PageModel x) => x.name == 'a').length, 1);
 
-      // No existe 'c' → push
-      s = s.moveToTopOrPush(p(name: 'c', segments: <String>['c']));
-      expect(s.top.name, 'c');
-      expect(s.pages.length, 4);
-    });
+        // No existe 'c' → push
+        s = s.moveToTopOrPush(p(name: 'c', segments: <String>['c']));
+        expect(s.top.name, 'c');
+        expect(s.pages.length, 4);
+      },
+    );
 
     test('comparador custom por nombre: mueve por nombre y respeta único', () {
       bool nameEquals(PageModel a, PageModel b) => a.name == b.name;
@@ -339,8 +347,9 @@ void main() {
     });
 
     test('Given copyWith([]) When applied Then normaliza a root', () {
-      final NavStackModel base =
-          NavStackModel.single(const PageModel(name: 'home'));
+      final NavStackModel base = NavStackModel.single(
+        const PageModel(name: 'home'),
+      );
       final NavStackModel s = base.copyWith(pages: <PageModel>[]);
       expect(s.pages, isNotEmpty);
       expect(s.top.name, NavStackModel.defaultName);
@@ -366,8 +375,9 @@ void main() {
     });
 
     test('Given root When pop Then retorna misma instancia', () {
-      final NavStackModel root =
-          NavStackModel.single(const PageModel(name: 'home'));
+      final NavStackModel root = NavStackModel.single(
+        const PageModel(name: 'home'),
+      );
       final NavStackModel popped = root.pop();
       expect(identical(root, popped), isTrue);
     });
@@ -418,10 +428,10 @@ void main() {
         PageModel(name: 'a'),
         PageModel(name: 'home'), // duplicado
       ]).dedupAll();
-      expect(
-        s.pages.map((PageModel e) => e.name).toList(),
-        <String>['home', 'a'],
-      );
+      expect(s.pages.map((PageModel e) => e.name).toList(), <String>[
+        'home',
+        'a',
+      ]);
     });
 
     test('moveToTopOrPush quita las previas y sube la nueva', () {
@@ -550,19 +560,17 @@ void main() {
       expect(
         again,
         chain,
-        reason:
-            'encode(decode(chain)) debe ser estable si PageModel.toUriString() es determinista',
+        reason: 'encode(decode(chain)) debe ser estable si PageModel.toUriString() es determinista',
       );
     });
   });
 
   group('NavStackModel.copyWith', () {
-    test(
-        'Given stack inicial When copyWith(null) Then retorna la misma instancia (identical)',
-        () {
+    test('Given stack inicial When copyWith(null) Then retorna la misma instancia (identical)', () {
       // Arrange
-      final NavStackModel base =
-          NavStackModel.single(const PageModel(name: 'home'));
+      final NavStackModel base = NavStackModel.single(
+        const PageModel(name: 'home'),
+      );
 
       // Act
       final NavStackModel out = base.copyWith();
@@ -575,12 +583,11 @@ void main() {
       );
     });
 
-    test(
-        'Given stack inicial When copyWith([]) Then retorna defaultNavStackModel y preserva invariante no-vacío',
-        () {
+    test('Given stack inicial When copyWith([]) Then retorna defaultNavStackModel y preserva invariante no-vacío', () {
       // Arrange
-      final NavStackModel base =
-          NavStackModel.single(const PageModel(name: 'home'));
+      final NavStackModel base = NavStackModel.single(
+        const PageModel(name: 'home'),
+      );
 
       // Act
       final NavStackModel out = base.copyWith(pages: <PageModel>[]);
@@ -609,12 +616,11 @@ void main() {
       );
     });
 
-    test(
-        'Given stack inicial When copyWith(lista no vacía) Then crea nueva pila inmutable con top correcto',
-        () {
+    test('Given stack inicial When copyWith(lista no vacía) Then crea nueva pila inmutable con top correcto', () {
       // Arrange
-      final NavStackModel base =
-          NavStackModel.single(const PageModel(name: 'home'));
+      final NavStackModel base = NavStackModel.single(
+        const PageModel(name: 'home'),
+      );
       final List<PageModel> nueva = <PageModel>[
         const PageModel(name: 'home'),
         const PageModel(name: 'details', segments: <String>['products', '42']),
@@ -640,12 +646,11 @@ void main() {
       );
     });
 
-    test(
-        'Given pila resultado inmodificable When re-aplico copyWith(pages: out.pages) Then sigue siendo igual y estable',
-        () {
+    test('Given pila resultado inmodificable When re-aplico copyWith(pages: out.pages) Then sigue siendo igual y estable', () {
       // Arrange
-      final NavStackModel base =
-          NavStackModel.single(const PageModel(name: 'home'));
+      final NavStackModel base = NavStackModel.single(
+        const PageModel(name: 'home'),
+      );
       final NavStackModel a = base.copyWith(
         pages: <PageModel>[
           const PageModel(name: 'a'),
@@ -670,12 +675,11 @@ void main() {
       );
     });
 
-    test(
-        'Given stack inicial When copyWith(lista con mismo contenido) Then es igual pero no necesariamente identical',
-        () {
+    test('Given stack inicial When copyWith(lista con mismo contenido) Then es igual pero no necesariamente identical', () {
       // Arrange
-      final NavStackModel base =
-          NavStackModel.single(const PageModel(name: 'home'));
+      final NavStackModel base = NavStackModel.single(
+        const PageModel(name: 'home'),
+      );
       final List<PageModel> misma = <PageModel>[const PageModel(name: 'home')];
 
       // Act

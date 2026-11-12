@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Envuelve un [child] en un MaterialApp con ThemeData M3 por defecto.
 /// Permite override de tema, locale y textScale.
@@ -10,7 +10,8 @@ Future<void> pumpWithApp(
   Locale locale = const Locale('es', 'CO'),
   double textScaleFactor = 1.0,
 }) async {
-  final ThemeData effectiveTheme = theme ??
+  final ThemeData effectiveTheme =
+      theme ??
       ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
@@ -34,7 +35,9 @@ Future<void> pumpWithApp(
 Widget wrapConstrained(Widget child, {required Size size}) {
   return MediaQuery(
     data: MediaQueryData(size: size),
-    child: MaterialApp(home: Scaffold(body: Center(child: child))),
+    child: MaterialApp(
+      home: Scaffold(body: Center(child: child)),
+    ),
   );
 }
 

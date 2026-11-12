@@ -90,27 +90,22 @@ class PageBuilder extends StatelessWidget {
 
     app.responsive.showAppbar = showAppBar;
 
-    final PageLoadingBoundaryBuilder boundaryBuilder = loadingBoundaryBuilder ??
+    final PageLoadingBoundaryBuilder boundaryBuilder =
+        loadingBoundaryBuilder ??
         (
           BuildContext context,
           AbstractAppManager app,
           BlocResponsive r,
           Widget? page,
-        ) =>
-            PageLoadingBoundary(
-              app: app,
-              responsive: r,
-              page: page,
-              scaffoldShellBuilder: scaffoldShellBuilder,
-              drawerBuilder: drawerBuilder,
-              appBarBuilder: appBarBuilder,
-            );
+        ) => PageLoadingBoundary(
+          app: app,
+          responsive: r,
+          page: page,
+          scaffoldShellBuilder: scaffoldShellBuilder,
+          drawerBuilder: drawerBuilder,
+          appBarBuilder: appBarBuilder,
+        );
 
-    return boundaryBuilder(
-      context,
-      app,
-      responsive,
-      page,
-    );
+    return boundaryBuilder(context, app, responsive, page);
   }
 }

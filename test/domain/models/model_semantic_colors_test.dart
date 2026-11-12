@@ -1,12 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('ModelSemanticColorsKeys', () {
-    test(
-        'Given keys registry When all is used Then it contains expected keys and has no duplicates',
-        () {
+    test('Given keys registry When all is used Then it contains expected keys and has no duplicates', () {
       const List<String> keys = ModelSemanticColorsKeys.all;
 
       expect(keys.toSet().length, keys.length);
@@ -23,9 +21,7 @@ void main() {
   });
 
   group('ModelSemanticColors fallback palettes', () {
-    test(
-        'Given fallbackLight When built Then it is valid and contains expected base colors',
-        () {
+    test('Given fallbackLight When built Then it is valid and contains expected base colors', () {
       final ModelSemanticColors c = ModelSemanticColors.fallbackLight();
 
       // Spot-check exact constants (these are part of your factory contract)
@@ -37,9 +33,7 @@ void main() {
       expect(c.onInfo, Colors.white);
     });
 
-    test(
-        'Given fallbackDark When built Then it is valid and contains expected base colors',
-        () {
+    test('Given fallbackDark When built Then it is valid and contains expected base colors', () {
       final ModelSemanticColors c = ModelSemanticColors.fallbackDark();
 
       expect(c.success, const Color(0xFF66BB6A));
@@ -49,9 +43,7 @@ void main() {
   });
 
   group('ModelSemanticColors.fromColorScheme', () {
-    test(
-        'Given light ColorScheme When derived Then uses light base tones and produces valid containers',
-        () {
+    test('Given light ColorScheme When derived Then uses light base tones and produces valid containers', () {
       final ColorScheme cs = ColorScheme.fromSeed(
         seedColor: const Color(0xFF6750A4),
       );
@@ -94,11 +86,9 @@ void main() {
       expect(restored.hashCode, equals(original.hashCode));
     });
 
-    test(
-        'Given json missing a required key When fromJson Then throws FormatException',
-        () {
-      final Map<String, dynamic> json =
-          ModelSemanticColors.fallbackLight().toJson();
+    test('Given json missing a required key When fromJson Then throws FormatException', () {
+      final Map<String, dynamic> json = ModelSemanticColors.fallbackLight()
+          .toJson();
       json.remove(ModelSemanticColorsKeys.success);
 
       expect(
@@ -109,9 +99,7 @@ void main() {
   });
 
   group('ModelSemanticColors.copyWith', () {
-    test(
-        'Given override that keeps contrast When copyWith Then returns new valid instance',
-        () {
+    test('Given override that keeps contrast When copyWith Then returns new valid instance', () {
       final ModelSemanticColors base = ModelSemanticColors.fallbackLight();
 
       final ModelSemanticColors out = base.copyWith(
@@ -124,9 +112,7 @@ void main() {
       expect(out.onSuccess, Colors.white);
     });
 
-    test(
-        'Given override that breaks contrast When copyWith Then throws RangeError',
-        () {
+    test('Given override that breaks contrast When copyWith Then throws RangeError', () {
       final ModelSemanticColors base = ModelSemanticColors.fallbackLight();
 
       // Make foreground equal to background to guarantee contrast ratio == 1.0

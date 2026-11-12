@@ -41,15 +41,11 @@ class AppConfig {
 
     // BlocTheme wired to ThemeUsecases → RepositoryThemeImpl → GatewayThemeImpl
     final RepositoryThemeReact repo = RepositoryThemeReactImpl(
-      gateway: GatewayThemeReactImpl(
-        service: FakeServiceThemeReact(),
-      ),
+      gateway: GatewayThemeReactImpl(service: FakeServiceThemeReact()),
     );
 
     final BlocTheme themeBloc = BlocThemeReact(
-      themeUsecases: ThemeUsecases.fromRepo(
-        repo,
-      ),
+      themeUsecases: ThemeUsecases.fromRepo(repo),
       watchTheme: WatchTheme(repo),
     );
 

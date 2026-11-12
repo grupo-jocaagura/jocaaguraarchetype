@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Minimal demo that wires a custom AppManager into JocaaguraApp.
 ///

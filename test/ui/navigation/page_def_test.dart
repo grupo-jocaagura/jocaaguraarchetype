@@ -2,10 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-PageModel _p(String name) => PageModel(
-      name: name,
-      segments: <String>[name],
-    );
+PageModel _p(String name) => PageModel(name: name, segments: <String>[name]);
 
 void main() {
   group('PageDef', () {
@@ -18,10 +15,7 @@ void main() {
 
       expect(def.model, same(m));
       expect(def.builder, isNotNull);
-      final Widget w = def.builder(
-        const _DummyContext(),
-        m,
-      );
+      final Widget w = def.builder(const _DummyContext(), m);
       expect(w, isA<SizedBox>());
     });
   });

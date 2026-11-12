@@ -27,9 +27,7 @@ void main() {
       final ModelCompleteFlow flow = ModelCompleteFlow.immutable(
         name: 'Demo',
         description: 'Demo flow',
-        steps: <ModelFlowStep>[
-          step(index: 0, ok: -1, fail: -1),
-        ],
+        steps: <ModelFlowStep>[step(index: 0, ok: -1, fail: -1)],
       );
 
       final FlowSimulationSession s0 = FlowStepSimulator().start(flow);
@@ -91,9 +89,7 @@ void main() {
       final ModelCompleteFlow flow = ModelCompleteFlow.immutable(
         name: 'Demo',
         description: 'Demo flow',
-        steps: <ModelFlowStep>[
-          step(index: 0, ok: -1, fail: -1),
-        ],
+        steps: <ModelFlowStep>[step(index: 0, ok: -1, fail: -1)],
       );
 
       final FlowStepSimulator sim = FlowStepSimulator();
@@ -148,9 +144,7 @@ void main() {
       final ModelCompleteFlow flow = ModelCompleteFlow.immutable(
         name: 'Demo',
         description: 'Demo flow',
-        steps: <ModelFlowStep>[
-          step(index: 0, ok: 99, fail: -1),
-        ],
+        steps: <ModelFlowStep>[step(index: 0, ok: 99, fail: -1)],
       );
 
       final FlowStepSimulator sim = FlowStepSimulator();
@@ -163,8 +157,10 @@ void main() {
       expect(t1.session.currentIndex, 99);
       expect(t1.session.trace.length, 1);
 
-      final FlowStepTick t2 =
-          sim.next(t1.session, decision: const FlowStepDecision.success());
+      final FlowStepTick t2 = sim.next(
+        t1.session,
+        decision: const FlowStepDecision.success(),
+      );
       expect(t2.event.type, FlowStepEventType.missingStepReference);
       expect(t2.session.status, FlowSimulationStatus.abortedMissingStep);
       expect(t2.session.currentIndex, 99);
@@ -175,9 +171,7 @@ void main() {
       final ModelCompleteFlow flow = ModelCompleteFlow.immutable(
         name: 'Loop',
         description: 'Self loop',
-        steps: <ModelFlowStep>[
-          step(index: 0, ok: 0, fail: -1),
-        ],
+        steps: <ModelFlowStep>[step(index: 0, ok: 0, fail: -1)],
       );
 
       final FlowStepSimulator sim = FlowStepSimulator();

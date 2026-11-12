@@ -14,8 +14,9 @@ class SecondaryMenuSquareButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme scheme = Theme.of(context).colorScheme;
     final BorderRadius radius = BorderRadius.circular(16);
-    final String tooltip =
-        (item.description.isNotEmpty) ? item.description : item.label;
+    final String tooltip = (item.description.isNotEmpty)
+        ? item.description
+        : item.label;
 
     return Tooltip(
       message: tooltip,
@@ -29,10 +30,7 @@ class SecondaryMenuSquareButton extends StatelessWidget {
             width: size,
             height: size,
             child: Center(
-              child: Icon(
-                item.iconData,
-                color: scheme.onPrimaryContainer,
-              ),
+              child: Icon(item.iconData, color: scheme.onPrimaryContainer),
             ),
           ),
         ),

@@ -20,7 +20,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// ## Example
 /// ```dart
-/// import 'package:flutter/material.dart';
+/// import 'package:material_ui/material_ui.dart';
 ///
 /// void main() {
 ///   final TextThemeOverrides base = TextThemeOverrides(
@@ -44,11 +44,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// ```
 @immutable
 class TextThemeOverrides {
-  const TextThemeOverrides({
-    this.light,
-    this.dark,
-    this.fontName = '',
-  });
+  const TextThemeOverrides({this.light, this.dark, this.fontName = ''});
 
   final TextTheme? light;
   final TextTheme? dark;
@@ -72,10 +68,10 @@ class TextThemeOverrides {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'light': light == null ? null : _textThemeToMap(light!),
-        'dark': dark == null ? null : _textThemeToMap(dark!),
-        'fontName': fontName,
-      };
+    'light': light == null ? null : _textThemeToMap(light!),
+    'dark': dark == null ? null : _textThemeToMap(dark!),
+    'fontName': fontName,
+  };
 
   static TextThemeOverrides? fromJson(Map<String, dynamic>? json) {
     if (json == null) {
@@ -108,22 +104,22 @@ class TextThemeOverrides {
   // -------------------- Helpers (TextTheme <-> Map) --------------------
 
   static Map<String, dynamic> _textThemeToMap(TextTheme t) => <String, dynamic>{
-        'displayLarge': _textStyleToMap(t.displayLarge),
-        'displayMedium': _textStyleToMap(t.displayMedium),
-        'displaySmall': _textStyleToMap(t.displaySmall),
-        'headlineLarge': _textStyleToMap(t.headlineLarge),
-        'headlineMedium': _textStyleToMap(t.headlineMedium),
-        'headlineSmall': _textStyleToMap(t.headlineSmall),
-        'titleLarge': _textStyleToMap(t.titleLarge),
-        'titleMedium': _textStyleToMap(t.titleMedium),
-        'titleSmall': _textStyleToMap(t.titleSmall),
-        'bodyLarge': _textStyleToMap(t.bodyLarge),
-        'bodyMedium': _textStyleToMap(t.bodyMedium),
-        'bodySmall': _textStyleToMap(t.bodySmall),
-        'labelLarge': _textStyleToMap(t.labelLarge),
-        'labelMedium': _textStyleToMap(t.labelMedium),
-        'labelSmall': _textStyleToMap(t.labelSmall),
-      };
+    'displayLarge': _textStyleToMap(t.displayLarge),
+    'displayMedium': _textStyleToMap(t.displayMedium),
+    'displaySmall': _textStyleToMap(t.displaySmall),
+    'headlineLarge': _textStyleToMap(t.headlineLarge),
+    'headlineMedium': _textStyleToMap(t.headlineMedium),
+    'headlineSmall': _textStyleToMap(t.headlineSmall),
+    'titleLarge': _textStyleToMap(t.titleLarge),
+    'titleMedium': _textStyleToMap(t.titleMedium),
+    'titleSmall': _textStyleToMap(t.titleSmall),
+    'bodyLarge': _textStyleToMap(t.bodyLarge),
+    'bodyMedium': _textStyleToMap(t.bodyMedium),
+    'bodySmall': _textStyleToMap(t.bodySmall),
+    'labelLarge': _textStyleToMap(t.labelLarge),
+    'labelMedium': _textStyleToMap(t.labelMedium),
+    'labelSmall': _textStyleToMap(t.labelSmall),
+  };
 
   /// Preserve null: if input map is null, return null.
   static TextTheme? _mapToTextTheme(Map<String, dynamic>? m) {
@@ -175,8 +171,9 @@ class TextThemeOverrides {
     return TextStyle(
       fontFamily: family,
       fontSize: size,
-      fontWeight:
-          w == null ? null : FontWeight.values[((w ~/ 100) - 1).clamp(0, 8)],
+      fontWeight: w == null
+          ? null
+          : FontWeight.values[((w ~/ 100) - 1).clamp(0, 8)],
       letterSpacing: letter,
       height: h,
     );

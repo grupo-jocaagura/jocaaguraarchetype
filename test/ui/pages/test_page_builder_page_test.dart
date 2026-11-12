@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ----------------------
 /// Helpers de montaje
@@ -35,10 +35,7 @@ Future<void> _pump(
   await tester.pumpWidget(
     AppManagerProvider(
       appManager: m,
-      child: MaterialApp(
-        theme: ThemeData(useMaterial3: true),
-        home: home,
-      ),
+      child: MaterialApp(theme: ThemeData(useMaterial3: true), home: home),
     ),
   );
   await tester.pumpAndSettle();
@@ -47,8 +44,9 @@ Future<void> _pump(
 /// Obtiene un BuildContext “confiable” desde el widget bajo prueba.
 BuildContext _ctxOf(WidgetTester tester) {
   final bool hasScaffold = find.byType(Scaffold).evaluate().isNotEmpty;
-  final Finder f =
-      hasScaffold ? find.byType(Scaffold) : find.byType(MaterialApp);
+  final Finder f = hasScaffold
+      ? find.byType(Scaffold)
+      : find.byType(MaterialApp);
   return tester.element(f);
 }
 
@@ -73,17 +71,18 @@ void main() {
       expect(w.contentKey, 'hello');
     });
 
-    testWidgets('builder() devuelve un PageWidgetBuilder funcional',
-        (WidgetTester tester) async {
+    testWidgets('builder() devuelve un PageWidgetBuilder funcional', (
+      WidgetTester tester,
+    ) async {
       final PageWidgetBuilder b = TestPageBuilderPage.builder();
-      final PageModel p =
-          TestPageBuilderPage.make(title: 'Built', content: 'pushed');
+      final PageModel p = TestPageBuilderPage.make(
+        title: 'Built',
+        content: 'pushed',
+      );
       await _pump(
         tester,
         home: MaterialApp(
-          home: Builder(
-            builder: (BuildContext ctx) => b(ctx, p),
-          ),
+          home: Builder(builder: (BuildContext ctx) => b(ctx, p)),
         ),
       );
 
@@ -95,8 +94,9 @@ void main() {
   });
 
   group('TestPageBuilderPage – UI & navegación', () {
-    testWidgets('renderiza título y contenido por contentKey "hello"',
-        (WidgetTester tester) async {
+    testWidgets('renderiza título y contenido por contentKey "hello"', (
+      WidgetTester tester,
+    ) async {
       final AppManager m = _manager();
 
       final PageModel p = TestPageBuilderPage.make(
@@ -116,8 +116,9 @@ void main() {
       expect(find.byType(PageBuilder), findsOneWidget);
     });
 
-    testWidgets('contentKey "pushed" y default fallback',
-        (WidgetTester tester) async {
+    testWidgets('contentKey "pushed" y default fallback', (
+      WidgetTester tester,
+    ) async {
       final AppManager m = _manager();
 
       // "pushed"
@@ -126,10 +127,7 @@ void main() {
         manager: m,
         home: const TestPageBuilderPage(title: 'T', contentKey: 'pushed'),
       );
-      expect(
-        find.text('You pushed from TestPageBuilderPage.'),
-        findsOneWidget,
-      );
+      expect(find.text('You pushed from TestPageBuilderPage.'), findsOneWidget);
 
       // default (null/otro)
       await _pump(
@@ -137,49 +135,50 @@ void main() {
         manager: m,
         home: const TestPageBuilderPage(title: 'T'),
       );
-      expect(
-        find.text('This is TestPageBuilderPage content.'),
-        findsOneWidget,
-      );
+      expect(find.text('This is TestPageBuilderPage content.'), findsOneWidget);
     });
 
-    testWidgets('botón "Push again" invoca pushOnce → PageManager.canPop=true',
-        (WidgetTester tester) async {
-      final AppManager m = _manager();
+    testWidgets(
+      'botón "Push again" invoca pushOnce → PageManager.canPop=true',
+      (WidgetTester tester) async {
+        final AppManager m = _manager();
 
-      await _pump(
-        tester,
-        manager: m,
-        home: const TestPageBuilderPage(title: 'Start'),
-      );
+        await _pump(
+          tester,
+          manager: m,
+          home: const TestPageBuilderPage(title: 'Start'),
+        );
 
-      // Antes no debería poder “pop” (stack de 1)
-      expect(m.pageManager.canPop, isFalse);
+        // Antes no debería poder “pop” (stack de 1)
+        expect(m.pageManager.canPop, isFalse);
 
-      await tester.tap(find.widgetWithText(FilledButton, 'Push again'));
-      await tester.pump(); // deja correr onPressed
+        await tester.tap(find.widgetWithText(FilledButton, 'Push again'));
+        await tester.pump(); // deja correr onPressed
 
-      expect(m.pageManager.canPop, isTrue);
-    });
+        expect(m.pageManager.canPop, isTrue);
+      },
+    );
 
-    testWidgets('open(context, ...) navega (canPop=true) sin lanzar excepción',
-        (WidgetTester tester) async {
-      final AppManager m = _manager();
+    testWidgets(
+      'open(context, ...) navega (canPop=true) sin lanzar excepción',
+      (WidgetTester tester) async {
+        final AppManager m = _manager();
 
-      await _pump(
-        tester,
-        manager: m,
-        home: const TestPageBuilderPage(title: 'X'),
-      );
+        await _pump(
+          tester,
+          manager: m,
+          home: const TestPageBuilderPage(title: 'X'),
+        );
 
-      final BuildContext ctx = _ctxOf(tester);
-      expect(m.pageManager.canPop, isFalse);
+        final BuildContext ctx = _ctxOf(tester);
+        expect(m.pageManager.canPop, isFalse);
 
-      // Llamada directa al helper estático
-      TestPageBuilderPage.open(ctx, title: 'Repushed', content: 'pushed');
-      await tester.pump();
+        // Llamada directa al helper estático
+        TestPageBuilderPage.open(ctx, title: 'Repushed', content: 'pushed');
+        await tester.pump();
 
-      expect(m.pageManager.canPop, isTrue);
-    });
+        expect(m.pageManager.canPop, isTrue);
+      },
+    );
   });
 }

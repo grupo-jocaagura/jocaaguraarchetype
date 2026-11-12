@@ -1,11 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class IndexBadgeWidget extends StatelessWidget {
-  const IndexBadgeWidget({
-    required this.index,
-    required this.path,
-    super.key,
-  });
+  const IndexBadgeWidget({required this.index, required this.path, super.key});
 
   final int index;
   final int path;
@@ -29,10 +25,7 @@ class IndexBadgeWidget extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.w700, color: fg),
           ),
           const SizedBox(height: 2),
-          Text(
-            'Path $path',
-            style: TextStyle(fontSize: 11, color: fg),
-          ),
+          Text('Path $path', style: TextStyle(fontSize: 11, color: fg)),
         ],
       ),
     );

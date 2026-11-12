@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ------------------------------------------------------------
 /// Fake muy pequeño para probar OnBoardingPage en aislamiento.
@@ -58,8 +58,9 @@ Future<void> _pump(
 
 void main() {
   group('OnBoardingPage', () {
-    testWidgets('muestra "Loading..." inicialmente (sin currentStep)',
-        (WidgetTester tester) async {
+    testWidgets('muestra "Loading..." inicialmente (sin currentStep)', (
+      WidgetTester tester,
+    ) async {
       final _FakeOnboardingBloc bloc = _FakeOnboardingBloc();
       await _pump(tester, bloc: bloc);
 
@@ -69,8 +70,9 @@ void main() {
       await bloc.dispose();
     });
 
-    testWidgets('renderiza el título del currentStep al emitir en el stream',
-        (WidgetTester tester) async {
+    testWidgets('renderiza el título del currentStep al emitir en el stream', (
+      WidgetTester tester,
+    ) async {
       final _FakeOnboardingBloc bloc = _FakeOnboardingBloc();
       await _pump(tester, bloc: bloc);
 
@@ -84,8 +86,9 @@ void main() {
       await bloc.dispose();
     });
 
-    testWidgets('actualiza el título cuando cambia el step',
-        (WidgetTester tester) async {
+    testWidgets('actualiza el título cuando cambia el step', (
+      WidgetTester tester,
+    ) async {
       final _FakeOnboardingBloc bloc = _FakeOnboardingBloc();
       await _pump(tester, bloc: bloc);
 
@@ -101,24 +104,27 @@ void main() {
       await bloc.dispose();
     });
 
-    testWidgets('cuando se cierra el stream, conserva el último título pintado',
-        (WidgetTester tester) async {
-      final _FakeOnboardingBloc bloc = _FakeOnboardingBloc();
-      await _pump(tester, bloc: bloc);
+    testWidgets(
+      'cuando se cierra el stream, conserva el último título pintado',
+      (WidgetTester tester) async {
+        final _FakeOnboardingBloc bloc = _FakeOnboardingBloc();
+        await _pump(tester, bloc: bloc);
 
-      bloc.setStepTitle('Último');
-      await tester.pump();
+        bloc.setStepTitle('Último');
+        await tester.pump();
 
-      // Cierra el stream
-      await bloc.dispose();
-      await tester.pump();
+        // Cierra el stream
+        await bloc.dispose();
+        await tester.pump();
 
-      // Sigue mostrándose el último texto (el widget no crashea)
-      expect(find.text('Último'), findsOneWidget);
-    });
+        // Sigue mostrándose el último texto (el widget no crashea)
+        expect(find.text('Último'), findsOneWidget);
+      },
+    );
 
-    testWidgets('layout básico: texto centrado y ocupa ancho completo',
-        (WidgetTester tester) async {
+    testWidgets('layout básico: texto centrado y ocupa ancho completo', (
+      WidgetTester tester,
+    ) async {
       final _FakeOnboardingBloc bloc = _FakeOnboardingBloc();
       await _pump(tester, bloc: bloc);
 

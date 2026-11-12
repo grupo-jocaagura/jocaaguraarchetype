@@ -50,7 +50,7 @@ class JocaaguraApp extends StatelessWidget {
     List<OnboardingStep> onboardingSteps = const <OnboardingStep>[],
     bool seedInitialFromPageManager = false, // <— NUEVO
     Widget Function(BuildContext, OnboardingState)?
-        splashOverlayBuilder, // <— NUEVO
+    splashOverlayBuilder, // <— NUEVO
   }) {
     final AppConfig config = AppConfig.dev(
       registry: registry,

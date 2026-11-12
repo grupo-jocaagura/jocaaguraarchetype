@@ -32,10 +32,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// - Imperative methods (e.g. [setMode], [setSeed]) still work; the actual
 ///   state applied is the one emitted by the repository.
 class BlocThemeReact extends BlocTheme {
-  BlocThemeReact({
-    required super.themeUsecases,
-    required this.watchTheme,
-  }) {
+  BlocThemeReact({required super.themeUsecases, required this.watchTheme}) {
     _sub = watchTheme().listen(_apply);
   }
 

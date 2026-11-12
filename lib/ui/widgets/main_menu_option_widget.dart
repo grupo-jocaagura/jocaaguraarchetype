@@ -99,14 +99,17 @@ class _MainMenuOptionWidgetState extends State<MainMenuOptionWidget> {
     final double gap = widget.responsive.gutterWidth.clamp(8.0, 16.0);
     final EdgeInsets contentPadding = EdgeInsets.symmetric(
       horizontal: gap,
-      vertical:
-          (gap * (widget.axis == Axis.vertical ? 0.9 : 0.6)).clamp(6.0, 16.0),
+      vertical: (gap * (widget.axis == Axis.vertical ? 0.9 : 0.6)).clamp(
+        6.0,
+        16.0,
+      ),
     );
 
     // Size heuristics based on a column width (keeps coherence across app)
-    final double minHeight = (widget.responsive.columnWidth *
-            (widget.axis == Axis.vertical ? 1.0 : 0.8))
-        .clamp(44.0, 72.0);
+    final double minHeight =
+        (widget.responsive.columnWidth *
+                (widget.axis == Axis.vertical ? 1.0 : 0.8))
+            .clamp(44.0, 72.0);
 
     final double? maxW = (widget.maxWidthColumns != null)
         ? widget.responsive.widthByColumns(
@@ -116,26 +119,30 @@ class _MainMenuOptionWidgetState extends State<MainMenuOptionWidget> {
 
     // Colors
     final Color fgSelected = scheme.onPrimaryContainer;
-    final Color fgBase =
-        scheme.onSurface.withValues(alpha: isEnabled ? 0.05 : 0.62);
+    final Color fgBase = scheme.onSurface.withValues(
+      alpha: isEnabled ? 0.05 : 0.62,
+    );
     final Color fg = widget.selected ? fgSelected : fgBase;
 
     final Color bgBase = scheme.surfaceContainerLow;
     final Color bgSelected = scheme.primaryContainer;
-    final Color bgHover =
-        scheme.primary.withValues(alpha: widget.selected ? 0.90 : 0.94);
+    final Color bgHover = scheme.primary.withValues(
+      alpha: widget.selected ? 0.90 : 0.94,
+    );
     final Color bg = widget.selected
         ? (_hovered || _focused ? _mix(bgSelected, bgHover, 0.35) : bgSelected)
         : (_hovered || _focused ? _mix(bgBase, bgHover, 0.35) : bgBase);
 
     // Indicator (prominent in primary menu)
     final bool showIndicator = widget.selected || _focused;
-    final Color indicatorColor =
-        widget.selected ? scheme.primary : scheme.outlineVariant;
+    final Color indicatorColor = widget.selected
+        ? scheme.primary
+        : scheme.outlineVariant;
     final double indicatorExtent = showIndicator ? 3.0 : 0.0;
 
     // Leading logic
-    final Widget? leading = widget.leading ??
+    final Widget? leading =
+        widget.leading ??
         (widget.icon != null
             ? Icon(widget.icon, color: fg, size: minHeight * 0.5)
             : null);
@@ -143,8 +150,8 @@ class _MainMenuOptionWidgetState extends State<MainMenuOptionWidget> {
     // Trailing / Badge
     final Widget? trailing =
         (widget.badgeCount != null && widget.badgeCount! > 0)
-            ? _Badge(count: widget.badgeCount!, colorScheme: scheme)
-            : widget.trailing;
+        ? _Badge(count: widget.badgeCount!, colorScheme: scheme)
+        : widget.trailing;
 
     // Content composition
     final Widget label = Text(
@@ -156,8 +163,9 @@ class _MainMenuOptionWidgetState extends State<MainMenuOptionWidget> {
         fontWeight: FontWeight.w600,
         letterSpacing: 0.2,
       ),
-      textAlign:
-          widget.axis == Axis.vertical ? TextAlign.center : TextAlign.start,
+      textAlign: widget.axis == Axis.vertical
+          ? TextAlign.center
+          : TextAlign.start,
     );
 
     final List<Widget> axisChildren = (widget.axis == Axis.vertical)
@@ -174,10 +182,7 @@ class _MainMenuOptionWidgetState extends State<MainMenuOptionWidget> {
             if (leading != null) leading,
             if (leading != null) SizedBox(width: gap),
             Flexible(child: label),
-            if (trailing != null) ...<Widget>[
-              SizedBox(width: gap),
-              trailing,
-            ],
+            if (trailing != null) ...<Widget>[SizedBox(width: gap), trailing],
           ];
 
     final Widget content = ConstrainedBox(
@@ -188,28 +193,19 @@ class _MainMenuOptionWidgetState extends State<MainMenuOptionWidget> {
       child: Padding(
         padding: contentPadding,
         child: (widget.axis == Axis.vertical)
-            ? Column(
-                mainAxisSize: MainAxisSize.min,
-                children: axisChildren,
-              )
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: axisChildren,
-              ),
+            ? Column(mainAxisSize: MainAxisSize.min, children: axisChildren)
+            : Row(mainAxisSize: MainAxisSize.min, children: axisChildren),
       ),
     );
 
-// left indicator rail for horizontal bar
+    // left indicator rail for horizontal bar
 
     final BorderRadius radius = BorderRadius.circular(12);
 
     final Widget body = AnimatedContainer(
       duration: const Duration(milliseconds: 160),
       curve: Curves.easeOut,
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: radius,
-      ),
+      decoration: BoxDecoration(color: bg, borderRadius: radius),
       child: (widget.axis == Axis.vertical)
           ? Column(
               mainAxisSize: MainAxisSize.min,
@@ -220,8 +216,9 @@ class _MainMenuOptionWidgetState extends State<MainMenuOptionWidget> {
                     height: indicatorExtent,
                     decoration: BoxDecoration(
                       color: indicatorColor,
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(12)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(12),
+                      ),
                     ),
                   ),
                 content,

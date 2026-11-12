@@ -10,10 +10,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// - Listener key único por instancia.
 /// - Debouncers con guardia de dispose para evitar callbacks post-dispose.
 class DsTokenEditorWidget extends StatefulWidget {
-  const DsTokenEditorWidget({
-    required this.dsBloc,
-    super.key,
-  });
+  const DsTokenEditorWidget({required this.dsBloc, super.key});
 
   final BlocDesignSystem dsBloc;
 
@@ -34,22 +31,18 @@ class _DsTokenEditorWidgetState extends State<DsTokenEditorWidget> {
     _listenerKey = 'DsTokenEditorWidget.${identityHashCode(this)}';
     _tokens = widget.dsBloc.requireDs().tokens;
 
-    widget.dsBloc.addDsListener(
-      _listenerKey,
-      (ModelDesignSystem ds) {
-        if (!mounted) {
-          return;
-        }
-        if (ds.tokens == _tokens) {
-          return;
-        }
-        setState(() {
-          _tokens = ds.tokens;
-          _localError = null;
-        });
-      },
-      true,
-    );
+    widget.dsBloc.addDsListener(_listenerKey, (ModelDesignSystem ds) {
+      if (!mounted) {
+        return;
+      }
+      if (ds.tokens == _tokens) {
+        return;
+      }
+      setState(() {
+        _tokens = ds.tokens;
+        _localError = null;
+      });
+    }, true);
   }
 
   @override
@@ -208,8 +201,9 @@ class _DsTokenEditorWidgetState extends State<DsTokenEditorWidget> {
                         Expanded(
                           child: Text(
                             _localError!.description,
-                            style: t.textTheme.bodySmall
-                                ?.copyWith(color: cs.onErrorContainer),
+                            style: t.textTheme.bodySmall?.copyWith(
+                              color: cs.onErrorContainer,
+                            ),
                           ),
                         ),
                       ],
@@ -540,9 +534,7 @@ class _DsTokenPreviewRowState extends State<_DsTokenPreviewRow> {
                 alignment: Alignment.center,
                 child: Text(
                   'Tap • duration=animationDuration',
-                  style: Theme.of(context)
-                      .textTheme
-                      .labelSmall
+                  style: Theme.of(context).textTheme.labelSmall
                       ?.copyWith(color: widget.onSurface),
                   textAlign: TextAlign.center,
                 ),
@@ -794,9 +786,6 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleMedium,
-    );
+    return Text(title, style: Theme.of(context).textTheme.titleMedium);
   }
 }

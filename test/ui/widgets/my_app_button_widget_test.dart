@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ---------------- Fake BlocResponsive (minimal para botones) ----------------
 class FakeBlocResponsive extends BlocResponsive {
@@ -66,17 +66,16 @@ Future<void> _pump(
   double? hostWidth, // null => no SizedBox para evitar "tight" si no se desea
   bool settle = true, // false => evita timeouts con animaciones infinitas
 }) async {
-  final Widget host =
-      (hostWidth == null) ? child : SizedBox(width: hostWidth, child: child);
+  final Widget host = (hostWidth == null)
+      ? child
+      : SizedBox(width: hostWidth, child: child);
 
   await tester.pumpWidget(
     MaterialApp(
       theme: theme ?? ThemeData(useMaterial3: true),
       home: MediaQuery(
         data: MediaQueryData(size: surface),
-        child: Scaffold(
-          body: Center(child: host),
-        ),
+        child: Scaffold(body: Center(child: host)),
       ),
     ),
   );
@@ -119,36 +118,38 @@ _Tokens _expectedTokens(FakeBlocResponsive r, AppButtonSize size) {
 void main() {
   group('MyAppButtonWidget - variantes y estados', () {
     testWidgets(
-        'filled enabled: dispara onPressed y hay Semantics con label por defecto',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.desktop,
-        workAreaSize: const Size(960, 600),
-        columnsNumber: 12,
-        marginWidth: 16,
-        gutterWidth: 10,
-      );
+      'filled enabled: dispara onPressed y hay Semantics con label por defecto',
+      (WidgetTester tester) async {
+        final FakeBlocResponsive resp = FakeBlocResponsive(
+          deviceType: ScreenSizeEnum.desktop,
+          workAreaSize: const Size(960, 600),
+          columnsNumber: 12,
+          marginWidth: 16,
+          gutterWidth: 10,
+        );
 
-      int taps = 0;
-      final MyAppButtonWidget w = MyAppButtonWidget(
-        key: const ValueKey<String>('btn'),
-        responsive: resp,
-        label: 'Guardar',
-        onPressed: () => taps++,
-      );
+        int taps = 0;
+        final MyAppButtonWidget w = MyAppButtonWidget(
+          key: const ValueKey<String>('btn'),
+          responsive: resp,
+          label: 'Guardar',
+          onPressed: () => taps++,
+        );
 
-      await _pump(tester, child: w);
+        await _pump(tester, child: w);
 
-      expect(find.byType(FilledButton), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey<String>('btn')));
-      await tester.pumpAndSettle();
-      expect(taps, 1);
+        expect(find.byType(FilledButton), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey<String>('btn')));
+        await tester.pumpAndSettle();
+        expect(taps, 1);
 
-      expect(find.bySemanticsLabel('Guardar'), findsWidgets);
-    });
+        expect(find.bySemanticsLabel('Guardar'), findsWidgets);
+      },
+    );
 
-    testWidgets('tonal/outlined/text: construyen el tipo correcto',
-        (WidgetTester tester) async {
+    testWidgets('tonal/outlined/text: construyen el tipo correcto', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.tablet,
         workAreaSize: const Size(720, 600),
@@ -192,8 +193,9 @@ void main() {
       expect(find.byType(TextButton), findsOneWidget);
     });
 
-    testWidgets('disabled: enabled=false anula onPressed',
-        (WidgetTester tester) async {
+    testWidgets('disabled: enabled=false anula onPressed', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.desktop,
         workAreaSize: const Size(900, 600),
@@ -219,8 +221,9 @@ void main() {
       expect(taps, 0);
     });
 
-    testWidgets('loading: muestra spinner y no permite taps',
-        (WidgetTester tester) async {
+    testWidgets('loading: muestra spinner y no permite taps', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.desktop,
         workAreaSize: const Size(900, 600),
@@ -255,59 +258,67 @@ void main() {
 
   group('MyAppButtonWidget - sizing responsivo', () {
     testWidgets(
-        'small/medium/large: respetan minHeight y minWidth (constraints)',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.desktop,
-        workAreaSize: const Size(960, 600),
-        columnsNumber: 12,
-        marginWidth: 16,
-        gutterWidth: 10,
-      );
+      'small/medium/large: respetan minHeight y minWidth (constraints)',
+      (WidgetTester tester) async {
+        final FakeBlocResponsive resp = FakeBlocResponsive(
+          deviceType: ScreenSizeEnum.desktop,
+          workAreaSize: const Size(960, 600),
+          columnsNumber: 12,
+          marginWidth: 16,
+          gutterWidth: 10,
+        );
 
-      final Column w = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          MyAppButtonWidget(
-            key: const ValueKey<String>('s'),
-            responsive: resp,
-            size: AppButtonSize.small,
-            label: 'S',
-            onPressed: () {},
-          ),
-          MyAppButtonWidget(
-            key: const ValueKey<String>('m'),
-            responsive: resp,
-            label: 'M',
-            onPressed: () {},
-          ),
-          MyAppButtonWidget(
-            key: const ValueKey<String>('l'),
-            responsive: resp,
-            size: AppButtonSize.large,
-            label: 'L',
-            onPressed: () {},
-          ),
-        ],
-      );
+        final Column w = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            MyAppButtonWidget(
+              key: const ValueKey<String>('s'),
+              responsive: resp,
+              size: AppButtonSize.small,
+              label: 'S',
+              onPressed: () {},
+            ),
+            MyAppButtonWidget(
+              key: const ValueKey<String>('m'),
+              responsive: resp,
+              label: 'M',
+              onPressed: () {},
+            ),
+            MyAppButtonWidget(
+              key: const ValueKey<String>('l'),
+              responsive: resp,
+              size: AppButtonSize.large,
+              label: 'L',
+              onPressed: () {},
+            ),
+          ],
+        );
 
-      await _pump(tester, child: w, hostWidth: 500);
+        await _pump(tester, child: w, hostWidth: 500);
 
-      for (final MapEntry<String, AppButtonSize> entry
-          in <String, AppButtonSize>{
-        's': AppButtonSize.small,
-        'm': AppButtonSize.medium,
-        'l': AppButtonSize.large,
-      }.entries) {
-        final Size sz = tester.getSize(find.byKey(ValueKey<String>(entry.key)));
-        final _Tokens tk = _expectedTokens(resp, entry.value);
-        expect(sz.height >= tk.minH, isTrue, reason: '${entry.key} minHeight');
-        expect(sz.width >= tk.minW, isTrue, reason: '${entry.key} minWidth');
-      }
-    });
+        for (final MapEntry<String, AppButtonSize> entry
+            in <String, AppButtonSize>{
+              's': AppButtonSize.small,
+              'm': AppButtonSize.medium,
+              'l': AppButtonSize.large,
+            }.entries) {
+          final Size sz = tester.getSize(
+            find.byKey(ValueKey<String>(entry.key)),
+          );
+          final _Tokens tk = _expectedTokens(resp, entry.value);
+          expect(
+            sz.height >= tk.minH,
+            isTrue,
+            reason: '${entry.key} minHeight',
+          );
+          expect(sz.width >= tk.minW, isTrue, reason: '${entry.key} minWidth');
+        }
+      },
+    );
 
-    testWidgets('fullWidth=true ocupa todo el ancho disponible del host',
-        (WidgetTester tester) async {
+    testWidgets('fullWidth=true ocupa todo el ancho disponible del host', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.tablet,
         workAreaSize: const Size(720, 600),
@@ -330,8 +341,9 @@ void main() {
       expect(sz.width, hostW);
     });
 
-    testWidgets('maxWidthColumns limita el ancho incluso con fullWidth=true',
-        (WidgetTester tester) async {
+    testWidgets('maxWidthColumns limita el ancho incluso con fullWidth=true', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.desktop,
         workAreaSize: const Size(1200, 700),
@@ -361,8 +373,9 @@ void main() {
   });
 
   group('MyAppButtonWidget - leading/trailing, tooltip y semántica', () {
-    testWidgets('leading/trailing: Sin widget personalizado dibuja icono',
-        (WidgetTester tester) async {
+    testWidgets('leading/trailing: Sin widget personalizado dibuja icono', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.desktop,
         workAreaSize: const Size(900, 600),
@@ -386,44 +399,46 @@ void main() {
     });
 
     testWidgets(
-        'leading/trailing: widget personalizado tiene prioridad sobre icono',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.desktop,
-        workAreaSize: const Size(900, 600),
-        columnsNumber: 12,
-        marginWidth: 16,
-        gutterWidth: 10,
-      );
+      'leading/trailing: widget personalizado tiene prioridad sobre icono',
+      (WidgetTester tester) async {
+        final FakeBlocResponsive resp = FakeBlocResponsive(
+          deviceType: ScreenSizeEnum.desktop,
+          workAreaSize: const Size(900, 600),
+          columnsNumber: 12,
+          marginWidth: 16,
+          gutterWidth: 10,
+        );
 
-      final MyAppButtonWidget w = MyAppButtonWidget(
-        responsive: resp,
-        label: 'Acción',
-        onPressed: () {},
-        leadingIcon: Icons.add, // NO debería mostrarse
-        trailingIcon: Icons.check, // NO debería mostrarse
-        leading: const SizedBox(
-          key: ValueKey<String>('lead'),
-          width: 10,
-          height: 10,
-        ),
-        trailing: const SizedBox(
-          key: ValueKey<String>('trail'),
-          width: 10,
-          height: 10,
-        ),
-      );
+        final MyAppButtonWidget w = MyAppButtonWidget(
+          responsive: resp,
+          label: 'Acción',
+          onPressed: () {},
+          leadingIcon: Icons.add, // NO debería mostrarse
+          trailingIcon: Icons.check, // NO debería mostrarse
+          leading: const SizedBox(
+            key: ValueKey<String>('lead'),
+            width: 10,
+            height: 10,
+          ),
+          trailing: const SizedBox(
+            key: ValueKey<String>('trail'),
+            width: 10,
+            height: 10,
+          ),
+        );
 
-      await _pump(tester, child: w);
+        await _pump(tester, child: w);
 
-      expect(find.byKey(const ValueKey<String>('lead')), findsOneWidget);
-      expect(find.byKey(const ValueKey<String>('trail')), findsOneWidget);
-      expect(find.byIcon(Icons.add), findsNothing);
-      expect(find.byIcon(Icons.check), findsNothing);
-    });
+        expect(find.byKey(const ValueKey<String>('lead')), findsOneWidget);
+        expect(find.byKey(const ValueKey<String>('trail')), findsOneWidget);
+        expect(find.byIcon(Icons.add), findsNothing);
+        expect(find.byIcon(Icons.check), findsNothing);
+      },
+    );
 
-    testWidgets('tooltip y semanticsLabel personalizados',
-        (WidgetTester tester) async {
+    testWidgets('tooltip y semanticsLabel personalizados', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.tablet,
         workAreaSize: const Size(720, 600),

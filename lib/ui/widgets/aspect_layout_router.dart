@@ -106,8 +106,10 @@ class AspectLayoutRouter extends StatelessWidget {
         }
 
         final double aspect = w / h;
-        final AspectRoute route =
-            AspectLayoutRouter.routeFor(aspect, snapTolerance);
+        final AspectRoute route = AspectLayoutRouter.routeFor(
+          aspect,
+          snapTolerance,
+        );
 
         switch (route) {
           case AspectRoute.square:

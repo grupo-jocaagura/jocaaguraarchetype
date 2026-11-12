@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 Future<void> _flushMicrotasks() async {
   // Asegura que los listeners de stream procesen emisiones.
@@ -20,8 +20,8 @@ void main() {
       // Primer valor que emite el stream debería ser lista vacía (si tu base emite snapshot inicial)
       // Si tu implementación no emite snapshot inicial, elimina esta sección.
       final List<List<ModelMainMenuModel>> first = <List<ModelMainMenuModel>>[];
-      final StreamSubscription<List<ModelMainMenuModel>> sub =
-          bloc.itemsStream.listen(first.add);
+      final StreamSubscription<List<ModelMainMenuModel>> sub = bloc.itemsStream
+          .listen(first.add);
 
       await _flushMicrotasks();
 
@@ -33,51 +33,55 @@ void main() {
       await sub.cancel();
     });
 
-    test('addSecondaryMenuOption agrega y no duplica por label (upsert)',
-        () async {
-      final BlocSecondaryMenuDrawer bloc = BlocSecondaryMenuDrawer();
+    test(
+      'addSecondaryMenuOption agrega y no duplica por label (upsert)',
+      () async {
+        final BlocSecondaryMenuDrawer bloc = BlocSecondaryMenuDrawer();
 
-      // Observamos solo los tamaños para simplificar asserts de orden.
-      final List<int> lengths = <int>[];
-      final StreamSubscription<List<ModelMainMenuModel>> sub = bloc.itemsStream
-          .listen((List<ModelMainMenuModel> e) => lengths.add(e.length));
+        // Observamos solo los tamaños para simplificar asserts de orden.
+        final List<int> lengths = <int>[];
+        final StreamSubscription<List<ModelMainMenuModel>> sub = bloc
+            .itemsStream
+            .listen((List<ModelMainMenuModel> e) => lengths.add(e.length));
 
-      // 1) Agrega primer ítem
-      bloc.addSecondaryMenuOption(
-        onPressed: () {},
-        label: 'settings',
-        iconData: Icons.settings,
-        description: 'config',
-      );
-      await _flushMicrotasks();
+        // 1) Agrega primer ítem
+        bloc.addSecondaryMenuOption(
+          onPressed: () {},
+          label: 'settings',
+          iconData: Icons.settings,
+          description: 'config',
+        );
+        await _flushMicrotasks();
 
-      expect(bloc.listMenuOptions.length, 1);
-      expect(
-        bloc.listMenuOptions
-            .firstWhere((ModelMainMenuModel m) => m.label == 'settings'),
-        isA<ModelMainMenuModel>(),
-      );
+        expect(bloc.listMenuOptions.length, 1);
+        expect(
+          bloc.listMenuOptions.firstWhere(
+            (ModelMainMenuModel m) => m.label == 'settings',
+          ),
+          isA<ModelMainMenuModel>(),
+        );
 
-      // 2) Upsert: mismo label, debería reemplazar/actualizar y NO duplicar
-      bloc.addSecondaryMenuOption(
-        onPressed: () {},
-        label: 'settings',
-        iconData: Icons.settings_outlined,
-        description: 'config-updated',
-      );
-      await _flushMicrotasks();
+        // 2) Upsert: mismo label, debería reemplazar/actualizar y NO duplicar
+        bloc.addSecondaryMenuOption(
+          onPressed: () {},
+          label: 'settings',
+          iconData: Icons.settings_outlined,
+          description: 'config-updated',
+        );
+        await _flushMicrotasks();
 
-      expect(bloc.listMenuOptions.length, 1); // no duplica
-      // Si tu modelo expone description, puedes validar actualización:
-      // final ModelMainMenuModel item = bloc.listMenuOptions.singleWhere((m) => m.label == 'settings');
-      // expect(item.description, 'config-updated');
+        expect(bloc.listMenuOptions.length, 1); // no duplica
+        // Si tu modelo expone description, puedes validar actualización:
+        // final ModelMainMenuModel item = bloc.listMenuOptions.singleWhere((m) => m.label == 'settings');
+        // expect(item.description, 'config-updated');
 
-      await sub.cancel();
+        await sub.cancel();
 
-      // lengths debería haber reflejado 1 al menos una vez. Si tu stream emite snapshot inicial,
-      // la secuencia podría ser [0, 1, 1]; si no, [1, 1]. Validamos al menos el ">= 1".
-      expect(lengths.where((int e) => e == 1).isNotEmpty, isTrue);
-    });
+        // lengths debería haber reflejado 1 al menos una vez. Si tu stream emite snapshot inicial,
+        // la secuencia podría ser [0, 1, 1]; si no, [1, 1]. Validamos al menos el ">= 1".
+        expect(lengths.where((int e) => e == 1).isNotEmpty, isTrue);
+      },
+    );
 
     test('removeSecondaryMenuOption elimina por label', () async {
       final BlocSecondaryMenuDrawer bloc = BlocSecondaryMenuDrawer();
@@ -139,8 +143,9 @@ void main() {
       final BlocSecondaryMenuDrawer bloc = BlocSecondaryMenuDrawer();
 
       // Mapeamos el stream a longitudes para validar la secuencia de tamaños
-      final Stream<int> sizes =
-          bloc.itemsStream.map((List<ModelMainMenuModel> e) => e.length);
+      final Stream<int> sizes = bloc.itemsStream.map(
+        (List<ModelMainMenuModel> e) => e.length,
+      );
 
       // Esperamos que, tras dos adds, pase por 1 y luego 2 (puede anteceder 0 si emite snapshot inicial)
       final Future<void> expectation = expectLater(

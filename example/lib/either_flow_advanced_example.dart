@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ------------------------------------------------------------
 /// EitherFlow – Refined Demo (Single File)
@@ -61,13 +61,8 @@ final ModelCompleteFlow kLemonadeFlow = ModelCompleteFlow(
       failureCode: 'LEMONADE.GATHER',
       nextOnSuccessIndex: 1,
       nextOnFailureIndex: -1,
-      constraints: <String>[
-        'requiresKitchen',
-        'requiresWaterAvailable',
-      ],
-      cost: <String, double>{
-        'timeMin': 2,
-      },
+      constraints: <String>['requiresKitchen', 'requiresWaterAvailable'],
+      cost: <String, double>{'timeMin': 2},
     ),
     1: const ModelFlowStep(
       index: 1,
@@ -76,17 +71,9 @@ final ModelCompleteFlow kLemonadeFlow = ModelCompleteFlow(
       failureCode: 'LEMONADE.WATER',
       nextOnSuccessIndex: 2,
       nextOnFailureIndex: -1,
-      constraints: <String>[
-        'requiresCleanPitcher',
-      ],
-      cost: <String, double>{
-        'timeMin': 1,
-      },
-    ).withMetricConstraint(
-      name: 'water',
-      value: 1,
-      unit: 'l',
-    ),
+      constraints: <String>['requiresCleanPitcher'],
+      cost: <String, double>{'timeMin': 1},
+    ).withMetricConstraint(name: 'water', value: 1, unit: 'l'),
     2: const ModelFlowStep(
       index: 2,
       title: 'Squeeze 4 lemons',
@@ -94,56 +81,40 @@ final ModelCompleteFlow kLemonadeFlow = ModelCompleteFlow(
       failureCode: 'LEMONADE.LEMONS',
       nextOnSuccessIndex: 3,
       nextOnFailureIndex: -1,
-      constraints: <String>[
-        'requiresLemons',
-        'requiresKnifeOrSqueezer',
-      ],
-      cost: <String, double>{
-        'timeMin': 4,
-      },
-    ).withMetricConstraint(
-      name: 'lemons',
-      value: 4,
-      unit: 'pcs',
-    ),
-    3: const ModelFlowStep(
-      index: 3,
-      title: 'Add sugar + taste',
-      description:
-          'Add 2 tbsp of sugar, stir, and taste. If not sweet enough → add more sugar.',
-      failureCode: 'LEMONADE.TASTE_1',
-      nextOnSuccessIndex: 5,
-      nextOnFailureIndex: 4,
-      constraints: <String>[
-        'requiresStirring',
-        // Legacy markdown-like constraint kept to show backward compatibility:
-        '(url Recipe)[https://example.com/lemonade]',
-      ],
-      cost: <String, double>{
-        'timeMin': 2,
-      },
-    )
-        .withMetricConstraint(name: 'sugar', value: 2, unit: 'tbsp')
-        .withUrlConstraint(
-          label: 'figma',
-          url: Uri.parse(
-            'https://www.figma.com/design/UDdYgEQwYXzliB8BawkllW/Bienvenido',
-          ),
-        ),
+      constraints: <String>['requiresLemons', 'requiresKnifeOrSqueezer'],
+      cost: <String, double>{'timeMin': 4},
+    ).withMetricConstraint(name: 'lemons', value: 4, unit: 'pcs'),
+    3:
+        const ModelFlowStep(
+              index: 3,
+              title: 'Add sugar + taste',
+              description: 'Add 2 tbsp of sugar, stir, and taste. If not sweet enough → add more sugar.',
+              failureCode: 'LEMONADE.TASTE_1',
+              nextOnSuccessIndex: 5,
+              nextOnFailureIndex: 4,
+              constraints: <String>[
+                'requiresStirring',
+                // Legacy markdown-like constraint kept to show backward compatibility:
+                '(url Recipe)[https://example.com/lemonade]',
+              ],
+              cost: <String, double>{'timeMin': 2},
+            )
+            .withMetricConstraint(name: 'sugar', value: 2, unit: 'tbsp')
+            .withUrlConstraint(
+              label: 'figma',
+              url: Uri.parse(
+                'https://www.figma.com/design/UDdYgEQwYXzliB8BawkllW/Bienvenido',
+              ),
+            ),
     4: const ModelFlowStep(
       index: 4,
       title: 'Add more sugar + taste',
-      description:
-          'Add 2 more tbsp of sugar, stir, and taste again. If still not ok → END.',
+      description: 'Add 2 more tbsp of sugar, stir, and taste again. If still not ok → END.',
       failureCode: 'LEMONADE.TASTE_2',
       nextOnSuccessIndex: 5,
       nextOnFailureIndex: -1,
-      constraints: <String>[
-        'requiresStirring',
-      ],
-      cost: <String, double>{
-        'timeMin': 2,
-      },
+      constraints: <String>['requiresStirring'],
+      cost: <String, double>{'timeMin': 2},
     ).withMetricConstraint(name: 'sugar', value: 2, unit: 'tbsp'),
     5: const ModelFlowStep(
       index: 5,
@@ -152,12 +123,8 @@ final ModelCompleteFlow kLemonadeFlow = ModelCompleteFlow(
       failureCode: 'LEMONADE.SERVE',
       nextOnSuccessIndex: -1,
       nextOnFailureIndex: -1,
-      constraints: <String>[
-        'requiresGlass',
-      ],
-      cost: <String, double>{
-        'timeMin': 1,
-      },
+      constraints: <String>['requiresGlass'],
+      cost: <String, double>{'timeMin': 1},
     ),
   },
 );
@@ -235,9 +202,7 @@ class _EitherFlowAdvancedExampleAppState
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   Future<void> _openJsonCenter() async {
@@ -334,8 +299,9 @@ class _EitherFlowAdvancedExampleAppState
     }
 
     setState(() {
-      final Map<int, ModelFlowStep> next =
-          Map<int, ModelFlowStep>.from(_flow.stepsByIndex);
+      final Map<int, ModelFlowStep> next = Map<int, ModelFlowStep>.from(
+        _flow.stepsByIndex,
+      );
       next[created.index] = created;
 
       _flow = ModelCompleteFlow(
@@ -380,8 +346,9 @@ class _EitherFlowAdvancedExampleAppState
     }
 
     setState(() {
-      final Map<int, ModelFlowStep> next =
-          Map<int, ModelFlowStep>.from(_flow.stepsByIndex);
+      final Map<int, ModelFlowStep> next = Map<int, ModelFlowStep>.from(
+        _flow.stepsByIndex,
+      );
 
       // If index changed, remove old entry.
       if (edited.index != step.index) {
@@ -433,8 +400,9 @@ class _EitherFlowAdvancedExampleAppState
     }
 
     setState(() {
-      final Map<int, ModelFlowStep> next =
-          Map<int, ModelFlowStep>.from(_flow.stepsByIndex);
+      final Map<int, ModelFlowStep> next = Map<int, ModelFlowStep>.from(
+        _flow.stepsByIndex,
+      );
       next.remove(step.index);
       _outcomeByStep.remove(step.index);
 
@@ -595,8 +563,9 @@ class _WideBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ModelFlowStep? focused =
-        focusedIndex == null ? null : flow.stepsByIndex[focusedIndex!];
+    final ModelFlowStep? focused = focusedIndex == null
+        ? null
+        : flow.stepsByIndex[focusedIndex!];
 
     return Row(
       children: <Widget>[
@@ -698,8 +667,9 @@ class _NarrowBody extends StatelessWidget {
             stepNumberInPath: i + 1,
             isDecision: isDecision,
             outcomeIsSuccess: outcome,
-            onOutcomeChanged:
-                isDecision ? (bool v) => onOutcomeChanged(step.index, v) : null,
+            onOutcomeChanged: isDecision
+                ? (bool v) => onOutcomeChanged(step.index, v)
+                : null,
             highlight: highlight,
             onEdit: () => onEdit(step),
             onDelete: () => onDelete(step),
@@ -955,10 +925,7 @@ class FlowHeaderWidget extends StatelessWidget {
 }
 
 class _InfoPill extends StatelessWidget {
-  const _InfoPill({
-    required this.icon,
-    required this.label,
-  });
+  const _InfoPill({required this.icon, required this.label});
 
   final IconData icon;
   final String label;
@@ -1011,10 +978,7 @@ class _LabeledDropdown<T> extends StatelessWidget {
           value: value,
           isExpanded: true,
           items: items.map((T v) {
-            return DropdownMenuItem<T>(
-              value: v,
-              child: Text(itemLabel(v)),
-            );
+            return DropdownMenuItem<T>(value: v, child: Text(itemLabel(v)));
           }).toList(),
           onChanged: (T? v) {
             if (v == null) {
@@ -1226,10 +1190,10 @@ class BrokenRoutesWarningWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color bg =
-        Theme.of(context).colorScheme.error.withValues(alpha: 0.92);
-    final Color border =
-        Theme.of(context).colorScheme.error.withValues(alpha: 0.65);
+    final Color bg = Theme.of(context).colorScheme.error
+        .withValues(alpha: 0.92);
+    final Color border = Theme.of(context).colorScheme.error
+        .withValues(alpha: 0.65);
 
     final List<String> lines = <String>[
       if (missingSuccess != null)
@@ -1364,8 +1328,9 @@ abstract final class FlowSimulator {
       }
 
       final bool isSuccess = resolveOutcomeForStep(step);
-      final int next =
-          isSuccess ? step.nextOnSuccessIndex : step.nextOnFailureIndex;
+      final int next = isSuccess
+          ? step.nextOnSuccessIndex
+          : step.nextOnFailureIndex;
 
       if (next == -1) {
         break;
@@ -1715,7 +1680,8 @@ class _StepEditorSheetState extends State<StepEditorSheet> {
       return;
     }
 
-    final bool indexTaken = widget.existingIndexes.contains(idx) &&
+    final bool indexTaken =
+        widget.existingIndexes.contains(idx) &&
         (widget.editingIndex == null || widget.editingIndex != idx);
     if (indexTaken) {
       setState(() => _error = 'Index #$idx already exists');
@@ -1780,15 +1746,11 @@ class _StepEditorSheetState extends State<StepEditorSheet> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .error
+                  color: Theme.of(context).colorScheme.error
                       .withValues(alpha: 0.92),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .error
+                    color: Theme.of(context).colorScheme.error
                         .withValues(alpha: 0.60),
                   ),
                 ),
@@ -1886,8 +1848,10 @@ class _StepEditorSheetState extends State<StepEditorSheet> {
                       border: OutlineInputBorder(),
                       isDense: true,
                     ),
-                    style:
-                        const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 12,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
@@ -1898,8 +1862,10 @@ class _StepEditorSheetState extends State<StepEditorSheet> {
                       border: OutlineInputBorder(),
                       isDense: true,
                     ),
-                    style:
-                        const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),

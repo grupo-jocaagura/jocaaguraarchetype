@@ -64,45 +64,45 @@ class PageWithSecondaryMenuBuilder extends StatelessWidget {
     return StreamBuilder<List<ModelMainMenuModel>>(
       stream: app.secondaryMenu.itemsStream,
       initialData: app.secondaryMenu.listMenuOptions,
-      builder: (
-        BuildContext context,
-        AsyncSnapshot<List<ModelMainMenuModel>> snap,
-      ) {
-        final List<ModelMainMenuModel> fromBloc =
-            snap.data ?? const <ModelMainMenuModel>[];
+      builder:
+          (BuildContext context, AsyncSnapshot<List<ModelMainMenuModel>> snap) {
+            final List<ModelMainMenuModel> fromBloc =
+                snap.data ?? const <ModelMainMenuModel>[];
 
-        // Override del implementador > bloc.
-        final List<ModelMainMenuModel> items = menuItemsOverride ?? fromBloc;
+            // Override del implementador > bloc.
+            final List<ModelMainMenuModel> items =
+                menuItemsOverride ?? fromBloc;
 
-        final BlocResponsive r = responsive;
+            final BlocResponsive r = responsive;
 
-        final Widget body = switch (r.deviceType) {
-          ScreenSizeEnum.mobile =>
-            (mobileBuilder ?? SecondaryMenuMobileLayout.defaultBuilder)(
-              context,
-              r,
-              content,
-              items,
-              bg,
-              animate,
-            ),
-          ScreenSizeEnum.tablet ||
-          ScreenSizeEnum.desktop ||
-          ScreenSizeEnum.tv =>
-            (sidePanelBuilder ?? SecondaryMenuSidePanelLayout.defaultBuilder)(
-              context,
-              r,
-              content,
-              items,
-              bg,
-              panelColumns,
-              secondaryOnRight,
-              animate,
-            ),
-        };
+            final Widget body = switch (r.deviceType) {
+              ScreenSizeEnum.mobile =>
+                (mobileBuilder ?? SecondaryMenuMobileLayout.defaultBuilder)(
+                  context,
+                  r,
+                  content,
+                  items,
+                  bg,
+                  animate,
+                ),
+              ScreenSizeEnum.tablet ||
+              ScreenSizeEnum.desktop ||
+              ScreenSizeEnum.tv =>
+                (sidePanelBuilder ??
+                    SecondaryMenuSidePanelLayout.defaultBuilder)(
+                  context,
+                  r,
+                  content,
+                  items,
+                  bg,
+                  panelColumns,
+                  secondaryOnRight,
+                  animate,
+                ),
+            };
 
-        return safeArea ? SafeArea(child: body) : body;
-      },
+            return safeArea ? SafeArea(child: body) : body;
+          },
     );
   }
 }

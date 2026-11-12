@@ -168,32 +168,21 @@ class MySnackBarWidget extends StatelessWidget {
     final double maxWidth = max(
       0.0,
       maxWidthColumns != null
-          ? r.widthByColumns(
-              maxWidthColumns!.clamp(1, r.columnsNumber),
-            )
+          ? r.widthByColumns(maxWidthColumns!.clamp(1, r.columnsNumber))
           : defaultMaxWidth,
     );
 
-    final Alignment alignment =
-        isMobile ? Alignment.bottomCenter : Alignment.topRight;
+    final Alignment alignment = isMobile
+        ? Alignment.bottomCenter
+        : Alignment.topRight;
 
     final EdgeInsets outerPadding = isMobile
-        ? EdgeInsets.only(
-            left: marginWidth,
-            right: marginWidth,
-            bottom: gap,
-          )
-        : EdgeInsets.only(
-            right: marginWidth,
-            top: gap,
-          );
+        ? EdgeInsets.only(left: marginWidth, right: marginWidth, bottom: gap)
+        : EdgeInsets.only(right: marginWidth, top: gap);
 
     return StreamBuilder<AppSnack?>(
       stream: snacks,
-      builder: (
-        BuildContext context,
-        AsyncSnapshot<AppSnack?> snapshot,
-      ) {
+      builder: (BuildContext context, AsyncSnapshot<AppSnack?> snapshot) {
         final AppSnack? snack = snapshot.data;
         final bool show = snack != null && snack.message.isNotEmpty;
 
@@ -233,9 +222,7 @@ class MySnackBarWidget extends StatelessWidget {
                             key: const ValueKey<String>('snack-text'),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
+                            style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(
                                   color: palette.fg,
                                   fontWeight: FontWeight.w600,
@@ -252,12 +239,8 @@ class MySnackBarWidget extends StatelessWidget {
                               },
                               child: Text(
                                 snack.actionLabel!,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelLarge
-                                    ?.copyWith(
-                                      color: palette.action,
-                                    ),
+                                style: Theme.of(context).textTheme.labelLarge
+                                    ?.copyWith(color: palette.action),
                               ),
                             ),
                           ),
@@ -291,17 +274,12 @@ class MySnackBarWidget extends StatelessWidget {
                     child: toast,
                   ),
                 )
-              : const SizedBox(
-                  key: ValueKey<String>('snack-off'),
-                ),
+              : const SizedBox(key: ValueKey<String>('snack-off')),
         );
 
         final Widget body = Align(
           alignment: alignment,
-          child: Padding(
-            padding: outerPadding,
-            child: animated,
-          ),
+          child: Padding(padding: outerPadding, child: animated),
         );
 
         return safeArea ? SafeArea(child: body) : body;
@@ -309,10 +287,7 @@ class MySnackBarWidget extends StatelessWidget {
     );
   }
 
-  _Palette _paletteFor(
-    AppSnackVariant variant,
-    ColorScheme scheme,
-  ) {
+  _Palette _paletteFor(AppSnackVariant variant, ColorScheme scheme) {
     switch (variant) {
       case AppSnackVariant.info:
         return _Palette(
@@ -371,14 +346,13 @@ class AppSnack {
     VoidCallback? onAction,
     IconData? icon,
     Duration? duration,
-  }) =>
-      AppSnack(
-        message: msg,
-        actionLabel: actionLabel,
-        onAction: onAction,
-        leadingIcon: icon,
-        duration: duration,
-      );
+  }) => AppSnack(
+    message: msg,
+    actionLabel: actionLabel,
+    onAction: onAction,
+    leadingIcon: icon,
+    duration: duration,
+  );
 
   /// Create a success notification.
   factory AppSnack.success(
@@ -387,15 +361,14 @@ class AppSnack {
     VoidCallback? onAction,
     IconData? icon,
     Duration? duration,
-  }) =>
-      AppSnack(
-        message: msg,
-        variant: AppSnackVariant.success,
-        actionLabel: actionLabel,
-        onAction: onAction,
-        leadingIcon: icon ?? Icons.check_circle_rounded,
-        duration: duration,
-      );
+  }) => AppSnack(
+    message: msg,
+    variant: AppSnackVariant.success,
+    actionLabel: actionLabel,
+    onAction: onAction,
+    leadingIcon: icon ?? Icons.check_circle_rounded,
+    duration: duration,
+  );
 
   /// Create a warning notification.
   factory AppSnack.warning(
@@ -404,15 +377,14 @@ class AppSnack {
     VoidCallback? onAction,
     IconData? icon,
     Duration? duration,
-  }) =>
-      AppSnack(
-        message: msg,
-        variant: AppSnackVariant.warning,
-        actionLabel: actionLabel,
-        onAction: onAction,
-        leadingIcon: icon ?? Icons.warning_amber_rounded,
-        duration: duration,
-      );
+  }) => AppSnack(
+    message: msg,
+    variant: AppSnackVariant.warning,
+    actionLabel: actionLabel,
+    onAction: onAction,
+    leadingIcon: icon ?? Icons.warning_amber_rounded,
+    duration: duration,
+  );
 
   /// Create an error notification.
   factory AppSnack.error(
@@ -421,15 +393,14 @@ class AppSnack {
     VoidCallback? onAction,
     IconData? icon,
     Duration? duration,
-  }) =>
-      AppSnack(
-        message: msg,
-        variant: AppSnackVariant.error,
-        actionLabel: actionLabel,
-        onAction: onAction,
-        leadingIcon: icon ?? Icons.error_outline_rounded,
-        duration: duration,
-      );
+  }) => AppSnack(
+    message: msg,
+    variant: AppSnackVariant.error,
+    actionLabel: actionLabel,
+    onAction: onAction,
+    leadingIcon: icon ?? Icons.error_outline_rounded,
+    duration: duration,
+  );
 
   /// Provide the notification message.
   final String message;
@@ -457,12 +428,7 @@ class AppSnack {
 }
 
 /// Define the visual style of an [AppSnack].
-enum AppSnackVariant {
-  info,
-  success,
-  warning,
-  error,
-}
+enum AppSnackVariant { info, success, warning, error }
 
 class _Palette {
   const _Palette({

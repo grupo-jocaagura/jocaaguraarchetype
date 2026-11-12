@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('DS model preview pages', () {
@@ -8,9 +8,7 @@ void main() {
       'Given ModelThemeData When rendered Then shows theme sections',
       (WidgetTester tester) async {
         final ModelThemeData model = ModelThemeData(
-          lightScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple,
-          ),
+          lightScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           darkScheme: ColorScheme.fromSeed(
             seedColor: Colors.deepPurple,
             brightness: Brightness.dark,
@@ -21,9 +19,7 @@ void main() {
         );
 
         await tester.pumpWidget(
-          MaterialApp(
-            home: ModelThemeDataPage(model: model),
-          ),
+          MaterialApp(home: ModelThemeDataPage(model: model)),
         );
 
         expect(find.text('ModelThemeData'), findsOneWidget);
@@ -33,23 +29,20 @@ void main() {
       },
     );
 
-    testWidgets(
-      'Given TextTheme When rendered Then shows text style names',
-      (WidgetTester tester) async {
-        final TextTheme textTheme = Typography.material2021().black;
+    testWidgets('Given TextTheme When rendered Then shows text style names', (
+      WidgetTester tester,
+    ) async {
+      final TextTheme textTheme = Typography.material2021().black;
 
-        await tester.pumpWidget(
-          MaterialApp(
-            home: TextThemePage(textTheme: textTheme),
-          ),
-        );
+      await tester.pumpWidget(
+        MaterialApp(home: TextThemePage(textTheme: textTheme)),
+      );
 
-        expect(find.text('TextTheme'), findsWidgets);
-        expect(find.text(TextThemeKeys.displayLarge), findsOneWidget);
-        expect(find.text(TextThemeKeys.bodyMedium), findsOneWidget);
-        expect(find.text(TextThemeKeys.labelSmall), findsOneWidget);
-      },
-    );
+      expect(find.text('TextTheme'), findsWidgets);
+      expect(find.text(TextThemeKeys.displayLarge), findsOneWidget);
+      expect(find.text(TextThemeKeys.bodyMedium), findsOneWidget);
+      expect(find.text(TextThemeKeys.labelSmall), findsOneWidget);
+    });
 
     testWidgets(
       'Given ModelDsExtendedTokens When rendered Then shows token sections',
@@ -57,9 +50,7 @@ void main() {
         const ModelDsExtendedTokens model = ModelDsExtendedTokens();
 
         await tester.pumpWidget(
-          const MaterialApp(
-            home: ModelDsExtendedTokensPage(model: model),
-          ),
+          const MaterialApp(home: ModelDsExtendedTokensPage(model: model)),
         );
 
         expect(find.text('ModelDsExtendedTokens'), findsOneWidget);
@@ -77,9 +68,7 @@ void main() {
         final ModelSemanticColors model = ModelSemanticColors.fallbackLight();
 
         await tester.pumpWidget(
-          MaterialApp(
-            home: ModelSemanticColorsPage(model: model),
-          ),
+          MaterialApp(home: ModelSemanticColorsPage(model: model)),
         );
 
         expect(find.text('ModelSemanticColors'), findsAtLeast(1));
@@ -95,9 +84,7 @@ void main() {
         final ModelDataVizPalette model = ModelDataVizPalette.fallback();
 
         await tester.pumpWidget(
-          MaterialApp(
-            home: ModelDataVizPalettePage(model: model),
-          ),
+          MaterialApp(home: ModelDataVizPalettePage(model: model)),
         );
 
         expect(find.text('ModelDataVizPalette'), findsOneWidget);

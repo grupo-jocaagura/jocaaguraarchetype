@@ -29,12 +29,7 @@ class ModelDsGalleryPageEntry {
   final DsGalleryPageBuilder builder;
 
   @override
-  int get hashCode => Object.hash(
-        id,
-        title,
-        section,
-        description,
-      );
+  int get hashCode => Object.hash(id, title, section, description);
 
   @override
   bool operator ==(Object other) {

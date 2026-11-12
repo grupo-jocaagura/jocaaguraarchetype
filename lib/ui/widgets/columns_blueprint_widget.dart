@@ -84,8 +84,12 @@ class ColumnsBlueprintWidget extends StatelessWidget {
     final double gap = (gapOverride ?? responsive.gutterWidth).clamp(0.0, 64.0);
 
     // Normalize spans to fit available columns (trim overflow at the end).
-    final List<_SlotLayout> slots =
-        _computeSlots(children, totalCols, responsive, gap);
+    final List<_SlotLayout> slots = _computeSlots(
+      children,
+      totalCols,
+      responsive,
+      gap,
+    );
 
     final Widget row = SizedBox(
       width: workW,
@@ -144,12 +148,7 @@ class ColumnsBlueprintWidget extends StatelessWidget {
     final List<Widget> widgets = <Widget>[];
     for (int i = 0; i < slots.length; i++) {
       final _SlotLayout sl = slots[i];
-      widgets.add(
-        SizedBox(
-          width: sl.px,
-          child: sl.slot.child,
-        ),
-      );
+      widgets.add(SizedBox(width: sl.px, child: sl.slot.child));
       if (i != slots.length - 1) {
         widgets.add(SizedBox(width: gap));
       }
@@ -162,10 +161,8 @@ class ColumnsBlueprintWidget extends StatelessWidget {
 ///
 /// The [span] requests how many responsive columns the [child] should occupy.
 class ColumnSlot {
-  const ColumnSlot({
-    required this.span,
-    required this.child,
-  }) : assert(span >= 1, 'span must be >= 1');
+  const ColumnSlot({required this.span, required this.child})
+    : assert(span >= 1, 'span must be >= 1');
 
   /// Requested number of responsive columns (>= 1).
   final int span;
@@ -203,9 +200,7 @@ class _GuidesOverlay extends StatelessWidget {
           return SizedBox(
             width: w,
             child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: isCol ? c : Colors.transparent,
-              ),
+              decoration: BoxDecoration(color: isCol ? c : Colors.transparent),
             ),
           );
         }),

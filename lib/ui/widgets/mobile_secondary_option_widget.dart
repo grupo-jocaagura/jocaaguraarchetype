@@ -81,8 +81,8 @@ class MobileSecondaryOptionWidget extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style:
-                    Theme.of(context).textTheme.labelLarge?.copyWith(color: fg),
+                style: Theme.of(context).textTheme.labelLarge
+                    ?.copyWith(color: fg),
               ),
             ),
           ],
@@ -109,10 +109,7 @@ class MobileSecondaryOptionWidget extends StatelessWidget {
 
     final Widget withTooltip = tooltip == null
         ? button
-        : Tooltip(
-            message: tooltip,
-            child: button,
-          );
+        : Tooltip(message: tooltip, child: button);
 
     return Semantics(
       button: true,

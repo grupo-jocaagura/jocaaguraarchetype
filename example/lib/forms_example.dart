@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Minimal example showcasing the OKANE-inspired FieldState form flow.
 ///
@@ -57,23 +57,20 @@ class _FormsExample {
   }
 
   PageRegistry _buildRegistry(DemoLoginFormBloc bloc) {
-    return PageRegistry.fromDefs(
-      <PageDef>[
-        PageDef(
-          model: _EmailStepPage.pageModel,
-          builder: (_, __) => _EmailStepPage(bloc: bloc),
-        ),
-        PageDef(
-          model: _PasswordStepPage.pageModel,
-          builder: (_, __) => _PasswordStepPage(bloc: bloc),
-        ),
-        PageDef(
-          model: _LoginOkPage.pageModel,
-          builder: (_, __) => const _LoginOkPage(),
-        ),
-      ],
-      defaultPage: _EmailStepPage.pageModel,
-    );
+    return PageRegistry.fromDefs(<PageDef>[
+      PageDef(
+        model: _EmailStepPage.pageModel,
+        builder: (_, __) => _EmailStepPage(bloc: bloc),
+      ),
+      PageDef(
+        model: _PasswordStepPage.pageModel,
+        builder: (_, __) => _PasswordStepPage(bloc: bloc),
+      ),
+      PageDef(
+        model: _LoginOkPage.pageModel,
+        builder: (_, __) => const _LoginOkPage(),
+      ),
+    ], defaultPage: _EmailStepPage.pageModel);
   }
 
   BlocTheme _buildThemeBloc() {
@@ -88,18 +85,16 @@ class _FormsExample {
 
   BlocOnboarding _buildOnboarding() {
     final BlocOnboarding onboarding = BlocOnboarding()
-      ..configure(
-        <OnboardingStep>[
-          OnboardingStep(
-            title: 'Init forms demo',
-            description: 'Setting up reactive modules',
-            onEnter: () async {
-              return const Right<ErrorItem, Unit>(Unit.value);
-            },
-            autoAdvanceAfter: const Duration(milliseconds: 200),
-          ),
-        ],
-      );
+      ..configure(<OnboardingStep>[
+        OnboardingStep(
+          title: 'Init forms demo',
+          description: 'Setting up reactive modules',
+          onEnter: () async {
+            return const Right<ErrorItem, Unit>(Unit.value);
+          },
+          autoAdvanceAfter: const Duration(milliseconds: 200),
+        ),
+      ]);
     onboarding.start();
     return onboarding;
   }
@@ -108,10 +103,12 @@ class _FormsExample {
 class DemoLoginFormBloc extends BlocModule {
   static const String name = 'DemoLoginFormBloc';
 
-  final BlocGeneral<ModelFieldState> _email =
-      BlocGeneral<ModelFieldState>(const ModelFieldState());
-  final BlocGeneral<ModelFieldState> _password =
-      BlocGeneral<ModelFieldState>(const ModelFieldState());
+  final BlocGeneral<ModelFieldState> _email = BlocGeneral<ModelFieldState>(
+    const ModelFieldState(),
+  );
+  final BlocGeneral<ModelFieldState> _password = BlocGeneral<ModelFieldState>(
+    const ModelFieldState(),
+  );
 
   Stream<ModelFieldState> get emailStream => _email.stream;
   Stream<ModelFieldState> get passwordStream => _password.stream;
@@ -284,13 +281,12 @@ class _PasswordStepPage extends StatelessWidget {
   Future<void> _handleSubmit(BuildContext context) async {
     final AbstractAppManager app = context.appManager;
     final Either<ErrorItem, Unit> result = await bloc.submit();
-    result.fold(
-      (ErrorItem error) => app.notifications.showToast(error.title),
-      (_) {
-        app.notifications.showToast('Login OK');
-        app.pageManager.push(_LoginOkPage.pageModel);
-      },
-    );
+    result.fold((ErrorItem error) => app.notifications.showToast(error.title), (
+      _,
+    ) {
+      app.notifications.showToast('Login OK');
+      app.pageManager.push(_LoginOkPage.pageModel);
+    });
   }
 }
 
@@ -321,8 +317,9 @@ class _LoginOkPage extends StatelessWidget {
               const SizedBox(height: 24),
               FilledButton(
                 onPressed: () {
-                  context.appManager.pageManager
-                      .resetTo(_EmailStepPage.pageModel);
+                  context.appManager.pageManager.resetTo(
+                    _EmailStepPage.pageModel,
+                  );
                 },
                 child: const Text('Volver al inicio'),
               ),

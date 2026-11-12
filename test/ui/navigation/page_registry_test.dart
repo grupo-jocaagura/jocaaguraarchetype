@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 PageModel _p(
   String name, {
@@ -9,14 +9,13 @@ PageModel _p(
   bool requiresAuth = false,
   List<String>? segments,
   Map<String, String>? query,
-}) =>
-    PageModel(
-      name: name,
-      segments: segments ?? <String>[name],
-      query: query ?? const <String, String>{},
-      kind: kind,
-      requiresAuth: requiresAuth,
-    );
+}) => PageModel(
+  name: name,
+  segments: segments ?? <String>[name],
+  query: query ?? const <String, String>{},
+  kind: kind,
+  requiresAuth: requiresAuth,
+);
 
 Widget _txt(BuildContext _, PageModel page) => Text('pg:${page.name}');
 
@@ -54,8 +53,9 @@ void main() {
     });
 
     test('cuando no hay notFound/defaults → devuelve 404 por defecto', () {
-      final PageRegistry reg =
-          PageRegistry(const <String, PageWidgetBuilder>{});
+      final PageRegistry reg = PageRegistry(
+        const <String, PageWidgetBuilder>{},
+      );
       final Widget w = reg.build(const _Ctx(), _p('missing'));
       expect(w.runtimeType.toString(), contains('DefaultNotFoundPage'));
     });
@@ -86,14 +86,15 @@ void main() {
       final PageRegistry reg = PageRegistry(const <String, PageWidgetBuilder>{
         'fsd': _txt,
       });
-      final MaterialPage<dynamic> pg =
-          reg.toPage(_p('fsd', kind: PageKind.fullScreenDialog))
-              as MaterialPage<dynamic>;
+      final MaterialPage<dynamic> pg = reg.toPage(
+        _p('fsd', kind: PageKind.fullScreenDialog),
+      ) as MaterialPage<dynamic>;
       expect(pg.fullscreenDialog, isTrue);
     });
 
-    testWidgets('dialog produce DialogPage y crea DialogRoute',
-        (WidgetTester tester) async {
+    testWidgets('dialog produce DialogPage y crea DialogRoute', (
+      WidgetTester tester,
+    ) async {
       final PageRegistry reg = PageRegistry(const <String, PageWidgetBuilder>{
         'dlg': _txt,
       });
@@ -104,8 +105,9 @@ void main() {
         MaterialApp(
           home: Builder(
             builder: (BuildContext ctx) {
-              final Route<dynamic> r =
-                  (pg as DialogPage<dynamic>).createRoute(ctx);
+              final Route<dynamic> r = (pg as DialogPage<dynamic>).createRoute(
+                ctx,
+              );
               expect(r, isA<DialogRoute<dynamic>>());
               return const SizedBox.shrink();
             },

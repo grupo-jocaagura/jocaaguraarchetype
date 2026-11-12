@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Demo mínima y autocontenida de navegación con:
 ///  - PageRegistry (home, test-1, test-2)

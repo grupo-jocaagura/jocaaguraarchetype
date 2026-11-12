@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../jocaaguraarchetype.dart';
 
@@ -110,12 +110,12 @@ class EitherFlowBlocState {
 
     final int? selectedStepIndex =
         json[EitherFlowBlocStateKeys.selectedStepIndex] is int
-            ? json[EitherFlowBlocStateKeys.selectedStepIndex] as int
-            : int.tryParse(
-                Utils.getStringFromDynamic(
-                  json[EitherFlowBlocStateKeys.selectedStepIndex],
-                ),
-              );
+        ? json[EitherFlowBlocStateKeys.selectedStepIndex] as int
+        : int.tryParse(
+            Utils.getStringFromDynamic(
+              json[EitherFlowBlocStateKeys.selectedStepIndex],
+            ),
+          );
 
     final String updatedAtIso = Utils.getStringFromDynamic(
       json[EitherFlowBlocStateKeys.updatedAtIso],
@@ -222,15 +222,18 @@ class EitherFlowBlocState {
     return EitherFlowBlocState(
       jsonField: jsonField ?? this.jsonField,
       flow: clearFlow ? null : (flow ?? this.flow),
-      validationReport:
-          clearValidation ? null : (validationReport ?? this.validationReport),
-      analysisReport:
-          clearAnalysis ? null : (analysisReport ?? this.analysisReport),
+      validationReport: clearValidation
+          ? null
+          : (validationReport ?? this.validationReport),
+      analysisReport: clearAnalysis
+          ? null
+          : (analysisReport ?? this.analysisReport),
       simulationSession: clearSimulation
           ? null
           : (simulationSession ?? this.simulationSession),
-      lastAuditSnapshot:
-          clearAudit ? null : (lastAuditSnapshot ?? this.lastAuditSnapshot),
+      lastAuditSnapshot: clearAudit
+          ? null
+          : (lastAuditSnapshot ?? this.lastAuditSnapshot),
       selectedStepIndex: selectedStepIndex ?? this.selectedStepIndex,
       updatedAtIso: updatedAtIso ?? this.updatedAtIso,
       isBusy: isBusy ?? this.isBusy,
@@ -239,16 +242,16 @@ class EitherFlowBlocState {
 
   @override
   int get hashCode => Object.hash(
-        jsonField,
-        flow,
-        validationReport,
-        analysisReport,
-        simulationSession,
-        lastAuditSnapshot,
-        selectedStepIndex,
-        updatedAtIso,
-        isBusy,
-      );
+    jsonField,
+    flow,
+    validationReport,
+    analysisReport,
+    simulationSession,
+    lastAuditSnapshot,
+    selectedStepIndex,
+    updatedAtIso,
+    isBusy,
+  );
 
   @override
   bool operator ==(Object other) {
