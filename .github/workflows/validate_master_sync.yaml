@@ -1,0 +1,63 @@
+name: Validate automatic master sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Sync PR number
+        required: true
+        type: string
+      head:
+        description: Exact sync PR head SHA
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-master-sync-${{ inputs.pr }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: write
+    steps:
+      - name: Require trusted validation source
+        run: |
+          test "$GITHUB_REPOSITORY" = grupo-jocaagura/jocaaguraarchetype
+          test "$GITHUB_REF" = refs/heads/master
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - run: python3 -m pip install --disable-pip-version-check -r .github/scripts/requirements.txt
+      - name: Mark pending
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SYNC_PR: ${{ inputs.pr }}
+          SYNC_HEAD: ${{ inputs.head }}
+        run: python3 .github/scripts/master_sync.py --validate-pr "$SYNC_PR" --head "$SYNC_HEAD" --status pending
+      - name: Verify signature, provenance, ancestry and unchanged code/version
+        id: validation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SYNC_PR: ${{ inputs.pr }}
+          SYNC_HEAD: ${{ inputs.head }}
+        run: |
+          python3 .github/scripts/master_sync.py --validate-pr "$SYNC_PR" --head "$SYNC_HEAD"
+          python3 -m unittest discover -s .github/scripts/tests -v
+      - name: Report exact-head validation result
+        if: always() && steps.validation.outcome != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SYNC_PR: ${{ inputs.pr }}
+          SYNC_HEAD: ${{ inputs.head }}
+          VALIDATION_STATE: ${{ steps.validation.outcome == 'success' && 'success' || 'failure' }}
+        run: python3 .github/scripts/master_sync.py --validate-pr "$SYNC_PR" --head "$SYNC_HEAD" --status "$VALIDATION_STATE"
