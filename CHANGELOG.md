@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Generate the SSH public-key companion before signing automatic synchronization
+  merges, supporting PEM signing keys.
 - Automatically propose signed master-to-develop synchronization PRs after
   successful releases, preserving the current version and requiring human review.
 - Synchronize master history back into develop after the documentation squash,
