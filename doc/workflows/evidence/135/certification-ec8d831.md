@@ -1,5 +1,8 @@
 # Certificación de integración homologada: domain/core
 
+> Evidencia histórica del candidato Git. La dependencia oficial de pub.dev
+> está validada en la [certificación de domain 2.0.0](certification-domain-2.0.0.md).
+
 Fecha: 2026-11-11 (America/Bogota).
 
 **Resultado: PASS. GO para continuar la publicación de `jocaagura_domain 2.0.0`

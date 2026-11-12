@@ -8,24 +8,21 @@ se mantiene en el PR #134 y no forma parte de esta rama.
 Usa Flutter >=3.50.0 con Dart >=3.14.0 y <4.0.0. El paquete declara
 `material_ui: ^1.11.0` y `cupertino_ui: ^1.1.6`.
 
-La integración usa exactamente:
+La integración usa la versión oficial publicada en pub.dev:
 
 ```yaml
 dependencies:
-  jocaagura_domain:
-    git:
-      url: https://github.com/grupo-jocaagura/jocaagura_domain.git
-      ref: ec8d831db3305b7e036f1e403aee7727e0a95e2d
+  jocaagura_domain: ^2.0.0
 ```
 
-Ese commit declara domain **1.43.2**, aunque prepara la arquitectura prevista
-para domain 2.0.0. Core `^1.3.0` se resuelve transitivamente. No agregues
+Core `^1.3.0` se resuelve transitivamente. No agregues
 `dependency_overrides`: cambiarían la implementación que estamos validando.
 El barrel de domain del arquetipo conserva sus reexports y permite seguir
 consumiendo modelos, contratos y BLoCs desde el arquetipo.
 
-La homologación de este commit con Flutter 3.50.0/Dart 3.14.0 está documentada
-en la [certificación de integración](workflows/evidence/135/certification-ec8d831.md).
+La homologación inicial del candidato Git se conserva como evidencia histórica.
+La validación final con domain 2.0.0 publicado está documentada en la
+[certificación de la dependencia oficial](workflows/evidence/135/certification-domain-2.0.0.md).
 
 ## Imports y tipos de diseño
 
@@ -76,8 +73,10 @@ flutter analyze
 flutter build web --release
 ```
 
-Comprueba en `pubspec.lock` el `resolved-ref` completo de domain y la versión
-resuelta de core. Los lockfiles son locales y están ignorados por el repositorio.
+Comprueba en ambos `pubspec.lock` que domain use `source: hosted`, versión
+`2.0.0`, su hash de archivo publicado y core `1.3.0` como dependencia transitiva.
+Ya no hay `resolved-ref` de Git. Los lockfiles son locales y están ignorados
+por el repositorio.
 El ejemplo no tiene suite de tests propia; sus fuentes se analizan y su entrada
 principal se compila para web. La suite de la raíz cubre componentes, themes,
 navegación Material/Cupertino y los contratos de dominio consumidos.
@@ -90,13 +89,11 @@ El PR se dirige a `develop` con etiqueta `major`. El workflow ya incrementó
 el commit si la versión ya coincide con la esperada. Así, los siguientes pushes
 de homologación y evidencias conservan 5.0.0.
 
-Este snapshot tiene `publish_to: none`, ya que pub.dev no admite dependencias
-Git en paquetes publicados. Antes del release:
+Se sustituyó el pin Git por `jocaagura_domain: ^2.0.0` y se retiró
+`publish_to: none` del paquete raíz. El ejemplo sigue siendo no publicable.
+Antes del release:
 
-1. Verifica la disponibilidad y los contratos de domain 2.0.0 en pub.dev.
-2. Sustituye la dependencia Git por la versión hosted acordada.
-3. Retira `publish_to: none` y repite análisis, formato y pruebas.
-4. Verifica la coincidencia de versiones del changelog y `pubspec.yaml`, y
+1. Verifica la coincidencia de versiones del changelog y `pubspec.yaml`, y
    ejecuta `flutter pub publish --dry-run`.
-5. Sigue el flujo `develop` -> `master` y confirma el mecanismo de publicación.
+2. Sigue el flujo `develop` -> `master` y confirma el mecanismo de publicación.
    Los workflows actuales validan y versionan, pero no publican en pub.dev.

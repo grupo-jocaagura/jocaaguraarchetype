@@ -1,4 +1,6 @@
 # Miscellaneous
+# Temporary local review artifact; exclude it from release archives.
+/issue-133-review.diff
 *.class
 *.lock
 *.log

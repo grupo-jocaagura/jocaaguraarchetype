@@ -11,11 +11,19 @@ void main() {
     expect(calculator.addOne(0), 1);
   });
 
-  test('testMe function', () async {
-    final DateTime dateTime = DateTime.now();
+  testWidgets('testMe completes after two seconds', (
+    WidgetTester tester,
+  ) async {
     final JocaaguraArchetype jocaaguraArchetype = JocaaguraArchetype();
-    await jocaaguraArchetype.testMe();
-    final int duration = DateTime.now().difference(dateTime).inMilliseconds;
-    expect(duration, greaterThan(2000));
+    bool completed = false;
+    final Future<void> task = jocaaguraArchetype.testMe().then((_) {
+      completed = true;
+    });
+
+    await tester.pump(const Duration(milliseconds: 1999));
+    expect(completed, isFalse);
+    await tester.pump(const Duration(milliseconds: 1));
+    await task;
+    expect(completed, isTrue);
   });
 }

@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-12",
+  "timezone": "America/Bogota",
+  "verdict": "PASS",
+  "scope": "Local integration of published jocaagura_domain 2.0.0",
+  "base_commit": "01561b2a755bd800d6eced0754c23584c37be32b",
+  "archetype_version": "5.0.0",
+  "flutter": "3.50.0",
+  "dart": "3.14.0",
+  "tests_passed": 1022,
+  "dependency_overrides": false,
+  "locks": [
+    {
+      "path": "pubspec.lock",
+      "domain_source": "hosted",
+      "domain_version": "2.0.0",
+      "domain_archive_sha256": "aad1a8ff8ae7125a9ba589e7e17573ab03540e0b73e45007b92325dbb966da79",
+      "core_version": "1.3.0",
+      "core_dependency": "transitive",
+      "sha256": "2CC5A151BB107CE9316E6AC826D0A07D5D3EDD02DAAE08908C9E3FCE7E244CC0"
+    },
+    {
+      "path": "example/pubspec.lock",
+      "domain_source": "hosted",
+      "domain_version": "2.0.0",
+      "domain_archive_sha256": "aad1a8ff8ae7125a9ba589e7e17573ab03540e0b73e45007b92325dbb966da79",
+      "core_version": "1.3.0",
+      "core_dependency": "transitive",
+      "sha256": "7262191236233AB16E1D0FEE245FBC815DE43C7EEE0DCA8DAAC08F709D6FBAB0"
+    }
+  ],
+  "fingerprints": [
+    {
+      "path": "pubspec.yaml",
+      "sha256": "83816214B2F790FD894E2EA7280ADECCA175C161D21F0EAC6F3738AD944C58F2"
+    },
+    {
+      "path": "example/pubspec.yaml",
+      "sha256": "4B32C78158FE933026B274DEA7B442A0EE00CFD77C610A72BD83802AC2CE8758"
+    },
+    {
+      "path": "test/jocaaguraarchetype_test.dart",
+      "sha256": "83AAF0E732F3B689C8D0A2C6DE829636DEA997F6982C00D6A6538B0459A34C8D"
+    },
+    {
+      "path": "domain-2.0.0-pub-get.log",
+      "sha256": "A61AC4E6904273649F6DC4C95A229A447830CB6A42EF3ABB9F0DE93072F70AB5"
+    },
+    {
+      "path": "domain-2.0.0-format.log",
+      "sha256": "5C151960C6B00CEE3F895805E8A9CB095D7F953198EC9F89F89D693F8E058FE9"
+    },
+    {
+      "path": "domain-2.0.0-analyze.log",
+      "sha256": "15DF80D4A00DB8263716D12D872ADC4CA9734DD0A57862B478DE4E68AE15ED67"
+    },
+    {
+      "path": "domain-2.0.0-tests.log",
+      "sha256": "25BD1A89CE9CFB7275D08FB3248503B8D3A1433F1CA9914C304DECA92253A22F"
+    },
+    {
+      "path": "example/domain-2.0.0-pub-get.log",
+      "sha256": "91C17B64697A15FDAB7761BBF8AC7ABD7E41B51D6F9428BA896DE812D555088F"
+    },
+    {
+      "path": "example/domain-2.0.0-analyze.log",
+      "sha256": "E51AA207C1BC020CBE788F8E549F45D855B901030D61394AF06A42185645009D"
+    },
+    {
+      "path": "example/domain-2.0.0-web-build.log",
+      "sha256": "F1F53C4DBAB9B571ECC678E6CBA2992809E9CE6A67FCC7C67137F48C64DF08BE"
+    }
+  ]
+}

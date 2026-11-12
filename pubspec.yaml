@@ -1,7 +1,5 @@
 name: jocaaguraarchetype
 description: Starter archetype for Flutter apps with Jocaagura Clean Architecture, cross-cutting BLoCs, theming, and navigation setup.
-# Integration snapshot: restore publishing after domain 2.0.0 is on pub.dev.
-publish_to: none
 
 version: 5.0.0
 
@@ -19,10 +17,7 @@ dependencies:
 
   cupertino_ui: ^1.1.6
   material_ui: ^1.11.0
-  jocaagura_domain:
-    git:
-      url: https://github.com/grupo-jocaagura/jocaagura_domain.git
-      ref: ec8d831db3305b7e036f1e403aee7727e0a95e2d
+  jocaagura_domain: ^2.0.0
 
 dev_dependencies:
   flutter_test:
