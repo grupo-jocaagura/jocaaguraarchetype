@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Automatically propose signed master-to-develop synchronization PRs after
+  successful releases, preserving the current version and requiring human review.
 - Synchronize master history back into develop after the documentation squash,
   retaining 5.1.0 and documenting the post-release history synchronization step.
 - Preserve 5.1.0 for certification-only promotion to master; the publication

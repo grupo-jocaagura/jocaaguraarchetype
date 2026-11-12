@@ -77,11 +77,52 @@ de nuevo a `develop` mediante un PR de sincronización. Un squash puede dejar
 archivos no incorpora el commit de master y puede repetir conflictos en el
 siguiente release.
 
-Crear la rama de sincronización desde `develop`, hacer un merge normal de
-`origin/master`, comprobar el diff y conservar la versión vigente. Tramitar el
-PR hacia `develop` con `skip-version-bump`; si solo cambia el historial, añadir
-una nota al changelog, que exige el workflow de contribución. No recrear tags
-ni reescribir las ramas protegidas.
+El workflow `Sync master to develop` escucha la finalización satisfactoria de
+`Release after master merge` y `Publish package`. Solo propone el PR cuando la
+versión de master ya está publicada en pub.dev. También funciona para promociones
+documentales de una versión publicada. Si el upload aún no ocurrió, espera al
+publisher; si master ya es ancestro de develop, termina sin cambios. Un evento
+de un commit anterior al master vigente se omite.
+
+Antes de reconciliar el historial comprueba la firma del commit de master, el
+PR oficial fusionado de develop a master y la igualdad completa entre el árbol
+de master y el head de ese PR. Ese head debe ser ancestro del develop actual.
+Solo entonces usa un merge de dos padres con estrategia `ours`: el contenido
+del release ya está incorporado y se conserva cualquier trabajo posterior de
+develop. Si no puede demostrarlo, falla y requiere reconciliación manual.
+
+La rama `automation/sync-master-<SHA completo>` contiene un merge firmado con
+la identidad existente del bot (`SSH_SIGNING_KEY`, `BOT_NAME`, `BOT_EMAIL`).
+El único cambio de contenido es un comentario generado en `CHANGELOG.md`, para
+satisfacer la validación de contribución. El PR lleva `skip-version-bump` y
+conserva la versión vigente de develop, incluso si ya avanzó respecto al release.
+Las reejecuciones reutilizan el PR abierto y verifican cualquier rama existente;
+no hacen force-push ni recrean tags. Un PR cerrado sin incorporar la ascendencia
+o una versión que cambie mientras está abierto requieren intervención.
+
+En **Settings → Actions → General → Workflow permissions**, habilitar
+**Allow GitHub Actions to create and approve pull requests**, necesario para
+crear el PR con `GITHUB_TOKEN`. Aunque GitHub agrupa ambas capacidades en esa
+opción, estos workflows nunca aprueban ni fusionan PRs. Se mantienen las reglas
+de firma y revisión externa de develop.
+
+El creador despacha explícitamente `Validate automatic master sync` desde
+master. El validador ejecuta únicamente código de master y publica el estado
+`Master synchronization validation` sobre el SHA exacto del PR, tras comprobar
+firma, procedencia, padres, ascendencia y diff restringido al comentario.
+Las pruebas de política se ejecutan antes de emitir éxito. Los workflows
+ordinarios del PR creado con `GITHUB_TOKEN` pueden necesitar autorización humana
+con **Approve workflows to run**; este despacho no depende de ese disparador.
+Los dos workflows deben estar incorporados a master antes de su primera ejecución.
+
+Para reintentar, ejecutar `Sync master to develop` con **Run workflow → master**.
+Revisar y aprobar el PR y fusionarlo con **Create a merge commit**, nunca squash
+ni rebase: la relación de ascendencia es el resultado que se quiere conservar.
+La automatización no modifica la versión ni inicia una nueva publicación.
+
+Si las comprobaciones de procedencia fallan, crear una rama desde develop,
+reconciliar master mediante un merge normal revisado, conservar la versión y
+tramitar el PR con `skip-version-bump` y una nota al changelog.
 
 Tras aprobar y fusionar ese PR, verificar:
 
@@ -90,8 +131,8 @@ git fetch origin
 git merge-base --is-ancestor origin/master origin/develop
 ```
 
-El comando debe terminar con código 0. La sincronización puede incluir notas
-documentales, pero no requiere incrementar la versión ni volver a publicar.
+El comando debe terminar con código 0. Si falla, no considerar completada la
+sincronización aunque los archivos parezcan iguales.
 
 ## Widget
 
