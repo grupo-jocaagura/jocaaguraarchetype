@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Reconcile the previous 4.6.0 release history with develop so the validated
+  5.0.0 release can merge into master without reverting its SDK or API migration.
 - **Breaking:** use standalone `material_ui ^1.11.0` and `cupertino_ui ^1.1.6`
   throughout the public theme/navigation APIs, tests, examples and documentation.
   Consumers must migrate design-library dependencies and imports together.
