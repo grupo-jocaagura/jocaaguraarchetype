@@ -41,11 +41,28 @@ No se mueven ni se borran tags existentes. Los jobs de publicación se serializa
 
 ## Configuración externa
 
-En pub.dev: repositorio `grupo-jocaagura/jocaaguraarchetype`, patrón
-`v{{version}}`, entorno requerido `pub.dev`. En GitHub: permitir tags `v*`
+En **pub.dev → Admin → Automated publishing**, configurar:
+
+- Repositorio `grupo-jocaagura/jocaaguraarchetype`.
+- Patrón `v{{version}}`.
+- **Enable publishing from `push` events: activado.**
+- **Enable publishing from `workflow_dispatch` events: activado.**
+- **Require GitHub Actions environment: activado**, con nombre **`pub.dev`**.
+
+Este flujo necesita ambos tipos de evento: la orquestación crea el tag con
+`GITHUB_TOKEN` y despacha explícitamente el publisher sobre ese tag. Si pub.dev
+no permite `workflow_dispatch`, el upload se rechaza aunque pasen OIDC, CI y
+dry-run. Habilitar el evento no requiere quitar la restricción del entorno.
+
+En GitHub: permitir `master` y tags `v*`
 en ese entorno y activar protección de tags contra actualización y borrado,
 sin bypass. La sonda inicial del PR requiere permitir su ref exacto de PR
 en el entorno durante la certificación; no habilitar acceso general para forks.
+Retirar la excepción temporal del PR tras la certificación. La sonda queda
+disponible mediante ejecución manual después del bootstrap.
+
+El flujo completo quedó certificado con la publicación de **5.1.0**:
+[certificación final y resolución del rechazo inicial](evidence/139/certification-5.1.0.md).
 
 Los workflows nuevos deben existir en la rama predeterminada antes de poder
 despacharlos manualmente. El primer PR hacia develop los incorpora y verifica
