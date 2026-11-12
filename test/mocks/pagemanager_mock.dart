@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 // revisado 10/03/2024 author: @albertjjimenezp
 class MockPageManager extends PageManager {

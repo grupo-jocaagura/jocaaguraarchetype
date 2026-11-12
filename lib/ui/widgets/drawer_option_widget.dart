@@ -133,8 +133,10 @@ class _DrawerOptionWidgetState extends State<DrawerOptionWidget> {
       horizontal: gap,
       vertical: (gap * 0.6).clamp(6.0, 12.0),
     );
-    final double minHeight =
-        (widget.responsive.columnWidth * 0.8).clamp(44.0, 56.0);
+    final double minHeight = (widget.responsive.columnWidth * 0.8).clamp(
+      44.0,
+      56.0,
+    );
 
     // Colors
     final Color fgBase = scheme.onSurface.withValues(
@@ -156,12 +158,14 @@ class _DrawerOptionWidgetState extends State<DrawerOptionWidget> {
 
     // Left indicator for selected/focus
     final bool showIndicator = widget.selected || _focused;
-    final Color indicatorColor =
-        widget.selected ? scheme.secondary : scheme.outlineVariant;
+    final Color indicatorColor = widget.selected
+        ? scheme.secondary
+        : scheme.outlineVariant;
     final double indicatorWidth = showIndicator ? 3.0 : 0.0;
 
     // Leading
-    final Widget? leading = widget.leading ??
+    final Widget? leading =
+        widget.leading ??
         (widget.icon != null
             ? Icon(widget.icon, color: fg, size: minHeight * 0.5)
             : null);
@@ -169,8 +173,8 @@ class _DrawerOptionWidgetState extends State<DrawerOptionWidget> {
     // Trailing / Badge
     final Widget? trailing =
         (widget.badgeCount != null && widget.badgeCount! > 0)
-            ? _Badge(count: widget.badgeCount!, colorScheme: scheme)
-            : widget.trailing;
+        ? _Badge(count: widget.badgeCount!, colorScheme: scheme)
+        : widget.trailing;
 
     final Widget tile = ConstrainedBox(
       constraints: BoxConstraints(minHeight: minHeight),
@@ -184,8 +188,9 @@ class _DrawerOptionWidgetState extends State<DrawerOptionWidget> {
             height: minHeight,
             decoration: BoxDecoration(
               color: indicatorColor,
-              borderRadius:
-                  const BorderRadius.horizontal(left: Radius.circular(8)),
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(8),
+              ),
             ),
           ),
           // Content
@@ -276,9 +281,7 @@ class _Badge extends StatelessWidget {
       ),
       child: Text(
         text,
-        style: Theme.of(context)
-            .textTheme
-            .labelSmall
+        style: Theme.of(context).textTheme.labelSmall
             ?.copyWith(color: colorScheme.onErrorContainer),
       ),
     );

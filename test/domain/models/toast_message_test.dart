@@ -25,8 +25,10 @@ void main() {
 
   group('ToastMessage · igualdad & hashCode', () {
     test('== verdadero si texto y timestamp (en ms) coinciden', () {
-      final DateTime stamp =
-          DateTime.fromMillisecondsSinceEpoch(123456, isUtc: true);
+      final DateTime stamp = DateTime.fromMillisecondsSinceEpoch(
+        123456,
+        isUtc: true,
+      );
       final ToastMessage a = ToastMessage('hi', stamp);
       final ToastMessage b = ToastMessage('hi', stamp);
 
@@ -35,8 +37,10 @@ void main() {
     });
 
     test('== falso si cambia SOLO el texto', () {
-      final DateTime stamp =
-          DateTime.fromMillisecondsSinceEpoch(777, isUtc: true);
+      final DateTime stamp = DateTime.fromMillisecondsSinceEpoch(
+        777,
+        isUtc: true,
+      );
       final ToastMessage a = ToastMessage('A', stamp);
       final ToastMessage b = ToastMessage('B', stamp);
 
@@ -44,10 +48,14 @@ void main() {
     });
 
     test('== falso si cambia SOLO el timestamp (1 ms)', () {
-      final DateTime t0 =
-          DateTime.fromMillisecondsSinceEpoch(1000, isUtc: true);
-      final DateTime t1 =
-          DateTime.fromMillisecondsSinceEpoch(1001, isUtc: true);
+      final DateTime t0 = DateTime.fromMillisecondsSinceEpoch(
+        1000,
+        isUtc: true,
+      );
+      final DateTime t1 = DateTime.fromMillisecondsSinceEpoch(
+        1001,
+        isUtc: true,
+      );
       final ToastMessage a = ToastMessage('same', t0);
       final ToastMessage b = ToastMessage('same', t1);
 
@@ -57,8 +65,10 @@ void main() {
 
   group('ToastMessage · copyWith & (in)mutabilidad', () {
     test('copyWith sin argumentos conserva valores', () {
-      final DateTime stamp =
-          DateTime.fromMillisecondsSinceEpoch(42, isUtc: true);
+      final DateTime stamp = DateTime.fromMillisecondsSinceEpoch(
+        42,
+        isUtc: true,
+      );
       final ToastMessage a = ToastMessage('x', stamp);
       final ToastMessage c = a.copyWith();
 
@@ -71,8 +81,10 @@ void main() {
     });
 
     test('copyWith(text) cambia solo el texto', () {
-      final DateTime stamp =
-          DateTime.fromMillisecondsSinceEpoch(42, isUtc: true);
+      final DateTime stamp = DateTime.fromMillisecondsSinceEpoch(
+        42,
+        isUtc: true,
+      );
       final ToastMessage a = ToastMessage('x', stamp);
       final ToastMessage c = a.copyWith(text: 'y');
 

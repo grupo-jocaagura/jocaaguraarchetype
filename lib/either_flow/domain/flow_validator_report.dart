@@ -30,10 +30,7 @@ import 'flow_validation_issue.dart';
 /// ```
 class FlowValidationReport {
   /// Creates a [FlowValidationReport].
-  const FlowValidationReport({
-    required this.errors,
-    required this.warnings,
-  });
+  const FlowValidationReport({required this.errors, required this.warnings});
 
   /// Hydrates a [FlowValidationReport] from JSON.
   ///
@@ -92,6 +89,7 @@ class FlowValidationReport {
   }
 
   @override
-  String toString() => 'FlowValidationReport(isValid=$isValid, '
+  String toString() =>
+      'FlowValidationReport(isValid=$isValid, '
       'errors=${errors.length}, warnings=${warnings.length})';
 }

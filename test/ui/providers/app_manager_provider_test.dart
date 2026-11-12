@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// --- Helpers para pruebas ---
 
@@ -72,102 +72,104 @@ class _DependentProbeState extends State<_DependentProbe> {
   }
 }
 
-final AppConfig appConfig =
-    AppConfig.dev(registry: PageRegistry(<String, PageWidgetBuilder>{}));
+final AppConfig appConfig = AppConfig.dev(
+  registry: PageRegistry(<String, PageWidgetBuilder>{}),
+);
 
 void main() {
   group('AppManagerProvider / AppManagerExtension', () {
     testWidgets(
-        'exposure: of() y context.appManager devuelven la misma instancia',
-        (WidgetTester tester) async {
-      final AppManager manager = AppManager(appConfig);
+      'exposure: of() y context.appManager devuelven la misma instancia',
+      (WidgetTester tester) async {
+        final AppManager manager = AppManager(appConfig);
 
-      // Capturadores
-      final ValueNotifier<AppManager?> seenByProbe =
-          ValueNotifier<AppManager?>(null);
-      final ValueNotifier<int> builds = ValueNotifier<int>(0);
-      final ValueNotifier<int> deps = ValueNotifier<int>(0);
+        // Capturadores
+        final ValueNotifier<AppManager?> seenByProbe =
+            ValueNotifier<AppManager?>(null);
+        final ValueNotifier<int> builds = ValueNotifier<int>(0);
+        final ValueNotifier<int> deps = ValueNotifier<int>(0);
 
-      late BuildContext capturedCtx;
+        late BuildContext capturedCtx;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: AppManagerProvider(
-            appManager: manager,
-            child: Builder(
-              builder: (BuildContext ctx) {
-                capturedCtx = ctx;
-                return _DependentProbe(
-                  captured: seenByProbe,
-                  builds: builds,
-                  depChanges: deps,
-                );
-              },
+        await tester.pumpWidget(
+          MaterialApp(
+            home: AppManagerProvider(
+              appManager: manager,
+              child: Builder(
+                builder: (BuildContext ctx) {
+                  capturedCtx = ctx;
+                  return _DependentProbe(
+                    captured: seenByProbe,
+                    builds: builds,
+                    depChanges: deps,
+                  );
+                },
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // La extensión y el of() deben devolver la misma instancia
-      expect(seenByProbe.value, same(manager));
-      expect(AppManagerProvider.of(capturedCtx), same(manager));
+        // La extensión y el of() deben devolver la misma instancia
+        expect(seenByProbe.value, same(manager));
+        expect(AppManagerProvider.of(capturedCtx), same(manager));
 
-      // Se llamó una vez didChangeDependencies (registro de dependencia inicial)
-      expect(deps.value, 1);
-      // Y se construyó una vez el dependiente
-      expect(builds.value, 1);
-    });
+        // Se llamó una vez didChangeDependencies (registro de dependencia inicial)
+        expect(deps.value, 1);
+        // Y se construyó una vez el dependiente
+        expect(builds.value, 1);
+      },
+    );
 
     testWidgets(
-        'updateShouldNotify=false: cambiar el manager NO llama didChangeDependencies, '
-        'pero el build re-lee y ve el nuevo valor si el árbol se reconstruye',
-        (WidgetTester tester) async {
-      final AppManager managerA = AppManager(appConfig);
-      final AppManager managerB = AppManager(appConfig);
+      'updateShouldNotify=false: cambiar el manager NO llama didChangeDependencies, '
+      'pero el build re-lee y ve el nuevo valor si el árbol se reconstruye',
+      (WidgetTester tester) async {
+        final AppManager managerA = AppManager(appConfig);
+        final AppManager managerB = AppManager(appConfig);
 
-      final ValueNotifier<AppManager?> seenByProbe =
-          ValueNotifier<AppManager?>(null);
-      final ValueNotifier<int> builds = ValueNotifier<int>(0);
-      final ValueNotifier<int> deps = ValueNotifier<int>(0);
+        final ValueNotifier<AppManager?> seenByProbe =
+            ValueNotifier<AppManager?>(null);
+        final ValueNotifier<int> builds = ValueNotifier<int>(0);
+        final ValueNotifier<int> deps = ValueNotifier<int>(0);
 
-      final GlobalKey<_HostState> hostKey = GlobalKey<_HostState>();
+        final GlobalKey<_HostState> hostKey = GlobalKey<_HostState>();
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: _Host(
-            key: hostKey,
-            initial: managerA,
-            child: _DependentProbe(
-              captured: seenByProbe,
-              builds: builds,
-              depChanges: deps,
+        await tester.pumpWidget(
+          MaterialApp(
+            home: _Host(
+              key: hostKey,
+              initial: managerA,
+              child: _DependentProbe(
+                captured: seenByProbe,
+                builds: builds,
+                depChanges: deps,
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(seenByProbe.value, same(managerA));
-      expect(deps.value, 1);
-      expect(builds.value, 1);
+        expect(seenByProbe.value, same(managerA));
+        expect(deps.value, 1);
+        expect(builds.value, 1);
 
-      // Cambiar el manager arriba en el árbol
-      hostKey.currentState!.updateManager(managerB);
-      await tester.pumpAndSettle();
+        // Cambiar el manager arriba en el árbol
+        hostKey.currentState!.updateManager(managerB);
+        await tester.pumpAndSettle();
 
-      // No hubo notificación de dependencia (updateShouldNotify=false)
-      expect(deps.value, 1);
-    });
+        // No hubo notificación de dependencia (updateShouldNotify=false)
+        expect(deps.value, 1);
+      },
+    );
 
-    testWidgets('cuando falta el provider, of(context) lanza AssertionError',
-        (WidgetTester tester) async {
+    testWidgets('cuando falta el provider, of(context) lanza AssertionError', (
+      WidgetTester tester,
+    ) async {
       final GlobalKey rootKey = GlobalKey();
 
       // Árbol sin AppManagerProvider
-      await tester.pumpWidget(
-        MaterialApp(home: Container(key: rootKey)),
-      );
+      await tester.pumpWidget(MaterialApp(home: Container(key: rootKey)));
       await tester.pumpAndSettle();
 
       final BuildContext ctx = rootKey.currentContext!;
@@ -175,30 +177,34 @@ void main() {
     });
 
     testWidgets(
-        'la extensión context.appManager refleja el mismo valor que of()',
-        (WidgetTester tester) async {
-      final AppManager manager = AppManager(appConfig);
+      'la extensión context.appManager refleja el mismo valor que of()',
+      (WidgetTester tester) async {
+        final AppManager manager = AppManager(appConfig);
 
-      late BuildContext capturedCtx;
+        late BuildContext capturedCtx;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: AppManagerProvider(
-            appManager: manager,
-            child: Builder(
-              builder: (BuildContext ctx) {
-                capturedCtx = ctx;
-                // Devuelve algo para renderizar
-                return const SizedBox.shrink();
-              },
+        await tester.pumpWidget(
+          MaterialApp(
+            home: AppManagerProvider(
+              appManager: manager,
+              child: Builder(
+                builder: (BuildContext ctx) {
+                  capturedCtx = ctx;
+                  // Devuelve algo para renderizar
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(capturedCtx.appManager, same(AppManagerProvider.of(capturedCtx)));
-      expect(capturedCtx.appManager, same(manager));
-    });
+        expect(
+          capturedCtx.appManager,
+          same(AppManagerProvider.of(capturedCtx)),
+        );
+        expect(capturedCtx.appManager, same(manager));
+      },
+    );
   });
 }

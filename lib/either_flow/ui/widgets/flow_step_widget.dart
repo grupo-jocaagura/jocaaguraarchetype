@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../jocaaguraarchetype.dart';
 
@@ -26,10 +26,7 @@ class FlowStepWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              header,
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
+            Text(header, style: Theme.of(context).textTheme.labelLarge),
             const SizedBox(height: 8),
             Text(
               flowStep.title,

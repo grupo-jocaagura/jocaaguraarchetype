@@ -1,0 +1,113 @@
+{
+  "date": "2026-11-11",
+  "timezone": "America/Bogota",
+  "verdict": "PASS",
+  "scope": "Local downstream integration of SDK and domain pin update; published with certificate",
+  "base_commit": "7e23620c3714ee97ee9e37e70f273e490d805d67",
+  "archetype_version": "5.0.0",
+  "flutter": "3.50.0",
+  "flutter_revision": "ab2912035e",
+  "dart": "3.14.0",
+  "domain_git_sha": "ec8d831db3305b7e036f1e403aee7727e0a95e2d",
+  "dependency_overrides": false,
+  "locks": [
+    {
+      "path": "pubspec.lock",
+      "resolved_ref": "ec8d831db3305b7e036f1e403aee7727e0a95e2d",
+      "domain_declared_version": "1.43.2",
+      "core_version": "1.3.0",
+      "core_dependency": "transitive",
+      "sha256": "89247150B4285CF082AB886E28F6C91246C5F3BF258D125D6A7DFAFB80541E3F"
+    },
+    {
+      "path": "example/pubspec.lock",
+      "resolved_ref": "ec8d831db3305b7e036f1e403aee7727e0a95e2d",
+      "domain_declared_version": "1.43.2",
+      "core_version": "1.3.0",
+      "core_dependency": "transitive",
+      "sha256": "EBD01F85519976232C0A8882349DE05C60831FFEF68A5EA1178CA94881A720AA"
+    }
+  ],
+  "checks": [
+    {
+      "directory": ".",
+      "command": "flutter pub get",
+      "exit_code": 0
+    },
+    {
+      "directory": ".",
+      "command": "dart format --output=none --set-exit-if-changed .",
+      "exit_code": 0,
+      "files": 314,
+      "changed": 0
+    },
+    {
+      "directory": ".",
+      "command": "flutter analyze",
+      "exit_code": 0
+    },
+    {
+      "directory": ".",
+      "command": "flutter test --reporter expanded",
+      "exit_code": 0,
+      "passed": 1022
+    },
+    {
+      "directory": "example",
+      "command": "flutter pub get",
+      "exit_code": 0
+    },
+    {
+      "directory": "example",
+      "command": "flutter analyze",
+      "exit_code": 0
+    },
+    {
+      "directory": "example",
+      "command": "flutter build web --release",
+      "exit_code": 0
+    }
+  ],
+  "fingerprints": [
+    {
+      "path": "pubspec.yaml",
+      "sha256": "7AA95AAD3B7BD5D43981F7CA2032F70235C4A07C3E08CA069163CC613BEFF280"
+    },
+    {
+      "path": "example/pubspec.yaml",
+      "sha256": "4B32C78158FE933026B274DEA7B442A0EE00CFD77C610A72BD83802AC2CE8758"
+    },
+    {
+      "path": "domain-ec8d831-pub-get.log",
+      "sha256": "AA57FCC2E69E129D4510BC9A4A1335615343C050FD123964B0FD25E134E5011B"
+    },
+    {
+      "path": "domain-ec8d831-format.log",
+      "sha256": "07537165C5113B9FAAAB9005DD5AFF6A764C2EEBFECE06F38B49D85EB62BBD62"
+    },
+    {
+      "path": "domain-ec8d831-analyze.log",
+      "sha256": "FF1421C892A7A7F723DD27D1A874D936AA75C08BAAC7B7798439E870C921BC7A"
+    },
+    {
+      "path": "domain-ec8d831-tests.log",
+      "sha256": "F1F39B723E546074950C8D88CDFF949336B978475A1A5658E3B9CB31E48143E9"
+    },
+    {
+      "path": "example/domain-ec8d831-pub-get.log",
+      "sha256": "91C17B64697A15FDAB7761BBF8AC7ABD7E41B51D6F9428BA896DE812D555088F"
+    },
+    {
+      "path": "example/domain-ec8d831-analyze.log",
+      "sha256": "0BB77A9631129DFD81C95E92DF902E18C88EDF7E77D26E70B50F1C788FE04146"
+    },
+    {
+      "path": "example/domain-ec8d831-web-build.log",
+      "sha256": "705785C70F04161DD66755ACB9CE7C51BEDA65B8E7DE8179C15D2B2CABEB8362"
+    },
+    {
+      "path": "doc/workflows/evidence/135/snapshot-ec8d831.diff",
+      "sha256": "DE53F2D41CFFCEC400262E04CCFF3B4855E83E6C21C740BC19B8F614CB9883C2"
+    }
+  ]
+}

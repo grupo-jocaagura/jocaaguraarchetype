@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('DesignSystemGalleryPage', () {
@@ -63,20 +63,15 @@ void main() {
             home: DesignSystemGalleryPage(
               anatomy: anatomy,
               designSystem: designSystem,
-              previewAssetBuilder: (
-                BuildContext context,
-                String previewAssetKey,
-              ) {
-                return Text('asset $previewAssetKey');
-              },
+              previewAssetBuilder:
+                  (BuildContext context, String previewAssetKey) {
+                    return Text('asset $previewAssetKey');
+                  },
             ),
           ),
         );
 
-        expect(
-          find.text('asset assets/previews/button.png'),
-          findsOneWidget,
-        );
+        expect(find.text('asset assets/previews/button.png'), findsOneWidget);
       },
     );
 
@@ -152,11 +147,7 @@ void main() {
         );
 
         await tester.pumpWidget(
-          MaterialApp(
-            home: DesignSystemGalleryCoverPage(
-              anatomy: anatomy,
-            ),
-          ),
+          MaterialApp(home: DesignSystemGalleryCoverPage(anatomy: anatomy)),
         );
 
         expect(find.text('cover'), findsOneWidget);

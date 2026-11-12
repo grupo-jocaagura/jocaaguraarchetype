@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 // --------------------------- Fakes ---------------------------
 
@@ -123,8 +123,10 @@ bool _isRight(dynamic either) {
     }
   } catch (_) {}
   try {
-    final dynamic r =
-        (either as dynamic).fold((dynamic l) => null, (dynamic r) => r);
+    final dynamic r = (either as dynamic).fold(
+      (dynamic l) => null,
+      (dynamic r) => r,
+    );
     return r != null;
   } catch (_) {}
   return false;
@@ -132,8 +134,10 @@ bool _isRight(dynamic either) {
 
 ThemeState? _right(dynamic either) {
   try {
-    final dynamic r =
-        (either as dynamic).fold((dynamic l) => null, (dynamic r) => r);
+    final dynamic r = (either as dynamic).fold(
+      (dynamic l) => null,
+      (dynamic r) => r,
+    );
     if (r is ThemeState) {
       return r;
     }
@@ -145,22 +149,24 @@ ThemeState? _right(dynamic either) {
 
 void main() {
   group('ThemeUsecases.fromRepo wiring', () {
-    test('Returns a fully wired set with defaults and BuildThemeData const',
-        () {
-      final _RepoFake repo = _RepoFake();
-      final ThemeUsecases uc = ThemeUsecases.fromRepo(repo);
-      expect(uc.load, isNotNull);
-      expect(uc.setMode, isNotNull);
-      expect(uc.setSeed, isNotNull);
-      expect(uc.toggleM3, isNotNull);
-      expect(uc.applyPreset, isNotNull);
-      expect(uc.setTextScale, isNotNull);
-      expect(uc.reset, isNotNull);
-      expect(uc.randomize, isNotNull);
-      expect(uc.applyPatch, isNotNull);
-      expect(uc.setFromState, isNotNull);
-      expect(uc.buildThemeData, isA<BuildThemeData>());
-    });
+    test(
+      'Returns a fully wired set with defaults and BuildThemeData const',
+      () {
+        final _RepoFake repo = _RepoFake();
+        final ThemeUsecases uc = ThemeUsecases.fromRepo(repo);
+        expect(uc.load, isNotNull);
+        expect(uc.setMode, isNotNull);
+        expect(uc.setSeed, isNotNull);
+        expect(uc.toggleM3, isNotNull);
+        expect(uc.applyPreset, isNotNull);
+        expect(uc.setTextScale, isNotNull);
+        expect(uc.reset, isNotNull);
+        expect(uc.randomize, isNotNull);
+        expect(uc.applyPatch, isNotNull);
+        expect(uc.setFromState, isNotNull);
+        expect(uc.buildThemeData, isA<BuildThemeData>());
+      },
+    );
   });
 
   group('LoadTheme / SetThemeState / ResetTheme', () {
@@ -194,10 +200,7 @@ void main() {
       final _RepoFake repo = _RepoFake();
       // set a custom state first
       await repo.save(
-        ThemeState.defaults.copyWith(
-          mode: ThemeMode.dark,
-          preset: 'custom',
-        ),
+        ThemeState.defaults.copyWith(mode: ThemeMode.dark, preset: 'custom'),
       );
       final ResetTheme reset = ResetTheme(repo);
       final dynamic r = await reset();
@@ -255,8 +258,7 @@ void main() {
       expect(_right(r)!.textScale, closeTo(1.6, 1e-9));
     });
 
-    test('Finite mid value is preserved (subject to Utils.getDouble)',
-        () async {
+    test('Finite mid value is preserved (subject to Utils.getDouble)', () async {
       final _RepoFake repo = _RepoFake();
       final SetThemeTextScale cmd = SetThemeTextScale(repo);
       final dynamic r = await cmd(1.25);
@@ -271,17 +273,11 @@ void main() {
     test('Applies patch over current and persists', () async {
       final _RepoFake repo = _RepoFake();
       await repo.save(
-        ThemeState.defaults.copyWith(
-          mode: ThemeMode.light,
-          textScale: 1.0,
-        ),
+        ThemeState.defaults.copyWith(mode: ThemeMode.light, textScale: 1.0),
       );
       final ApplyThemePatch applyPatch = ApplyThemePatch(repo);
 
-      const ThemePatch patch = ThemePatch(
-        mode: ThemeMode.dark,
-        textScale: 1.3,
-      );
+      const ThemePatch patch = ThemePatch(mode: ThemeMode.dark, textScale: 1.3);
       final dynamic r = await applyPatch(patch);
       final ThemeState s = _right(r)!;
       expect(s.mode, ThemeMode.dark);
@@ -345,12 +341,12 @@ void main() {
       final WatchTheme watch = WatchTheme(react);
 
       final Completer<dynamic> c = Completer<dynamic>();
-      final StreamSubscription<Either<ErrorItem, ThemeState>> sub =
-          watch().listen((dynamic e) {
-        if (!c.isCompleted) {
-          c.complete(e);
-        }
-      });
+      final StreamSubscription<Either<ErrorItem, ThemeState>> sub = watch()
+          .listen((dynamic e) {
+            if (!c.isCompleted) {
+              c.complete(e);
+            }
+          });
 
       react.emit(
         Right<ErrorItem, ThemeState>(
@@ -370,12 +366,12 @@ void main() {
       final WatchTheme watch = WatchTheme(react);
 
       final Completer<dynamic> c = Completer<dynamic>();
-      final StreamSubscription<Either<ErrorItem, ThemeState>> sub =
-          watch().listen((dynamic e) {
-        if (!c.isCompleted) {
-          c.complete(e);
-        }
-      });
+      final StreamSubscription<Either<ErrorItem, ThemeState>> sub = watch()
+          .listen((dynamic e) {
+            if (!c.isCompleted) {
+              c.complete(e);
+            }
+          });
 
       react.emit(Left<ErrorItem, ThemeState>(_Err('stream-error')));
 

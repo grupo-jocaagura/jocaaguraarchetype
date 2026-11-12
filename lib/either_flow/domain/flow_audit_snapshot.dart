@@ -54,10 +54,10 @@ class FlowAuditSnapshot {
     required List<FlowTraceEntry> trace,
     required Map<String, double> totalCostByMetric,
     required this.maxSteps,
-  })  : trace = List<FlowTraceEntry>.unmodifiable(trace),
-        totalCostByMetric = Map<String, double>.unmodifiable(
-          <String, double>{...totalCostByMetric},
-        );
+  }) : trace = List<FlowTraceEntry>.unmodifiable(trace),
+       totalCostByMetric = Map<String, double>.unmodifiable(<String, double>{
+         ...totalCostByMetric,
+       });
 
   /// Hydrates a [FlowAuditSnapshot] from JSON.
   ///
@@ -119,8 +119,9 @@ class FlowAuditSnapshot {
       return out;
     }
 
-    final String lastFailure =
-        (json['lastFailureCode'] ?? '').toString().trim();
+    final String lastFailure = (json['lastFailureCode'] ?? '')
+        .toString()
+        .trim();
 
     return FlowAuditSnapshot(
       flowName: (json['flowName'] ?? '').toString(),
@@ -178,8 +179,9 @@ class FlowAuditSnapshot {
       'lastFailureCode': lastFailureCode,
       'maxSteps': maxSteps,
       'totalCostByMetric': totalCostByMetric,
-      'trace':
-          trace.map((FlowTraceEntry e) => e.toJson()).toList(growable: false),
+      'trace': trace
+          .map((FlowTraceEntry e) => e.toJson())
+          .toList(growable: false),
     };
   }
 

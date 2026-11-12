@@ -78,7 +78,9 @@ jobs:
           set -euo pipefail
 
           CURRENT_VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          BASE_VERSION=$(git show '${{ github.event.pull_request.base.sha }}:pubspec.yaml' | awk '/^version:/{print $2}')
           echo "Current version: $CURRENT_VERSION"
+          echo "Base version: $BASE_VERSION"
 
           LABELS_RESPONSE=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.v3+json" \
@@ -86,18 +88,33 @@ jobs:
 
           LABELS=$(echo "$LABELS_RESPONSE" | jq -r '.[].name')
 
+          # Corrections included in the current, not-yet-published release.
+          if echo "$LABELS" | grep -qx "skip-version-bump"; then
+            CHANGELOG_VERSION=$(sed -n 's/^## \[\([0-9]\+\.[0-9]\+\.[0-9]\+\)\].*/\1/p' CHANGELOG.md | head -1)
+            if [[ "$CURRENT_VERSION" != "$BASE_VERSION" || "$CHANGELOG_VERSION" != "$CURRENT_VERSION" ]]; then
+              echo "Version and changelog must match the PR base when skipping the bump."
+              exit 1
+            fi
+            echo "Keeping $CURRENT_VERSION for a correction included in this release."
+            exit 0
+          fi
+
           if echo "$LABELS" | grep -q "major"; then
-            UPDATED_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{$1+=1; $2=0; $3=0}1' OFS=".")
+            UPDATED_VERSION=$(echo "$BASE_VERSION" | awk -F. '{$1+=1; $2=0; $3=0}1' OFS=".")
           elif echo "$LABELS" | grep -q "minor"; then
-            UPDATED_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{$2+=1; $3=0}1' OFS=".")
+            UPDATED_VERSION=$(echo "$BASE_VERSION" | awk -F. '{$2+=1; $3=0}1' OFS=".")
           elif echo "$LABELS" | grep -q "patch"; then
-            UPDATED_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{$3+=1}1' OFS=".")
+            UPDATED_VERSION=$(echo "$BASE_VERSION" | awk -F. '{$3+=1}1' OFS=".")
           else
             echo "❌ No version label found. Please add 'major', 'minor', or 'patch'."
             exit 1
           fi
 
           echo "Updated version: $UPDATED_VERSION"
+          if [[ "$CURRENT_VERSION" == "$UPDATED_VERSION" ]]; then
+            echo "Version already updated for this PR; skipping duplicate bump."
+            exit 0
+          fi
           sed -i "s/^version:.*/version: $UPDATED_VERSION/" pubspec.yaml
 
           git add pubspec.yaml

@@ -44,26 +44,36 @@ class ModelThemeData {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        ModelThemeDataKeys.useMaterial3: useMaterial3,
-        ModelThemeDataKeys.lightScheme: _schemeToMap(lightScheme),
-        ModelThemeDataKeys.darkScheme: _schemeToMap(darkScheme),
-        ModelThemeDataKeys.lightTextTheme: _textThemeToMap(lightTextTheme),
-        ModelThemeDataKeys.darkTextTheme: _textThemeToMap(darkTextTheme),
-      };
+    ModelThemeDataKeys.useMaterial3: useMaterial3,
+    ModelThemeDataKeys.lightScheme: _schemeToMap(lightScheme),
+    ModelThemeDataKeys.darkScheme: _schemeToMap(darkScheme),
+    ModelThemeDataKeys.lightTextTheme: _textThemeToMap(lightTextTheme),
+    ModelThemeDataKeys.darkTextTheme: _textThemeToMap(darkTextTheme),
+  };
 
   static ModelThemeData fromJson(Map<String, dynamic> json) {
-    final bool useMaterial3 =
-        _expectBool(json, ModelThemeDataKeys.useMaterial3);
+    final bool useMaterial3 = _expectBool(
+      json,
+      ModelThemeDataKeys.useMaterial3,
+    );
 
-    final Map<String, dynamic> lightSchemeMap =
-        _expectMap(json, ModelThemeDataKeys.lightScheme);
-    final Map<String, dynamic> darkSchemeMap =
-        _expectMap(json, ModelThemeDataKeys.darkScheme);
+    final Map<String, dynamic> lightSchemeMap = _expectMap(
+      json,
+      ModelThemeDataKeys.lightScheme,
+    );
+    final Map<String, dynamic> darkSchemeMap = _expectMap(
+      json,
+      ModelThemeDataKeys.darkScheme,
+    );
 
-    final Map<String, dynamic> lightTextMap =
-        _expectMap(json, ModelThemeDataKeys.lightTextTheme);
-    final Map<String, dynamic> darkTextMap =
-        _expectMap(json, ModelThemeDataKeys.darkTextTheme);
+    final Map<String, dynamic> lightTextMap = _expectMap(
+      json,
+      ModelThemeDataKeys.lightTextTheme,
+    );
+    final Map<String, dynamic> darkTextMap = _expectMap(
+      json,
+      ModelThemeDataKeys.darkTextTheme,
+    );
 
     return ModelThemeData(
       useMaterial3: useMaterial3,
@@ -79,112 +89,130 @@ class ModelThemeData {
   // ---------------------------------------------------------------------------
 
   static Map<String, dynamic> _schemeToMap(ColorScheme s) => <String, dynamic>{
-        ColorSchemeKeys.brightness: s.brightness.name,
+    ColorSchemeKeys.brightness: s.brightness.name,
 
-        ColorSchemeKeys.primary: UtilsForTheme.colorToHex(s.primary),
-        ColorSchemeKeys.onPrimary: UtilsForTheme.colorToHex(s.onPrimary),
-        ColorSchemeKeys.primaryContainer:
-            UtilsForTheme.colorToHex(s.primaryContainer),
-        ColorSchemeKeys.onPrimaryContainer:
-            UtilsForTheme.colorToHex(s.onPrimaryContainer),
-        ColorSchemeKeys.primaryFixed: UtilsForTheme.colorToHex(s.primaryFixed),
-        ColorSchemeKeys.primaryFixedDim:
-            UtilsForTheme.colorToHex(s.primaryFixedDim),
-        ColorSchemeKeys.onPrimaryFixed:
-            UtilsForTheme.colorToHex(s.onPrimaryFixed),
-        ColorSchemeKeys.onPrimaryFixedVariant:
-            UtilsForTheme.colorToHex(s.onPrimaryFixedVariant),
+    ColorSchemeKeys.primary: UtilsForTheme.colorToHex(s.primary),
+    ColorSchemeKeys.onPrimary: UtilsForTheme.colorToHex(s.onPrimary),
+    ColorSchemeKeys.primaryContainer: UtilsForTheme.colorToHex(
+      s.primaryContainer,
+    ),
+    ColorSchemeKeys.onPrimaryContainer: UtilsForTheme.colorToHex(
+      s.onPrimaryContainer,
+    ),
+    ColorSchemeKeys.primaryFixed: UtilsForTheme.colorToHex(s.primaryFixed),
+    ColorSchemeKeys.primaryFixedDim: UtilsForTheme.colorToHex(
+      s.primaryFixedDim,
+    ),
+    ColorSchemeKeys.onPrimaryFixed: UtilsForTheme.colorToHex(s.onPrimaryFixed),
+    ColorSchemeKeys.onPrimaryFixedVariant: UtilsForTheme.colorToHex(
+      s.onPrimaryFixedVariant,
+    ),
 
-        ColorSchemeKeys.secondary: UtilsForTheme.colorToHex(s.secondary),
-        ColorSchemeKeys.onSecondary: UtilsForTheme.colorToHex(s.onSecondary),
-        ColorSchemeKeys.secondaryContainer:
-            UtilsForTheme.colorToHex(s.secondaryContainer),
-        ColorSchemeKeys.onSecondaryContainer:
-            UtilsForTheme.colorToHex(s.onSecondaryContainer),
-        ColorSchemeKeys.secondaryFixed:
-            UtilsForTheme.colorToHex(s.secondaryFixed),
-        ColorSchemeKeys.secondaryFixedDim:
-            UtilsForTheme.colorToHex(s.secondaryFixedDim),
-        ColorSchemeKeys.onSecondaryFixed:
-            UtilsForTheme.colorToHex(s.onSecondaryFixed),
-        ColorSchemeKeys.onSecondaryFixedVariant:
-            UtilsForTheme.colorToHex(s.onSecondaryFixedVariant),
+    ColorSchemeKeys.secondary: UtilsForTheme.colorToHex(s.secondary),
+    ColorSchemeKeys.onSecondary: UtilsForTheme.colorToHex(s.onSecondary),
+    ColorSchemeKeys.secondaryContainer: UtilsForTheme.colorToHex(
+      s.secondaryContainer,
+    ),
+    ColorSchemeKeys.onSecondaryContainer: UtilsForTheme.colorToHex(
+      s.onSecondaryContainer,
+    ),
+    ColorSchemeKeys.secondaryFixed: UtilsForTheme.colorToHex(s.secondaryFixed),
+    ColorSchemeKeys.secondaryFixedDim: UtilsForTheme.colorToHex(
+      s.secondaryFixedDim,
+    ),
+    ColorSchemeKeys.onSecondaryFixed: UtilsForTheme.colorToHex(
+      s.onSecondaryFixed,
+    ),
+    ColorSchemeKeys.onSecondaryFixedVariant: UtilsForTheme.colorToHex(
+      s.onSecondaryFixedVariant,
+    ),
 
-        ColorSchemeKeys.tertiary: UtilsForTheme.colorToHex(s.tertiary),
-        ColorSchemeKeys.onTertiary: UtilsForTheme.colorToHex(s.onTertiary),
-        ColorSchemeKeys.tertiaryContainer:
-            UtilsForTheme.colorToHex(s.tertiaryContainer),
-        ColorSchemeKeys.onTertiaryContainer:
-            UtilsForTheme.colorToHex(s.onTertiaryContainer),
-        ColorSchemeKeys.tertiaryFixed:
-            UtilsForTheme.colorToHex(s.tertiaryFixed),
-        ColorSchemeKeys.tertiaryFixedDim:
-            UtilsForTheme.colorToHex(s.tertiaryFixedDim),
-        ColorSchemeKeys.onTertiaryFixed:
-            UtilsForTheme.colorToHex(s.onTertiaryFixed),
-        ColorSchemeKeys.onTertiaryFixedVariant:
-            UtilsForTheme.colorToHex(s.onTertiaryFixedVariant),
+    ColorSchemeKeys.tertiary: UtilsForTheme.colorToHex(s.tertiary),
+    ColorSchemeKeys.onTertiary: UtilsForTheme.colorToHex(s.onTertiary),
+    ColorSchemeKeys.tertiaryContainer: UtilsForTheme.colorToHex(
+      s.tertiaryContainer,
+    ),
+    ColorSchemeKeys.onTertiaryContainer: UtilsForTheme.colorToHex(
+      s.onTertiaryContainer,
+    ),
+    ColorSchemeKeys.tertiaryFixed: UtilsForTheme.colorToHex(s.tertiaryFixed),
+    ColorSchemeKeys.tertiaryFixedDim: UtilsForTheme.colorToHex(
+      s.tertiaryFixedDim,
+    ),
+    ColorSchemeKeys.onTertiaryFixed: UtilsForTheme.colorToHex(
+      s.onTertiaryFixed,
+    ),
+    ColorSchemeKeys.onTertiaryFixedVariant: UtilsForTheme.colorToHex(
+      s.onTertiaryFixedVariant,
+    ),
 
-        ColorSchemeKeys.error: UtilsForTheme.colorToHex(s.error),
-        ColorSchemeKeys.onError: UtilsForTheme.colorToHex(s.onError),
-        ColorSchemeKeys.errorContainer:
-            UtilsForTheme.colorToHex(s.errorContainer),
-        ColorSchemeKeys.onErrorContainer:
-            UtilsForTheme.colorToHex(s.onErrorContainer),
+    ColorSchemeKeys.error: UtilsForTheme.colorToHex(s.error),
+    ColorSchemeKeys.onError: UtilsForTheme.colorToHex(s.onError),
+    ColorSchemeKeys.errorContainer: UtilsForTheme.colorToHex(s.errorContainer),
+    ColorSchemeKeys.onErrorContainer: UtilsForTheme.colorToHex(
+      s.onErrorContainer,
+    ),
 
-        ColorSchemeKeys.surface: UtilsForTheme.colorToHex(s.surface),
-        ColorSchemeKeys.onSurface: UtilsForTheme.colorToHex(s.onSurface),
-        ColorSchemeKeys.surfaceDim: UtilsForTheme.colorToHex(s.surfaceDim),
-        ColorSchemeKeys.surfaceBright:
-            UtilsForTheme.colorToHex(s.surfaceBright),
-        ColorSchemeKeys.surfaceContainerLowest:
-            UtilsForTheme.colorToHex(s.surfaceContainerLowest),
-        ColorSchemeKeys.surfaceContainerLow:
-            UtilsForTheme.colorToHex(s.surfaceContainerLow),
-        ColorSchemeKeys.surfaceContainer:
-            UtilsForTheme.colorToHex(s.surfaceContainer),
-        ColorSchemeKeys.surfaceContainerHigh:
-            UtilsForTheme.colorToHex(s.surfaceContainerHigh),
-        ColorSchemeKeys.surfaceContainerHighest:
-            UtilsForTheme.colorToHex(s.surfaceContainerHighest),
+    ColorSchemeKeys.surface: UtilsForTheme.colorToHex(s.surface),
+    ColorSchemeKeys.onSurface: UtilsForTheme.colorToHex(s.onSurface),
+    ColorSchemeKeys.surfaceDim: UtilsForTheme.colorToHex(s.surfaceDim),
+    ColorSchemeKeys.surfaceBright: UtilsForTheme.colorToHex(s.surfaceBright),
+    ColorSchemeKeys.surfaceContainerLowest: UtilsForTheme.colorToHex(
+      s.surfaceContainerLowest,
+    ),
+    ColorSchemeKeys.surfaceContainerLow: UtilsForTheme.colorToHex(
+      s.surfaceContainerLow,
+    ),
+    ColorSchemeKeys.surfaceContainer: UtilsForTheme.colorToHex(
+      s.surfaceContainer,
+    ),
+    ColorSchemeKeys.surfaceContainerHigh: UtilsForTheme.colorToHex(
+      s.surfaceContainerHigh,
+    ),
+    ColorSchemeKeys.surfaceContainerHighest: UtilsForTheme.colorToHex(
+      s.surfaceContainerHighest,
+    ),
 
-        ColorSchemeKeys.onSurfaceVariant:
-            UtilsForTheme.colorToHex(s.onSurfaceVariant),
+    ColorSchemeKeys.onSurfaceVariant: UtilsForTheme.colorToHex(
+      s.onSurfaceVariant,
+    ),
 
-        ColorSchemeKeys.outline: UtilsForTheme.colorToHex(s.outline),
-        ColorSchemeKeys.outlineVariant:
-            UtilsForTheme.colorToHex(s.outlineVariant),
-        ColorSchemeKeys.shadow: UtilsForTheme.colorToHex(s.shadow),
-        ColorSchemeKeys.scrim: UtilsForTheme.colorToHex(s.scrim),
+    ColorSchemeKeys.outline: UtilsForTheme.colorToHex(s.outline),
+    ColorSchemeKeys.outlineVariant: UtilsForTheme.colorToHex(s.outlineVariant),
+    ColorSchemeKeys.shadow: UtilsForTheme.colorToHex(s.shadow),
+    ColorSchemeKeys.scrim: UtilsForTheme.colorToHex(s.scrim),
 
-        ColorSchemeKeys.inverseSurface:
-            UtilsForTheme.colorToHex(s.inverseSurface),
-        ColorSchemeKeys.onInverseSurface:
-            UtilsForTheme.colorToHex(s.onInverseSurface),
-        ColorSchemeKeys.inversePrimary:
-            UtilsForTheme.colorToHex(s.inversePrimary),
+    ColorSchemeKeys.inverseSurface: UtilsForTheme.colorToHex(s.inverseSurface),
+    ColorSchemeKeys.onInverseSurface: UtilsForTheme.colorToHex(
+      s.onInverseSurface,
+    ),
+    ColorSchemeKeys.inversePrimary: UtilsForTheme.colorToHex(s.inversePrimary),
 
-        ColorSchemeKeys.surfaceTint: UtilsForTheme.colorToHex(s.surfaceTint),
+    ColorSchemeKeys.surfaceTint: UtilsForTheme.colorToHex(s.surfaceTint),
 
-        // Si quieres snapshot 100% API (incluye legacy), descomenta:
-        // ColorSchemeKeys.background: UtilsForTheme.colorToHex(s.background),
-        // ColorSchemeKeys.onBackground: UtilsForTheme.colorToHex(s.onBackground),
-        // ColorSchemeKeys.surfaceVariant: UtilsForTheme.colorToHex(s.surfaceVariant),
-      };
+    // Si quieres snapshot 100% API (incluye legacy), descomenta:
+    // ColorSchemeKeys.background: UtilsForTheme.colorToHex(s.background),
+    // ColorSchemeKeys.onBackground: UtilsForTheme.colorToHex(s.onBackground),
+    // ColorSchemeKeys.surfaceVariant: UtilsForTheme.colorToHex(s.surfaceVariant),
+  };
 
   static ColorScheme _mapToScheme(
     Map<String, dynamic> m, {
     required String path,
   }) {
-    final String bStr =
-        _expectString(m, ColorSchemeKeys.brightness, path: path);
-    final Brightness brightness =
-        (bStr == 'dark') ? Brightness.dark : Brightness.light;
+    final String bStr = _expectString(
+      m,
+      ColorSchemeKeys.brightness,
+      path: path,
+    );
+    final Brightness brightness = (bStr == 'dark')
+        ? Brightness.dark
+        : Brightness.light;
 
     Color c(String k) => UtilsForTheme.parseColorCanonical(
-          _expectString(m, k, path: path),
-          path: '$path.$k',
-        );
+      _expectString(m, k, path: path),
+      path: '$path.$k',
+    );
 
     return ColorScheme(
       brightness: brightness,
@@ -256,22 +284,22 @@ class ModelThemeData {
   // ---------------------------------------------------------------------------
 
   static Map<String, dynamic> _textThemeToMap(TextTheme t) => <String, dynamic>{
-        TextThemeKeys.displayLarge: _textStyleToMapOrNull(t.displayLarge),
-        TextThemeKeys.displayMedium: _textStyleToMapOrNull(t.displayMedium),
-        TextThemeKeys.displaySmall: _textStyleToMapOrNull(t.displaySmall),
-        TextThemeKeys.headlineLarge: _textStyleToMapOrNull(t.headlineLarge),
-        TextThemeKeys.headlineMedium: _textStyleToMapOrNull(t.headlineMedium),
-        TextThemeKeys.headlineSmall: _textStyleToMapOrNull(t.headlineSmall),
-        TextThemeKeys.titleLarge: _textStyleToMapOrNull(t.titleLarge),
-        TextThemeKeys.titleMedium: _textStyleToMapOrNull(t.titleMedium),
-        TextThemeKeys.titleSmall: _textStyleToMapOrNull(t.titleSmall),
-        TextThemeKeys.bodyLarge: _textStyleToMapOrNull(t.bodyLarge),
-        TextThemeKeys.bodyMedium: _textStyleToMapOrNull(t.bodyMedium),
-        TextThemeKeys.bodySmall: _textStyleToMapOrNull(t.bodySmall),
-        TextThemeKeys.labelLarge: _textStyleToMapOrNull(t.labelLarge),
-        TextThemeKeys.labelMedium: _textStyleToMapOrNull(t.labelMedium),
-        TextThemeKeys.labelSmall: _textStyleToMapOrNull(t.labelSmall),
-      };
+    TextThemeKeys.displayLarge: _textStyleToMapOrNull(t.displayLarge),
+    TextThemeKeys.displayMedium: _textStyleToMapOrNull(t.displayMedium),
+    TextThemeKeys.displaySmall: _textStyleToMapOrNull(t.displaySmall),
+    TextThemeKeys.headlineLarge: _textStyleToMapOrNull(t.headlineLarge),
+    TextThemeKeys.headlineMedium: _textStyleToMapOrNull(t.headlineMedium),
+    TextThemeKeys.headlineSmall: _textStyleToMapOrNull(t.headlineSmall),
+    TextThemeKeys.titleLarge: _textStyleToMapOrNull(t.titleLarge),
+    TextThemeKeys.titleMedium: _textStyleToMapOrNull(t.titleMedium),
+    TextThemeKeys.titleSmall: _textStyleToMapOrNull(t.titleSmall),
+    TextThemeKeys.bodyLarge: _textStyleToMapOrNull(t.bodyLarge),
+    TextThemeKeys.bodyMedium: _textStyleToMapOrNull(t.bodyMedium),
+    TextThemeKeys.bodySmall: _textStyleToMapOrNull(t.bodySmall),
+    TextThemeKeys.labelLarge: _textStyleToMapOrNull(t.labelLarge),
+    TextThemeKeys.labelMedium: _textStyleToMapOrNull(t.labelMedium),
+    TextThemeKeys.labelSmall: _textStyleToMapOrNull(t.labelSmall),
+  };
 
   static TextTheme _mapToTextTheme(
     Map<String, dynamic> m, {
@@ -334,8 +362,9 @@ class ModelThemeData {
 
     return <String, dynamic>{
       TextStyleKeys.inherit: s.inherit,
-      TextStyleKeys.color:
-          s.color == null ? null : UtilsForTheme.colorToHex(s.color!),
+      TextStyleKeys.color: s.color == null
+          ? null
+          : UtilsForTheme.colorToHex(s.color!),
       TextStyleKeys.backgroundColor: s.backgroundColor == null
           ? null
           : UtilsForTheme.colorToHex(s.backgroundColor!),
@@ -361,8 +390,9 @@ class ModelThemeData {
 
       // ✅ Added
       TextStyleKeys.fontFeatures: _fontFeaturesToListOrNull(s.fontFeatures),
-      TextStyleKeys.fontVariations:
-          _fontVariationsToListOrNull(s.fontVariations),
+      TextStyleKeys.fontVariations: _fontVariationsToListOrNull(
+        s.fontVariations,
+      ),
       TextStyleKeys.debugLabel: s.debugLabel,
     };
   }
@@ -589,21 +619,19 @@ class ModelThemeData {
         final double dy = _expectDouble(sm, 'dy', path: '$path.shadows');
         final double blur = _expectDouble(sm, 'blur', path: '$path.shadows');
 
-        out.add(
-          Shadow(
-            color: color,
-            offset: Offset(dx, dy),
-            blurRadius: blur,
-          ),
-        );
+        out.add(Shadow(color: color, offset: Offset(dx, dy), blurRadius: blur));
       }
       return out;
     }
 
-    final List<FontFeature>? fontFeatures =
-        _parseFontFeaturesOrNull(m[TextStyleKeys.fontFeatures], path: path);
-    final List<FontVariation>? fontVariations =
-        _parseFontVariationsOrNull(m[TextStyleKeys.fontVariations], path: path);
+    final List<FontFeature>? fontFeatures = _parseFontFeaturesOrNull(
+      m[TextStyleKeys.fontFeatures],
+      path: path,
+    );
+    final List<FontVariation>? fontVariations = _parseFontVariationsOrNull(
+      m[TextStyleKeys.fontVariations],
+      path: path,
+    );
 
     return TextStyle(
       inherit: _expectBool(m, TextStyleKeys.inherit),
@@ -616,18 +644,23 @@ class ModelThemeData {
       wordSpacing: _expectDoubleOrNull(m, TextStyleKeys.wordSpacing),
       textBaseline: parseBaselineOrNull(m[TextStyleKeys.textBaseline]),
       height: _expectDoubleOrNull(m, TextStyleKeys.height),
-      leadingDistribution:
-          parseLeadingOrNull(m[TextStyleKeys.leadingDistribution]),
+      leadingDistribution: parseLeadingOrNull(
+        m[TextStyleKeys.leadingDistribution],
+      ),
       locale: parseLocaleOrNull(m[TextStyleKeys.locale]),
       decoration: parseDecorationOrNull(m[TextStyleKeys.decoration]),
       decorationColor: parseColorOrNull(TextStyleKeys.decorationColor),
-      decorationStyle:
-          parseDecorationStyleOrNull(m[TextStyleKeys.decorationStyle]),
-      decorationThickness:
-          _expectDoubleOrNull(m, TextStyleKeys.decorationThickness),
+      decorationStyle: parseDecorationStyleOrNull(
+        m[TextStyleKeys.decorationStyle],
+      ),
+      decorationThickness: _expectDoubleOrNull(
+        m,
+        TextStyleKeys.decorationThickness,
+      ),
       fontFamily: _expectStringOrNull(m, TextStyleKeys.fontFamily),
-      fontFamilyFallback:
-          parseStringListOrNull(m[TextStyleKeys.fontFamilyFallback]),
+      fontFamilyFallback: parseStringListOrNull(
+        m[TextStyleKeys.fontFamilyFallback],
+      ),
       overflow: parseOverflowOrNull(m[TextStyleKeys.overflow]),
       shadows: parseShadowsOrNull(m[TextStyleKeys.shadows]),
       fontFeatures: fontFeatures,
@@ -721,8 +754,11 @@ class ModelThemeData {
         );
       }
       final Map<String, dynamic> m = e.cast<String, dynamic>();
-      final String feature =
-          _expectString(m, 'feature', path: '$path.fontFeatures');
+      final String feature = _expectString(
+        m,
+        'feature',
+        path: '$path.fontFeatures',
+      );
       final int value = _expectInt(m, 'value', path: '$path.fontFeatures');
       out.add(FontFeature(feature, value));
     }
@@ -749,10 +785,16 @@ class ModelThemeData {
         );
       }
       final Map<String, dynamic> m = e.cast<String, dynamic>();
-      final String axis =
-          _expectString(m, 'axis', path: '$path.fontVariations');
-      final double value =
-          _expectDouble(m, 'value', path: '$path.fontVariations');
+      final String axis = _expectString(
+        m,
+        'axis',
+        path: '$path.fontVariations',
+      );
+      final double value = _expectDouble(
+        m,
+        'value',
+        path: '$path.fontVariations',
+      );
       out.add(FontVariation(axis, value));
     }
     return out;
@@ -978,10 +1020,10 @@ abstract final class ColorSchemeKeys {
 
   static const String surfaceTint = 'surfaceTint';
 
-// Opcional (legacy snapshot):
-// static const String background = 'background';
-// static const String onBackground = 'onBackground';
-// static const String surfaceVariant = 'surfaceVariant';
+  // Opcional (legacy snapshot):
+  // static const String background = 'background';
+  // static const String onBackground = 'onBackground';
+  // static const String surfaceVariant = 'surfaceVariant';
 }
 
 abstract final class TextThemeKeys {

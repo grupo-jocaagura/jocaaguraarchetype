@@ -13,10 +13,7 @@ import 'flow_simulation_plan.dart';
 /// ```
 class FlowStepDecision {
   /// Creates a decision.
-  const FlowStepDecision._(
-    this.branch, {
-    this.failureCodeOverride,
-  });
+  const FlowStepDecision._(this.branch, {this.failureCodeOverride});
 
   /// Selects [ModelFlowStep.nextOnSuccessIndex].
   const FlowStepDecision.success() : this._(FlowBranch.success);
@@ -26,10 +23,7 @@ class FlowStepDecision {
   /// If [failureCodeOverride] is provided, it will be stored as the effective
   /// failure code for the produced trace entry.
   const FlowStepDecision.failure({String? failureCodeOverride})
-      : this._(
-          FlowBranch.failure,
-          failureCodeOverride: failureCodeOverride,
-        );
+    : this._(FlowBranch.failure, failureCodeOverride: failureCodeOverride);
 
   /// Selected branch.
   final FlowBranch branch;

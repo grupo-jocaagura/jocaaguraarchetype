@@ -23,11 +23,7 @@ class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {
     if (uri.pathSegments.isEmpty) {
       return _withHistory(
         routeInformation,
-        NavStackModel.single(
-          PageModel(
-            name: defaultRouteName,
-          ),
-        ),
+        NavStackModel.single(PageModel(name: defaultRouteName)),
       );
     }
 
@@ -35,10 +31,8 @@ class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {
     final String name = slugToName?.call(slug) ?? slug;
     final List<String> segments = uri.pathSegments.skip(1).toList();
     final Map<String, String> query = uri.queryParameters.map(
-      (String k, dynamic v) => MapEntry<String, String>(
-        k,
-        Utils.getStringFromDynamic(v),
-      ),
+      (String k, dynamic v) =>
+          MapEntry<String, String>(k, Utils.getStringFromDynamic(v)),
     );
     return _withHistory(
       routeInformation,
@@ -51,20 +45,19 @@ class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {
   NavStackModel _withHistory(
     RouteInformation information,
     NavStackModel stack,
-  ) =>
-      information is _UserHistoryRouteInformation
-          ? _UserHistoryStack(
-              NavStackModel.single(
-                PageModel.fromUri(
-                  information.uri,
-                  name: stack.top.name,
-                  kind: stack.top.kind,
-                ),
-              ),
-              information.backward,
-              stackIndex: information.stackIndex,
-            )
-          : stack;
+  ) => information is _UserHistoryRouteInformation
+      ? _UserHistoryStack(
+          NavStackModel.single(
+            PageModel.fromUri(
+              information.uri,
+              name: stack.top.name,
+              kind: stack.top.kind,
+            ),
+          ),
+          information.backward,
+          stackIndex: information.stackIndex,
+        )
+      : stack;
 
   @override
   RouteInformation? restoreRouteInformation(NavStackModel configuration) {
@@ -84,7 +77,9 @@ class MyRouteInformationParser extends RouteInformationParser<NavStackModel> {
       return s;
     }
     final String head = parts.first;
-    final Iterable<String> tail = parts.skip(1).map(
+    final Iterable<String> tail = parts
+        .skip(1)
+        .map(
           (String p) =>
               p.isEmpty ? p : '${p[0].toUpperCase()}${p.substring(1)}',
         );

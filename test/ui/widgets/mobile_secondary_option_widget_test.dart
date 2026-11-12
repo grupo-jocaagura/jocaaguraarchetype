@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('MobileSecondaryOptionWidget', () {
-    testWidgets('renders icon + label and triggers onPressed',
-        (WidgetTester tester) async {
+    testWidgets('renders icon + label and triggers onPressed', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive resp = BlocResponsive()
         ..setSizeForTesting(const Size(390, 844));
       bool tapped = false;
@@ -33,8 +34,9 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('is disabled when onPressed is null',
-        (WidgetTester tester) async {
+    testWidgets('is disabled when onPressed is null', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive resp = BlocResponsive()
         ..setSizeForTesting(const Size(360, 780));
 

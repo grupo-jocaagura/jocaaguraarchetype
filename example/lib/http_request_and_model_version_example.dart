@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Endpoint de ejemplo que representa el servicio remoto de versión de app.
 ///
@@ -62,52 +62,51 @@ Future<Either<ErrorItem, ModelAppVersion>> _fetchAppVersion(
     },
   );
 
-  return result.fold<Either<ErrorItem, ModelAppVersion>>(
-    Left.new,
-    (ModelConfigHttpRequest cfg) {
-      final Map<String, dynamic> body = cfg.body;
-      debugPrint('HTTP app-version cfg.body = $body');
+  return result.fold<Either<ErrorItem, ModelAppVersion>>(Left.new, (
+    ModelConfigHttpRequest cfg,
+  ) {
+    final Map<String, dynamic> body = cfg.body;
+    debugPrint('HTTP app-version cfg.body = $body');
 
-      // Intentamos ser tolerantes con la forma del body:
-      // - body['value'] → preferido (contrato recomendado).
-      // - body['data']  → alternativo (APIs existentes).
-      // - body completo → fallback (ej. servicio legacy que responde directo).
-      //
-      // Esto transmite la idea de:
-      // - “la app sabe trabajar con varias envolturas razonables”
-      // - sin acoplarse a un único backend perfecto.
-      Map<String, dynamic> rawValue;
+    // Intentamos ser tolerantes con la forma del body:
+    // - body['value'] → preferido (contrato recomendado).
+    // - body['data']  → alternativo (APIs existentes).
+    // - body completo → fallback (ej. servicio legacy que responde directo).
+    //
+    // Esto transmite la idea de:
+    // - “la app sabe trabajar con varias envolturas razonables”
+    // - sin acoplarse a un único backend perfecto.
+    Map<String, dynamic> rawValue;
 
-      if (body.containsKey('value')) {
-        rawValue = Utils.mapFromDynamic(body['value']);
-      } else if (body.containsKey('data')) {
-        rawValue = Utils.mapFromDynamic(body['data']);
-      } else {
-        rawValue = body;
-      }
+    if (body.containsKey('value')) {
+      rawValue = Utils.mapFromDynamic(body['value']);
+    } else if (body.containsKey('data')) {
+      rawValue = Utils.mapFromDynamic(body['data']);
+    } else {
+      rawValue = body;
+    }
 
-      try {
-        final ModelAppVersion version = ModelAppVersion.fromJson(
-          Map<String, dynamic>.from(rawValue),
-        );
-        return Right<ErrorItem, ModelAppVersion>(version);
-      } on Object catch (error, stackTrace) {
-        // 🎯 Mensaje de error pensado para diagnóstico, no para usuario final.
-        // El UI solo muestra un resumen; el detalle va a logs/telemetría.
-        return Left<ErrorItem, ModelAppVersion>(
-          ErrorItem(
-            code: 'APP_VERSION_MAPPING_ERROR',
-            title: 'Failed to map version JSON',
-            description: 'Error: $error',
-            meta: <String, dynamic>{
-              'stackTrace': stackTrace.toString(),
-              'rawValue': rawValue,
-            },
-          ),
-        );
-      }
-    },
-  );
+    try {
+      final ModelAppVersion version = ModelAppVersion.fromJson(
+        Map<String, dynamic>.from(rawValue),
+      );
+      return Right<ErrorItem, ModelAppVersion>(version);
+    } on Object catch (error, stackTrace) {
+      // 🎯 Mensaje de error pensado para diagnóstico, no para usuario final.
+      // El UI solo muestra un resumen; el detalle va a logs/telemetría.
+      return Left<ErrorItem, ModelAppVersion>(
+        ErrorItem(
+          code: 'APP_VERSION_MAPPING_ERROR',
+          title: 'Failed to map version JSON',
+          description: 'Error: $error',
+          meta: <String, dynamic>{
+            'stackTrace': stackTrace.toString(),
+            'rawValue': rawValue,
+          },
+        ),
+      );
+    }
+  });
 }
 
 /// Bootstrap local del ejemplo:
@@ -135,10 +134,7 @@ class _HttpAndVersionExample {
     const int buildNumber = 42;
     final String version = intToVersion(buildNumber);
 
-    return base.copyWith(
-      buildNumber: buildNumber,
-      version: version,
-    );
+    return base.copyWith(buildNumber: buildNumber, version: version);
   }
 
   /// Representa la versión instalada de la app al momento de compilar.
@@ -221,8 +217,9 @@ class _HttpAndVersionExample {
     // - Servidor desactualizado (< build local).
     // - Servidor igual.
     // - Servidor con build mayor.
-    final int installedBuild =
-        Utils.getIntegerFromDynamic(_installedVersion.buildNumber);
+    final int installedBuild = Utils.getIntegerFromDynamic(
+      _installedVersion.buildNumber,
+    );
     final int initialServerBuild = installedBuild - 1;
     final ModelAppVersion initialServerVersion = _installedVersion.copyWith(
       buildNumber: initialServerBuild,
@@ -259,15 +256,12 @@ class _HttpAndVersionExample {
   /// Aquí se ve cómo el ejemplo encaja en el concepto de `PageRegistry`
   /// y `PageManager` que expone JocaaguraApp.
   void _setupRegistry() {
-    registry = PageRegistry.fromDefs(
-      <PageDef>[
-        PageDef(
-          model: _VersionHomePage.pageModel,
-          builder: (_, __) => const _VersionHomePage(),
-        ),
-      ],
-      defaultPage: _VersionHomePage.pageModel,
-    );
+    registry = PageRegistry.fromDefs(<PageDef>[
+      PageDef(
+        model: _VersionHomePage.pageModel,
+        builder: (_, __) => const _VersionHomePage(),
+      ),
+    ], defaultPage: _VersionHomePage.pageModel);
   }
 
   /// Construye el BlocTheme alineado con el arquetipo (ThemeUsecases).
@@ -317,8 +311,9 @@ class _VersionHomePageState extends State<_VersionHomePage> {
   @override
   Widget build(BuildContext context) {
     final AbstractAppManager app = context.appManager;
-    final BlocHttpRequest http =
-        app.requireModuleByKey<BlocHttpRequest>(BlocHttpRequest.name);
+    final BlocHttpRequest http = app.requireModuleByKey<BlocHttpRequest>(
+      BlocHttpRequest.name,
+    );
 
     return PageBuilder(
       page: Scaffold(
@@ -326,24 +321,26 @@ class _VersionHomePageState extends State<_VersionHomePage> {
         body: Center(
           child: StreamBuilder<ModelAppVersion>(
             // La UI se suscribe al BlocModelVersion expuesto por AppManager.
-            stream: app.appVersionBloc?.stream ??
+            stream:
+                app.appVersionBloc?.stream ??
                 Stream<ModelAppVersion>.value(app.currentAppVersion),
             initialData: app.currentAppVersion,
             builder: (_, AsyncSnapshot<ModelAppVersion> snap) {
               final ModelAppVersion installed =
                   snap.data ?? ModelAppVersion.defaultModelAppVersion;
 
-              final int installedBuild =
-                  Utils.getIntegerFromDynamic(installed.buildNumber);
+              final int installedBuild = Utils.getIntegerFromDynamic(
+                installed.buildNumber,
+              );
 
               // Solo mostramos la etiqueta de “última versión remota”
               // cuando BlocModelVersion considera que esa remota es “nueva”
               // frente al estado actual.
-              final String? remoteVersionLabel = app.appVersionBloc
-                          ?.isNewerThanCurrent(_lastRemoteVersion) ??
+              final String? remoteVersionLabel =
+                  app.appVersionBloc?.isNewerThanCurrent(_lastRemoteVersion) ??
                       false
                   ? '${_lastRemoteVersion.version} '
-                      '(build ${Utils.getIntegerFromDynamic(_lastRemoteVersion.buildNumber)})'
+                        '(build ${Utils.getIntegerFromDynamic(_lastRemoteVersion.buildNumber)})'
                   : null;
 
               return Padding(
@@ -370,9 +367,9 @@ class _VersionHomePageState extends State<_VersionHomePage> {
                       onPressed: () async {
                         final Either<ErrorItem, ModelAppVersion> result =
                             await _fetchAppVersion(
-                          http,
-                          requestKey: 'app.version.manual',
-                        );
+                              http,
+                              requestKey: 'app.version.manual',
+                            );
 
                         result.fold(
                           (ErrorItem error) {
@@ -422,8 +419,10 @@ class _VersionHomePageState extends State<_VersionHomePage> {
                     // - No llamamos HTTP aquí, solo usamos el snapshot `_lastRemoteVersion`.
                     // - Delegamos la fuente de verdad a `BlocModelVersion`.
                     FilledButton.icon(
-                      onPressed: !(app.appVersionBloc
-                                  ?.isNewerThanCurrent(_lastRemoteVersion) ??
+                      onPressed:
+                          !(app.appVersionBloc?.isNewerThanCurrent(
+                                _lastRemoteVersion,
+                              ) ??
                               false)
                           ? null
                           : () {
@@ -475,9 +474,8 @@ class _VersionHomePageState extends State<_VersionHomePage> {
 ///       "source": "VersionSimulatingHttpService"
 ///     }
 class VersionSimulatingHttpService implements ServiceHttpRequest {
-  VersionSimulatingHttpService({
-    required ModelAppVersion initialServerVersion,
-  }) : _serverVersion = initialServerVersion;
+  VersionSimulatingHttpService({required ModelAppVersion initialServerVersion})
+    : _serverVersion = initialServerVersion;
 
   ModelAppVersion _serverVersion;
 
@@ -492,8 +490,9 @@ class VersionSimulatingHttpService implements ServiceHttpRequest {
     await Future<void>.delayed(const Duration(milliseconds: 400));
 
     if (uri == _kAppVersionEndpoint) {
-      final int currentBuild =
-          Utils.getIntegerFromDynamic(_serverVersion.buildNumber);
+      final int currentBuild = Utils.getIntegerFromDynamic(
+        _serverVersion.buildNumber,
+      );
       final int nextBuild = currentBuild + 1;
 
       _serverVersion = _serverVersion.copyWith(
@@ -509,9 +508,7 @@ class VersionSimulatingHttpService implements ServiceHttpRequest {
         'headers': <String, String>{
           'content-type': 'application/json; charset=utf-8',
         },
-        'body': <String, dynamic>{
-          'value': _serverVersion.toJson(),
-        },
+        'body': <String, dynamic>{'value': _serverVersion.toJson()},
         'metadata': <String, dynamic>{
           ...metadata,
           'feature': 'appVersion',

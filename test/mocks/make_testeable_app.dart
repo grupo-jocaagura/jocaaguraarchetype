@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 late AppManager jAppManager;
 
-Widget makeTesteablePage({
-  required Widget child,
-}) {
+Widget makeTesteablePage({required Widget child}) {
   final ThemeUsecases themeUsecases = ThemeUsecases.fromRepo(
     RepositoryThemeImpl(
       gateway: GatewayThemeImpl(
@@ -38,17 +36,12 @@ Widget makeTesteablePage({
       blocResponsive: blocResponsive,
       blocOnboarding: blocOnboarding,
       pageManager: PageManager(
-        initial: NavStackModel(
-          const <PageModel>[
-            PageModel(name: '/', segments: <String>['home']),
-          ],
-        ),
+        initial: NavStackModel(const <PageModel>[
+          PageModel(name: '/', segments: <String>['home']),
+        ]),
       ),
     ),
   );
 
-  return JocaaguraApp(
-    appManager: jAppManager,
-    registry: registry,
-  );
+  return JocaaguraApp(appManager: jAppManager, registry: registry);
 }

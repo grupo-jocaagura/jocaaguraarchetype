@@ -104,7 +104,7 @@ class JocaaguraAppWithSession extends StatefulWidget {
     required SessionPages sessionPages,
     required void Function(AbstractAppManager app) configureMenusForLoggedIn,
     required void Function(AbstractAppManager app)
-        configureMenusForLoggedOut, // Session wiring override (optional)
+    configureMenusForLoggedOut, // Session wiring override (optional)
     BlocSession? sessionBloc,
 
     // Dev helpers for FakeServiceSession
@@ -120,7 +120,8 @@ class JocaaguraAppWithSession extends StatefulWidget {
     UserBackNavigationPolicy? userBackNavigationPolicy,
     Key? key,
   }) {
-    final BlocSession effectiveSessionBloc = sessionBloc ??
+    final BlocSession effectiveSessionBloc =
+        sessionBloc ??
         _buildDevSessionBloc(
           isSessionInitialized: isSessionInitialized,
           initialUserJson: initialUserJson,
@@ -195,7 +196,8 @@ class _JocaaguraAppWithSessionState extends State<JocaaguraAppWithSession> {
     super.initState();
     _ownsSessionAppManager = widget.sessionAppManager == null;
 
-    _sessionAppManager = widget.sessionAppManager ??
+    _sessionAppManager =
+        widget.sessionAppManager ??
         SessionAppManager(
           appManager: widget.appManager,
           sessionBloc: widget.sessionBloc,
@@ -254,8 +256,9 @@ BlocSession _buildDevSessionBloc({
     ),
   );
 
-  final RepositoryAuth repositoryAuth =
-      RepositoryAuthImpl(gateway: gatewayAuth);
+  final RepositoryAuth repositoryAuth = RepositoryAuthImpl(
+    gateway: gatewayAuth,
+  );
 
   return BlocSession.fromRepository(repository: repositoryAuth);
 }

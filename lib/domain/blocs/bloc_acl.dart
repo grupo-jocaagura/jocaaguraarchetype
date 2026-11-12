@@ -30,25 +30,22 @@ class BlocAcl extends BlocModule {
 
   /// Refreshes policies + current user's ACL table (session cache).
   Future<Either<ErrorItem, ModelAclSnapshot>> refresh() async {
-    final Either<ErrorItem, List<ModelAclPolicy>> policiesResult =
-        await bridge.fetchPolicies(appName: appName);
+    final Either<ErrorItem, List<ModelAclPolicy>> policiesResult = await bridge
+        .fetchPolicies(appName: appName);
 
     return policiesResult.fold(
       (ErrorItem e) => Left<ErrorItem, ModelAclSnapshot>(e),
       (List<ModelAclPolicy> policies) async {
-        final Either<ErrorItem, List<ModelAcl>> aclResult =
-            await bridge.fetchUserAcl(
-          appName: appName,
-          userEmail: userEmail,
-        );
+        final Either<ErrorItem, List<ModelAcl>> aclResult = await bridge
+            .fetchUserAcl(appName: appName, userEmail: userEmail);
 
         return aclResult.fold(
           (ErrorItem e) => Left<ErrorItem, ModelAclSnapshot>(e),
           (List<ModelAcl> grants) {
             final Map<String, ModelAclPolicy> policiesById =
                 <String, ModelAclPolicy>{
-              for (final ModelAclPolicy p in policies) p.id: p,
-            };
+                  for (final ModelAclPolicy p in policies) p.id: p,
+                };
 
             final Map<String, RoleType> userAclByPolicyId =
                 <String, RoleType>{};

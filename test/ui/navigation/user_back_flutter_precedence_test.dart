@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'user_back_navigation_test.dart' show Harness;
 
@@ -13,20 +13,20 @@ class FlutterContractRegistry extends PageRegistry {
     ValueNotifier<bool>? scopeCanPop,
     List<bool>? scopeEvents,
   }) : super(<String, PageWidgetBuilder>{
-          for (final String name in <String>['home', 'a', 'b'])
-            name: (_, __) => scopeCanPop == null
-                ? Text(name, key: ValueKey<String>('view-$name'))
-                : ValueListenableBuilder<bool>(
-                    valueListenable: scopeCanPop,
-                    builder: (_, bool canPop, __) => PopScope<dynamic>(
-                      canPop: canPop,
-                      onPopInvokedWithResult: (bool didPop, dynamic result) {
-                        scopeEvents?.add(didPop);
-                      },
-                      child: Text(name, key: ValueKey<String>('view-$name')),
-                    ),
-                  ),
-        });
+         for (final String name in <String>['home', 'a', 'b'])
+           name: (_, __) => scopeCanPop == null
+               ? Text(name, key: ValueKey<String>('view-$name'))
+               : ValueListenableBuilder<bool>(
+                   valueListenable: scopeCanPop,
+                   builder: (_, bool canPop, __) => PopScope<dynamic>(
+                     canPop: canPop,
+                     onPopInvokedWithResult: (bool didPop, dynamic result) {
+                       scopeEvents?.add(didPop);
+                     },
+                     child: Text(name, key: ValueKey<String>('view-$name')),
+                   ),
+                 ),
+       });
 
   final bool pageCanPop;
 
@@ -56,14 +56,18 @@ void main() {
     testWidgets(
       'Given CupertinoPage allowSnapshotting false When policy is installed Then preserve the route option',
       (WidgetTester tester) async {
-        final Harness h =
-            Harness(kind: PageKind.cupertino, policy: (_) => true);
+        final Harness h = Harness(
+          kind: PageKind.cupertino,
+          policy: (_) => true,
+        );
         addTearDown(h.dispose);
         h.delegate.update(registry: FlutterContractRegistry());
         await h.mount(tester, platform: TargetPlatform.iOS);
-        final CupertinoPageRoute<dynamic> route = ModalRoute.of(
-          tester.element(find.byKey(const ValueKey<String>('view-b'))),
-        )! as CupertinoPageRoute<dynamic>;
+        final CupertinoPageRoute<dynamic> route =
+            ModalRoute.of(
+                  tester.element(find.byKey(const ValueKey<String>('view-b'))),
+                )!
+                as CupertinoPageRoute<dynamic>;
         expect(route.allowSnapshotting, isFalse);
       },
     );
@@ -139,8 +143,9 @@ void main() {
             },
           );
           addTearDown(h.dispose);
-          h.delegate
-              .update(registry: FlutterContractRegistry(pageCanPop: false));
+          h.delegate.update(
+            registry: FlutterContractRegistry(pageCanPop: false),
+          );
           await h.mount(tester);
           final ModalRoute<dynamic> route = ModalRoute.of(
             tester.element(find.byKey(const ValueKey<String>('view-b'))),
@@ -175,8 +180,9 @@ void main() {
             },
           );
           addTearDown(h.dispose);
-          h.delegate
-              .update(registry: FlutterContractRegistry(pageCanPop: false));
+          h.delegate.update(
+            registry: FlutterContractRegistry(pageCanPop: false),
+          );
           await h.mount(tester);
           expect(await h.delegate.requestUserBack(source: source), isTrue);
           await tester.pumpAndSettle();
@@ -240,8 +246,9 @@ void main() {
         addTearDown(canPop.dispose);
         final Harness h = Harness(policy: (_) => approval.future);
         addTearDown(h.dispose);
-        h.delegate
-            .update(registry: FlutterContractRegistry(scopeCanPop: canPop));
+        h.delegate.update(
+          registry: FlutterContractRegistry(scopeCanPop: canPop),
+        );
         await h.mount(tester);
         final Future<bool> pending = h.delegate.popRoute();
         canPop.value = false;
@@ -266,8 +273,9 @@ void main() {
         addTearDown(canPop.dispose);
         final Harness h = Harness();
         addTearDown(h.dispose);
-        h.delegate
-            .update(registry: FlutterContractRegistry(scopeCanPop: canPop));
+        h.delegate.update(
+          registry: FlutterContractRegistry(scopeCanPop: canPop),
+        );
         await h.mount(tester);
         final Future<bool> pending = h.delegate.popRoute();
         expect(h.manager.historyNames, <String>['home', 'a']);

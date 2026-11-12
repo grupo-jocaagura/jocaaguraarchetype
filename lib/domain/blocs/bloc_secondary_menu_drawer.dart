@@ -26,13 +26,12 @@ class BlocSecondaryMenuDrawer extends BlocMenuBase {
     required String label,
     required IconData iconData,
     String description = '',
-  }) =>
-      upsertOption(
-        onPressed: onPressed,
-        label: label,
-        iconData: iconData,
-        description: description,
-      );
+  }) => upsertOption(
+    onPressed: onPressed,
+    label: label,
+    iconData: iconData,
+    description: description,
+  );
 
   void removeSecondaryMenuOption(String label) => removeByLabel(label);
 
@@ -43,13 +42,12 @@ class BlocSecondaryMenuDrawer extends BlocMenuBase {
     required String label,
     required IconData iconData,
     String description = '',
-  }) =>
-      addSecondaryMenuOption(
-        onPressed: onPressed,
-        label: label,
-        iconData: iconData,
-        description: description,
-      );
+  }) => addSecondaryMenuOption(
+    onPressed: onPressed,
+    label: label,
+    iconData: iconData,
+    description: description,
+  );
 
   @Deprecated('Use removeSecondaryMenuOption instead.')
   void removeMainMenuOption(String label) => removeSecondaryMenuOption(label);

@@ -44,8 +44,8 @@ class FakeServiceThemeReact extends ServiceThemeReact {
     Map<String, dynamic>? darkJson,
     Map<String, dynamic>? textOverridesJson,
     bool autoStart = false,
-    Duration period = const Duration(seconds: 10),
-  }) : _period = period {
+    this._period = const Duration(seconds: 10),
+  }) {
     // Seed defaults
     final Map<String, dynamic> lightDefaults = _ensureMode(
       lightJson ?? ThemeState.defaults.copyWith(mode: ThemeMode.light).toJson(),

@@ -1,21 +1,19 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// --------- Fake BlocResponsive (mismo de antes) ---------
 class FakeBlocResponsive extends BlocResponsive {
   FakeBlocResponsive({
-    required ScreenSizeEnum deviceType,
-    required Size workArea,
+    required this._deviceType,
+    required this._workArea,
     required int columnsNumber,
     required double marginWidth,
     double? gutterWidth,
-  })  : _deviceType = deviceType,
-        _workArea = workArea,
-        _columns = columnsNumber,
-        _margin = marginWidth,
-        _gutterOverride = gutterWidth,
-        super();
+  }) : _columns = columnsNumber,
+       _margin = marginWidth,
+       _gutterOverride = gutterWidth,
+       super();
 
   final ScreenSizeEnum _deviceType;
   final Size _workArea;
@@ -102,16 +100,21 @@ double expectedContentWidth({
   final double gap = resp.gutterWidth;
 
   final double primaryW = hasPrimary ? resp.widthByColumns(primaryCols) : 0.0;
-  final double secondaryW =
-      hasSecondary ? resp.widthByColumns(secondaryCols) : 0.0;
+  final double secondaryW = hasSecondary
+      ? resp.widthByColumns(secondaryCols)
+      : 0.0;
 
   // 1 gap si hay 1 panel; 2 gaps si hay 2 paneles; 0 si no hay paneles
-  final int guttersCount =
-      <bool>[hasPrimary, hasSecondary].where((bool v) => v).length;
+  final int guttersCount = <bool>[
+    hasPrimary,
+    hasSecondary,
+  ].where((bool v) => v).length;
   final double usedGutters = guttersCount > 0 ? gap * guttersCount : 0.0;
 
-  final double remaining =
-      (gridW - primaryW - secondaryW - usedGutters).clamp(0.0, gridW);
+  final double remaining = (gridW - primaryW - secondaryW - usedGutters).clamp(
+    0.0,
+    gridW,
+  );
 
   if (!clampMin320) {
     return remaining;
@@ -134,48 +137,49 @@ Widget _contentTight({Key? key, double width = 40, double height = 40}) =>
 /// Contenido que “pide” MUCHO ancho para validar que el ConstrainedBox/SizedBox lo
 /// limite al valor calculado por el widget.
 Widget _contentHuge({Key? key, double height = 40}) => SizedBox(
-      key: key,
-      width:
-          5000, // demanda irreal: debe ser recortado por el layout del widget
-      height: height,
-      child: const ColoredBox(color: Colors.transparent),
-    );
+  key: key,
+  width: 5000, // demanda irreal: debe ser recortado por el layout del widget
+  height: height,
+  child: const ColoredBox(color: Colors.transparent),
+);
 
 Widget _menuBox({Key? key, double height = 40}) => SizedBox(
-      key: key,
-      height: height,
-      child: const ColoredBox(color: Colors.transparent),
-    );
+  key: key,
+  height: height,
+  child: const ColoredBox(color: Colors.transparent),
+);
 
 void main() {
   group('WorkAreaWidget - Mobile', () {
     testWidgets(
-        'contenido solo, SafeArea por defecto y setSizeFromContext() llamado',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.mobile,
-        workArea: const Size(360, 640),
-        columnsNumber: 4,
-        marginWidth: 16,
-        gutterWidth: 10,
-      );
+      'contenido solo, SafeArea por defecto y setSizeFromContext() llamado',
+      (WidgetTester tester) async {
+        final FakeBlocResponsive resp = FakeBlocResponsive(
+          deviceType: ScreenSizeEnum.mobile,
+          workArea: const Size(360, 640),
+          columnsNumber: 4,
+          marginWidth: 16,
+          gutterWidth: 10,
+        );
 
-      final WorkAreaWidget w = WorkAreaWidget(
-        responsive: resp,
-        content: _contentTight(key: const ValueKey<String>('content')),
-      );
+        final WorkAreaWidget w = WorkAreaWidget(
+          responsive: resp,
+          content: _contentTight(key: const ValueKey<String>('content')),
+        );
 
-      await _pump(tester, child: w);
+        await _pump(tester, child: w);
 
-      expect(find.byType(SafeArea), findsOneWidget);
-      expect(
-        find.byKey(const ValueKey<String>('secondary-menu')),
-        findsNothing,
-      );
-    });
+        expect(find.byType(SafeArea), findsOneWidget);
+        expect(
+          find.byKey(const ValueKey<String>('secondary-menu')),
+          findsNothing,
+        );
+      },
+    );
 
-    testWidgets('con secondaryMenu => overlay en bottom-center',
-        (WidgetTester tester) async {
+    testWidgets('con secondaryMenu => overlay en bottom-center', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.mobile,
         workArea: const Size(390, 780),
@@ -194,8 +198,9 @@ void main() {
       expect(find.byKey(const ValueKey<String>('secMobile')), findsOneWidget);
     });
 
-    testWidgets('FAB: right=marginWidth, bottom=clamp(gutter*3, 48..96)',
-        (WidgetTester tester) async {
+    testWidgets('FAB: right=marginWidth, bottom=clamp(gutter*3, 48..96)', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.mobile,
         workArea: const Size(400, 700),
@@ -229,8 +234,9 @@ void main() {
       expect(bottomGap, expectedBottom);
     });
 
-    testWidgets('backgroundColor custom y safeArea=false',
-        (WidgetTester tester) async {
+    testWidgets('backgroundColor custom y safeArea=false', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.mobile,
         workArea: const Size(360, 640),
@@ -256,64 +262,70 @@ void main() {
   });
 
   group('WorkAreaWidget - Tablet/Desktop/TV', () {
-    testWidgets('tablet: primary+content+secondary, anchos y orden por defecto',
-        (WidgetTester tester) async {
-      // workArea=720, columns=12, margin=16, gutter=10
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.tablet,
-        workArea: const Size(720, 900),
-        columnsNumber: 12,
-        marginWidth: 16,
-        gutterWidth: 10,
-      );
+    testWidgets(
+      'tablet: primary+content+secondary, anchos y orden por defecto',
+      (WidgetTester tester) async {
+        // workArea=720, columns=12, margin=16, gutter=10
+        final FakeBlocResponsive resp = FakeBlocResponsive(
+          deviceType: ScreenSizeEnum.tablet,
+          workArea: const Size(720, 900),
+          columnsNumber: 12,
+          marginWidth: 16,
+          gutterWidth: 10,
+        );
 
-      const int pCols = 2, sCols = 2;
-      final double primaryW = resp.widthByColumns(pCols);
-      final double secondaryW = resp.widthByColumns(sCols);
-      final double expectedW = expectedContentWidth(
-        resp: resp,
-        hasPrimary: true,
-        hasSecondary: true,
-        primaryCols: pCols,
-        secondaryCols: sCols,
-      );
+        const int pCols = 2, sCols = 2;
+        final double primaryW = resp.widthByColumns(pCols);
+        final double secondaryW = resp.widthByColumns(sCols);
+        final double expectedW = expectedContentWidth(
+          resp: resp,
+          hasPrimary: true,
+          hasSecondary: true,
+          primaryCols: pCols,
+          secondaryCols: sCols,
+        );
 
-      final WorkAreaWidget w = WorkAreaWidget(
-        responsive: resp,
-        // Le pedimos MUCHO ancho para validar que el layout lo recorta:
-        content: _contentHuge(key: const ValueKey<String>('content')),
-        primaryMenu: _menuBox(key: const ValueKey<String>('primary')),
-        secondaryMenu: _menuBox(key: const ValueKey<String>('secondary')),
-      );
+        final WorkAreaWidget w = WorkAreaWidget(
+          responsive: resp,
+          // Le pedimos MUCHO ancho para validar que el layout lo recorta:
+          content: _contentHuge(key: const ValueKey<String>('content')),
+          primaryMenu: _menuBox(key: const ValueKey<String>('primary')),
+          secondaryMenu: _menuBox(key: const ValueKey<String>('secondary')),
+        );
 
-      // Surface >= workArea para no “tocar techo”
-      await _pump(tester, child: w, surface: const Size(1000, 900));
+        // Surface >= workArea para no “tocar techo”
+        await _pump(tester, child: w, surface: const Size(1000, 900));
 
-      expect(
-        tester.getSize(find.byKey(const ValueKey<String>('primary'))).width,
-        primaryW,
-      );
-      expect(
-        tester.getSize(find.byKey(const ValueKey<String>('secondary'))).width,
-        secondaryW,
-      );
-      expect(
-        tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
-        expectedW,
-      );
+        expect(
+          tester.getSize(find.byKey(const ValueKey<String>('primary'))).width,
+          primaryW,
+        );
+        expect(
+          tester.getSize(find.byKey(const ValueKey<String>('secondary'))).width,
+          secondaryW,
+        );
+        expect(
+          tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
+          expectedW,
+        );
 
-      final double dxP =
-          tester.getTopLeft(find.byKey(const ValueKey<String>('primary'))).dx;
-      final double dxC =
-          tester.getTopLeft(find.byKey(const ValueKey<String>('content'))).dx;
-      final double dxS =
-          tester.getTopLeft(find.byKey(const ValueKey<String>('secondary'))).dx;
-      expect(dxP < dxC, isTrue);
-      expect(dxC < dxS, isTrue);
-    });
+        final double dxP = tester
+            .getTopLeft(find.byKey(const ValueKey<String>('primary')))
+            .dx;
+        final double dxC = tester
+            .getTopLeft(find.byKey(const ValueKey<String>('content')))
+            .dx;
+        final double dxS = tester
+            .getTopLeft(find.byKey(const ValueKey<String>('secondary')))
+            .dx;
+        expect(dxP < dxC, isTrue);
+        expect(dxC < dxS, isTrue);
+      },
+    );
 
-    testWidgets('tablet: secondaryOnRight=false invierte el orden relativo',
-        (WidgetTester tester) async {
+    testWidgets('tablet: secondaryOnRight=false invierte el orden relativo', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.tablet,
         workArea: const Size(720, 900),
@@ -325,8 +337,10 @@ void main() {
       // Para centrarnos en el orden, que el content no empuje:
       final WorkAreaWidget w = WorkAreaWidget(
         responsive: resp,
-        content:
-            _contentTight(key: const ValueKey<String>('content'), width: 200),
+        content: _contentTight(
+          key: const ValueKey<String>('content'),
+          width: 200,
+        ),
         primaryMenu: _menuBox(key: const ValueKey<String>('primary')),
         secondaryMenu: _menuBox(key: const ValueKey<String>('secondary')),
         secondaryMenuOnRight: false,
@@ -334,89 +348,95 @@ void main() {
 
       await _pump(tester, child: w, surface: const Size(1000, 900));
 
-      final double dxP =
-          tester.getTopLeft(find.byKey(const ValueKey<String>('primary'))).dx;
-      final double dxC =
-          tester.getTopLeft(find.byKey(const ValueKey<String>('content'))).dx;
-      final double dxS =
-          tester.getTopLeft(find.byKey(const ValueKey<String>('secondary'))).dx;
+      final double dxP = tester
+          .getTopLeft(find.byKey(const ValueKey<String>('primary')))
+          .dx;
+      final double dxC = tester
+          .getTopLeft(find.byKey(const ValueKey<String>('content')))
+          .dx;
+      final double dxS = tester
+          .getTopLeft(find.byKey(const ValueKey<String>('secondary')))
+          .dx;
       expect(dxS < dxC, isTrue);
       expect(dxC < dxP, isTrue);
     });
 
     testWidgets(
-        'desktop: sólo primary => contentW = gridW - primary - gap (>=320 si cabe)',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.desktop,
-        workArea: const Size(900, 800),
-        columnsNumber: 9,
-        marginWidth: 16,
-        gutterWidth: 12,
-      );
+      'desktop: sólo primary => contentW = gridW - primary - gap (>=320 si cabe)',
+      (WidgetTester tester) async {
+        final FakeBlocResponsive resp = FakeBlocResponsive(
+          deviceType: ScreenSizeEnum.desktop,
+          workArea: const Size(900, 800),
+          columnsNumber: 9,
+          marginWidth: 16,
+          gutterWidth: 12,
+        );
 
-      const int pCols = 3;
-      final double expectedW = expectedContentWidth(
-        resp: resp,
-        hasPrimary: true,
-        hasSecondary: false,
-        primaryCols: pCols, // <- corregido (antes 2)
-        secondaryCols: 0,
-        clampMin320: true,
-      );
+        const int pCols = 3;
+        final double expectedW = expectedContentWidth(
+          resp: resp,
+          hasPrimary: true,
+          hasSecondary: false,
+          primaryCols: pCols, // <- corregido (antes 2)
+          secondaryCols: 0,
+          clampMin320: true,
+        );
 
-      final WorkAreaWidget w = WorkAreaWidget(
-        responsive: resp,
-        content: _contentHuge(key: const ValueKey<String>('content')),
-        primaryMenu: _menuBox(),
-        primaryMenuWidthColumns: pCols,
-      );
+        final WorkAreaWidget w = WorkAreaWidget(
+          responsive: resp,
+          content: _contentHuge(key: const ValueKey<String>('content')),
+          primaryMenu: _menuBox(),
+          primaryMenuWidthColumns: pCols,
+        );
 
-      // Surface >= workArea
-      await _pump(tester, child: w, surface: const Size(1200, 800));
-      expect(
-        tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
-        expectedW,
-      );
-    });
+        // Surface >= workArea
+        await _pump(tester, child: w, surface: const Size(1200, 800));
+        expect(
+          tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
+          expectedW,
+        );
+      },
+    );
 
     testWidgets(
-        'desktop: sólo secondary => contentW = gridW - secondary - gap (>=320 si cabe)',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.desktop,
-        workArea: const Size(900, 800),
-        columnsNumber: 9,
-        marginWidth: 16,
-        gutterWidth: 12,
-      );
+      'desktop: sólo secondary => contentW = gridW - secondary - gap (>=320 si cabe)',
+      (WidgetTester tester) async {
+        final FakeBlocResponsive resp = FakeBlocResponsive(
+          deviceType: ScreenSizeEnum.desktop,
+          workArea: const Size(900, 800),
+          columnsNumber: 9,
+          marginWidth: 16,
+          gutterWidth: 12,
+        );
 
-      const int sCols = 3;
-      final double expectedW = expectedContentWidth(
-        resp: resp,
-        hasPrimary: false,
-        hasSecondary: true,
-        primaryCols: 0,
-        secondaryCols: sCols,
-        clampMin320: true,
-      );
+        const int sCols = 3;
+        final double expectedW = expectedContentWidth(
+          resp: resp,
+          hasPrimary: false,
+          hasSecondary: true,
+          primaryCols: 0,
+          secondaryCols: sCols,
+          clampMin320: true,
+        );
 
-      final WorkAreaWidget w = WorkAreaWidget(
-        responsive: resp,
-        content: _contentHuge(key: const ValueKey<String>('content')),
-        secondaryMenu: _menuBox(),
-        secondaryMenuWidthColumns: sCols,
-      );
+        final WorkAreaWidget w = WorkAreaWidget(
+          responsive: resp,
+          content: _contentHuge(key: const ValueKey<String>('content')),
+          secondaryMenu: _menuBox(),
+          secondaryMenuWidthColumns: sCols,
+        );
 
-      await _pump(tester, child: w, surface: const Size(1200, 800));
-      expect(
-        tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
-        expectedW,
-      );
-    });
+        await _pump(tester, child: w, surface: const Size(1200, 800));
+        expect(
+          tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
+          expectedW,
+        );
+      },
+    );
 
-    testWidgets('desktop: sin menús => contentW = gridW (sin clamp)',
-        (WidgetTester tester) async {
+    testWidgets('desktop: sin menús => contentW = gridW (sin clamp)', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.desktop,
         workArea: const Size(1024, 800),
@@ -446,42 +466,44 @@ void main() {
     });
 
     testWidgets(
-        'desktop: clamp a 320 cuando el resto deja < 320 (sin overflow)',
-        (WidgetTester tester) async {
-      final FakeBlocResponsive resp = FakeBlocResponsive(
-        deviceType: ScreenSizeEnum.desktop,
-        workArea: const Size(400, 700),
-        columnsNumber: 6,
-        marginWidth: 16,
-        gutterWidth: 8,
-      );
+      'desktop: clamp a 320 cuando el resto deja < 320 (sin overflow)',
+      (WidgetTester tester) async {
+        final FakeBlocResponsive resp = FakeBlocResponsive(
+          deviceType: ScreenSizeEnum.desktop,
+          workArea: const Size(400, 700),
+          columnsNumber: 6,
+          marginWidth: 16,
+          gutterWidth: 8,
+        );
 
-      // Defaults del widget: primary=2 cols, secondary=2 cols
-      final double expectedW = expectedContentWidth(
-        resp: resp,
-        hasPrimary: true,
-        hasSecondary: true,
-        primaryCols: 2,
-        secondaryCols: 2,
-        clampMin320: true, // => 320 sólo si cabe, si no: remaining
-      );
+        // Defaults del widget: primary=2 cols, secondary=2 cols
+        final double expectedW = expectedContentWidth(
+          resp: resp,
+          hasPrimary: true,
+          hasSecondary: true,
+          primaryCols: 2,
+          secondaryCols: 2,
+          clampMin320: true, // => 320 sólo si cabe, si no: remaining
+        );
 
-      final WorkAreaWidget w = WorkAreaWidget(
-        responsive: resp,
-        content: _contentHuge(key: const ValueKey<String>('content')),
-        primaryMenu: _menuBox(),
-        secondaryMenu: _menuBox(),
-      );
+        final WorkAreaWidget w = WorkAreaWidget(
+          responsive: resp,
+          content: _contentHuge(key: const ValueKey<String>('content')),
+          primaryMenu: _menuBox(),
+          secondaryMenu: _menuBox(),
+        );
 
-      await _pump(tester, child: w, surface: const Size(800, 700));
-      expect(
-        tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
-        expectedW,
-      );
-    });
+        await _pump(tester, child: w, surface: const Size(800, 700));
+        expect(
+          tester.getSize(find.byKey(const ValueKey<String>('content'))).width,
+          expectedW,
+        );
+      },
+    );
 
-    testWidgets('TV: mismo que desktop y FAB en esquina con margen',
-        (WidgetTester tester) async {
+    testWidgets('TV: mismo que desktop y FAB en esquina con margen', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.tv,
         workArea: const Size(1280, 800),
@@ -514,8 +536,9 @@ void main() {
       expect(bottomGap, resp.marginWidth);
     });
 
-    testWidgets('backgroundColor custom y safeArea=false (desktop)',
-        (WidgetTester tester) async {
+    testWidgets('backgroundColor custom y safeArea=false (desktop)', (
+      WidgetTester tester,
+    ) async {
       final FakeBlocResponsive resp = FakeBlocResponsive(
         deviceType: ScreenSizeEnum.desktop,
         workArea: const Size(1024, 800),

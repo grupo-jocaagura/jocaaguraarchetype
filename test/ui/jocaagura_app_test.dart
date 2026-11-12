@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ----------------- Helpers de páginas simples -----------------
 class _CaptureHome extends StatelessWidget {
@@ -104,16 +104,14 @@ Future<void> _pumpApp(
 
 void main() {
   group('JocaaguraApp', () {
-    testWidgets('factory dev: construye y muestra initialLocation=/home',
-        (WidgetTester tester) async {
+    testWidgets('factory dev: construye y muestra initialLocation=/home', (
+      WidgetTester tester,
+    ) async {
       final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);
       final PageRegistry reg = _registryA(cap);
 
       await tester.pumpWidget(
-        JocaaguraApp.dev(
-          registry: reg,
-          projectorMode: false,
-        ),
+        JocaaguraApp.dev(registry: reg, projectorMode: false),
       );
       await tester.pumpAndSettle();
 
@@ -122,27 +120,29 @@ void main() {
     });
 
     testWidgets(
-        'initialLocation con segmentos y query se aplica (profile/42?tab=posts)',
-        (WidgetTester tester) async {
-      final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);
-      final PageRegistry reg = _registryA(cap);
+      'initialLocation con segmentos y query se aplica (profile/42?tab=posts)',
+      (WidgetTester tester) async {
+        final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);
+        final PageRegistry reg = _registryA(cap);
 
-      await tester.pumpWidget(
-        JocaaguraApp.dev(
-          registry: reg,
-          projectorMode: false,
-          initialLocation: '/profile/42?tab=posts',
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          JocaaguraApp.dev(
+            registry: reg,
+            projectorMode: false,
+            initialLocation: '/profile/42?tab=posts',
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('PROFILE'), findsOneWidget);
-      expect(find.text('id:42'), findsOneWidget);
-      expect(find.text('tab:posts'), findsOneWidget);
-    });
+        expect(find.text('PROFILE'), findsOneWidget);
+        expect(find.text('id:42'), findsOneWidget);
+        expect(find.text('tab:posts'), findsOneWidget);
+      },
+    );
 
-    testWidgets('AppManagerProvider: context.appManager es el inyectado',
-        (WidgetTester tester) async {
+    testWidgets('AppManagerProvider: context.appManager es el inyectado', (
+      WidgetTester tester,
+    ) async {
       final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);
       final PageRegistry reg = _registryA(cap);
 
@@ -159,43 +159,46 @@ void main() {
       expect(cap.value, isNotNull);
     });
 
-    testWidgets('didUpdateWidget: cambiar registry recrea delegate y cambia UI',
-        (WidgetTester tester) async {
-      final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);
-      final PageRegistry regA = _registryA(cap);
-      final PageRegistry regB = _registryB(cap);
+    testWidgets(
+      'didUpdateWidget: cambiar registry recrea delegate y cambia UI',
+      (WidgetTester tester) async {
+        final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);
+        final PageRegistry regA = _registryA(cap);
+        final PageRegistry regB = _registryB(cap);
 
-      // Construimos nuestro propio AppManager para poder re-usarlo
-      final AppConfig cfg = AppConfig.dev(registry: regA);
-      final AppManager manager = AppManager(cfg);
+        // Construimos nuestro propio AppManager para poder re-usarlo
+        final AppConfig cfg = AppConfig.dev(registry: regA);
+        final AppManager manager = AppManager(cfg);
 
-      final GlobalKey key = GlobalKey();
+        final GlobalKey key = GlobalKey();
 
-      // 1) A con home-A
-      await _pumpApp(
-        tester,
-        key: key,
-        appManager: manager,
-        registry: regA,
-        projectorMode: false,
-      );
-      expect(find.byKey(const ValueKey<String>('home-A')), findsOneWidget);
-      expect(find.byKey(const ValueKey<String>('home-B')), findsNothing);
+        // 1) A con home-A
+        await _pumpApp(
+          tester,
+          key: key,
+          appManager: manager,
+          registry: regA,
+          projectorMode: false,
+        );
+        expect(find.byKey(const ValueKey<String>('home-A')), findsOneWidget);
+        expect(find.byKey(const ValueKey<String>('home-B')), findsNothing);
 
-      // 2) Mismo key/state, nuevo registry (home-B)
-      await _pumpApp(
-        tester,
-        key: key,
-        appManager: manager,
-        registry: regB,
-        projectorMode: false,
-      );
-      expect(find.byKey(const ValueKey<String>('home-A')), findsNothing);
-      expect(find.byKey(const ValueKey<String>('home-B')), findsOneWidget);
-    });
+        // 2) Mismo key/state, nuevo registry (home-B)
+        await _pumpApp(
+          tester,
+          key: key,
+          appManager: manager,
+          registry: regB,
+          projectorMode: false,
+        );
+        expect(find.byKey(const ValueKey<String>('home-A')), findsNothing);
+        expect(find.byKey(const ValueKey<String>('home-B')), findsOneWidget);
+      },
+    );
 
-    testWidgets('didUpdateWidget: cambiar appManager actualiza provider',
-        (WidgetTester tester) async {
+    testWidgets('didUpdateWidget: cambiar appManager actualiza provider', (
+      WidgetTester tester,
+    ) async {
       final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);
       final PageRegistry reg = _registryA(cap);
 
@@ -229,54 +232,56 @@ void main() {
     });
 
     testWidgets(
-        'projectorMode=false: materializa todas las pages del stack (home y details visibles)',
-        (WidgetTester tester) async {
-      final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);
-      final PageRegistry reg = _registryA(cap);
+      'projectorMode=false: materializa todas las pages del stack (home y details visibles)',
+      (WidgetTester tester) async {
+        final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);
+        final PageRegistry reg = _registryA(cap);
 
-      final JocaaguraApp app = JocaaguraApp.dev(
-        registry: reg,
-        projectorMode: false,
-      );
-
-      await tester.pumpWidget(app);
-      await tester.pumpAndSettle();
-
-      // push details
-      final AppManager mgr = cap.value!;
-      mgr.pageManager.pushNamed('details');
-      await tester.pumpAndSettle();
-
-      // details (top) está visible normalmente
-      expect(find.text('details'), findsOneWidget);
-
-      // home-A existe pero está offstage → hay que buscar sin omitir offstage
-      final Finder homeOffstageFinder = find.byWidgetPredicate(
-        (Widget w) => w.key == const ValueKey<String>('home-A'),
-        description: 'home-A offstage',
-        skipOffstage: false,
-      );
-      expect(homeOffstageFinder, findsOneWidget);
-    });
-
-    testWidgets(
-        'initialLocation por defecto es /home y no muestra el banner de debug',
-        (WidgetTester tester) async {
-      final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);
-      final PageRegistry reg = _registryA(cap);
-
-      await tester.pumpWidget(
-        JocaaguraApp.dev(
+        final JocaaguraApp app = JocaaguraApp.dev(
           registry: reg,
           projectorMode: false,
-          // no pasamos initialLocation → usa '/home'
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
 
-      expect(find.byKey(const ValueKey<String>('home-A')), findsOneWidget);
-      // El banner de debug está desactivado en MaterialApp.router(debugShowCheckedModeBanner: false)
-      expect(find.byType(Banner), findsNothing);
-    });
+        await tester.pumpWidget(app);
+        await tester.pumpAndSettle();
+
+        // push details
+        final AppManager mgr = cap.value!;
+        mgr.pageManager.pushNamed('details');
+        await tester.pumpAndSettle();
+
+        // details (top) está visible normalmente
+        expect(find.text('details'), findsOneWidget);
+
+        // home-A existe pero está offstage → hay que buscar sin omitir offstage
+        final Finder homeOffstageFinder = find.byWidgetPredicate(
+          (Widget w) => w.key == const ValueKey<String>('home-A'),
+          description: 'home-A offstage',
+          skipOffstage: false,
+        );
+        expect(homeOffstageFinder, findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'initialLocation por defecto es /home y no muestra el banner de debug',
+      (WidgetTester tester) async {
+        final ValueNotifier<AppManager?> cap = ValueNotifier<AppManager?>(null);
+        final PageRegistry reg = _registryA(cap);
+
+        await tester.pumpWidget(
+          JocaaguraApp.dev(
+            registry: reg,
+            projectorMode: false,
+            // no pasamos initialLocation → usa '/home'
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const ValueKey<String>('home-A')), findsOneWidget);
+        // El banner de debug está desactivado en MaterialApp.router(debugShowCheckedModeBanner: false)
+        expect(find.byType(Banner), findsNothing);
+      },
+    );
   });
 }

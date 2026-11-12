@@ -85,8 +85,9 @@ class TestPageBuilderPage extends StatelessWidget {
 
   /// Convenience navigation using `pushOnce`.
   static void pushOnce(BuildContext context, {String? title, String? content}) {
-    context.appManager.pageManager
-        .pushOnce(make(title: title, content: content));
+    context.appManager.pageManager.pushOnce(
+      make(title: title, content: content),
+    );
   }
 
   /// Convenience navigation using `pushOnce` (alias `open`).
@@ -111,9 +112,7 @@ class TestPageBuilderPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PageBuilder(
-      page: legacyPage ?? _buildContent(context),
-    );
+    return PageBuilder(page: legacyPage ?? _buildContent(context));
   }
 
   Widget _buildContent(BuildContext context) {

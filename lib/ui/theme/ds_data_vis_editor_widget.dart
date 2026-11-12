@@ -44,22 +44,18 @@ class _DsDataVizEditorWidgetState extends State<DsDataVizEditorWidget> {
     _listenerKey = 'DsDataVizEditorWidget.${identityHashCode(this)}';
     _palette = widget.dsBloc.requireDs().dataViz;
 
-    widget.dsBloc.addDsListener(
-      _listenerKey,
-      (ModelDesignSystem ds) {
-        if (!mounted) {
-          return;
-        }
-        if (ds.dataViz == _palette) {
-          return;
-        }
-        setState(() {
-          _palette = ds.dataViz;
-          _localError = null;
-        });
-      },
-      true,
-    );
+    widget.dsBloc.addDsListener(_listenerKey, (ModelDesignSystem ds) {
+      if (!mounted) {
+        return;
+      }
+      if (ds.dataViz == _palette) {
+        return;
+      }
+      setState(() {
+        _palette = ds.dataViz;
+        _localError = null;
+      });
+    }, true);
   }
 
   @override
@@ -70,10 +66,7 @@ class _DsDataVizEditorWidgetState extends State<DsDataVizEditorWidget> {
     super.dispose();
   }
 
-  void _commitPalette({
-    List<Color>? categorical,
-    List<Color>? sequential,
-  }) {
+  void _commitPalette({List<Color>? categorical, List<Color>? sequential}) {
     final ModelDataVizPalette base = _palette;
 
     try {
@@ -171,8 +164,9 @@ class _DsDataVizEditorWidgetState extends State<DsDataVizEditorWidget> {
                         Expanded(
                           child: Text(
                             _localError!.description,
-                            style: t.textTheme.bodySmall
-                                ?.copyWith(color: cs.onErrorContainer),
+                            style: t.textTheme.bodySmall?.copyWith(
+                              color: cs.onErrorContainer,
+                            ),
                           ),
                         ),
                       ],
@@ -302,15 +296,13 @@ class _DsDataVizPreview extends StatelessWidget {
         // Sequential scale preview
         Row(
           children: List<Widget>.generate(sequentialSteps, (int i) {
-            final double v =
-                (sequentialSteps <= 1) ? 0 : i / (sequentialSteps - 1);
+            final double v = (sequentialSteps <= 1)
+                ? 0
+                : i / (sequentialSteps - 1);
             // Preferimos usar sequentialAt si existe; si no, usamos stops directos.
             final Color c = _sequentialAtOrStop(palette, v, i);
             return Expanded(
-              child: Container(
-                height: tok.spacingLg,
-                color: c,
-              ),
+              child: Container(height: tok.spacingLg, color: c),
             );
           }),
         ),

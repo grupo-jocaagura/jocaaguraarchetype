@@ -24,8 +24,11 @@ class ThemeColorUtils {
   }
 
   static Color convertToRgb(LabColor labColor) {
-    final List<int> rgb =
-        LabColor.labToColor(labColor.lightness, labColor.a, labColor.b);
+    final List<int> rgb = LabColor.labToColor(
+      labColor.lightness,
+      labColor.a,
+      labColor.b,
+    );
     return Color.fromRGBO(rgb[0], rgb[1], rgb[2], 1);
   }
 

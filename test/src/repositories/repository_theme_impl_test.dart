@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ----------------------
 /// Fakes / Stubs helpers
@@ -20,14 +20,13 @@ class _GwNotFound implements GatewayTheme {
   @override
   Future<Either<ErrorItem, Map<String, dynamic>>> write(
     Map<String, dynamic> json,
-  ) async =>
-      const Left<ErrorItem, Map<String, dynamic>>(
-        ErrorItem(
-          title: 'write-unreachable',
-          code: 'UNUSED',
-          description: 'UNUSED',
-        ),
-      );
+  ) async => const Left<ErrorItem, Map<String, dynamic>>(
+    ErrorItem(
+      title: 'write-unreachable',
+      code: 'UNUSED',
+      description: 'UNUSED',
+    ),
+  );
 }
 
 class _GwReadRight implements GatewayTheme {
@@ -41,14 +40,13 @@ class _GwReadRight implements GatewayTheme {
   @override
   Future<Either<ErrorItem, Map<String, dynamic>>> write(
     Map<String, dynamic> json,
-  ) async =>
-      const Left<ErrorItem, Map<String, dynamic>>(
-        ErrorItem(
-          title: 'write-unreachable',
-          code: 'UNUSED',
-          description: 'UNUSED',
-        ),
-      );
+  ) async => const Left<ErrorItem, Map<String, dynamic>>(
+    ErrorItem(
+      title: 'write-unreachable',
+      code: 'UNUSED',
+      description: 'UNUSED',
+    ),
+  );
 }
 
 class _GwReadLeft implements GatewayTheme {
@@ -58,24 +56,19 @@ class _GwReadLeft implements GatewayTheme {
   @override
   Future<Either<ErrorItem, Map<String, dynamic>>> read() async =>
       Left<ErrorItem, Map<String, dynamic>>(
-        ErrorItem(
-          title: 'boom',
-          code: errCode,
-          description: 'boom',
-        ),
+        ErrorItem(title: 'boom', code: errCode, description: 'boom'),
       );
 
   @override
   Future<Either<ErrorItem, Map<String, dynamic>>> write(
     Map<String, dynamic> json,
-  ) async =>
-      const Left<ErrorItem, Map<String, dynamic>>(
-        ErrorItem(
-          title: 'write-unreachable',
-          code: 'UNUSED',
-          description: 'UNUSED',
-        ),
-      );
+  ) async => const Left<ErrorItem, Map<String, dynamic>>(
+    ErrorItem(
+      title: 'write-unreachable',
+      code: 'UNUSED',
+      description: 'UNUSED',
+    ),
+  );
 }
 
 class _GwThrowOnRead implements GatewayTheme {
@@ -87,14 +80,13 @@ class _GwThrowOnRead implements GatewayTheme {
   @override
   Future<Either<ErrorItem, Map<String, dynamic>>> write(
     Map<String, dynamic> json,
-  ) async =>
-      const Left<ErrorItem, Map<String, dynamic>>(
-        ErrorItem(
-          title: 'write-unreachable',
-          code: 'UNUSED',
-          description: 'UNUSED',
-        ),
-      );
+  ) async => const Left<ErrorItem, Map<String, dynamic>>(
+    ErrorItem(
+      title: 'write-unreachable',
+      code: 'UNUSED',
+      description: 'UNUSED',
+    ),
+  );
 }
 
 class _GwWriteEcho implements GatewayTheme {
@@ -132,14 +124,9 @@ class _GwWriteLeft implements GatewayTheme {
   @override
   Future<Either<ErrorItem, Map<String, dynamic>>> write(
     Map<String, dynamic> json,
-  ) async =>
-      Left<ErrorItem, Map<String, dynamic>>(
-        ErrorItem(
-          title: 'boom-write',
-          code: errCode,
-          description: 'boom-write',
-        ),
-      );
+  ) async => Left<ErrorItem, Map<String, dynamic>>(
+    ErrorItem(title: 'boom-write', code: errCode, description: 'boom-write'),
+  );
 }
 
 class _GwThrowOnWrite implements GatewayTheme {
@@ -207,22 +194,17 @@ void main() {
       );
     });
 
-    test(
-        'Left con otro código => propaga error (meta.location = RepositoryTheme.read)',
-        () async {
+    test('Left con otro código => propaga error (meta.location = RepositoryTheme.read)', () async {
       final RepositoryTheme repo = RepositoryThemeImpl(
         gateway: _GwReadLeft('ANY'),
         errorMapper: _FakeMapper(),
       );
 
       final Either<ErrorItem, ThemeState> r = await repo.read();
-      r.when(
-        (ErrorItem e) {
-          expect(e.code, 'ANY');
-          expect(e.meta['location'], 'RepositoryTheme.read');
-        },
-        (ThemeState _) => fail('Debió fallar'),
-      );
+      r.when((ErrorItem e) {
+        expect(e.code, 'ANY');
+        expect(e.meta['location'], 'RepositoryTheme.read');
+      }, (ThemeState _) => fail('Debió fallar'));
     });
 
     test('Right payload válido => mapea a ThemeState', () async {
@@ -242,16 +224,13 @@ void main() {
       );
 
       final Either<ErrorItem, ThemeState> r = await repo.read();
-      r.when(
-        (ErrorItem _) => fail('No debía fallar'),
-        (ThemeState s) {
-          expect(s.mode, ThemeMode.dark);
-          expect(s.useMaterial3, false);
-          expect(s.textScale, 1.25);
-          expect(s.seed.toARGB32(), 0xFF112233);
-          expect(s.preset, 'brandX');
-        },
-      );
+      r.when((ErrorItem _) => fail('No debía fallar'), (ThemeState s) {
+        expect(s.mode, ThemeMode.dark);
+        expect(s.useMaterial3, false);
+        expect(s.textScale, 1.25);
+        expect(s.seed.toARGB32(), 0xFF112233);
+        expect(s.preset, 'brandX');
+      });
     });
 
     test('Right payload con error de negocio => Left(BIZ)', () async {
@@ -266,31 +245,23 @@ void main() {
       );
 
       final Either<ErrorItem, ThemeState> r = await repo.read();
-      r.when(
-        (ErrorItem e) {
-          expect(e.code, 'BIZ');
-          expect(e.meta['location'], 'RepositoryTheme.read');
-        },
-        (ThemeState _) => fail('Debió ser Left por error de negocio'),
-      );
+      r.when((ErrorItem e) {
+        expect(e.code, 'BIZ');
+        expect(e.meta['location'], 'RepositoryTheme.read');
+      }, (ThemeState _) => fail('Debió ser Left por error de negocio'));
     });
 
-    test(
-        'Excepción del gateway => mapea with fromException (code mapped-ex, location RepositoryTheme.read)',
-        () async {
+    test('Excepción del gateway => mapea with fromException (code mapped-ex, location RepositoryTheme.read)', () async {
       final RepositoryTheme repo = RepositoryThemeImpl(
         gateway: _GwThrowOnRead(),
         errorMapper: _FakeMapper(),
       );
 
       final Either<ErrorItem, ThemeState> r = await repo.read();
-      r.when(
-        (ErrorItem e) {
-          expect(e.code, 'mapped-ex');
-          expect(e.meta['location'], 'RepositoryTheme.read');
-        },
-        (ThemeState _) => fail('Debió ser Left por excepción'),
-      );
+      r.when((ErrorItem e) {
+        expect(e.code, 'mapped-ex');
+        expect(e.meta['location'], 'RepositoryTheme.read');
+      }, (ThemeState _) => fail('Debió ser Left por excepción'));
     });
   });
 
@@ -310,35 +281,32 @@ void main() {
       );
 
       final Either<ErrorItem, ThemeState> r = await repo.save(next);
-      r.when(
-        (ErrorItem _) => fail('No debía fallar'),
-        (ThemeState s) {
-          expect(s.mode, ThemeMode.light);
-          expect(s.seed.toARGB32(), 0xFF445566);
-          expect(s.useMaterial3, isTrue);
-          expect(s.textScale, 1.1);
-          expect(s.preset, 'designer');
-        },
-      );
+      r.when((ErrorItem _) => fail('No debía fallar'), (ThemeState s) {
+        expect(s.mode, ThemeMode.light);
+        expect(s.seed.toARGB32(), 0xFF445566);
+        expect(s.useMaterial3, isTrue);
+        expect(s.textScale, 1.1);
+        expect(s.preset, 'designer');
+      });
     });
 
-    test('Left del gateway => propaga con meta.location=RepositoryTheme.save',
-        () async {
-      final RepositoryTheme repo = RepositoryThemeImpl(
-        gateway: _GwWriteLeft('FAIL_WRITE'),
-        errorMapper: _FakeMapper(),
-      );
+    test(
+      'Left del gateway => propaga con meta.location=RepositoryTheme.save',
+      () async {
+        final RepositoryTheme repo = RepositoryThemeImpl(
+          gateway: _GwWriteLeft('FAIL_WRITE'),
+          errorMapper: _FakeMapper(),
+        );
 
-      final Either<ErrorItem, ThemeState> r =
-          await repo.save(ThemeState.defaults);
-      r.when(
-        (ErrorItem e) {
+        final Either<ErrorItem, ThemeState> r = await repo.save(
+          ThemeState.defaults,
+        );
+        r.when((ErrorItem e) {
           expect(e.code, 'FAIL_WRITE');
           expect(e.meta['location'], 'RepositoryTheme.save');
-        },
-        (ThemeState _) => fail('Debió fallar'),
-      );
-    });
+        }, (ThemeState _) => fail('Debió fallar'));
+      },
+    );
 
     test('Right payload con error de negocio => Left(BIZ)', () async {
       final GatewayTheme gw = _GwWriteEcho();
@@ -364,37 +332,29 @@ void main() {
       );
 
       final Either<ErrorItem, ThemeState> r = await repoBiz.save(next);
-      r.when(
-        (ErrorItem e) {
-          expect(e.code, 'BIZ');
-          expect(e.meta['location'], 'RepositoryTheme.save');
-        },
-        (ThemeState _) => fail('Debió ser Left por error de negocio'),
-      );
+      r.when((ErrorItem e) {
+        expect(e.code, 'BIZ');
+        expect(e.meta['location'], 'RepositoryTheme.save');
+      }, (ThemeState _) => fail('Debió ser Left por error de negocio'));
     });
 
-    test(
-        'Excepción del gateway => mapeada via fromException (mapped-ex, RepositoryTheme.save)',
-        () async {
+    test('Excepción del gateway => mapeada via fromException (mapped-ex, RepositoryTheme.save)', () async {
       final RepositoryTheme repo = RepositoryThemeImpl(
         gateway: _GwThrowOnWrite(),
         errorMapper: _FakeMapper(),
       );
 
-      final Either<ErrorItem, ThemeState> r =
-          await repo.save(ThemeState.defaults);
-      r.when(
-        (ErrorItem e) {
-          expect(e.code, 'mapped-ex');
-          expect(e.meta['location'], 'RepositoryTheme.save');
-        },
-        (ThemeState _) => fail('Debió ser Left por excepción'),
+      final Either<ErrorItem, ThemeState> r = await repo.save(
+        ThemeState.defaults,
       );
+      r.when((ErrorItem e) {
+        expect(e.code, 'mapped-ex');
+        expect(e.meta['location'], 'RepositoryTheme.save');
+      }, (ThemeState _) => fail('Debió ser Left por excepción'));
     });
   });
   group('RepositoryThemeImpl · overrides (ThemeOverrides)', () {
-    test('read() mapea correctamente overrides light/dark desde payload',
-        () async {
+    test('read() mapea correctamente overrides light/dark desde payload', () async {
       final ThemeOverrides overrides = ThemeOverrides(
         light: ColorScheme.fromSeed(seedColor: const Color(0xFF8E4D2F)),
         dark: ColorScheme.fromSeed(
@@ -413,19 +373,18 @@ void main() {
       );
 
       final Either<ErrorItem, ThemeState> r = await repo.read();
-      r.when(
-        (ErrorItem _) => fail('No debía fallar al mapear overrides'),
-        (ThemeState s) {
-          expect(s.preset, 'designer');
-          expect(s.overrides, isNotNull);
-          // Brillos correctos
-          expect(s.overrides!.light!.brightness, Brightness.light);
-          expect(s.overrides!.dark!.brightness, Brightness.dark);
-          // Sanity de un par de slots (evitamos comparaciones totales del scheme)
-          expect(s.overrides!.light!.primary, overrides.light!.primary);
-          expect(s.overrides!.dark!.primary, overrides.dark!.primary);
-        },
-      );
+      r.when((ErrorItem _) => fail('No debía fallar al mapear overrides'), (
+        ThemeState s,
+      ) {
+        expect(s.preset, 'designer');
+        expect(s.overrides, isNotNull);
+        // Brillos correctos
+        expect(s.overrides!.light!.brightness, Brightness.light);
+        expect(s.overrides!.dark!.brightness, Brightness.dark);
+        // Sanity de un par de slots (evitamos comparaciones totales del scheme)
+        expect(s.overrides!.light!.primary, overrides.light!.primary);
+        expect(s.overrides!.dark!.primary, overrides.dark!.primary);
+      });
     });
 
     test('save() preserva overrides al pasar por el gateway (echo)', () async {
@@ -452,23 +411,22 @@ void main() {
       );
 
       final Either<ErrorItem, ThemeState> r = await repo.save(next);
-      r.when(
-        (ErrorItem _) => fail('No debía fallar guardando overrides'),
-        (ThemeState s) {
-          expect(s.preset, 'custom-over');
-          expect(s.overrides, isNotNull);
-          // Brillos correctos
-          expect(s.overrides!.light!.brightness, Brightness.light);
-          expect(s.overrides!.dark!.brightness, Brightness.dark);
-          // Un par de slots para asegurar igualdad
-          expect(s.overrides!.light!.primary, overrides.light!.primary);
-          expect(s.overrides!.dark!.primary, overrides.dark!.primary);
-          // Y el resto del estado también viajó bien
-          expect(s.seed.toARGB32(), 0xFF112233);
-          expect(s.useMaterial3, isTrue);
-          expect(s.textScale, 1.1);
-        },
-      );
+      r.when((ErrorItem _) => fail('No debía fallar guardando overrides'), (
+        ThemeState s,
+      ) {
+        expect(s.preset, 'custom-over');
+        expect(s.overrides, isNotNull);
+        // Brillos correctos
+        expect(s.overrides!.light!.brightness, Brightness.light);
+        expect(s.overrides!.dark!.brightness, Brightness.dark);
+        // Un par de slots para asegurar igualdad
+        expect(s.overrides!.light!.primary, overrides.light!.primary);
+        expect(s.overrides!.dark!.primary, overrides.dark!.primary);
+        // Y el resto del estado también viajó bien
+        expect(s.seed.toARGB32(), 0xFF112233);
+        expect(s.useMaterial3, isTrue);
+        expect(s.textScale, 1.1);
+      });
     });
 
     test('read() con solo light → dark queda null (payload parcial)', () async {
@@ -484,14 +442,13 @@ void main() {
       );
 
       final Either<ErrorItem, ThemeState> r = await repo.read();
-      r.when(
-        (ErrorItem _) => fail('No debía fallar con overrides parciales'),
-        (ThemeState s) {
-          expect(s.overrides, isNotNull);
-          expect(s.overrides!.light, isNotNull);
-          expect(s.overrides!.dark, isNull);
-        },
-      );
+      r.when((ErrorItem _) => fail('No debía fallar con overrides parciales'), (
+        ThemeState s,
+      ) {
+        expect(s.overrides, isNotNull);
+        expect(s.overrides!.light, isNotNull);
+        expect(s.overrides!.dark, isNull);
+      });
     });
   });
 }

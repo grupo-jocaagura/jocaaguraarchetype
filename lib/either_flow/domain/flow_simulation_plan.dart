@@ -30,7 +30,8 @@ class FlowForcedOutcome {
   /// Unknown branches default to [FlowBranch.success].
   factory FlowForcedOutcome.fromJson(Map<String, dynamic> json) {
     final String branchRaw = (json['branch'] ?? '').toString();
-    final FlowBranch branch = FlowBranch.values
+    final FlowBranch branch =
+        FlowBranch.values
             .where((FlowBranch e) => e.name == branchRaw)
             .cast<FlowBranch?>()
             .firstWhere((FlowBranch? _) => true, orElse: () => null) ??
@@ -45,10 +46,7 @@ class FlowForcedOutcome {
   }
 
   /// Creates an outcome.
-  const FlowForcedOutcome._(
-    this.branch, {
-    this.failureCodeOverride,
-  });
+  const FlowForcedOutcome._(this.branch, {this.failureCodeOverride});
 
   /// Forces the step to take the success branch.
   const FlowForcedOutcome.success() : this._(FlowBranch.success);
@@ -58,10 +56,7 @@ class FlowForcedOutcome {
   /// If [failureCodeOverride] is provided, it will be stored in the trace
   /// entry as the effective failure code for that step.
   const FlowForcedOutcome.failure({String? failureCodeOverride})
-      : this._(
-          FlowBranch.failure,
-          failureCodeOverride: failureCodeOverride,
-        );
+    : this._(FlowBranch.failure, failureCodeOverride: failureCodeOverride);
 
   /// Forced branch.
   final FlowBranch branch;
@@ -112,7 +107,8 @@ class FlowSimulationPlan {
   /// This method is lenient and uses safe fallbacks.
   factory FlowSimulationPlan.fromJson(Map<String, dynamic> json) {
     final String defaultRaw = (json['defaultBranch'] ?? '').toString();
-    final FlowBranch defaultBranch = FlowBranch.values
+    final FlowBranch defaultBranch =
+        FlowBranch.values
             .where((FlowBranch e) => e.name == defaultRaw)
             .cast<FlowBranch?>()
             .firstWhere((FlowBranch? _) => true, orElse: () => null) ??
@@ -129,8 +125,9 @@ class FlowSimulationPlan {
         if (v is Map<String, dynamic>) {
           forced[idx] = FlowForcedOutcome.fromJson(v);
         } else if (v is Map) {
-          forced[idx] =
-              FlowForcedOutcome.fromJson(Map<String, dynamic>.from(v));
+          forced[idx] = FlowForcedOutcome.fromJson(
+            Map<String, dynamic>.from(v),
+          );
         }
       });
     }
@@ -149,10 +146,9 @@ class FlowSimulationPlan {
   }) {
     return FlowSimulationPlan(
       defaultBranch: defaultBranch,
-      forcedByStepIndex:
-          Map<int, FlowForcedOutcome>.unmodifiable(<int, FlowForcedOutcome>{
-        ...forcedByStepIndex,
-      }),
+      forcedByStepIndex: Map<int, FlowForcedOutcome>.unmodifiable(
+        <int, FlowForcedOutcome>{...forcedByStepIndex},
+      ),
     );
   }
 

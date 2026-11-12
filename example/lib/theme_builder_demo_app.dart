@@ -1,9 +1,9 @@
 // main.dart
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   runApp(const ThemeBuilderDemoApp());
@@ -47,8 +47,9 @@ class _ThemeBuilderDemoAppState extends State<ThemeBuilderDemoApp> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData light =
-        _themeModel.toThemeData(brightness: Brightness.light);
+    final ThemeData light = _themeModel.toThemeData(
+      brightness: Brightness.light,
+    );
     final ThemeData dark = _themeModel.toThemeData(brightness: Brightness.dark);
 
     return MaterialApp(
@@ -258,9 +259,8 @@ class ThemeBuilderHome extends StatelessWidget {
                 final ModelThemeData m = ModelThemeData.fromJson(decoded);
                 Navigator.of(ctx).pop(m);
               } catch (e) {
-                ScaffoldMessenger.of(ctx).showSnackBar(
-                  SnackBar(content: Text('Invalid JSON: $e')),
-                );
+                ScaffoldMessenger.of(ctx)
+                    .showSnackBar(SnackBar(content: Text('Invalid JSON: $e')));
               }
             },
             icon: const Icon(Icons.check),
@@ -332,8 +332,9 @@ class _ControlsPanel extends StatelessWidget {
                       value: useMaterial3,
                       onChanged: onUseMaterial3Changed,
                       title: const Text('useMaterial3'),
-                      subtitle:
-                          Text('Current: ${useMaterial3 ? 'true' : 'false'}'),
+                      subtitle: Text(
+                        'Current: ${useMaterial3 ? 'true' : 'false'}',
+                      ),
                     ),
                     const SizedBox(height: 12),
                     _SeedPicker(value: seed, onChanged: onSeedChanged),
@@ -412,15 +413,17 @@ class _SeedPicker extends StatelessWidget {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children: options.map((_SeedOption o) {
-            final bool selected = value.toARGB32() == o.color.toARGB32();
-            return ChoiceChip(
-              selected: selected,
-              label: Text(o.name),
-              avatar: CircleAvatar(backgroundColor: o.color),
-              onSelected: (_) => onChanged(o.color),
-            );
-          }).toList(growable: false),
+          children: options
+              .map((_SeedOption o) {
+                final bool selected = value.toARGB32() == o.color.toARGB32();
+                return ChoiceChip(
+                  selected: selected,
+                  label: Text(o.name),
+                  avatar: CircleAvatar(backgroundColor: o.color),
+                  onSelected: (_) => onChanged(o.color),
+                );
+              })
+              .toList(growable: false),
         ),
       ],
     );
@@ -473,10 +476,7 @@ class _ThemeSnapshot extends StatelessWidget {
             child: Text(k, style: const TextStyle(fontSize: 12)),
           ),
           Expanded(
-            child: SelectableText(
-              v,
-              style: const TextStyle(fontSize: 12),
-            ),
+            child: SelectableText(v, style: const TextStyle(fontSize: 12)),
           ),
         ],
       ),
@@ -485,10 +485,7 @@ class _ThemeSnapshot extends StatelessWidget {
 }
 
 class _PreviewPanel extends StatefulWidget {
-  const _PreviewPanel({
-    required this.primaryHex,
-    required this.surfaceHex,
-  });
+  const _PreviewPanel({required this.primaryHex, required this.surfaceHex});
 
   final String primaryHex;
   final String surfaceHex;
@@ -499,8 +496,9 @@ class _PreviewPanel extends StatefulWidget {
 
 class _PreviewPanelState extends State<_PreviewPanel> {
   bool _switchValue = true;
-  final TextEditingController _text =
-      TextEditingController(text: 'Hello Jocaagura 👋');
+  final TextEditingController _text = TextEditingController(
+    text: 'Hello Jocaagura 👋',
+  );
 
   @override
   void dispose() {
@@ -617,9 +615,7 @@ ModelThemeData _buildModelThemeData({
 }) {
   final ThemeData lightBase = ThemeData(
     useMaterial3: useMaterial3,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: seed,
-    ),
+    colorScheme: ColorScheme.fromSeed(seedColor: seed),
   );
 
   final ThemeData darkBase = ThemeData(

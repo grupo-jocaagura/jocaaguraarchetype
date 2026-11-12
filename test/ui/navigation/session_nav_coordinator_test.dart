@@ -10,13 +10,12 @@ PageModel _p(
   bool requiresAuth = false,
   List<String>? segments,
   Map<String, String>? query,
-}) =>
-    PageModel(
-      name: name,
-      segments: segments ?? <String>[name],
-      query: query ?? const <String, String>{},
-      requiresAuth: requiresAuth,
-    );
+}) => PageModel(
+  name: name,
+  segments: segments ?? <String>[name],
+  query: query ?? const <String, String>{},
+  requiresAuth: requiresAuth,
+);
 
 NavStackModel _stack(List<PageModel> pages) => NavStackModel(pages);
 
@@ -31,8 +30,8 @@ Future<void> _tick() async {
 /// - función `emit` para inyectar estados
 class _TestSessionBloc implements BlocSession {
   _TestSessionBloc({bool authed = false})
-      : _isAuthed = authed,
-        _ctrl = StreamController<SessionState>.broadcast();
+    : _isAuthed = authed,
+      _ctrl = StreamController<SessionState>.broadcast();
 
   final StreamController<SessionState> _ctrl;
   bool _isAuthed;
@@ -87,36 +86,37 @@ void main() {
       publicA = _p('about');
     });
 
-    test('No authed + top protegido => redirige a login y recuerda stack',
-        () async {
-      final PageManager pm =
-          PageManager(initial: _stack(<PageModel>[home, protected]));
-      final _TestSessionBloc session = _TestSessionBloc();
-
-      final SessionNavCoordinator coord = SessionNavCoordinator(
-        pageManager: pm,
-        sessionBloc: session,
-        loginPage: login,
-        homePage: home,
-      );
-
-      // En el ctor ya se hace un enforce con snapshot Unauthenticated.
-      expect(pm.historyNames.last, equals('login'));
-
-      // Al autenticarse, restaura el stack pendiente completo.
-      session.emit(const Authenticated(defaultUserModel));
-      await _tick();
-
-      expect(pm.historyNames, equals(<String>['home', 'secret']));
-
-      coord.dispose();
-      await session.dispose();
-      pm.dispose();
-    });
-
     test(
-        'Authed en login con flag goHomeWhenAuthenticatedOnLogin=true => reset a home',
-        () async {
+      'No authed + top protegido => redirige a login y recuerda stack',
+      () async {
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[home, protected]),
+        );
+        final _TestSessionBloc session = _TestSessionBloc();
+
+        final SessionNavCoordinator coord = SessionNavCoordinator(
+          pageManager: pm,
+          sessionBloc: session,
+          loginPage: login,
+          homePage: home,
+        );
+
+        // En el ctor ya se hace un enforce con snapshot Unauthenticated.
+        expect(pm.historyNames.last, equals('login'));
+
+        // Al autenticarse, restaura el stack pendiente completo.
+        session.emit(const Authenticated(defaultUserModel));
+        await _tick();
+
+        expect(pm.historyNames, equals(<String>['home', 'secret']));
+
+        coord.dispose();
+        await session.dispose();
+        pm.dispose();
+      },
+    );
+
+    test('Authed en login con flag goHomeWhenAuthenticatedOnLogin=true => reset a home', () async {
       final PageManager pm = PageManager(initial: _stack(<PageModel>[login]));
       final _TestSessionBloc session = _TestSessionBloc();
 
@@ -161,11 +161,10 @@ void main() {
       pm.dispose();
     });
 
-    test(
-        'Refreshing se trata como autenticado: NO expulsa a login en páginas protegidas',
-        () async {
-      final PageManager pm =
-          PageManager(initial: _stack(<PageModel>[home, protected]));
+    test('Refreshing se trata como autenticado: NO expulsa a login en páginas protegidas', () async {
+      final PageManager pm = PageManager(
+        initial: _stack(<PageModel>[home, protected]),
+      );
       final _TestSessionBloc session = _TestSessionBloc(authed: true);
 
       final SessionNavCoordinator coord = SessionNavCoordinator(
@@ -185,33 +184,34 @@ void main() {
       pm.dispose();
     });
 
-    test('Logout/Unauthenticated mientras estás en protegido => va a login',
-        () async {
-      final PageManager pm =
-          PageManager(initial: _stack(<PageModel>[home, protectedDeep]));
-      final _TestSessionBloc session = _TestSessionBloc(authed: true);
-
-      final SessionNavCoordinator coord = SessionNavCoordinator(
-        pageManager: pm,
-        sessionBloc: session,
-        loginPage: login,
-        homePage: home,
-      );
-
-      // Pérdida de sesión
-      session.emit(const Unauthenticated());
-      await _tick();
-
-      expect(pm.historyNames.last, 'login');
-
-      coord.dispose();
-      await session.dispose();
-      pm.dispose();
-    });
-
     test(
-        'Cambio de stack a protegido mientras NO authed => intercepta por stackStream y va a login',
-        () async {
+      'Logout/Unauthenticated mientras estás en protegido => va a login',
+      () async {
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[home, protectedDeep]),
+        );
+        final _TestSessionBloc session = _TestSessionBloc(authed: true);
+
+        final SessionNavCoordinator coord = SessionNavCoordinator(
+          pageManager: pm,
+          sessionBloc: session,
+          loginPage: login,
+          homePage: home,
+        );
+
+        // Pérdida de sesión
+        session.emit(const Unauthenticated());
+        await _tick();
+
+        expect(pm.historyNames.last, 'login');
+
+        coord.dispose();
+        await session.dispose();
+        pm.dispose();
+      },
+    );
+
+    test('Cambio de stack a protegido mientras NO authed => intercepta por stackStream y va a login', () async {
       final PageManager pm = PageManager(initial: _stack(<PageModel>[publicA]));
       final _TestSessionBloc session = _TestSessionBloc();
 
@@ -239,66 +239,75 @@ void main() {
       pm.dispose();
     });
 
-    test('Authed navegando por públicas/protegidas no fuerza redirecciones',
-        () async {
-      final PageManager pm = PageManager(initial: _stack(<PageModel>[home]));
-      final _TestSessionBloc session = _TestSessionBloc(authed: true);
+    test(
+      'Authed navegando por públicas/protegidas no fuerza redirecciones',
+      () async {
+        final PageManager pm = PageManager(initial: _stack(<PageModel>[home]));
+        final _TestSessionBloc session = _TestSessionBloc(authed: true);
 
-      final SessionNavCoordinator coord = SessionNavCoordinator(
-        pageManager: pm,
-        sessionBloc: session,
-        loginPage: login,
-        homePage: home,
-      );
+        final SessionNavCoordinator coord = SessionNavCoordinator(
+          pageManager: pm,
+          sessionBloc: session,
+          loginPage: login,
+          homePage: home,
+        );
 
-      pm.push(publicA);
-      pm.push(protected);
-      await _tick();
+        pm.push(publicA);
+        pm.push(protected);
+        await _tick();
 
-      expect(pm.historyNames, equals(<String>['home', 'about', 'secret']));
+        expect(pm.historyNames, equals(<String>['home', 'about', 'secret']));
 
-      coord.dispose();
-      await session.dispose();
-      pm.dispose();
-    });
+        coord.dispose();
+        await session.dispose();
+        pm.dispose();
+      },
+    );
 
-    test('Restaura stack pendiente completo (varias páginas) tras autenticarse',
-        () async {
-      final NavStackModel intended =
-          _stack(<PageModel>[publicA, protected, protectedDeep]);
-      final PageManager pm = PageManager(initial: intended);
+    test(
+      'Restaura stack pendiente completo (varias páginas) tras autenticarse',
+      () async {
+        final NavStackModel intended = _stack(<PageModel>[
+          publicA,
+          protected,
+          protectedDeep,
+        ]);
+        final PageManager pm = PageManager(initial: intended);
 
-      final _TestSessionBloc session = _TestSessionBloc();
+        final _TestSessionBloc session = _TestSessionBloc();
 
-      final SessionNavCoordinator coord = SessionNavCoordinator(
-        pageManager: pm,
-        sessionBloc: session,
-        loginPage: login,
-        homePage: home,
-      );
+        final SessionNavCoordinator coord = SessionNavCoordinator(
+          pageManager: pm,
+          sessionBloc: session,
+          loginPage: login,
+          homePage: home,
+        );
 
-      // Constructor ya debió mandar a login y recordar `intended`.
-      expect(pm.historyNames.last, 'login');
+        // Constructor ya debió mandar a login y recordar `intended`.
+        expect(pm.historyNames.last, 'login');
 
-      session.emit(const Authenticated(defaultUserModel));
-      await _tick();
+        session.emit(const Authenticated(defaultUserModel));
+        await _tick();
 
-      expect(pm.historyNames, equals(<String>['about', 'secret', 'details']));
+        expect(pm.historyNames, equals(<String>['about', 'secret', 'details']));
 
-      coord.dispose();
-      await session.dispose();
-      pm.dispose();
-    });
+        coord.dispose();
+        await session.dispose();
+        pm.dispose();
+      },
+    );
   });
   group('SessionNavCoordinator - política de navegación sin sesión', () {
     test('SessionError en página protegida => redirige a login', () async {
       final PageManager pm = PageManager(
-        initial: _stack(
-          <PageModel>[_p('home'), _p('secret', requiresAuth: true)],
-        ),
+        initial: _stack(<PageModel>[
+          _p('home'),
+          _p('secret', requiresAuth: true),
+        ]),
       );
-      final _TestSessionBloc session =
-          _TestSessionBloc(authed: true); // empieza authed
+      final _TestSessionBloc session = _TestSessionBloc(
+        authed: true,
+      ); // empieza authed
       final SessionNavCoordinator coord = SessionNavCoordinator(
         pageManager: pm,
         sessionBloc: session,
@@ -307,9 +316,7 @@ void main() {
       );
 
       session.emit(
-        const SessionError(
-          ErrorItem(title: 'x', code: 'x', description: 'x'),
-        ),
+        const SessionError(ErrorItem(title: 'x', code: 'x', description: 'x')),
       );
       await _tick();
 
@@ -318,24 +325,27 @@ void main() {
       await session.dispose();
       pm.dispose();
     });
-    test('Authed en página pública o protegida: NO fuerza reset a home',
-        () async {
-      final PageManager pm =
-          PageManager(initial: _stack(<PageModel>[_p('home')]));
-      final _TestSessionBloc session = _TestSessionBloc(authed: true);
-      final SessionNavCoordinator coord = SessionNavCoordinator(
-        pageManager: pm,
-        sessionBloc: session,
-        loginPage: _p('login'),
-        homePage: _p('home'),
-      );
-      pm.push(_p('about'));
-      await _tick();
-      expect(pm.historyNames.last, 'about'); // no resetea a home
-      coord.dispose();
-      await session.dispose();
-      pm.dispose();
-    });
+    test(
+      'Authed en página pública o protegida: NO fuerza reset a home',
+      () async {
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[_p('home')]),
+        );
+        final _TestSessionBloc session = _TestSessionBloc(authed: true);
+        final SessionNavCoordinator coord = SessionNavCoordinator(
+          pageManager: pm,
+          sessionBloc: session,
+          loginPage: _p('login'),
+          homePage: _p('home'),
+        );
+        pm.push(_p('about'));
+        await _tick();
+        expect(pm.historyNames.last, 'about'); // no resetea a home
+        coord.dispose();
+        await session.dispose();
+        pm.dispose();
+      },
+    );
     test('Restauración idempotente cuando stack == pending', () async {
       final PageModel about = _p('about');
       final PageModel secret = _p('secret', requiresAuth: true);
@@ -362,9 +372,10 @@ void main() {
     });
     test('Ráfaga de estados no rompe (restaura pending al final)', () async {
       final PageManager pm = PageManager(
-        initial: _stack(
-          <PageModel>[_p('about'), _p('secret', requiresAuth: true)],
-        ),
+        initial: _stack(<PageModel>[
+          _p('about'),
+          _p('secret', requiresAuth: true),
+        ]),
       );
       final _TestSessionBloc session = _TestSessionBloc();
       final SessionNavCoordinator coord = SessionNavCoordinator(
@@ -386,9 +397,10 @@ void main() {
     });
     test('Ráfaga de estados no rompe (restaura pending al final)', () async {
       final PageManager pm = PageManager(
-        initial: _stack(
-          <PageModel>[_p('about'), _p('secret', requiresAuth: true)],
-        ),
+        initial: _stack(<PageModel>[
+          _p('about'),
+          _p('secret', requiresAuth: true),
+        ]),
       );
       final _TestSessionBloc session = _TestSessionBloc();
       final SessionNavCoordinator coord = SessionNavCoordinator(
@@ -408,36 +420,40 @@ void main() {
       await session.dispose();
       pm.dispose();
     });
-    test('Refreshing seguido de Authenticated no produce navegación extra',
-        () async {
-      final PageManager pm = PageManager(
-        initial: _stack(
-          <PageModel>[_p('home'), _p('secret', requiresAuth: true)],
-        ),
-      );
-      final _TestSessionBloc session = _TestSessionBloc(authed: true);
-      final SessionNavCoordinator coord = SessionNavCoordinator(
-        pageManager: pm,
-        sessionBloc: session,
-        loginPage: _p('login'),
-        homePage: _p('home'),
-      );
+    test(
+      'Refreshing seguido de Authenticated no produce navegación extra',
+      () async {
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[
+            _p('home'),
+            _p('secret', requiresAuth: true),
+          ]),
+        );
+        final _TestSessionBloc session = _TestSessionBloc(authed: true);
+        final SessionNavCoordinator coord = SessionNavCoordinator(
+          pageManager: pm,
+          sessionBloc: session,
+          loginPage: _p('login'),
+          homePage: _p('home'),
+        );
 
-      session.emit(const Refreshing(Authenticated(defaultUserModel)));
-      session.emit(const Authenticated(defaultUserModel));
-      await _tick();
+        session.emit(const Refreshing(Authenticated(defaultUserModel)));
+        session.emit(const Authenticated(defaultUserModel));
+        await _tick();
 
-      expect(pm.historyNames.last, 'secret'); // estable
-      coord.dispose();
-      await session.dispose();
-      pm.dispose();
-    });
+        expect(pm.historyNames.last, 'secret'); // estable
+        coord.dispose();
+        await session.dispose();
+        pm.dispose();
+      },
+    );
     test('loginPage requiresAuth=true (config errónea) no buclea', () async {
       final PageModel login = _p('login', requiresAuth: true); // error humano
       final PageManager pm = PageManager(
-        initial: _stack(
-          <PageModel>[_p('home'), _p('secret', requiresAuth: true)],
-        ),
+        initial: _stack(<PageModel>[
+          _p('home'),
+          _p('secret', requiresAuth: true),
+        ]),
       );
       final _TestSessionBloc session = _TestSessionBloc(); // unauth
       final SessionNavCoordinator coord = SessionNavCoordinator(
@@ -454,99 +470,111 @@ void main() {
       await session.dispose();
       pm.dispose();
     });
-    test('homePage requiere auth: authed en login → puede resetear a home',
-        () async {
-      final PageModel login = _p('login');
-      final PageModel home = _p('home', requiresAuth: true);
-      final PageManager pm = PageManager(initial: _stack(<PageModel>[login]));
-      final _TestSessionBloc session = _TestSessionBloc();
+    test(
+      'homePage requiere auth: authed en login → puede resetear a home',
+      () async {
+        final PageModel login = _p('login');
+        final PageModel home = _p('home', requiresAuth: true);
+        final PageManager pm = PageManager(initial: _stack(<PageModel>[login]));
+        final _TestSessionBloc session = _TestSessionBloc();
 
-      final SessionNavCoordinator coord = SessionNavCoordinator(
-        pageManager: pm,
-        sessionBloc: session,
-        loginPage: login,
-        homePage: home,
-      );
+        final SessionNavCoordinator coord = SessionNavCoordinator(
+          pageManager: pm,
+          sessionBloc: session,
+          loginPage: login,
+          homePage: home,
+        );
 
-      session.emit(const Authenticated(defaultUserModel));
-      await _tick();
-      expect(pm.historyNames.last, 'home'); // OK
-      coord.dispose();
-      await session.dispose();
-      pm.dispose();
-    });
-    test('pageEquals alternativo (por name) sigue respetando login/home',
-        () async {
-      bool nameEquals(PageModel a, PageModel b) => a.name == b.name;
+        session.emit(const Authenticated(defaultUserModel));
+        await _tick();
+        expect(pm.historyNames.last, 'home'); // OK
+        coord.dispose();
+        await session.dispose();
+        pm.dispose();
+      },
+    );
+    test(
+      'pageEquals alternativo (por name) sigue respetando login/home',
+      () async {
+        bool nameEquals(PageModel a, PageModel b) => a.name == b.name;
 
-      final PageModel login = _p('login', segments: <String>['auth', 'login']);
-      final PageModel home = _p('home', segments: <String>['app', 'home']);
-      final PageManager pm = PageManager(
-        initial: _stack(
-          <PageModel>[_p('about'), _p('secret', requiresAuth: true)],
-        ),
-      );
-      final _TestSessionBloc session = _TestSessionBloc();
+        final PageModel login = _p(
+          'login',
+          segments: <String>['auth', 'login'],
+        );
+        final PageModel home = _p('home', segments: <String>['app', 'home']);
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[
+            _p('about'),
+            _p('secret', requiresAuth: true),
+          ]),
+        );
+        final _TestSessionBloc session = _TestSessionBloc();
 
-      final SessionNavCoordinator coord = SessionNavCoordinator(
-        pageManager: pm,
-        sessionBloc: session,
-        loginPage: login,
-        homePage: home,
-        pageEquals: nameEquals,
-      );
-      expect(pm.historyNames.last, 'login');
-      session.emit(const Authenticated(defaultUserModel));
-      await _tick();
-      expect(pm.historyNames.last, 'secret');
-      coord.dispose();
-      await session.dispose();
-      pm.dispose();
-    });
-    test('PageManager dispose antes que coordinator => no lanza ni navega',
-        () async {
-      final PageManager pm = PageManager(
-        initial: _stack(<PageModel>[_p('home')]),
-        postDisposePolicy: ModulePostDisposePolicy.returnLastSnapshotNoop,
-      );
-      final _TestSessionBloc session = _TestSessionBloc();
-      final SessionNavCoordinator coord = SessionNavCoordinator(
-        pageManager: pm,
-        sessionBloc: session,
-        loginPage: _p('login'),
-        homePage: _p('home'),
-      );
+        final SessionNavCoordinator coord = SessionNavCoordinator(
+          pageManager: pm,
+          sessionBloc: session,
+          loginPage: login,
+          homePage: home,
+          pageEquals: nameEquals,
+        );
+        expect(pm.historyNames.last, 'login');
+        session.emit(const Authenticated(defaultUserModel));
+        await _tick();
+        expect(pm.historyNames.last, 'secret');
+        coord.dispose();
+        await session.dispose();
+        pm.dispose();
+      },
+    );
+    test(
+      'PageManager dispose antes que coordinator => no lanza ni navega',
+      () async {
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[_p('home')]),
+          postDisposePolicy: ModulePostDisposePolicy.returnLastSnapshotNoop,
+        );
+        final _TestSessionBloc session = _TestSessionBloc();
+        final SessionNavCoordinator coord = SessionNavCoordinator(
+          pageManager: pm,
+          sessionBloc: session,
+          loginPage: _p('login'),
+          homePage: _p('home'),
+        );
 
-      pm.dispose(); // cierra navegación
-      session.emit(const Authenticated(defaultUserModel));
-      await _tick();
+        pm.dispose(); // cierra navegación
+        session.emit(const Authenticated(defaultUserModel));
+        await _tick();
 
-      // Sin cambios; no lanza
-      expect(pm.isClosed, isTrue);
-      coord.dispose();
-      await session.dispose();
-    });
-    test('BlocSession cerrado (leniente) previo al coordinator => se construye',
-        () async {
-      // Simula que el bloc ya no emite (por tu stub basta no emitir)
-      final _TestSessionBloc session = _TestSessionBloc();
-      final PageManager pm = PageManager(
-        initial: _stack(<PageModel>[_p('secret', requiresAuth: true)]),
-      );
+        // Sin cambios; no lanza
+        expect(pm.isClosed, isTrue);
+        coord.dispose();
+        await session.dispose();
+      },
+    );
+    test(
+      'BlocSession cerrado (leniente) previo al coordinator => se construye',
+      () async {
+        // Simula que el bloc ya no emite (por tu stub basta no emitir)
+        final _TestSessionBloc session = _TestSessionBloc();
+        final PageManager pm = PageManager(
+          initial: _stack(<PageModel>[_p('secret', requiresAuth: true)]),
+        );
 
-      // No emite; el coord cae al snapshot Unauthenticated
-      final SessionNavCoordinator coord = SessionNavCoordinator(
-        pageManager: pm,
-        sessionBloc: session,
-        loginPage: _p('login'),
-        homePage: _p('home'),
-      );
+        // No emite; el coord cae al snapshot Unauthenticated
+        final SessionNavCoordinator coord = SessionNavCoordinator(
+          pageManager: pm,
+          sessionBloc: session,
+          loginPage: _p('login'),
+          homePage: _p('home'),
+        );
 
-      expect(pm.historyNames.last, 'login');
-      coord.dispose();
-      await session.dispose();
-      pm.dispose();
-    });
+        expect(pm.historyNames.last, 'login');
+        coord.dispose();
+        await session.dispose();
+        pm.dispose();
+      },
+    );
     // test(
     //     'Usuario cambia intención en login antes de autenticarse => no restaura pending',
     //     () async {
@@ -561,27 +589,27 @@ void main() {
     //     homePage: _p('home'),
     //     goHomeWhenAuthenticatedOnLogin: false,
     //   );
-//
+    //
     //   expect(pm.historyNames.last, 'login'); // pendiente: [home, secret]
     //   pm.replaceTop(_p('about')); // user cambió intención en login
     //   await _tick();
-//
+    //
     //   session.emit(const Authenticated(defaultUserModel));
     //   await _tick();
-//
+    //
     //   // Esperable: NO restaurar [home, secret]; respetar 'about'
     //   expect(pm.historyNames.last, 'about');
-//
+    //
     //   coord.dispose();
     //   await session.dispose();
     //   pm.dispose();
     // });
-    test(
-        'pending termina en login (raro) => restaurar evitando quedarse en login',
-        () async {
+    test('pending termina en login (raro) => restaurar evitando quedarse en login', () async {
       final PageModel login = _p('login');
-      final NavStackModel weird =
-          _stack(<PageModel>[_p('about'), login]); // pending erróneo
+      final NavStackModel weird = _stack(<PageModel>[
+        _p('about'),
+        login,
+      ]); // pending erróneo
       final PageManager pm = PageManager(initial: weird);
       final _TestSessionBloc session = _TestSessionBloc();
 
@@ -613,13 +641,12 @@ void main() {
       bool requiresAuth = false,
       List<String>? segments,
       Map<String, String>? query,
-    }) =>
-        PageModel(
-          name: name,
-          segments: segments ?? <String>[name],
-          query: query ?? const <String, String>{},
-          requiresAuth: requiresAuth,
-        );
+    }) => PageModel(
+      name: name,
+      segments: segments ?? <String>[name],
+      query: query ?? const <String, String>{},
+      requiresAuth: requiresAuth,
+    );
 
     NavStackModel stack(List<PageModel> pages) => NavStackModel(pages);
 
@@ -697,8 +724,9 @@ void main() {
       final PageModel secret = p('secret', requiresAuth: true);
 
       // Arranca en pública→protegida (forzará pending y reset a login)
-      final PageManager pm =
-          PageManager(initial: stack(<PageModel>[home, secret]));
+      final PageManager pm = PageManager(
+        initial: stack(<PageModel>[home, secret]),
+      );
       final _TestSessionBloc session = _TestSessionBloc();
 
       final SessionNavCoordinator coord = SessionNavCoordinator(
@@ -719,30 +747,28 @@ void main() {
       pm.dispose();
     });
 
-//    test('true si: authed + top=login + sin pending (caso básico)', () async {
-//      final login = _p('login');
-//      final home = _p('home');
-//      final pm = PageManager(initial: _stack(<PageModel>[login]));
-//      final session = _TestSessionBloc(authed: true);
-//
-//      final coord = SessionNavCoordinator(
-//        pageManager: pm,
-//        sessionBloc: session,
-//        loginPage: login,
-//        homePage: home,
-//      );
-//
-//      // Authed + login + no pending + flag=true ⇒ aplica (C).
-//      expect(coord.canApplyGoHome(pm.stack), isTrue);
-//
-//      coord.dispose();
-//      await session.dispose();
-//      pm.dispose();
-//    });
+    //    test('true si: authed + top=login + sin pending (caso básico)', () async {
+    //      final login = _p('login');
+    //      final home = _p('home');
+    //      final pm = PageManager(initial: _stack(<PageModel>[login]));
+    //      final session = _TestSessionBloc(authed: true);
+    //
+    //      final coord = SessionNavCoordinator(
+    //        pageManager: pm,
+    //        sessionBloc: session,
+    //        loginPage: login,
+    //        homePage: home,
+    //      );
+    //
+    //      // Authed + login + no pending + flag=true ⇒ aplica (C).
+    //      expect(coord.canApplyGoHome(pm.stack), isTrue);
+    //
+    //      coord.dispose();
+    //      await session.dispose();
+    //      pm.dispose();
+    //    });
 
-    test(
-        'false en rebote de about→login (prevTop != login) aunque authed y sin pending',
-        () async {
+    test('false en rebote de about→login (prevTop != login) aunque authed y sin pending', () async {
       final PageModel login = p('login');
       final PageModel home = p('home');
       final PageModel about = p('about');
@@ -768,17 +794,16 @@ void main() {
       pm.dispose();
     });
 
-    test(
-        'false si usuario cambia intención en login (login→about sin autenticar) y recién ahí se autentica',
-        () async {
+    test('false si usuario cambia intención en login (login→about sin autenticar) y recién ahí se autentica', () async {
       final PageModel home = p('home');
       final PageModel login = p('login');
       final PageModel secret = p('secret', requiresAuth: true);
       final PageModel about = p('about');
 
       // Arranca con intención a página protegida ⇒ coordinator envía a login
-      final PageManager pm =
-          PageManager(initial: stack(<PageModel>[home, secret]));
+      final PageManager pm = PageManager(
+        initial: stack(<PageModel>[home, secret]),
+      );
       final _TestSessionBloc session = _TestSessionBloc();
 
       final SessionNavCoordinator coord = SessionNavCoordinator(
@@ -806,35 +831,37 @@ void main() {
       pm.dispose();
     });
 
-    test('true si evento fue session (no stack) y estamos en login sin pending',
-        () async {
-      final PageModel login = p('login');
-      final PageModel home = p('home');
+    test(
+      'true si evento fue session (no stack) y estamos en login sin pending',
+      () async {
+        final PageModel login = p('login');
+        final PageModel home = p('home');
 
-      final PageManager pm = PageManager(initial: stack(<PageModel>[login]));
-      final _TestSessionBloc session = _TestSessionBloc();
+        final PageManager pm = PageManager(initial: stack(<PageModel>[login]));
+        final _TestSessionBloc session = _TestSessionBloc();
 
-      final SessionNavCoordinator coord = SessionNavCoordinator(
-        pageManager: pm,
-        sessionBloc: session,
-        loginPage: login,
-        homePage: home,
-      );
+        final SessionNavCoordinator coord = SessionNavCoordinator(
+          pageManager: pm,
+          sessionBloc: session,
+          loginPage: login,
+          homePage: home,
+        );
 
-      // Autenticación (evento de sesión). En login y sin pending ⇒ true.
-      session.emit(const Authenticated(defaultUserModel));
-      await tick();
+        // Autenticación (evento de sesión). En login y sin pending ⇒ true.
+        session.emit(const Authenticated(defaultUserModel));
+        await tick();
 
-      expect(
-        pm.historyNames.last,
-        anyOf('login', 'home'),
-      ); // puede haber navegado
-      // El predicado debe ser true en este snapshot (si aún estás en login).
-      expect(coord.canApplyGoHome(stack(<PageModel>[login])), isTrue);
+        expect(
+          pm.historyNames.last,
+          anyOf('login', 'home'),
+        ); // puede haber navegado
+        // El predicado debe ser true en este snapshot (si aún estás en login).
+        expect(coord.canApplyGoHome(stack(<PageModel>[login])), isTrue);
 
-      coord.dispose();
-      await session.dispose();
-      pm.dispose();
-    });
+        coord.dispose();
+        await session.dispose();
+        pm.dispose();
+      },
+    );
   });
 }

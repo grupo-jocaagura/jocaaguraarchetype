@@ -27,7 +27,7 @@ abstract final class ModelDesignSystemKeys {
 ///
 /// Functional example:
 /// ```dart
-/// import 'package:flutter/material.dart';
+/// import 'package:material_ui/material_ui.dart';
 ///
 /// void main() {
 ///   final ModelDesignSystem ds = ModelDesignSystem(
@@ -79,13 +79,13 @@ class ModelDesignSystem {
     // ✅ Retrocompatible: si faltan, usamos fallbacks
     final ModelSemanticColors semanticLight =
         (semanticLightRaw is Map<String, dynamic>)
-            ? ModelSemanticColors.fromJson(semanticLightRaw)
-            : ModelSemanticColors.fallbackLight();
+        ? ModelSemanticColors.fromJson(semanticLightRaw)
+        : ModelSemanticColors.fallbackLight();
 
     final ModelSemanticColors semanticDark =
         (semanticDarkRaw is Map<String, dynamic>)
-            ? ModelSemanticColors.fromJson(semanticDarkRaw)
-            : ModelSemanticColors.fallbackDark();
+        ? ModelSemanticColors.fromJson(semanticDarkRaw)
+        : ModelSemanticColors.fallbackDark();
 
     final ModelDataVizPalette dataViz = (dataVizRaw is Map<String, dynamic>)
         ? ModelDataVizPalette.fromJson(dataVizRaw)
@@ -144,12 +144,12 @@ class ModelDesignSystem {
 
   /// Serializes this instance into a JSON map compatible with [fromJson].
   Map<String, dynamic> toJson() => <String, dynamic>{
-        ModelDesignSystemKeys.theme: theme.toJson(),
-        ModelDesignSystemKeys.tokens: tokens.toJson(),
-        ModelDesignSystemKeys.semanticLight: semanticLight.toJson(),
-        ModelDesignSystemKeys.semanticDark: semanticDark.toJson(),
-        ModelDesignSystemKeys.dataViz: dataViz.toJson(),
-      };
+    ModelDesignSystemKeys.theme: theme.toJson(),
+    ModelDesignSystemKeys.tokens: tokens.toJson(),
+    ModelDesignSystemKeys.semanticLight: semanticLight.toJson(),
+    ModelDesignSystemKeys.semanticDark: semanticDark.toJson(),
+    ModelDesignSystemKeys.dataViz: dataViz.toJson(),
+  };
 
   /// Builds a complete [ThemeData] for the given [brightness].
   ///
@@ -161,13 +161,12 @@ class ModelDesignSystem {
   /// Notes:
   /// - The extensions list is currently set explicitly; if the base theme contains
   ///   other extensions, they may be replaced.
-  ThemeData toThemeData({
-    required Brightness brightness,
-  }) {
+  ThemeData toThemeData({required Brightness brightness}) {
     final ThemeData base = theme.toThemeData(brightness: brightness);
 
-    final ModelSemanticColors semantic =
-        (brightness == Brightness.dark) ? semanticDark : semanticLight;
+    final ModelSemanticColors semantic = (brightness == Brightness.dark)
+        ? semanticDark
+        : semanticLight;
 
     final ThemeData withExtensions = base.copyWith(
       extensions: <ThemeExtension<dynamic>>[
@@ -300,9 +299,7 @@ class ModelDesignSystem {
           color: cs.inverseSurface,
           borderRadius: radiusSm,
         ),
-        textStyle: t.textTheme.bodySmall?.copyWith(
-          color: cs.onInverseSurface,
-        ),
+        textStyle: t.textTheme.bodySmall?.copyWith(color: cs.onInverseSurface),
         waitDuration: tokens.animationDurationShort,
         showDuration: tokens.animationDurationLong,
       ),

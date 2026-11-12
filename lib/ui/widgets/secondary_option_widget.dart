@@ -51,8 +51,10 @@ class _SecondaryOptionWidgetState extends State<SecondaryOptionWidget> {
 
     // Wider than mobile: leverage a larger surface and spacing from responsive.
     final double base = widget.responsive.widthByColumns(2).clamp(120.0, 360.0);
-    final double height =
-        (widget.responsive.columnWidth * 0.7).clamp(40.0, 56.0);
+    final double height = (widget.responsive.columnWidth * 0.7).clamp(
+      40.0,
+      56.0,
+    );
     final double gap = widget.responsive.gutterWidth.clamp(8.0, 16.0);
 
     final Color fg = widget.selected
@@ -65,8 +67,9 @@ class _SecondaryOptionWidgetState extends State<SecondaryOptionWidget> {
 
     final Color bg = !_hovered && !_focused
         ? bgBase
-        : scheme.secondaryContainer
-            .withValues(alpha: widget.selected ? 0.15 : 0.75);
+        : scheme.secondaryContainer.withValues(
+            alpha: widget.selected ? 0.15 : 0.75,
+          );
 
     final BorderSide border = BorderSide(
       color: widget.selected
@@ -87,8 +90,8 @@ class _SecondaryOptionWidgetState extends State<SecondaryOptionWidget> {
                 widget.label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style:
-                    Theme.of(context).textTheme.labelLarge?.copyWith(color: fg),
+                style: Theme.of(context).textTheme.labelLarge
+                    ?.copyWith(color: fg),
               ),
             ),
           ],
@@ -106,8 +109,9 @@ class _SecondaryOptionWidgetState extends State<SecondaryOptionWidget> {
           onPressed: widget.onPressed,
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.all(bg),
-            overlayColor:
-                WidgetStateProperty.all(scheme.primary.withValues(alpha: 0.94)),
+            overlayColor: WidgetStateProperty.all(
+              scheme.primary.withValues(alpha: 0.94),
+            ),
             shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
                 side: border,

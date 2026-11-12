@@ -4,12 +4,14 @@ Arquetipo base para aplicaciones Flutter con enfoque de Clean Architecture, BLoC
 
 ## Estado actual
 
-- Dependencia alineada con `jocaagura_domain: ^1.39.0`.
-- Validación de compatibilidad completada con:
-  - `flutter pub get`
-  - `flutter analyze`
-  - `flutter test`
-- Resultado del upgrade a `1.39.0`: retrocompatible para el arquetipo, sin cambios obligatorios de adopción.
+- Migración a **5.0.0** con `material_ui` y `cupertino_ui` independientes del SDK de Flutter.
+- Requiere **Flutter >=3.50.0** y **Dart >=3.14.0 <4.0.0**.
+- Dependencia oficial `jocaagura_domain: ^2.0.0` desde pub.dev, con
+  `jocaagura_domain_core: ^1.3.0` de forma transitiva.
+- El paquete usa dependencias publicadas y conserva la versión **5.0.0**
+  para su próximo release.
+- [Guía de migración a 5.0.0](doc/migration-5.md).
+- [Certificación con domain 2.0.0 publicado](doc/workflows/evidence/135/certification-domain-2.0.0.md).
 
 ## Qué resuelve este arquetipo
 
@@ -48,32 +50,29 @@ Incluye soporte práctico para:
 
 En términos simples: no solo puedes pintar una app, también puedes modelar, persistir, editar, importar, exportar y evolucionar su lenguaje visual sin repartir lógica visual por toda la UI.
 
-## Compatibilidad con `jocaagura_domain 1.39.0`
+## Compatibilidad con domain/core y Material/Cupertino
 
-Se verificó el consumo del arquetipo contra la versión `1.39.0`, poniendo atención en las piezas más sensibles:
+El barrel `jocaaguraarchetype_domain.dart` mantiene la exposición de las APIs
+de domain y sus reexports de core. No necesitas declarar core directamente
+salvo que tu aplicación lo importe de forma explícita.
 
-- `ModelAppVersion`
-- `JocaDateUtils` y normalización ISO usada por snapshots/modelos
-- `BlocModule`
-- `BlocResponsive`
-- patrón de formularios con `ModelFieldState`
-- widgets transversales, theme, responsive y bootstrap de app
-
-Conclusión:
-
-- no se detectaron imports rotos por barrels o módulos expuestos
-- el arquetipo compila y analiza correctamente con `1.39.0`
-- los tests existentes pasan sin requerir adaptaciones funcionales
-- el upgrade se considera aditivo y retrocompatible para este repositorio
+Los tipos de diseño como `ThemeData`, `ColorScheme`, `TextTheme`, `MaterialPage`
+y `CupertinoPage` ahora provienen de `material_ui` y `cupertino_ui`. Los
+consumidores deben migrar sus imports y dependencias para usar los mismos tipos.
+Este cambio requiere una versión major aunque los nombres de clase se conserven.
 
 ## Instalación
 
-En tu `pubspec.yaml`:
+Para probar esta rama antes de la publicación de 5.0.0, usa en tu `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  jocaaguraarchetype: ^4.1.0
-  jocaagura_domain: ^1.39.0
+  jocaaguraarchetype:
+    git:
+      url: https://github.com/grupo-jocaagura/jocaaguraarchetype.git
+      ref: feature/135-feat-migrate-archetype-to-material-ui-and-domaincore-for-500
+  material_ui: ^1.11.0
+  # Agrega cupertino_ui: ^1.1.6 si lo importas directamente.
 ```
 
 Luego:
@@ -85,7 +84,7 @@ flutter pub get
 ## Quick Start
 
 ```dart
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
 void main() {
@@ -198,9 +197,12 @@ Si actualizas `jocaagura_domain`, esta es la secuencia mínima recomendada:
 ```bash
 flutter pub get
 flutter analyze
+dart analyze --fatal-infos --fatal-warnings .
 flutter test
+dart format --output=none --set-exit-if-changed .
 cd example
 flutter analyze
+flutter build web --release
 ```
 
 Esto ayuda a detectar rápido tres tipos de regresión:

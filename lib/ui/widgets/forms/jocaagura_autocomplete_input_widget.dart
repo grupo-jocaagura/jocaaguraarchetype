@@ -172,80 +172,84 @@ class _JocaaguraAutocompleteInputWidgetState
         widget.onChangedAttempt(val);
         _focusNode.unfocus();
       },
-      fieldViewBuilder: (
-        BuildContext context,
-        TextEditingController _,
-        FocusNode __,
-        VoidCallback onFieldSubmitted,
-      ) {
-        final InputDecoration decoration = InputDecoration(
-          prefixIcon: widget.icondata != null ? Icon(widget.icondata) : null,
-          label: widget.label.isNotEmpty ? Text(widget.label) : null,
-          hintText: widget.placeholder,
-          errorText: widget.errorText,
-          suffixIcon: (widget.obscureText && widget.showToggleObscure)
-              ? IconButton(
-                  tooltip: _obscure ? 'Show' : 'Hide',
-                  icon: Icon(
-                    _obscure ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed: () => setState(() => _obscure = !_obscure),
-                )
-              : null,
-        );
+      fieldViewBuilder:
+          (
+            BuildContext context,
+            TextEditingController _,
+            FocusNode __,
+            VoidCallback onFieldSubmitted,
+          ) {
+            final InputDecoration decoration = InputDecoration(
+              prefixIcon: widget.icondata != null
+                  ? Icon(widget.icondata)
+                  : null,
+              label: widget.label.isNotEmpty ? Text(widget.label) : null,
+              hintText: widget.placeholder,
+              errorText: widget.errorText,
+              suffixIcon: (widget.obscureText && widget.showToggleObscure)
+                  ? IconButton(
+                      tooltip: _obscure ? 'Show' : 'Hide',
+                      icon: Icon(
+                        _obscure ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () => setState(() => _obscure = !_obscure),
+                    )
+                  : null,
+            );
 
-        // Ojo: TextField ya trae semantics; no necesitamos envolverlo extra.
-        return TextField(
-          controller: _controller,
-          focusNode: _focusNode,
-          keyboardType: widget.textInputType,
-          textInputAction: widget.textInputAction,
-          textCapitalization: widget.textCapitalization,
-          autocorrect: widget.autocorrect,
-          enableSuggestions: widget.enableSuggestions,
-          autofillHints: widget.autofillHints,
-          obscureText: _obscure,
-          onChanged: widget.onChangedAttempt,
-          onSubmitted: (String v) {
-            widget.onSubmittedAttempt?.call(v);
-            onFieldSubmitted();
-            _focusNode.unfocus();
+            // Ojo: TextField ya trae semantics; no necesitamos envolverlo extra.
+            return TextField(
+              controller: _controller,
+              focusNode: _focusNode,
+              keyboardType: widget.textInputType,
+              textInputAction: widget.textInputAction,
+              textCapitalization: widget.textCapitalization,
+              autocorrect: widget.autocorrect,
+              enableSuggestions: widget.enableSuggestions,
+              autofillHints: widget.autofillHints,
+              obscureText: _obscure,
+              onChanged: widget.onChangedAttempt,
+              onSubmitted: (String v) {
+                widget.onSubmittedAttempt?.call(v);
+                onFieldSubmitted();
+                _focusNode.unfocus();
+              },
+              decoration: decoration,
+            );
           },
-          decoration: decoration,
-        );
-      },
-      optionsViewBuilder: (
-        BuildContext context,
-        AutocompleteOnSelected<String> onSelected,
-        Iterable<String> options,
-      ) {
-        // El overlay vive fuera del ListView, pero lo constrainimos bien.
-        return Align(
-          alignment: Alignment.topLeft,
-          child: Material(
-            elevation: 4,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: widget.maxOptionsHeight,
-                minWidth: widget.minOptionsWidth,
+      optionsViewBuilder:
+          (
+            BuildContext context,
+            AutocompleteOnSelected<String> onSelected,
+            Iterable<String> options,
+          ) {
+            // El overlay vive fuera del ListView, pero lo constrainimos bien.
+            return Align(
+              alignment: Alignment.topLeft,
+              child: Material(
+                elevation: 4,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: widget.maxOptionsHeight,
+                    minWidth: widget.minOptionsWidth,
+                  ),
+                  child: ListView.separated(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    itemCount: options.length,
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemBuilder: (_, int i) {
+                      final String option = options.elementAt(i);
+                      return ListTile(
+                        title: Text(option),
+                        onTap: () => onSelected(option),
+                      );
+                    },
+                  ),
+                ),
               ),
-              child: ListView.separated(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                itemCount: options.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
-                itemBuilder: (_, int i) {
-                  final String option = options.elementAt(i);
-                  return ListTile(
-                    title: Text(option),
-                    onTap: () => onSelected(option),
-                  );
-                },
-              ),
-            ),
-          ),
-        );
-      },
+            );
+          },
     );
   }
 }

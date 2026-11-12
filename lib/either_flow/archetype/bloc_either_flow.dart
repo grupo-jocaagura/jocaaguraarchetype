@@ -97,11 +97,11 @@ class BlocEitherFlow {
     FlowAnalysisReport? analysis,
     ModelFieldState? jsonField,
   }) {
-    final ModelFieldState nextField =
-        (jsonField ?? state.value.jsonField).copyWith(
-      isValid: report.isValid,
-      errorText: report.isValid ? '' : 'Flow is invalid',
-    );
+    final ModelFieldState nextField = (jsonField ?? state.value.jsonField)
+        .copyWith(
+          isValid: report.isValid,
+          errorText: report.isValid ? '' : 'Flow is invalid',
+        );
 
     emit(
       state.value.copyWith(
@@ -125,12 +125,7 @@ class BlocEitherFlow {
       errorText: report.isValid ? '' : 'Flow is invalid',
     );
 
-    emit(
-      state.value.copyWith(
-        jsonField: nextField,
-        validationReport: report,
-      ),
-    );
+    emit(state.value.copyWith(jsonField: nextField, validationReport: report));
   }
 
   /// Sets a new analysis report.
@@ -155,12 +150,7 @@ class BlocEitherFlow {
 
   /// Clears simulation artifacts only.
   void clearSimulation() {
-    emit(
-      state.value.copyWith(
-        clearSimulation: true,
-        clearAudit: true,
-      ),
-    );
+    emit(state.value.copyWith(clearSimulation: true, clearAudit: true));
   }
 
   /// Disposes internal resources.

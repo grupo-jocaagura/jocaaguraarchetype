@@ -8,8 +8,9 @@ void main() {
   ]) {
     final String window = duration == null ? 'default' : 'custom';
 
-    testWidgets('AppManager disposal cancels a pending $window toast',
-        (WidgetTester tester) async {
+    testWidgets('AppManager disposal cancels a pending $window toast', (
+      WidgetTester tester,
+    ) async {
       final PageRegistry registry = PageRegistry(<String, PageWidgetBuilder>{});
       final AppManager manager = AppManager(AppConfig.dev(registry: registry));
 
@@ -23,8 +24,9 @@ void main() {
       manager.notifications.clear();
     });
 
-    testWidgets('clear cancels a pending $window toast and allows reuse',
-        (WidgetTester tester) async {
+    testWidgets('clear cancels a pending $window toast and allows reuse', (
+      WidgetTester tester,
+    ) async {
       final BlocUserNotifications bloc = BlocUserNotifications();
       addTearDown(bloc.dispose);
 
@@ -41,28 +43,29 @@ void main() {
   for (final bool firstCustom in <bool>[false, true]) {
     for (final bool nextCustom in <bool>[false, true]) {
       testWidgets(
-          'Replacing a toast restarts its timer ($firstCustom -> $nextCustom)',
-          (WidgetTester tester) async {
-        final BlocUserNotifications bloc = BlocUserNotifications(
-          autoClose: const Duration(seconds: 2),
-        );
-        addTearDown(bloc.dispose);
+        'Replacing a toast restarts its timer ($firstCustom -> $nextCustom)',
+        (WidgetTester tester) async {
+          final BlocUserNotifications bloc = BlocUserNotifications(
+            autoClose: const Duration(seconds: 2),
+          );
+          addTearDown(bloc.dispose);
 
-        bloc.showToast(
-          'First',
-          duration: firstCustom ? const Duration(seconds: 1) : null,
-        );
-        await tester.pump(const Duration(milliseconds: 500));
-        bloc.showToast(
-          'Next',
-          duration: nextCustom ? const Duration(seconds: 3) : null,
-        );
+          bloc.showToast(
+            'First',
+            duration: firstCustom ? const Duration(seconds: 1) : null,
+          );
+          await tester.pump(const Duration(milliseconds: 500));
+          bloc.showToast(
+            'Next',
+            duration: nextCustom ? const Duration(seconds: 3) : null,
+          );
 
-        await tester.pump(const Duration(milliseconds: 1500));
-        expect(bloc.toast.text, 'Next');
-        await tester.pump(Duration(milliseconds: nextCustom ? 1500 : 500));
-        expect(bloc.toast.isEmpty, isTrue);
-      });
+          await tester.pump(const Duration(milliseconds: 1500));
+          expect(bloc.toast.text, 'Next');
+          await tester.pump(Duration(milliseconds: nextCustom ? 1500 : 500));
+          expect(bloc.toast.isEmpty, isTrue);
+        },
+      );
     }
   }
 }

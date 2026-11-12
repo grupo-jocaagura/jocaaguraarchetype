@@ -93,20 +93,22 @@ class FlowValidationIssue {
   ///
   /// This method is lenient and uses safe fallbacks for unknown enum names.
   factory FlowValidationIssue.fromJson(Map<String, dynamic> json) {
-    final String codeRaw =
-        (json[_FlowValidationIssueKeys.code] ?? '').toString();
-    final String severityRaw =
-        (json[_FlowValidationIssueKeys.severity] ?? '').toString();
-    final String message =
-        (json[_FlowValidationIssueKeys.message] ?? '').toString();
+    final String codeRaw = (json[_FlowValidationIssueKeys.code] ?? '')
+        .toString();
+    final String severityRaw = (json[_FlowValidationIssueKeys.severity] ?? '')
+        .toString();
+    final String message = (json[_FlowValidationIssueKeys.message] ?? '')
+        .toString();
 
-    final FlowValidationCode code = FlowValidationCode.values
+    final FlowValidationCode code =
+        FlowValidationCode.values
             .where((FlowValidationCode e) => e.name == codeRaw)
             .cast<FlowValidationCode?>()
             .firstWhere((FlowValidationCode? _) => true, orElse: () => null) ??
         FlowValidationCode.emptyFlow;
 
-    final FlowValidationSeverity severity = FlowValidationSeverity.values
+    final FlowValidationSeverity severity =
+        FlowValidationSeverity.values
             .where((FlowValidationSeverity e) => e.name == severityRaw)
             .cast<FlowValidationSeverity?>()
             .firstWhere(
@@ -181,7 +183,8 @@ class FlowValidationIssue {
   }
 
   @override
-  String toString() => 'FlowValidationIssue('
+  String toString() =>
+      'FlowValidationIssue('
       'code=$code, severity=$severity, stepIndex=$stepIndex, refIndex=$refIndex, '
       'message="$message", cyclePath=$cyclePath'
       ')';

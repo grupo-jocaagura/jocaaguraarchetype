@@ -1,15 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   const LanguageLocaleMapper mapper = LanguageLocaleMapper();
 
   group('LanguageLocaleMapper.toLocale', () {
     test('maps language without optional subtags', () {
-      const ModelLanguage language = ModelLanguage(
-        languageCode: 'es',
-      );
+      const ModelLanguage language = ModelLanguage(languageCode: 'es');
 
       final Locale result = mapper.toLocale(language);
 
@@ -64,18 +62,11 @@ void main() {
 
   group('LanguageLocaleMapper.fromLocale', () {
     test('maps locale without optional subtags', () {
-      const Locale locale = Locale.fromSubtags(
-        languageCode: 'es',
-      );
+      const Locale locale = Locale.fromSubtags(languageCode: 'es');
 
       final ModelLanguage result = mapper.fromLocale(locale);
 
-      expect(
-        result,
-        const ModelLanguage(
-          languageCode: 'es',
-        ),
-      );
+      expect(result, const ModelLanguage(languageCode: 'es'));
       expect(result.scriptCode, '');
       expect(result.regionCode, '');
     });
@@ -101,10 +92,7 @@ void main() {
 
       expect(
         result,
-        const ModelLanguage(
-          languageCode: 'zh',
-          scriptCode: 'Hans',
-        ),
+        const ModelLanguage(languageCode: 'zh', scriptCode: 'Hans'),
       );
       expect(result.regionCode, '');
     });
@@ -133,14 +121,9 @@ void main() {
   group('LanguageLocaleMapper roundtrip', () {
     test('preserves supported domain language structures', () {
       const List<ModelLanguage> languages = <ModelLanguage>[
-        ModelLanguage(
-          languageCode: 'es',
-        ),
+        ModelLanguage(languageCode: 'es'),
         ModelLanguage.spanishColombia,
-        ModelLanguage(
-          languageCode: 'zh',
-          scriptCode: 'Hans',
-        ),
+        ModelLanguage(languageCode: 'zh', scriptCode: 'Hans'),
         ModelLanguage.chineseChina,
         ModelLanguage.chineseTaiwan,
         ModelLanguage.englishUnitedStates,

@@ -178,13 +178,10 @@ class SetThemeTextScale with _ThemeUpdate {
   SetThemeTextScale(this.repo);
   final RepositoryTheme repo;
   Future<Either<ErrorItem, ThemeState>> call(double scale) => update(
-        repo,
-        (ThemeState s) => s.copyWith(
-          textScale: Utils.getDouble(
-            scale.clamp(0.8, 1.6),
-          ),
-        ),
-      );
+    repo,
+    (ThemeState s) =>
+        s.copyWith(textScale: Utils.getDouble(scale.clamp(0.8, 1.6))),
+  );
 }
 
 /// Resets the theme to [ThemeState.defaults] and persists it.
@@ -208,10 +205,9 @@ class RandomizeTheme with _ThemeUpdate {
   final RepositoryTheme repo;
   final ServiceTheme service;
   Future<Either<ErrorItem, ThemeState>> call() => update(
-        repo,
-        (ThemeState s) =>
-            s.copyWith(seed: service.colorRandom(), preset: 'random'),
-      );
+    repo,
+    (ThemeState s) => s.copyWith(seed: service.colorRandom(), preset: 'random'),
+  );
 }
 
 /// Sets (or clears) the per-scheme typography overrides and persists them.

@@ -44,7 +44,8 @@ class _JocaaguraAppShellState extends State<JocaaguraAppShell>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    _controller = widget.controller ??
+    _controller =
+        widget.controller ??
         JocaaguraAppShellController.fromManager(widget.appManager);
 
     _parser = const MyRouteInformationParser();
@@ -67,10 +68,7 @@ class _JocaaguraAppShellState extends State<JocaaguraAppShell>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    _controller.handleLifecycle(
-      state: state,
-      ownsManager: widget.ownsManager,
-    );
+    _controller.handleLifecycle(state: state, ownsManager: widget.ownsManager);
   }
 
   @override

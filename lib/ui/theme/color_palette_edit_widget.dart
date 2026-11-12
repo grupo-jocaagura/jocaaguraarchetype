@@ -44,12 +44,12 @@ class _ColorPaletteEditWidgetState extends State<ColorPaletteEditWidget> {
   }
 
   Widget gapSm(BuildContext context) => SizedBox(
-        width: DsExtendedTokensExtension.tokOr(
-          context,
-          (ModelDsExtendedTokens t) => t.spacingSm,
-          8,
-        ),
-      );
+    width: DsExtendedTokensExtension.tokOr(
+      context,
+      (ModelDsExtendedTokens t) => t.spacingSm,
+      8,
+    ),
+  );
   @override
   Widget build(BuildContext context) {
     final double minTabHeight = DsExtendedTokensExtension.tokOr(
@@ -63,8 +63,10 @@ class _ColorPaletteEditWidgetState extends State<ColorPaletteEditWidget> {
       70,
     );
 
-    final double tabHeight = (MediaQuery.of(context).size.width * 0.25)
-        .clamp(minTabHeight, maxTabHeight);
+    final double tabHeight = (MediaQuery.of(context).size.width * 0.25).clamp(
+      minTabHeight,
+      maxTabHeight,
+    );
     return SizedBox(
       height: tabHeight,
       child: StreamBuilder<ModelFieldState>(

@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// ======= Tus esquemas de color + seed =======
 const Color seed = Color(0xff8e4d2f);
@@ -177,10 +177,7 @@ class _ReactiveThemeDemoAppState extends State<ReactiveThemeDemoApp> {
     _watch = WatchTheme(_repo);
 
     // 6) Reactive Bloc (se suscribe de inmediato)
-    _bloc = BlocThemeReact(
-      themeUsecases: _usecases,
-      watchTheme: _watch,
-    );
+    _bloc = BlocThemeReact(themeUsecases: _usecases, watchTheme: _watch);
   }
 
   @override
@@ -343,15 +340,9 @@ class _AutoToggleCard extends StatelessWidget {
                 ],
               ),
             ),
-            Switch(
-              value: autoToggle,
-              onChanged: onToggle,
-            ),
+            Switch(value: autoToggle, onChanged: onToggle),
             const SizedBox(width: 8),
-            _PeriodMenu(
-              current: period,
-              onSelected: onChangePeriod,
-            ),
+            _PeriodMenu(current: period, onSelected: onChangePeriod),
           ],
         ),
       ),
@@ -471,9 +462,7 @@ class _ActionCard extends StatelessWidget {
         child: SizedBox(
           width: width,
           height: 96,
-          child: Center(
-            child: Text(label, style: tt.titleMedium),
-          ),
+          child: Center(child: Text(label, style: tt.titleMedium)),
         ),
       ),
     );

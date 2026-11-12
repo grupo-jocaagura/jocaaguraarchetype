@@ -1,13 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
 void main() {
   group('ListTileExitDrawerWidget', () {
-    testWidgets('renders label, icon and confirms before exit',
-        (WidgetTester tester) async {
+    testWidgets('renders label, icon and confirms before exit', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive resp = BlocResponsive()
         ..setSizeForTesting(const Size(390, 844));
 
@@ -41,8 +42,9 @@ void main() {
       expect(exited, isTrue);
     });
 
-    testWidgets('executes immediately when confirmBeforeExit=false',
-        (WidgetTester tester) async {
+    testWidgets('executes immediately when confirmBeforeExit=false', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive resp = BlocResponsive()
         ..setSizeForTesting(const Size(1024, 768));
 
@@ -64,8 +66,9 @@ void main() {
 
       expect(exited, isTrue);
     });
-    testWidgets('disabled state prevents tap & dialog',
-        (WidgetTester tester) async {
+    testWidgets('disabled state prevents tap & dialog', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive resp = BlocResponsive()
         ..setSizeForTesting(const Size(390, 844));
       bool called = false;

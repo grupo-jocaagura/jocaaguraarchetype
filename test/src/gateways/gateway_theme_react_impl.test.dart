@@ -2,10 +2,10 @@
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 // Importa tu paquete real
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 // ---------------- Fakes de apoyo ----------------
 
@@ -167,8 +167,10 @@ Map<String, dynamic>? _getRight(dynamic either) {
       // dartz Right has 'value' in toString only; no API pública directa.
       // Intentamos fold:
     }
-    final dynamic r =
-        (either as dynamic).fold((dynamic l) => null, (dynamic r) => r);
+    final dynamic r = (either as dynamic).fold(
+      (dynamic l) => null,
+      (dynamic r) => r,
+    );
     if (r is Map<String, dynamic>) {
       return r;
     }
@@ -203,69 +205,71 @@ void main() {
       expect((norm['textScale'] as num).toDouble(), inInclusiveRange(0.8, 1.6));
     });
 
-    test('write() normalizes, smoke-tests and broadcasts normalized JSON',
-        () async {
-      final _FakeServiceThemeReact bus = _FakeServiceThemeReact();
-      final _FakeServiceTheme theme = _FakeServiceTheme();
-      final GatewayThemeReactImpl gw = GatewayThemeReactImpl(
-        service: bus,
-        themeService: theme,
-        errorMapper: const _FakeMapper(),
-      );
+    test(
+      'write() normalizes, smoke-tests and broadcasts normalized JSON',
+      () async {
+        final _FakeServiceThemeReact bus = _FakeServiceThemeReact();
+        final _FakeServiceTheme theme = _FakeServiceTheme();
+        final GatewayThemeReactImpl gw = GatewayThemeReactImpl(
+          service: bus,
+          themeService: theme,
+          errorMapper: const _FakeMapper(),
+        );
 
-      final Map<String, dynamic> raw = <String, dynamic>{
-        'mode': 'dark',
-        'seed': '#FF112233', // string → int
-        'textScale': 9.0, // clamp a 1.6
-        // omitimos useM3 → default true
-      };
+        final Map<String, dynamic> raw = <String, dynamic>{
+          'mode': 'dark',
+          'seed': '#FF112233', // string → int
+          'textScale': 9.0, // clamp a 1.6
+          // omitimos useM3 → default true
+        };
 
-      final dynamic result = await gw.write(raw);
+        final dynamic result = await gw.write(raw);
 
-      // 1) Right
-      expect(_isRight(result), isTrue);
+        // 1) Right
+        expect(_isRight(result), isTrue);
 
-      // 2) Emisión al bus con normalizado
-      expect(bus.emitted, isNotEmpty);
-      final Map<String, dynamic> emitted = bus.emitted.last;
+        // 2) Emisión al bus con normalizado
+        expect(bus.emitted, isNotEmpty);
+        final Map<String, dynamic> emitted = bus.emitted.last;
 
-      expect(emitted['mode'], 'dark');
-      expect(emitted['useM3'], isTrue);
-      expect(emitted['textScale'], 1.6); // clamped
-      expect(emitted['seed'], isA<int>()); // parseado
+        expect(emitted['mode'], 'dark');
+        expect(emitted['useM3'], isTrue);
+        expect(emitted['textScale'], 1.6); // clamped
+        expect(emitted['seed'], isA<int>()); // parseado
 
-      // 3) Theme fue invocado (smoke test)
-      expect(theme.lightCalls, greaterThan(0));
-      expect(theme.darkCalls, greaterThan(0));
-    });
+        // 3) Theme fue invocado (smoke test)
+        expect(theme.lightCalls, greaterThan(0));
+        expect(theme.darkCalls, greaterThan(0));
+      },
+    );
   });
 
   group('GatewayThemeReactImpl • normalization details', () {
-    test('seed accepts int, "#AARRGGBB", and Color; output is int ARGB32',
-        () async {
-      final _FakeServiceThemeReact bus = _FakeServiceThemeReact();
-      final GatewayThemeReactImpl gw = GatewayThemeReactImpl(
-        service: bus,
-        themeService: _FakeServiceTheme(),
-        errorMapper: const _FakeMapper(),
-      );
-
-      // int
-      await gw.write(<String, dynamic>{'seed': 0xFFABCDEF});
-      expect(bus.emitted.last['seed'], 0xFFABCDEF);
-
-      // hex string
-      await gw.write(<String, dynamic>{'seed': '#FF010203'});
-      expect(bus.emitted.last['seed'], 0xFF010203);
-
-      // Color
-      await gw.write(<String, dynamic>{'seed': const Color(0xFF101112)});
-      expect(bus.emitted.last['seed'], 0xFF101112);
-    });
-
     test(
-        'overrides/textOverrides accept Map or domain objects and are re-serialized',
-        () async {
+      'seed accepts int, "#AARRGGBB", and Color; output is int ARGB32',
+      () async {
+        final _FakeServiceThemeReact bus = _FakeServiceThemeReact();
+        final GatewayThemeReactImpl gw = GatewayThemeReactImpl(
+          service: bus,
+          themeService: _FakeServiceTheme(),
+          errorMapper: const _FakeMapper(),
+        );
+
+        // int
+        await gw.write(<String, dynamic>{'seed': 0xFFABCDEF});
+        expect(bus.emitted.last['seed'], 0xFFABCDEF);
+
+        // hex string
+        await gw.write(<String, dynamic>{'seed': '#FF010203'});
+        expect(bus.emitted.last['seed'], 0xFF010203);
+
+        // Color
+        await gw.write(<String, dynamic>{'seed': const Color(0xFF101112)});
+        expect(bus.emitted.last['seed'], 0xFF101112);
+      },
+    );
+
+    test('overrides/textOverrides accept Map or domain objects and are re-serialized', () async {
       final _FakeServiceThemeReact bus = _FakeServiceThemeReact();
       final GatewayThemeReactImpl gw = GatewayThemeReactImpl(
         service: bus,
@@ -293,9 +297,7 @@ void main() {
       expect(bus.emitted.last['textOverrides'], isA<Map<String, dynamic>>());
     });
 
-    test(
-        'textScale is clamped to [0.8, 1.6]; preset defaults to "brand"; useM3 defaults true',
-        () async {
+    test('textScale is clamped to [0.8, 1.6]; preset defaults to "brand"; useM3 defaults true', () async {
       final _FakeServiceThemeReact bus = _FakeServiceThemeReact();
       final GatewayThemeReactImpl gw = GatewayThemeReactImpl(
         service: bus,
@@ -323,41 +325,41 @@ void main() {
   });
 
   group('GatewayThemeReactImpl • watch()', () {
-    test('Given valid events When watch Then yields Right with normalized json',
-        () async {
-      final _FakeServiceThemeReact bus = _FakeServiceThemeReact();
-      final GatewayThemeReactImpl gw = GatewayThemeReactImpl(
-        service: bus,
-        themeService: _FakeServiceTheme(),
-        errorMapper: const _FakeMapper(),
-      );
-
-      final Stream<dynamic> stream = gw.watch();
-
-      final Completer<dynamic> c = Completer<dynamic>();
-      final StreamSubscription<dynamic> sub = stream.listen((dynamic e) {
-        if (!c.isCompleted) {
-          c.complete(e);
-        }
-      });
-
-      // Empujamos un evento crudo
-      bus.updateTheme(<String, dynamic>{'mode': 'dark', 'seed': '#FF000011'});
-
-      final dynamic first = await c.future;
-      expect(_isRight(first), isTrue);
-      final Map<String, dynamic>? norm = _getRight(first);
-      expect(norm, isNotNull);
-      expect(norm!['mode'], 'dark');
-      expect(norm['seed'], 0xFF000011);
-
-      await sub.cancel();
-      bus.dispose();
-    });
-
     test(
-        'Given failing smoke test When watch Then yields Left mapped with location',
-        () async {
+      'Given valid events When watch Then yields Right with normalized json',
+      () async {
+        final _FakeServiceThemeReact bus = _FakeServiceThemeReact();
+        final GatewayThemeReactImpl gw = GatewayThemeReactImpl(
+          service: bus,
+          themeService: _FakeServiceTheme(),
+          errorMapper: const _FakeMapper(),
+        );
+
+        final Stream<dynamic> stream = gw.watch();
+
+        final Completer<dynamic> c = Completer<dynamic>();
+        final StreamSubscription<dynamic> sub = stream.listen((dynamic e) {
+          if (!c.isCompleted) {
+            c.complete(e);
+          }
+        });
+
+        // Empujamos un evento crudo
+        bus.updateTheme(<String, dynamic>{'mode': 'dark', 'seed': '#FF000011'});
+
+        final dynamic first = await c.future;
+        expect(_isRight(first), isTrue);
+        final Map<String, dynamic>? norm = _getRight(first);
+        expect(norm, isNotNull);
+        expect(norm!['mode'], 'dark');
+        expect(norm['seed'], 0xFF000011);
+
+        await sub.cancel();
+        bus.dispose();
+      },
+    );
+
+    test('Given failing smoke test When watch Then yields Left mapped with location', () async {
       final _FakeServiceThemeReact bus = _FakeServiceThemeReact();
       final _FakeServiceTheme theme = _FakeServiceTheme()..shouldThrow = true;
       final GatewayThemeReactImpl gw = GatewayThemeReactImpl(

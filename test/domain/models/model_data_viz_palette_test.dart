@@ -1,12 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('ModelDataVizPaletteKeys', () {
-    test(
-        'Given keys registry When all is used Then it contains expected keys and has no duplicates',
-        () {
+    test('Given keys registry When all is used Then it contains expected keys and has no duplicates', () {
       const List<String> keys = ModelDataVizPaletteKeys.all;
 
       expect(keys.toSet().length, keys.length);
@@ -16,26 +14,29 @@ void main() {
   });
 
   group('ModelDataVizPalette validation', () {
-    test('Given empty categorical When constructing Then throws RangeError',
-        () {
-      expect(
-        () => const ModelDataVizPalette(
-          categorical: <Color>[],
-          sequential: <Color>[Color(0xFF000000), Color(0xFFFFFFFF)],
-        )..toJson(), // force usage; constructor itself does not validate
-        returnsNormally,
-        reason:
-            'Constructor is const and does not auto-validate; validation happens in factories/copy patterns.',
-      );
-    });
+    test(
+      'Given empty categorical When constructing Then throws RangeError',
+      () {
+        expect(
+          () => const ModelDataVizPalette(
+            categorical: <Color>[],
+            sequential: <Color>[Color(0xFF000000), Color(0xFFFFFFFF)],
+          )..toJson(), // force usage; constructor itself does not validate
+          returnsNormally,
+          reason: 'Constructor is const and does not auto-validate; validation happens in factories/copy patterns.',
+        );
+      },
+    );
 
-    test('Given fallback When built Then it is valid and has expected sizes',
-        () {
-      final ModelDataVizPalette p = ModelDataVizPalette.fallback();
+    test(
+      'Given fallback When built Then it is valid and has expected sizes',
+      () {
+        final ModelDataVizPalette p = ModelDataVizPalette.fallback();
 
-      expect(p.categorical.length, 10);
-      expect(p.sequential.length, 6);
-    });
+        expect(p.categorical.length, 10);
+        expect(p.sequential.length, 6);
+      },
+    );
   });
 
   group('ModelDataVizPalette JSON', () {
@@ -49,9 +50,7 @@ void main() {
       expect(restored.hashCode, equals(original.hashCode));
     });
 
-    test(
-        'Given json missing a required key When fromJson Then throws FormatException',
-        () {
+    test('Given json missing a required key When fromJson Then throws FormatException', () {
       final Map<String, dynamic> json = ModelDataVizPalette.fallback().toJson();
       json.remove(ModelDataVizPaletteKeys.categorical);
 
@@ -62,39 +61,42 @@ void main() {
     });
 
     test(
-        'Given json with wrong shape When fromJson Then throws FormatException',
-        () {
-      expect(
-        () => ModelDataVizPalette.fromJson(const <String, dynamic>{
-          ModelDataVizPaletteKeys.categorical: 'nope',
-          ModelDataVizPaletteKeys.sequential: <int>[0xFF000000, 0xFFFFFFFF],
-        }),
-        throwsA(isA<FormatException>()),
-      );
-    });
+      'Given json with wrong shape When fromJson Then throws FormatException',
+      () {
+        expect(
+          () => ModelDataVizPalette.fromJson(const <String, dynamic>{
+            ModelDataVizPaletteKeys.categorical: 'nope',
+            ModelDataVizPaletteKeys.sequential: <int>[0xFF000000, 0xFFFFFFFF],
+          }),
+          throwsA(isA<FormatException>()),
+        );
+      },
+    );
 
     test(
-        'Given json with invalid palettes When fromJson Then throws RangeError',
-        () {
-      expect(
-        () => ModelDataVizPalette.fromJson(const <String, dynamic>{
-          ModelDataVizPaletteKeys.categorical: <int>[],
-          ModelDataVizPaletteKeys.sequential: <int>[0xFF000000], // < 2
-        }),
-        throwsA(isA<RangeError>()),
-      );
-    });
+      'Given json with invalid palettes When fromJson Then throws RangeError',
+      () {
+        expect(
+          () => ModelDataVizPalette.fromJson(const <String, dynamic>{
+            ModelDataVizPaletteKeys.categorical: <int>[],
+            ModelDataVizPaletteKeys.sequential: <int>[0xFF000000], // < 2
+          }),
+          throwsA(isA<RangeError>()),
+        );
+      },
+    );
   });
 
   group('ModelDataVizPalette.categoricalAt', () {
     test(
-        'Given index within range When categoricalAt Then returns exact element',
-        () {
-      final ModelDataVizPalette p = ModelDataVizPalette.fallback();
+      'Given index within range When categoricalAt Then returns exact element',
+      () {
+        final ModelDataVizPalette p = ModelDataVizPalette.fallback();
 
-      expect(p.categoricalAt(0), p.categorical[0]);
-      expect(p.categoricalAt(9), p.categorical[9]);
-    });
+        expect(p.categoricalAt(0), p.categorical[0]);
+        expect(p.categoricalAt(9), p.categorical[9]);
+      },
+    );
 
     test('Given index out of range When categoricalAt Then wraps around', () {
       final ModelDataVizPalette p = ModelDataVizPalette.fallback();
@@ -104,9 +106,7 @@ void main() {
       expect(p.categoricalAt(11), p.categorical[1]);
     });
 
-    test(
-        'Given negative index When categoricalAt Then behaves consistently with Dart modulo',
-        () {
+    test('Given negative index When categoricalAt Then behaves consistently with Dart modulo', () {
       final ModelDataVizPalette p = ModelDataVizPalette.fallback();
 
       // This asserts the actual runtime behavior:
@@ -131,9 +131,7 @@ void main() {
       expect(p.sequentialAt(2.0), p.sequential.last);
     });
 
-    test(
-        'Given t between steps When sequentialAt Then interpolates (lerp) deterministically',
-        () {
+    test('Given t between steps When sequentialAt Then interpolates (lerp) deterministically', () {
       final ModelDataVizPalette p = ModelDataVizPalette.fallback();
 
       // With 6 steps, positions are: 0..5.
@@ -144,9 +142,7 @@ void main() {
       expect(actual, expected);
     });
 
-    test(
-        'Given t exactly on a step When sequentialAt Then returns that exact step',
-        () {
+    test('Given t exactly on a step When sequentialAt Then returns that exact step', () {
       final ModelDataVizPalette p = ModelDataVizPalette.fallback();
 
       // t=0.4 -> pos=2.0 for 6 steps? Actually pos = t*(len-1)=0.4*5=2.0

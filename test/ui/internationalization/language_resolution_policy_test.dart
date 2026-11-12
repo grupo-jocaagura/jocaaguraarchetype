@@ -4,9 +4,7 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 void main() {
   const LanguageResolutionPolicy policy = LanguageResolutionPolicy();
 
-  const ModelLanguage spanish = ModelLanguage(
-    languageCode: 'es',
-  );
+  const ModelLanguage spanish = ModelLanguage(languageCode: 'es');
 
   const ModelLanguage spanishMexico = ModelLanguage.spanishMexico;
 
@@ -50,9 +48,7 @@ void main() {
 
     test('matches same language and script before region', () {
       final ModelLanguage result = policy.resolve(
-        preferredLanguages: const <ModelLanguage>[
-          chineseHansTaiwan,
-        ],
+        preferredLanguages: const <ModelLanguage>[chineseHansTaiwan],
         supportedLanguages: const <ModelLanguage>[
           ModelLanguage.chineseTaiwan,
           ModelLanguage.chineseChina,
@@ -73,9 +69,7 @@ void main() {
       );
 
       final ModelLanguage result = policy.resolve(
-        preferredLanguages: const <ModelLanguage>[
-          preferred,
-        ],
+        preferredLanguages: const <ModelLanguage>[preferred],
         supportedLanguages: const <ModelLanguage>[
           candidate,
           ModelLanguage.englishUnitedStates,
@@ -88,9 +82,7 @@ void main() {
 
     test('prefers generic language over regional variant', () {
       final ModelLanguage result = policy.resolve(
-        preferredLanguages: const <ModelLanguage>[
-          spanishMexico,
-        ],
+        preferredLanguages: const <ModelLanguage>[spanishMexico],
         supportedLanguages: const <ModelLanguage>[
           ModelLanguage.spanishColombia,
           spanish,
@@ -104,9 +96,7 @@ void main() {
 
     test('matches compatible language variant when generic is unavailable', () {
       final ModelLanguage result = policy.resolve(
-        preferredLanguages: const <ModelLanguage>[
-          spanishMexico,
-        ],
+        preferredLanguages: const <ModelLanguage>[spanishMexico],
         supportedLanguages: const <ModelLanguage>[
           ModelLanguage.englishUnitedStates,
           ModelLanguage.spanishColombia,
@@ -119,9 +109,7 @@ void main() {
 
     test('does not match explicitly incompatible scripts', () {
       final ModelLanguage result = policy.resolve(
-        preferredLanguages: const <ModelLanguage>[
-          chineseHansTaiwan,
-        ],
+        preferredLanguages: const <ModelLanguage>[chineseHansTaiwan],
         supportedLanguages: const <ModelLanguage>[
           ModelLanguage.chineseTaiwan,
           ModelLanguage.englishUnitedStates,
@@ -145,9 +133,7 @@ void main() {
       );
 
       final ModelLanguage result = policy.resolve(
-        preferredLanguages: const <ModelLanguage>[
-          preferred,
-        ],
+        preferredLanguages: const <ModelLanguage>[preferred],
         supportedLanguages: const <ModelLanguage>[
           candidate,
           ModelLanguage.englishUnitedStates,
@@ -158,28 +144,28 @@ void main() {
       expect(result, candidate);
     });
 
-    test('resolves fallback language when preferred language is unsupported',
-        () {
-      final ModelLanguage result = policy.resolve(
-        preferredLanguages: const <ModelLanguage>[
-          ModelLanguage.germanGermany,
-        ],
-        supportedLanguages: const <ModelLanguage>[
-          ModelLanguage.spanishColombia,
-          ModelLanguage.englishUnitedStates,
-        ],
-        fallbackLanguage: ModelLanguage.englishUnitedStates,
-      );
+    test(
+      'resolves fallback language when preferred language is unsupported',
+      () {
+        final ModelLanguage result = policy.resolve(
+          preferredLanguages: const <ModelLanguage>[
+            ModelLanguage.germanGermany,
+          ],
+          supportedLanguages: const <ModelLanguage>[
+            ModelLanguage.spanishColombia,
+            ModelLanguage.englishUnitedStates,
+          ],
+          fallbackLanguage: ModelLanguage.englishUnitedStates,
+        );
 
-      expect(result, ModelLanguage.englishUnitedStates);
-    });
+        expect(result, ModelLanguage.englishUnitedStates);
+      },
+    );
 
     test('resolves fallback using the same matching policy', () {
       final ModelLanguage result = policy.resolve(
         preferredLanguages: const <ModelLanguage>[
-          ModelLanguage(
-            languageCode: 'de',
-          ),
+          ModelLanguage(languageCode: 'de'),
         ],
         supportedLanguages: const <ModelLanguage>[
           ModelLanguage.spanishColombia,
@@ -188,29 +174,26 @@ void main() {
         fallbackLanguage: ModelLanguage.englishUnitedStates,
       );
 
-      expect(
-        result,
-        ModelLanguage.englishUnitedKingdom,
-      );
+      expect(result, ModelLanguage.englishUnitedKingdom);
     });
 
-    test('returns first supported language when fallback cannot be resolved',
-        () {
-      final ModelLanguage result = policy.resolve(
-        preferredLanguages: const <ModelLanguage>[
-          ModelLanguage(
-            languageCode: 'de',
-          ),
-        ],
-        supportedLanguages: const <ModelLanguage>[
-          ModelLanguage.spanishColombia,
-          ModelLanguage.portugueseBrazil,
-        ],
-        fallbackLanguage: ModelLanguage.englishUnitedStates,
-      );
+    test(
+      'returns first supported language when fallback cannot be resolved',
+      () {
+        final ModelLanguage result = policy.resolve(
+          preferredLanguages: const <ModelLanguage>[
+            ModelLanguage(languageCode: 'de'),
+          ],
+          supportedLanguages: const <ModelLanguage>[
+            ModelLanguage.spanishColombia,
+            ModelLanguage.portugueseBrazil,
+          ],
+          fallbackLanguage: ModelLanguage.englishUnitedStates,
+        );
 
-      expect(result, ModelLanguage.spanishColombia);
-    });
+        expect(result, ModelLanguage.spanishColombia);
+      },
+    );
 
     test('uses fallback when preferred languages are empty', () {
       final ModelLanguage result = policy.resolve(
@@ -241,9 +224,7 @@ void main() {
       const ModelLanguage spanishArgentina = ModelLanguage.spanishArgentina;
 
       final ModelLanguage result = policy.resolve(
-        preferredLanguages: const <ModelLanguage>[
-          spanishMexico,
-        ],
+        preferredLanguages: const <ModelLanguage>[spanishMexico],
         supportedLanguages: const <ModelLanguage>[
           spanishArgentina,
           ModelLanguage.spanishColombia,

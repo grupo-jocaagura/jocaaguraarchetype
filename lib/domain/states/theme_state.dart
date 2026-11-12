@@ -13,10 +13,7 @@ enum ThemeEnum {
 }
 
 /// JSON keys for ThemeOverrides payload.
-enum ThemeOverridesEnum {
-  light,
-  dark,
-}
+enum ThemeOverridesEnum { light, dark }
 
 /// JSON keys inside a ColorScheme serialization.
 enum ColorSchemeEnum {
@@ -58,7 +55,7 @@ enum ColorSchemeEnum {
 ///
 /// ## Functional example
 /// ```dart
-/// import 'package:flutter/material.dart';
+/// import 'package:material_ui/material_ui.dart';
 ///
 /// void main() {
 ///   // Given an initial theme state
@@ -114,8 +111,10 @@ class ThemeState {
 
   /// Deserializes [ThemeState] from JSON with backward-compat rules.
   factory ThemeState.fromJson(Map<String, dynamic> json) {
-    final String modeName =
-        UtilsForTheme.asStringOrEmpty(json, ThemeEnum.mode.name);
+    final String modeName = UtilsForTheme.asStringOrEmpty(
+      json,
+      ThemeEnum.mode.name,
+    );
     final ThemeMode parsedMode = ThemeMode.values.firstWhere(
       (ThemeMode themeMode) =>
           themeMode.name == (modeName.isNotEmpty ? modeName : 'system'),
@@ -127,17 +126,24 @@ class ThemeState {
         ? const Color(0xFF6750A4)
         : UtilsForTheme.parseColorCanonical(seedRaw, path: ThemeEnum.seed.name);
 
-    final bool parsedM3 =
-        UtilsForTheme.asBoolStrict(json, ThemeEnum.useM3.name);
+    final bool parsedM3 = UtilsForTheme.asBoolStrict(
+      json,
+      ThemeEnum.useM3.name,
+    );
 
-    final double parsedScale =
-        UtilsForTheme.asDoubleStrict(json, ThemeEnum.textScale.name, 1.0);
+    final double parsedScale = UtilsForTheme.asDoubleStrict(
+      json,
+      ThemeEnum.textScale.name,
+      1.0,
+    );
     if (!parsedScale.isFinite) {
       throw const FormatException('ThemeState.textScale invalid');
     }
 
-    final String prevPreset =
-        UtilsForTheme.asStringOrEmpty(json, ThemeEnum.preset.name);
+    final String prevPreset = UtilsForTheme.asStringOrEmpty(
+      json,
+      ThemeEnum.preset.name,
+    );
     final String parsedPreset = prevPreset.isEmpty ? 'brand' : prevPreset;
 
     final ThemeOverrides? ov = json[ThemeEnum.overrides.name] == null
@@ -152,8 +158,10 @@ class ThemeState {
             UtilsForTheme.asMapStrict(json, ThemeEnum.textOverrides.name),
           );
 
-    final DateTime? parsedCreatedAt =
-        UtilsForTheme.asUtcInstant(json, ThemeEnum.createdAt.name);
+    final DateTime? parsedCreatedAt = UtilsForTheme.asUtcInstant(
+      json,
+      ThemeEnum.createdAt.name,
+    );
 
     return ThemeState(
       mode: parsedMode,
@@ -201,30 +209,29 @@ class ThemeState {
     ThemeOverrides? overrides,
     TextThemeOverrides? textOverrides,
     DateTime? createdAt,
-  }) =>
-      ThemeState(
-        mode: mode ?? this.mode,
-        seed: seed ?? this.seed,
-        useMaterial3: useMaterial3 ?? this.useMaterial3,
-        textScale: textScale ?? this.textScale,
-        preset: preset ?? this.preset,
-        overrides: overrides ?? this.overrides,
-        textOverrides: textOverrides ?? this.textOverrides,
-        createdAt: createdAt ?? this.createdAt,
-      );
+  }) => ThemeState(
+    mode: mode ?? this.mode,
+    seed: seed ?? this.seed,
+    useMaterial3: useMaterial3 ?? this.useMaterial3,
+    textScale: textScale ?? this.textScale,
+    preset: preset ?? this.preset,
+    overrides: overrides ?? this.overrides,
+    textOverrides: textOverrides ?? this.textOverrides,
+    createdAt: createdAt ?? this.createdAt,
+  );
 
   /// Serializes to canonical JSON.
   Map<String, dynamic> toJson() => <String, dynamic>{
-        ThemeEnum.mode.name: mode.name,
-        ThemeEnum.seed.name: UtilsForTheme.colorToHex(seed),
-        ThemeEnum.useM3.name: useMaterial3,
-        ThemeEnum.textScale.name: textScale,
-        ThemeEnum.preset.name: preset,
-        ThemeEnum.overrides.name: overrides?.toJson(),
-        ThemeEnum.textOverrides.name: textOverrides?.toJson(),
-        if (createdAt != null)
-          ThemeEnum.createdAt.name: createdAt!.toUtc().toIso8601String(),
-      };
+    ThemeEnum.mode.name: mode.name,
+    ThemeEnum.seed.name: UtilsForTheme.colorToHex(seed),
+    ThemeEnum.useM3.name: useMaterial3,
+    ThemeEnum.textScale.name: textScale,
+    ThemeEnum.preset.name: preset,
+    ThemeEnum.overrides.name: overrides?.toJson(),
+    ThemeEnum.textOverrides.name: textOverrides?.toJson(),
+    if (createdAt != null)
+      ThemeEnum.createdAt.name: createdAt!.toUtc().toIso8601String(),
+  };
 
   /// Default state.
   static const ThemeState defaults = ThemeState(
@@ -257,7 +264,8 @@ class ThemeState {
     h = 0x1fffffff & (h ^ textScale.hashCode);
     h = 0x1fffffff & (h ^ preset.hashCode);
     h = 0x1fffffff & (h ^ (overrides?.hashCode ?? 0));
-    h = 0x1fffffff &
+    h =
+        0x1fffffff &
         (h ^ (textOverrides?.hashCode ?? 0)); // include textOverrides
     return h;
   }

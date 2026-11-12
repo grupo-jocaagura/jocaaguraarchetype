@@ -31,12 +31,11 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// - Output `seed` is an `int` (ARGB32), not `'#AARRGGBB'`.
 class GatewayThemeReactImpl implements GatewayThemeReact {
   GatewayThemeReactImpl({
-    required ServiceThemeReact service,
+    required this._service,
     ServiceTheme? themeService,
     ErrorMapper? errorMapper,
-  })  : _service = service,
-        _theme = themeService ?? const FakeServiceJocaaguraArchetypeTheme(),
-        _mapper = errorMapper ?? const DefaultErrorMapper();
+  }) : _theme = themeService ?? const FakeServiceJocaaguraArchetypeTheme(),
+       _mapper = errorMapper ?? const DefaultErrorMapper();
 
   final ServiceThemeReact _service;
   final ServiceTheme _theme;
@@ -115,8 +114,8 @@ class GatewayThemeReactImpl implements GatewayThemeReact {
     final bool useM3 = (json['useM3'] ??= true) == true;
 
     // textScale (clamp)
-    final double textScale =
-        ((json['textScale'] as num?)?.toDouble() ?? 1.0).clamp(0.8, 1.6);
+    final double textScale = ((json['textScale'] as num?)?.toDouble() ?? 1.0)
+        .clamp(0.8, 1.6);
 
     // preset
     final String preset = (json['preset'] as String?) ?? 'brand';
@@ -127,8 +126,9 @@ class GatewayThemeReactImpl implements GatewayThemeReact {
     if (rawOverrides is ThemeOverrides) {
       overrides = rawOverrides.toJson();
     } else if (rawOverrides is Map<String, dynamic>) {
-      final ThemeOverrides? o =
-          ThemeOverrides.fromJson(Map<String, dynamic>.from(rawOverrides));
+      final ThemeOverrides? o = ThemeOverrides.fromJson(
+        Map<String, dynamic>.from(rawOverrides),
+      );
       overrides = o?.toJson();
     }
 
@@ -138,8 +138,9 @@ class GatewayThemeReactImpl implements GatewayThemeReact {
     if (rawTextOv is TextThemeOverrides) {
       textOverrides = rawTextOv.toJson();
     } else if (rawTextOv is Map<String, dynamic>) {
-      final TextThemeOverrides? t =
-          TextThemeOverrides.fromJson(Map<String, dynamic>.from(rawTextOv));
+      final TextThemeOverrides? t = TextThemeOverrides.fromJson(
+        Map<String, dynamic>.from(rawTextOv),
+      );
       textOverrides = t?.toJson();
     }
 

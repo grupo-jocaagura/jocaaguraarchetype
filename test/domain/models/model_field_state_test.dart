@@ -24,15 +24,14 @@ void main() {
     });
 
     test(
-        'Given defaultModelFieldState When used Then matches expected baseline',
-        () {
-      expect(defaultModelFieldState, const ModelFieldState());
-      expect(defaultModelFieldState.hasError, isFalse);
-    });
+      'Given defaultModelFieldState When used Then matches expected baseline',
+      () {
+        expect(defaultModelFieldState, const ModelFieldState());
+        expect(defaultModelFieldState.hasError, isFalse);
+      },
+    );
 
-    test(
-        'Given state with error and suggestions When toJson Then includes optional keys',
-        () {
+    test('Given state with error and suggestions When toJson Then includes optional keys', () {
       const ModelFieldState state = ModelFieldState(
         value: 'a@',
         errorText: 'Invalid email',
@@ -45,10 +44,10 @@ void main() {
 
       expect(json[ModelFieldStateEnum.value.name], 'a@');
       expect(json[ModelFieldStateEnum.errorText.name], 'Invalid email');
-      expect(
-        json[ModelFieldStateEnum.suggestions.name],
-        <String>['a@example.com', 'a@domain.com'],
-      );
+      expect(json[ModelFieldStateEnum.suggestions.name], <String>[
+        'a@example.com',
+        'a@domain.com',
+      ]);
       expect(json[ModelFieldStateEnum.isDirty.name], isTrue);
       expect(json[ModelFieldStateEnum.isValid.name], isFalse);
       expect(state.hasError, isTrue);
@@ -56,24 +55,25 @@ void main() {
     });
 
     test(
-        'Given json without isValid When fromJson Then defaults isValid to true',
-        () {
-      final Map<String, dynamic> json = <String, dynamic>{
-        ModelFieldStateEnum.value.name: 'x',
-        ModelFieldStateEnum.errorText.name: '',
-        ModelFieldStateEnum.suggestions.name: <dynamic>[],
-        ModelFieldStateEnum.isDirty.name: true,
-        // isValid intentionally missing
-      };
+      'Given json without isValid When fromJson Then defaults isValid to true',
+      () {
+        final Map<String, dynamic> json = <String, dynamic>{
+          ModelFieldStateEnum.value.name: 'x',
+          ModelFieldStateEnum.errorText.name: '',
+          ModelFieldStateEnum.suggestions.name: <dynamic>[],
+          ModelFieldStateEnum.isDirty.name: true,
+          // isValid intentionally missing
+        };
 
-      final ModelFieldState state = ModelFieldState.fromJson(json);
+        final ModelFieldState state = ModelFieldState.fromJson(json);
 
-      expect(state.value, 'x');
-      expect(state.errorText, '');
-      expect(state.suggestions, isEmpty);
-      expect(state.isDirty, isTrue);
-      expect(state.isValid, isTrue);
-    });
+        expect(state.value, 'x');
+        expect(state.errorText, '');
+        expect(state.suggestions, isEmpty);
+        expect(state.isDirty, isTrue);
+        expect(state.isValid, isTrue);
+      },
+    );
 
     test('Given copyWith When empty call Then returns equivalent state', () {
       const ModelFieldState base = ModelFieldState(
@@ -119,22 +119,24 @@ void main() {
       expect(cleared.hasError, isFalse);
     });
 
-    test('Given equality When same content Then == true and hashCode matches',
-        () {
-      const ModelFieldState a = ModelFieldState(
-        value: '1',
-        suggestions: <String>['x'],
-        isDirty: true,
-      );
-      const ModelFieldState b = ModelFieldState(
-        value: '1',
-        suggestions: <String>['x'],
-        isDirty: true,
-      );
+    test(
+      'Given equality When same content Then == true and hashCode matches',
+      () {
+        const ModelFieldState a = ModelFieldState(
+          value: '1',
+          suggestions: <String>['x'],
+          isDirty: true,
+        );
+        const ModelFieldState b = ModelFieldState(
+          value: '1',
+          suggestions: <String>['x'],
+          isDirty: true,
+        );
 
-      expect(a == b, isTrue);
-      expect(a.hashCode, b.hashCode);
-    });
+        expect(a == b, isTrue);
+        expect(a.hashCode, b.hashCode);
+      },
+    );
 
     test('Given equality When suggestions order differs Then == false', () {
       const ModelFieldState a = ModelFieldState(
@@ -149,18 +151,16 @@ void main() {
       expect(a == b, isFalse);
     });
 
-    test(
-        'Given suggestions list provided When mutated externally Then state changes (documented warning)',
-        () {
+    test('Given suggestions list provided When mutated externally Then state changes (documented warning)', () {
       final List<String> shared = <String>['a'];
       final ModelFieldState state = ModelFieldState(suggestions: shared);
 
       shared.add('b'); // mutation after creation
 
-      expect(
-        state.suggestions,
-        <String>['a', 'b'],
-      ); // demonstrates reference behavior
+      expect(state.suggestions, <String>[
+        'a',
+        'b',
+      ]); // demonstrates reference behavior
     });
   });
 }

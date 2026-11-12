@@ -37,17 +37,18 @@ void main() {
   });
   group('PageModel.hash helpers', () {
     test(
-        'hashUnorderedStringMap: same content different order yields same hash',
-        () {
-      const int seed = 12345;
-      final Map<String, String> map1 = <String, String>{'a': '1', 'b': '2'};
-      final Map<String, String> map2 = <String, String>{'b': '2', 'a': '1'};
+      'hashUnorderedStringMap: same content different order yields same hash',
+      () {
+        const int seed = 12345;
+        final Map<String, String> map1 = <String, String>{'a': '1', 'b': '2'};
+        final Map<String, String> map2 = <String, String>{'b': '2', 'a': '1'};
 
-      final int h1 = PageModel.hashUnorderedStringMap(map1, seed);
-      final int h2 = PageModel.hashUnorderedStringMap(map2, seed);
+        final int h1 = PageModel.hashUnorderedStringMap(map1, seed);
+        final int h2 = PageModel.hashUnorderedStringMap(map2, seed);
 
-      expect(h1, equals(h2));
-    });
+        expect(h1, equals(h2));
+      },
+    );
 
     test('hashUnorderedStringMap: different values produce different hash', () {
       const int seed = 999;
@@ -100,33 +101,35 @@ void main() {
     });
   });
   group('PageModel.copyWith immutability', () {
-    test('copyWith returns unmodifiable collections when new ones are provided',
-        () {
-      final List<String> segIn = <String>['a', 'b'];
-      final Map<String, String> qIn = <String, String>{'k': 'v'};
-      final Map<String, dynamic> stIn = <String, dynamic>{'s': 1};
+    test(
+      'copyWith returns unmodifiable collections when new ones are provided',
+      () {
+        final List<String> segIn = <String>['a', 'b'];
+        final Map<String, String> qIn = <String, String>{'k': 'v'};
+        final Map<String, dynamic> stIn = <String, dynamic>{'s': 1};
 
-      const PageModel base = PageModel(name: 'p');
-      final PageModel copy = base.copyWith(
-        segments: segIn,
-        query: qIn,
-        state: stIn,
-      );
+        const PageModel base = PageModel(name: 'p');
+        final PageModel copy = base.copyWith(
+          segments: segIn,
+          query: qIn,
+          state: stIn,
+        );
 
-      // Try to mutate exposed collections -> must throw.
-      expect(() => copy.segments.add('x'), throwsUnsupportedError);
-      expect(() => copy.query['q'] = 'w', throwsUnsupportedError);
-      expect(() => copy.state['t'] = 2, throwsUnsupportedError);
+        // Try to mutate exposed collections -> must throw.
+        expect(() => copy.segments.add('x'), throwsUnsupportedError);
+        expect(() => copy.query['q'] = 'w', throwsUnsupportedError);
+        expect(() => copy.state['t'] = 2, throwsUnsupportedError);
 
-      // Mutate the original inputs -> copy must remain unaffected (defensive copy).
-      segIn.add('Z');
-      qIn['k'] = 'CHANGED';
-      stIn['s'] = 999;
+        // Mutate the original inputs -> copy must remain unaffected (defensive copy).
+        segIn.add('Z');
+        qIn['k'] = 'CHANGED';
+        stIn['s'] = 999;
 
-      expect(copy.segments, <String>['a', 'b']); // unchanged
-      expect(copy.query, <String, String>{'k': 'v'}); // unchanged
-      expect(copy.state, <String, dynamic>{'s': 1}); // unchanged
-    });
+        expect(copy.segments, <String>['a', 'b']); // unchanged
+        expect(copy.query, <String, String>{'k': 'v'}); // unchanged
+        expect(copy.state, <String, dynamic>{'s': 1}); // unchanged
+      },
+    );
 
     test('copyWith keeps immutability when reusing existing collections', () {
       const PageModel original = PageModel(
@@ -151,26 +154,27 @@ void main() {
     });
 
     test(
-        'copyWith preserves equality semantics (only changed fields affect ==)',
-        () {
-      const PageModel a = PageModel(
-        name: 'p',
-        segments: <String>['s1', 's2'],
-        query: <String, String>{'a': '1'},
-        state: <String, dynamic>{'x': 10},
-      );
+      'copyWith preserves equality semantics (only changed fields affect ==)',
+      () {
+        const PageModel a = PageModel(
+          name: 'p',
+          segments: <String>['s1', 's2'],
+          query: <String, String>{'a': '1'},
+          state: <String, dynamic>{'x': 10},
+        );
 
-      // Change nothing -> equal
-      final PageModel b = a.copyWith();
-      expect(b, equals(a));
+        // Change nothing -> equal
+        final PageModel b = a.copyWith();
+        expect(b, equals(a));
 
-      // Change route field -> not equal
-      final PageModel c = a.copyWith(segments: <String>['s1', 'DIFF']);
-      expect(c == a, isFalse);
+        // Change route field -> not equal
+        final PageModel c = a.copyWith(segments: <String>['s1', 'DIFF']);
+        expect(c == a, isFalse);
 
-      // Restore segments and change only state -> not equal (by current contract)
-      final PageModel d = a.copyWith(state: <String, dynamic>{'x': 11});
-      expect(d == a, isFalse);
-    });
+        // Restore segments and change only state -> not equal (by current contract)
+        final PageModel d = a.copyWith(state: <String, dynamic>{'x': 11});
+        expect(d == a, isFalse);
+      },
+    );
   });
 }

@@ -67,8 +67,8 @@ class ThemePatch {
     final double scale = textScale == null
         ? base.textScale
         : (textScale!.isFinite
-            ? Utils.getDouble(textScale!.clamp(0.8, 1.6))
-            : base.textScale);
+              ? Utils.getDouble(textScale!.clamp(0.8, 1.6))
+              : base.textScale);
 
     return base.copyWith(
       mode: mode ?? base.mode,

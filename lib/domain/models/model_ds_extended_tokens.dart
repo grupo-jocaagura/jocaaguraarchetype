@@ -239,8 +239,9 @@ class ModelDsExtendedTokens {
       withAlphaXXl: Utils.getDouble(
         pNumber(initialWithAlpha, withAlphaFactor, 5).clamp(0.0, 1.0),
       ),
-      animationDurationShort:
-          Duration(milliseconds: ms(initialAnimationDuration)),
+      animationDurationShort: Duration(
+        milliseconds: ms(initialAnimationDuration),
+      ),
       animationDuration: Duration(
         milliseconds: ms(initialAnimationDuration * animationDurationFactor),
       ),
@@ -301,16 +302,19 @@ class ModelDsExtendedTokens {
       withAlphaXl: doubleNumber(ModelDsExtendedTokensKeys.withAlphaXl),
       withAlphaXXl: doubleNumber(ModelDsExtendedTokensKeys.withAlphaXXl),
       animationDurationShort: Duration(
-        milliseconds:
-            integerNumber(ModelDsExtendedTokensKeys.animationDurationShort),
+        milliseconds: integerNumber(
+          ModelDsExtendedTokensKeys.animationDurationShort,
+        ),
       ),
       animationDuration: Duration(
-        milliseconds:
-            integerNumber(ModelDsExtendedTokensKeys.animationDuration),
+        milliseconds: integerNumber(
+          ModelDsExtendedTokensKeys.animationDuration,
+        ),
       ),
       animationDurationLong: Duration(
-        milliseconds:
-            integerNumber(ModelDsExtendedTokensKeys.animationDurationLong),
+        milliseconds: integerNumber(
+          ModelDsExtendedTokensKeys.animationDurationLong,
+        ),
       ),
     );
 

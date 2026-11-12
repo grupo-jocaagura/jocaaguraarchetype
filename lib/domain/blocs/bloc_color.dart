@@ -37,12 +37,10 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// Throws:
 /// - [StateError] if any public method is used after [dispose].
 class BlocColor extends BlocModule {
-  BlocColor(
-    this.initialColor, {
-    required this.onChangeColorAttempt,
-  }) : _colorState = BlocGeneral<ModelFieldState>(
-          ModelFieldState(value: ThemeColorUtils.toHex(initialColor)),
-        );
+  BlocColor(this.initialColor, {required this.onChangeColorAttempt})
+    : _colorState = BlocGeneral<ModelFieldState>(
+        ModelFieldState(value: ThemeColorUtils.toHex(initialColor)),
+      );
 
   final Color initialColor;
   final BlocGeneral<ModelFieldState> _colorState;

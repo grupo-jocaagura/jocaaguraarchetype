@@ -29,15 +29,16 @@ class OnBoardingPage extends StatelessWidget {
             width: double.infinity,
             child: StreamBuilder<OnboardingState>(
               stream: blocOnboarding.stateStream,
-              builder: (
-                BuildContext context,
-                AsyncSnapshot<OnboardingState> snapshot,
-              ) {
-                return Text(
-                  blocOnboarding.currentStep?.title ?? 'Loading...',
-                  textAlign: TextAlign.center,
-                );
-              },
+              builder:
+                  (
+                    BuildContext context,
+                    AsyncSnapshot<OnboardingState> snapshot,
+                  ) {
+                    return Text(
+                      blocOnboarding.currentStep?.title ?? 'Loading...',
+                      textAlign: TextAlign.center,
+                    );
+                  },
             ),
           ),
           const CircularProgressIndicator(),

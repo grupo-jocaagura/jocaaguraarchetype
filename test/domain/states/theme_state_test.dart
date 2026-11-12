@@ -1,69 +1,73 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('ThemeOverrides – serialización', () {
     test(
-        'toJson/fromJson con ambos esquemas mantiene slots esenciales y brillo',
-        () {
-      const ColorScheme light = ColorScheme(
-        brightness: Brightness.light,
-        primary: Color(0xFF112233),
-        onPrimary: Color(0xFFFFFFFF),
-        secondary: Color(0xFF223344),
-        onSecondary: Color(0xFFFFFFFF),
-        tertiary: Color(0xFF334455),
-        onTertiary: Color(0xFFFFFFFF),
-        error: Color(0xFF445566),
-        onError: Color(0xFFFFFFFF),
-        surface: Color(0xFFF0F0F0),
-        onSurface: Color(0xFF101010),
-        surfaceTint: Color(0xFF112233),
-        outline: Color(0xFF999999),
-        onSurfaceVariant: Color(0xFF777777),
-        inverseSurface: Color(0xFF202020),
-        inversePrimary: Color(0xFF556677),
-      );
+      'toJson/fromJson con ambos esquemas mantiene slots esenciales y brillo',
+      () {
+        const ColorScheme light = ColorScheme(
+          brightness: Brightness.light,
+          primary: Color(0xFF112233),
+          onPrimary: Color(0xFFFFFFFF),
+          secondary: Color(0xFF223344),
+          onSecondary: Color(0xFFFFFFFF),
+          tertiary: Color(0xFF334455),
+          onTertiary: Color(0xFFFFFFFF),
+          error: Color(0xFF445566),
+          onError: Color(0xFFFFFFFF),
+          surface: Color(0xFFF0F0F0),
+          onSurface: Color(0xFF101010),
+          surfaceTint: Color(0xFF112233),
+          outline: Color(0xFF999999),
+          onSurfaceVariant: Color(0xFF777777),
+          inverseSurface: Color(0xFF202020),
+          inversePrimary: Color(0xFF556677),
+        );
 
-      const ColorScheme dark = ColorScheme(
-        brightness: Brightness.dark,
-        primary: Color(0xFFAABBCC),
-        onPrimary: Color(0xFF000000),
-        secondary: Color(0xFF8899AA),
-        onSecondary: Color(0xFF000000),
-        tertiary: Color(0xFF778899),
-        onTertiary: Color(0xFF000000),
-        error: Color(0xFFCC8877),
-        onError: Color(0xFF000000),
-        surface: Color(0xFF101010),
-        onSurface: Color(0xFFEFEFEF),
-        surfaceTint: Color(0xFFAABBCC),
-        outline: Color(0xFF666666),
-        onSurfaceVariant: Color(0xFF999999),
-        inverseSurface: Color(0xFFE0E0E0),
-        inversePrimary: Color(0xFF223344),
-      );
+        const ColorScheme dark = ColorScheme(
+          brightness: Brightness.dark,
+          primary: Color(0xFFAABBCC),
+          onPrimary: Color(0xFF000000),
+          secondary: Color(0xFF8899AA),
+          onSecondary: Color(0xFF000000),
+          tertiary: Color(0xFF778899),
+          onTertiary: Color(0xFF000000),
+          error: Color(0xFFCC8877),
+          onError: Color(0xFF000000),
+          surface: Color(0xFF101010),
+          onSurface: Color(0xFFEFEFEF),
+          surfaceTint: Color(0xFFAABBCC),
+          outline: Color(0xFF666666),
+          onSurfaceVariant: Color(0xFF999999),
+          inverseSurface: Color(0xFFE0E0E0),
+          inversePrimary: Color(0xFF223344),
+        );
 
-      const ThemeOverrides overrides = ThemeOverrides(light: light, dark: dark);
-      final Map<String, dynamic> json = overrides.toJson();
-      final ThemeOverrides? roundtrip = ThemeOverrides.fromJson(json);
+        const ThemeOverrides overrides = ThemeOverrides(
+          light: light,
+          dark: dark,
+        );
+        final Map<String, dynamic> json = overrides.toJson();
+        final ThemeOverrides? roundtrip = ThemeOverrides.fromJson(json);
 
-      expect(roundtrip, isNotNull);
-      expect(roundtrip!.light!.brightness, Brightness.light);
-      expect(roundtrip.light!.primary.toARGB32(), light.primary.toARGB32());
-      expect(
-        roundtrip.light!.inversePrimary.toARGB32(),
-        light.inversePrimary.toARGB32(),
-      );
+        expect(roundtrip, isNotNull);
+        expect(roundtrip!.light!.brightness, Brightness.light);
+        expect(roundtrip.light!.primary.toARGB32(), light.primary.toARGB32());
+        expect(
+          roundtrip.light!.inversePrimary.toARGB32(),
+          light.inversePrimary.toARGB32(),
+        );
 
-      expect(roundtrip.dark!.brightness, Brightness.dark);
-      expect(roundtrip.dark!.primary.toARGB32(), dark.primary.toARGB32());
-      expect(
-        roundtrip.dark!.inversePrimary.toARGB32(),
-        dark.inversePrimary.toARGB32(),
-      );
-    });
+        expect(roundtrip.dark!.brightness, Brightness.dark);
+        expect(roundtrip.dark!.primary.toARGB32(), dark.primary.toARGB32());
+        expect(
+          roundtrip.dark!.inversePrimary.toARGB32(),
+          dark.inversePrimary.toARGB32(),
+        );
+      },
+    );
 
     test('toJson/fromJson solo light preserva light y deja dark en null', () {
       const ColorScheme onlyLight = ColorScheme(
@@ -86,8 +90,9 @@ void main() {
       );
 
       const ThemeOverrides overrides = ThemeOverrides(light: onlyLight);
-      final ThemeOverrides? roundtrip =
-          ThemeOverrides.fromJson(overrides.toJson());
+      final ThemeOverrides? roundtrip = ThemeOverrides.fromJson(
+        overrides.toJson(),
+      );
 
       expect(roundtrip, isNotNull);
       expect(roundtrip!.light, isNotNull);
@@ -121,12 +126,12 @@ void main() {
           ColorSchemeEnum.onSurface.name: const Color(0xFF000000).toARGB32(),
           ColorSchemeEnum.surfaceTint.name: const Color(0xFF123456).toARGB32(),
           ColorSchemeEnum.outline.name: const Color(0xFFDDDDDD).toARGB32(),
-          ColorSchemeEnum.onSurfaceVariant.name:
-              const Color(0xFFCCCCCC).toARGB32(),
-          ColorSchemeEnum.inverseSurface.name:
-              const Color(0xFF111111).toARGB32(),
-          ColorSchemeEnum.inversePrimary.name:
-              const Color(0xFF654321).toARGB32(),
+          ColorSchemeEnum.onSurfaceVariant.name: const Color(0xFFCCCCCC)
+              .toARGB32(),
+          ColorSchemeEnum.inverseSurface.name: const Color(0xFF111111)
+              .toARGB32(),
+          ColorSchemeEnum.inversePrimary.name: const Color(0xFF654321)
+              .toARGB32(),
         },
       };
 
@@ -197,8 +202,10 @@ void main() {
       const Color seed = Color(0xFF6750A4);
       final ThemeOverrides ov = ThemeOverrides(
         light: ColorScheme.fromSeed(seedColor: seed),
-        dark:
-            ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.dark),
+        dark: ColorScheme.fromSeed(
+          seedColor: seed,
+          brightness: Brightness.dark,
+        ),
       );
       final ThemeState s = ThemeState(
         mode: ThemeMode.light,
@@ -210,8 +217,9 @@ void main() {
 
       final Map<String, dynamic> json = s.toJson();
       // Ensure HEX strings in overrides
-      final Map<String, dynamic> light = (json['overrides']
-          as Map<String, dynamic>)['light'] as Map<String, dynamic>;
+      final Map<String, dynamic> light =
+          (json['overrides'] as Map<String, dynamic>)['light']
+              as Map<String, dynamic>;
       expect(light['primary'], isA<String>());
       expect((light['primary'] as String).startsWith('#'), isTrue);
 
@@ -270,8 +278,9 @@ void main() {
       final Map<String, dynamic> out = s.toJson();
       expect(out['seed'], equals('#FF112233'));
 
-      final Map<String, dynamic> light = (out['overrides']
-          as Map<String, dynamic>)['light'] as Map<String, dynamic>;
+      final Map<String, dynamic> light =
+          (out['overrides'] as Map<String, dynamic>)['light']
+              as Map<String, dynamic>;
       expect(light['primary'], equals('#FF445566'));
     });
 
@@ -361,8 +370,9 @@ void main() {
         useMaterial3: true,
         createdAt: DateTime.utc(2025, 9, 10, 10),
       );
-      final ThemeState b =
-          a.copyWith(createdAt: DateTime.utc(2025, 9, 10, 10, 5));
+      final ThemeState b = a.copyWith(
+        createdAt: DateTime.utc(2025, 9, 10, 10, 5),
+      );
       expect(a, equals(b));
       expect(a.hashCode, equals(b.hashCode));
     });
@@ -438,27 +448,29 @@ void main() {
   });
 
   group('ThemeState - roundtrip y contratos', () {
-    test('Given HEX seed When toJson/fromJson Then roundtrip mantiene canónico',
-        () {
-      // Arrange
-      const ThemeState original = ThemeState(
-        mode: ThemeMode.light,
-        seed: Color(0xFF0061A4),
-        useMaterial3: true,
-        textScale: 1.25,
-      );
+    test(
+      'Given HEX seed When toJson/fromJson Then roundtrip mantiene canónico',
+      () {
+        // Arrange
+        const ThemeState original = ThemeState(
+          mode: ThemeMode.light,
+          seed: Color(0xFF0061A4),
+          useMaterial3: true,
+          textScale: 1.25,
+        );
 
-      // Act
-      final Map<String, dynamic> json = original.toJson();
-      final ThemeState round = ThemeState.fromJson(json);
+        // Act
+        final Map<String, dynamic> json = original.toJson();
+        final ThemeState round = ThemeState.fromJson(json);
 
-      // Assert
-      expect(json[ThemeEnum.seed.name], '#FF0061A4');
-      expect(
-        round,
-        original,
-      ); // createdAt no está => igualdad estricta por campos
-    });
+        // Assert
+        expect(json[ThemeEnum.seed.name], '#FF0061A4');
+        expect(
+          round,
+          original,
+        ); // createdAt no está => igualdad estricta por campos
+      },
+    );
 
     test('Given ARGB int legacy When fromJson Then toJson normaliza a HEX', () {
       // Arrange
@@ -479,39 +491,42 @@ void main() {
     });
 
     test(
-        'Given createdAt distinto When equality Then se ignora en == y hashCode',
-        () {
-      // Arrange
-      final ThemeState base = ThemeState(
-        mode: ThemeMode.dark,
-        seed: const Color(0xFF112233),
-        useMaterial3: false,
-        createdAt: DateTime.utc(2024),
-      );
-      final ThemeState other = base.copyWith(createdAt: DateTime.utc(2030));
+      'Given createdAt distinto When equality Then se ignora en == y hashCode',
+      () {
+        // Arrange
+        final ThemeState base = ThemeState(
+          mode: ThemeMode.dark,
+          seed: const Color(0xFF112233),
+          useMaterial3: false,
+          createdAt: DateTime.utc(2024),
+        );
+        final ThemeState other = base.copyWith(createdAt: DateTime.utc(2030));
 
-      // Assert (Given/When/Then implícitos)
-      expect(base, other);
-      expect(base.hashCode, other.hashCode);
-    });
+        // Assert (Given/When/Then implícitos)
+        expect(base, other);
+        expect(base.hashCode, other.hashCode);
+      },
+    );
 
-    test('Given textScale no finito When fromJson Then lanza FormatException',
-        () {
-      // Arrange
-      final Map<String, dynamic> json = <String, dynamic>{
-        ThemeEnum.mode.name: 'system',
-        ThemeEnum.seed.name: '#FF6750A4',
-        ThemeEnum.useM3.name: true,
-        ThemeEnum.textScale.name: double.infinity, // no finito
-        ThemeEnum.preset.name: 'brand',
-      };
+    test(
+      'Given textScale no finito When fromJson Then lanza FormatException',
+      () {
+        // Arrange
+        final Map<String, dynamic> json = <String, dynamic>{
+          ThemeEnum.mode.name: 'system',
+          ThemeEnum.seed.name: '#FF6750A4',
+          ThemeEnum.useM3.name: true,
+          ThemeEnum.textScale.name: double.infinity, // no finito
+          ThemeEnum.preset.name: 'brand',
+        };
 
-      // Assert
-      expect(
-        () => ThemeState.fromJson(json),
-        throwsA(isA<FormatException>()),
-      );
-    });
+        // Assert
+        expect(
+          () => ThemeState.fromJson(json),
+          throwsA(isA<FormatException>()),
+        );
+      },
+    );
 
     test('Given preset vacío When fromJson Then se normaliza a "brand"', () {
       // Arrange
@@ -531,8 +546,7 @@ void main() {
     });
   });
   group('ThemeState.textOverrides – roundtrip', () {
-    test(
-        'Given light/dark TextThemeOverrides '
+    test('Given light/dark TextThemeOverrides '
         'When toJson/fromJson '
         'Then ThemeState equals and styles are preserved', () {
       // Arrange
@@ -572,8 +586,7 @@ void main() {
       expect(restoredTxt.dark!.titleLarge!.fontWeight, FontWeight.w700);
     });
 
-    test(
-        'Given partial TextThemeOverrides (only light) '
+    test('Given partial TextThemeOverrides (only light) '
         'When roundtrip '
         'Then preserves provided styles and null dark', () {
       const TextThemeOverrides txt = TextThemeOverrides(
@@ -582,8 +595,9 @@ void main() {
         ),
       );
 
-      final ThemeState original =
-          ThemeState.defaults.copyWith(textOverrides: txt);
+      final ThemeState original = ThemeState.defaults.copyWith(
+        textOverrides: txt,
+      );
 
       final ThemeState restored = ThemeState.fromJson(original.toJson());
 
@@ -593,8 +607,7 @@ void main() {
       expect(restored.textOverrides!.dark, isNull);
     });
 
-    test(
-        'Given null textOverrides '
+    test('Given null textOverrides '
         'When roundtrip '
         'Then remains null', () {
       const ThemeState original = ThemeState.defaults; // sin textOverrides
@@ -604,8 +617,7 @@ void main() {
       expect(restored, equals(original));
     });
 
-    test(
-        'Given copyWith with textOverrides '
+    test('Given copyWith with textOverrides '
         'When copying '
         'Then copy holds provided overrides', () {
       const ThemeState base = ThemeState.defaults;
@@ -626,8 +638,7 @@ void main() {
       expect(round, equals(withTxt));
     });
 
-    test(
-        'Given ThemeOverrides (colors) AND TextThemeOverrides (typography) '
+    test('Given ThemeOverrides (colors) AND TextThemeOverrides (typography) '
         'When roundtrip '
         'Then both are preserved and equal', () {
       final ThemeOverrides theme = ThemeOverrides(
@@ -638,10 +649,12 @@ void main() {
         ),
       );
       const TextThemeOverrides text = TextThemeOverrides(
-        light:
-            TextTheme(bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14)),
-        dark:
-            TextTheme(bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14)),
+        light: TextTheme(
+          bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14),
+        ),
+        dark: TextTheme(
+          bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14),
+        ),
       );
 
       final ThemeState original = ThemeState.defaults.copyWith(

@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Repo que puede alternar entre OK y error para el mismo bloc.
 class _RepoFlip implements RepositoryTheme {
@@ -14,11 +14,7 @@ class _RepoFlip implements RepositoryTheme {
   Future<Either<ErrorItem, ThemeState>> read() async {
     if (failRead) {
       return const Left<ErrorItem, ThemeState>(
-        ErrorItem(
-          title: 'read-fail',
-          code: 'read-fail',
-          description: 'read',
-        ),
+        ErrorItem(title: 'read-fail', code: 'read-fail', description: 'read'),
       );
     }
     return Right<ErrorItem, ThemeState>(_s);
@@ -28,11 +24,7 @@ class _RepoFlip implements RepositoryTheme {
   Future<Either<ErrorItem, ThemeState>> save(ThemeState s) async {
     if (failSave) {
       return const Left<ErrorItem, ThemeState>(
-        ErrorItem(
-          title: 'save-fail',
-          code: 'save-fail',
-          description: 'save',
-        ),
+        ErrorItem(title: 'save-fail', code: 'save-fail', description: 'save'),
       );
     }
     _s = s;
@@ -81,18 +73,18 @@ class _ServiceOk extends FakeServiceJocaaguraArchetypeTheme {
 
 /// Atajo: construye ThemeUsecases cableando al repo dado.
 ThemeUsecases _ucsWith(RepositoryTheme repo) => ThemeUsecases(
-      load: LoadTheme(repo),
-      setMode: SetThemeMode(repo),
-      setSeed: SetThemeSeed(repo),
-      toggleM3: ToggleMaterial3(repo),
-      applyPreset: ApplyThemePreset(repo),
-      setTextScale: SetThemeTextScale(repo),
-      reset: ResetTheme(repo),
-      randomize: RandomizeTheme(repo, const _ServiceOk()),
-      applyPatch: ApplyThemePatch(repo),
-      setFromState: SetThemeState(repo),
-      buildThemeData: const BuildThemeData(),
-    );
+  load: LoadTheme(repo),
+  setMode: SetThemeMode(repo),
+  setSeed: SetThemeSeed(repo),
+  toggleM3: ToggleMaterial3(repo),
+  applyPreset: ApplyThemePreset(repo),
+  setTextScale: SetThemeTextScale(repo),
+  reset: ResetTheme(repo),
+  randomize: RandomizeTheme(repo, const _ServiceOk()),
+  applyPatch: ApplyThemePatch(repo),
+  setFromState: SetThemeState(repo),
+  buildThemeData: const BuildThemeData(),
+);
 
 void main() {
   group('BlocTheme · Estado inicial y ciclo de vida', () {
@@ -125,9 +117,7 @@ void main() {
       bloc.dispose();
     });
 
-    test(
-        'setMode / setSeed / toggleM3 / applyPreset / setTextScale / reset / randomTheme',
-        () async {
+    test('setMode / setSeed / toggleM3 / applyPreset / setTextScale / reset / randomTheme', () async {
       final BlocTheme bloc = BlocTheme(themeUsecases: _ucsWith(_RepoOk()));
 
       await bloc.setMode(ThemeMode.dark);
@@ -160,108 +150,116 @@ void main() {
   });
 
   group('BlocTheme · Errores preservan último estado válido', () {
-    test('load() con repo que falla: emite error y conserva estado previo',
-        () async {
-      final BlocTheme good = BlocTheme(themeUsecases: _ucsWith(_RepoOk()));
-      await good.setMode(ThemeMode.dark);
-      final ThemeState lastGood = good.stateOrDefault;
+    test(
+      'load() con repo que falla: emite error y conserva estado previo',
+      () async {
+        final BlocTheme good = BlocTheme(themeUsecases: _ucsWith(_RepoOk()));
+        await good.setMode(ThemeMode.dark);
+        final ThemeState lastGood = good.stateOrDefault;
 
-      final BlocTheme bad = BlocTheme(themeUsecases: _ucsWith(_RepoErr()));
-      // Estado inicial del "bad" es defaults (no lo alteramos)
-      await bad.load();
+        final BlocTheme bad = BlocTheme(themeUsecases: _ucsWith(_RepoErr()));
+        // Estado inicial del "bad" es defaults (no lo alteramos)
+        await bad.load();
 
-      expect(bad.error, isNotNull, reason: 'Debió reportar error de read');
-      expect(
-        bad.stateOrDefault,
-        ThemeState.defaults,
-        reason: 'Conserva último buen estado (inicial default)',
-      );
+        expect(bad.error, isNotNull, reason: 'Debió reportar error de read');
+        expect(
+          bad.stateOrDefault,
+          ThemeState.defaults,
+          reason: 'Conserva último buen estado (inicial default)',
+        );
 
-      // Verificamos también que el good sigue intacto
-      expect(lastGood.mode, ThemeMode.dark);
+        // Verificamos también que el good sigue intacto
+        expect(lastGood.mode, ThemeMode.dark);
 
-      good.dispose();
-      bad.dispose();
-    });
+        good.dispose();
+        bad.dispose();
+      },
+    );
 
-    test('mutaciones con save() fallido no deben alterar state en Bloc',
-        () async {
-      final _RepoOk repo = _RepoOk();
-      final BlocTheme blocOk = BlocTheme(themeUsecases: _ucsWith(repo));
-      await blocOk.setMode(ThemeMode.dark);
-      final ThemeState lastGood = blocOk.stateOrDefault;
+    test(
+      'mutaciones con save() fallido no deben alterar state en Bloc',
+      () async {
+        final _RepoOk repo = _RepoOk();
+        final BlocTheme blocOk = BlocTheme(themeUsecases: _ucsWith(repo));
+        await blocOk.setMode(ThemeMode.dark);
+        final ThemeState lastGood = blocOk.stateOrDefault;
 
-      final BlocTheme blocErr = BlocTheme(themeUsecases: _ucsWith(_RepoErr()));
-      await blocErr.setMode(ThemeMode.light); // intentará guardar y fallará
+        final BlocTheme blocErr = BlocTheme(
+          themeUsecases: _ucsWith(_RepoErr()),
+        );
+        await blocErr.setMode(ThemeMode.light); // intentará guardar y fallará
 
-      expect(blocErr.error, isNotNull);
-      // En este bloc, como su último estado bueno era defaults, se mantiene defaults:
-      expect(blocErr.stateOrDefault, ThemeState.defaults);
+        expect(blocErr.error, isNotNull);
+        // En este bloc, como su último estado bueno era defaults, se mantiene defaults:
+        expect(blocErr.stateOrDefault, ThemeState.defaults);
 
-      // Y en el otro bloc no cambió nada
-      expect(lastGood.mode, ThemeMode.dark);
+        // Y en el otro bloc no cambió nada
+        expect(lastGood.mode, ThemeMode.dark);
 
-      blocOk.dispose();
-      blocErr.dispose();
-    });
+        blocOk.dispose();
+        blocErr.dispose();
+      },
+    );
   });
 
-  group('BlocTheme · Granular (applyPatch) vs Reemplazo total (setFromState)',
-      () {
-    test('applyPatch aplica sólo campos provistos', () async {
-      final BlocTheme bloc = BlocTheme(themeUsecases: _ucsWith(_RepoOk()));
-      final bool beforeM3 = bloc.stateOrDefault.useMaterial3;
+  group(
+    'BlocTheme · Granular (applyPatch) vs Reemplazo total (setFromState)',
+    () {
+      test('applyPatch aplica sólo campos provistos', () async {
+        final BlocTheme bloc = BlocTheme(themeUsecases: _ucsWith(_RepoOk()));
+        final bool beforeM3 = bloc.stateOrDefault.useMaterial3;
 
-      await bloc.applyPatch(
-        const ThemePatch(
-          mode: ThemeMode.dark,
-          textScale: 1.3,
-        ),
-      );
+        await bloc.applyPatch(
+          const ThemePatch(mode: ThemeMode.dark, textScale: 1.3),
+        );
 
-      expect(bloc.stateOrDefault.mode, ThemeMode.dark);
-      expect(bloc.stateOrDefault.textScale, closeTo(1.3, 1e-9));
-      // Los campos no provistos se conservan
-      expect(bloc.stateOrDefault.useMaterial3, beforeM3);
+        expect(bloc.stateOrDefault.mode, ThemeMode.dark);
+        expect(bloc.stateOrDefault.textScale, closeTo(1.3, 1e-9));
+        // Los campos no provistos se conservan
+        expect(bloc.stateOrDefault.useMaterial3, beforeM3);
 
-      bloc.dispose();
-    });
+        bloc.dispose();
+      });
 
-    test('setFromState reemplaza todo el ThemeState', () async {
-      final BlocTheme bloc = BlocTheme(themeUsecases: _ucsWith(_RepoOk()));
-      final ThemeOverrides ovr = ThemeOverrides(
-        light: ColorScheme.fromSeed(seedColor: const Color(0xFFAA5500)),
-        dark: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFAA5500),
-          brightness: Brightness.dark,
-        ),
-      );
-      final ThemeState full = ThemeState(
-        mode: ThemeMode.light,
-        seed: const Color(0xFF334455),
-        useMaterial3: true,
-        textScale: 1.15,
-        preset: 'designer',
-        overrides: ovr,
-      );
+      test('setFromState reemplaza todo el ThemeState', () async {
+        final BlocTheme bloc = BlocTheme(themeUsecases: _ucsWith(_RepoOk()));
+        final ThemeOverrides ovr = ThemeOverrides(
+          light: ColorScheme.fromSeed(seedColor: const Color(0xFFAA5500)),
+          dark: ColorScheme.fromSeed(
+            seedColor: const Color(0xFFAA5500),
+            brightness: Brightness.dark,
+          ),
+        );
+        final ThemeState full = ThemeState(
+          mode: ThemeMode.light,
+          seed: const Color(0xFF334455),
+          useMaterial3: true,
+          textScale: 1.15,
+          preset: 'designer',
+          overrides: ovr,
+        );
 
-      await bloc.setFromState(full);
+        await bloc.setFromState(full);
 
-      expect(bloc.stateOrDefault.mode, ThemeMode.light);
-      expect(bloc.stateOrDefault.seed.toARGB32(), 0xFF334455);
-      expect(bloc.stateOrDefault.useMaterial3, isTrue);
-      expect(bloc.stateOrDefault.textScale, closeTo(1.15, 1e-9));
-      expect(bloc.stateOrDefault.preset, 'designer');
-      expect(bloc.stateOrDefault.overrides, isNotNull);
-      expect(
-        bloc.stateOrDefault.overrides!.light!.brightness,
-        Brightness.light,
-      );
-      expect(bloc.stateOrDefault.overrides!.dark!.brightness, Brightness.dark);
+        expect(bloc.stateOrDefault.mode, ThemeMode.light);
+        expect(bloc.stateOrDefault.seed.toARGB32(), 0xFF334455);
+        expect(bloc.stateOrDefault.useMaterial3, isTrue);
+        expect(bloc.stateOrDefault.textScale, closeTo(1.15, 1e-9));
+        expect(bloc.stateOrDefault.preset, 'designer');
+        expect(bloc.stateOrDefault.overrides, isNotNull);
+        expect(
+          bloc.stateOrDefault.overrides!.light!.brightness,
+          Brightness.light,
+        );
+        expect(
+          bloc.stateOrDefault.overrides!.dark!.brightness,
+          Brightness.dark,
+        );
 
-      bloc.dispose();
-    });
-  });
+        bloc.dispose();
+      });
+    },
+  );
 
   group('BlocTheme · Helper themeData()', () {
     test('refleja brightness y useMaterial3 del estado', () async {
@@ -330,8 +328,9 @@ void main() {
         isNotEmpty,
         reason: 'Debe haberse emitido un ErrorItem por save-fail',
       );
-      final ErrorItem firstNonNull =
-          errors.firstWhere((ErrorItem? e) => e != null)!;
+      final ErrorItem firstNonNull = errors.firstWhere(
+        (ErrorItem? e) => e != null,
+      )!;
       expect(firstNonNull.code, 'save-fail');
 
       // 2) Reparamos el repo y ejecutamos una operación exitosa
@@ -346,29 +345,31 @@ void main() {
       bloc.dispose();
     });
 
-    test('stream refleja un load() exitoso (emite estado con cambios)',
-        () async {
-      final _RepoOk repo = _RepoOk();
-      await repo.save(
-        ThemeState.defaults.copyWith(mode: ThemeMode.light, textScale: 1.2),
-      );
-      final BlocTheme bloc = BlocTheme(themeUsecases: _ucsWith(repo));
+    test(
+      'stream refleja un load() exitoso (emite estado con cambios)',
+      () async {
+        final _RepoOk repo = _RepoOk();
+        await repo.save(
+          ThemeState.defaults.copyWith(mode: ThemeMode.light, textScale: 1.2),
+        );
+        final BlocTheme bloc = BlocTheme(themeUsecases: _ucsWith(repo));
 
-      // Verificamos mediante emitsThrough que, en algún punto, aparezca un estado con los cambios.
-      final Future<void> expectFuture = expectLater(
-        bloc.stream,
-        emitsThrough(
-          predicate<ThemeState>((ThemeState s) {
-            return s.mode == ThemeMode.light &&
-                (s.textScale - 1.2).abs() < 1e-9;
-          }),
-        ),
-      );
+        // Verificamos mediante emitsThrough que, en algún punto, aparezca un estado con los cambios.
+        final Future<void> expectFuture = expectLater(
+          bloc.stream,
+          emitsThrough(
+            predicate<ThemeState>((ThemeState s) {
+              return s.mode == ThemeMode.light &&
+                  (s.textScale - 1.2).abs() < 1e-9;
+            }),
+          ),
+        );
 
-      await bloc.load();
-      await expectFuture;
+        await bloc.load();
+        await expectFuture;
 
-      bloc.dispose();
-    });
+        bloc.dispose();
+      },
+    );
   });
 }

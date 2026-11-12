@@ -19,10 +19,7 @@ class HelperAclErrors {
       title: 'Unauthorized',
       code: 'ACL.UNAUTHORIZED',
       description: description,
-      meta: <String, dynamic>{
-        'appName': appName,
-        'policyId': policyId,
-      },
+      meta: <String, dynamic>{'appName': appName, 'policyId': policyId},
       errorLevel: ErrorLevelEnum.severe,
     );
   }

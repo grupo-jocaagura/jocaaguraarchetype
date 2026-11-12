@@ -1,13 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
+import 'package:material_ui/material_ui.dart';
 
 Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
 void main() {
   group('DrawerOptionWidget', () {
-    testWidgets('renders label, icon and triggers onTap',
-        (WidgetTester tester) async {
+    testWidgets('renders label, icon and triggers onTap', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive resp = BlocResponsive()
         ..setSizeForTesting(const Size(1280, 800));
 
@@ -54,8 +55,9 @@ void main() {
       expect(find.text('5'), findsOneWidget);
     });
 
-    testWidgets('disabled when onTap is null or enabled=false',
-        (WidgetTester tester) async {
+    testWidgets('disabled when onTap is null or enabled=false', (
+      WidgetTester tester,
+    ) async {
       final BlocResponsive resp = BlocResponsive()
         ..setSizeForTesting(const Size(390, 844));
 
