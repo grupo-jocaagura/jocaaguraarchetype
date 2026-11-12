@@ -1,0 +1,86 @@
+name: Sync master to develop
+
+on:
+  workflow_run:
+    workflows: ['Release after master merge', 'Publish package']
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: master-develop-history-sync
+  cancel-in-progress: false
+
+jobs:
+  propose:
+    if: >-
+      github.repository == 'grupo-jocaagura/jocaaguraarchetype' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_repository.full_name == github.repository))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - name: Check exact official master before executing repository code
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = grupo-jocaagura/jocaaguraarchetype
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          if [[ "$EVENT_NAME" == workflow_dispatch ]]; then
+            test "$EVENT_REF" = refs/heads/master
+          fi
+          current=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/master" --jq '.object.sha')
+          if [[ "$current" != "$SOURCE_SHA" ]]; then
+            echo 'Stale event: current master will be synchronized by its own release run.'
+            echo 'eligible=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
+          echo 'eligible=true' >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v6
+        if: steps.source.outputs.eligible == 'true'
+        with:
+          ref: ${{ steps.source.outputs.sha }}
+          fetch-depth: 0
+          persist-credentials: true
+      - if: steps.source.outputs.eligible == 'true'
+        run: python3 -m pip install --disable-pip-version-check -r .github/scripts/requirements.txt
+      - name: Configure existing bot signing identity
+        if: steps.source.outputs.eligible == 'true'
+        env:
+          SYNC_SIGNING_KEY: ${{ secrets.SSH_SIGNING_KEY }}
+          SYNC_BOT_NAME: ${{ secrets.BOT_NAME }}
+          SYNC_BOT_EMAIL: ${{ secrets.BOT_EMAIL }}
+        run: |
+          set -euo pipefail
+          test -n "$SYNC_SIGNING_KEY"
+          test -n "$SYNC_BOT_NAME"
+          test -n "$SYNC_BOT_EMAIL"
+          umask 077
+          printf '%s\n' "$SYNC_SIGNING_KEY" > "$RUNNER_TEMP/master-sync-key"
+          git config user.name "$SYNC_BOT_NAME"
+          git config user.email "$SYNC_BOT_EMAIL"
+          git config user.signingkey "$RUNNER_TEMP/master-sync-key"
+          git config gpg.format ssh
+          git config commit.gpgsign true
+      - name: Propose a verified history-only PR after publication
+        if: steps.source.outputs.eligible == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+        run: python3 .github/scripts/master_sync.py --source-sha "$SOURCE_SHA" --execute
+      - name: Remove temporary signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/master-sync-key"
