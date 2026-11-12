@@ -93,6 +93,10 @@ develop. Si no puede demostrarlo, falla y requiere reconciliación manual.
 
 La rama `automation/sync-master-<SHA completo>` contiene un merge firmado con
 la identidad existente del bot (`SSH_SIGNING_KEY`, `BOT_NAME`, `BOT_EMAIL`).
+El setup deriva el archivo `.pub` mediante `ssh-keygen -y` antes de firmar;
+Git lo necesita para cargar claves privadas PEM. Ambos archivos temporales se
+eliminan al finalizar. Una prueba con clave RSA PEM sintética reproduce el fallo
+sin `.pub` y verifica criptográficamente el merge firmado tras generarlo.
 El único cambio de contenido es un comentario generado en `CHANGELOG.md`, para
 satisfacer la validación de contribución. El PR lleva `skip-version-bump` y
 conserva la versión vigente de develop, incluso si ya avanzó respecto al release.

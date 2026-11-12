@@ -70,6 +70,8 @@ jobs:
           test -n "$SYNC_BOT_EMAIL"
           umask 077
           printf '%s\n' "$SYNC_SIGNING_KEY" > "$RUNNER_TEMP/master-sync-key"
+          # PEM private keys need a public companion for Git's SSH signer.
+          ssh-keygen -y -f "$RUNNER_TEMP/master-sync-key" > "$RUNNER_TEMP/master-sync-key.pub"
           git config user.name "$SYNC_BOT_NAME"
           git config user.email "$SYNC_BOT_EMAIL"
           git config user.signingkey "$RUNNER_TEMP/master-sync-key"
@@ -83,4 +85,4 @@ jobs:
         run: python3 .github/scripts/master_sync.py --source-sha "$SOURCE_SHA" --execute
       - name: Remove temporary signing key
         if: always()
-        run: rm -f "$RUNNER_TEMP/master-sync-key"
+        run: rm -f "$RUNNER_TEMP/master-sync-key" "$RUNNER_TEMP/master-sync-key.pub"

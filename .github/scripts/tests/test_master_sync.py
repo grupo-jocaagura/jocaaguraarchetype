@@ -1,5 +1,7 @@
 """Synthetic Git histories exercise reconciliation without network or signing keys."""
 from pathlib import Path
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -175,6 +177,33 @@ class SyncTests(unittest.TestCase):
             pr['head']['repo']['full_name'] = 'fork/repository'
             with self.assertRaises(ValueError):
                 sync.sync_pr_identity(123, head, self.github)
+
+    @unittest.skipUnless(shutil.which('ssh-keygen'), 'OpenSSH required')
+    def test_real_pem_ssh_signed_merge_with_public_companion(self):
+        key = self.root / '.git' / 'synthetic-signing-key'
+        subprocess.run(['ssh-keygen', '-q', '-t', 'rsa', '-b', '2048', '-m', 'PEM',
+                        '-N', '', '-f', str(key)], check=True, capture_output=True)
+        public = Path(str(key) + '.pub')
+        public.unlink()
+        self.g('config', 'gpg.format', 'ssh')
+        self.g('config', 'user.signingkey', str(key))
+        self.g('merge', '--no-commit', '--no-ff', '--strategy=ours', self.master)
+        path = self.root / 'CHANGELOG.md'
+        path.write_text(sync.changelog_note(path.read_text(encoding='utf-8'), self.master), encoding='utf-8')
+        self.g('add', 'CHANGELOG.md')
+        # Reproduce the first production failure without any repository secrets.
+        with self.assertRaisesRegex(ValueError, 'public key unavailable'):
+            self.g('commit', '-S', '-m', 'synthetic PEM merge')
+        result = subprocess.run(['ssh-keygen', '-y', '-f', str(key)], check=True,
+                                text=True, capture_output=True)
+        public.write_text(result.stdout, encoding='utf-8')
+        self.g('commit', '-S', '-m', 'synthetic PEM merge')
+        head = self.g('rev-parse', 'HEAD')
+        allowed = self.root / '.git' / 'synthetic-allowed-signers'
+        allowed.write_text('test@example.invalid ' + result.stdout, encoding='utf-8')
+        self.g('config', 'gpg.ssh.allowedSignersFile', str(allowed))
+        self.g('verify-commit', head)
+        sync.validate_commit(head, self.master, self.develop, self.github)
 
 
 if __name__ == '__main__':

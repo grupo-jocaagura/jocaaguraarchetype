@@ -22,6 +22,8 @@ def git(*args, cwd=None, check=True):
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if check and result.returncode:
         # Never echo command arguments, credentials or signing-key diagnostics.
+        if args[0] == 'commit' and "Couldn't load public key" in result.stderr:
+            raise ValueError('SSH signing public key unavailable; generate the private-key .pub companion')
         raise ValueError(f'Git operation {args[0]} failed ({result.returncode})')
     return result.stdout.strip() if check else result.returncode
 
