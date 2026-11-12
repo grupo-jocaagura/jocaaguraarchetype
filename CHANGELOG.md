@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.1.0] - 2026-11-12
 
+### Changed
+
+- Reconcile the prior squash release history without changing the validated
+  package code. Readiness probes can be dispatched manually after bootstrap;
+  unrelated PRs do not require publication-environment access.
+
 ### Added
 
 - `DsLayeredSurfaceWidget` and `DsOrganicTexturePainter`, adapted from the
