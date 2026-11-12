@@ -69,6 +69,30 @@ despacharlos manualmente. El primer PR hacia develop los incorpora y verifica
 CP-0 antes de preparar el PR de release a master. Usar etiqueta `minor` para
 que el versionador actual pase de 5.0.0 a 5.1.0, sin incremento manual duplicado.
 
+## Sincronización del historial después del release
+
+Después de cada merge por squash de `develop` a `master`, incorporar `master`
+de nuevo a `develop` mediante un PR de sincronización. Un squash puede dejar
+árboles de archivos idénticos con historiales divergentes; conservar solo los
+archivos no incorpora el commit de master y puede repetir conflictos en el
+siguiente release.
+
+Crear la rama de sincronización desde `develop`, hacer un merge normal de
+`origin/master`, comprobar el diff y conservar la versión vigente. Tramitar el
+PR hacia `develop` con `skip-version-bump`; si solo cambia el historial, añadir
+una nota al changelog, que exige el workflow de contribución. No recrear tags
+ni reescribir las ramas protegidas.
+
+Tras aprobar y fusionar ese PR, verificar:
+
+```sh
+git fetch origin
+git merge-base --is-ancestor origin/master origin/develop
+```
+
+El comando debe terminar con código 0. La sincronización puede incluir notas
+documentales, pero no requiere incrementar la versión ni volver a publicar.
+
 ## Widget
 
 ```dart
