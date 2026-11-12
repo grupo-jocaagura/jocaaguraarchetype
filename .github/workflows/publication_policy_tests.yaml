@@ -1,0 +1,16 @@
+name: Publication policy tests
+on:
+  pull_request:
+    branches: [develop, master]
+permissions:
+  contents: read
+jobs:
+  policies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - run: python3 -m pip install -r .github/scripts/requirements.txt
+      - run: python3 -m unittest discover -s .github/scripts/tests -v

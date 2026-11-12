@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.0] - 2026-11-12
+
+### Changed
+
+- Reconcile the prior squash release history without changing the validated
+  package code. Readiness probes can be dispatched manually after bootstrap;
+  unrelated PRs do not require publication-environment access.
+
+### Added
+
+- `DsLayeredSurfaceWidget` and `DsOrganicTexturePainter`, adapted from the
+  Bienvenido application, with design-system radius tokens, gradient/texture/
+  overlay composition, optional padding/borders and clamped opacity.
+- GitHub Actions release orchestration from master using immutable version
+  tags, exact merged-PR provenance, signed OIDC identity, hosted-version checks,
+  release CI, dry-run and post-upload verification. Real readiness evidence and
+  trusted publisher configuration are required before automatic uploads.
+
 ## [5.0.0] - 2026-11-12
 
 ### Changed

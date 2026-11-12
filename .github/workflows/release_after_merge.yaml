@@ -1,0 +1,79 @@
+name: Release after master merge
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Duplicate runs of one commit serialize; publication itself has a global lock.
+concurrency:
+  group: release-orchestration-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      state: ${{ steps.plan.outputs.state }}
+    steps:
+      - name: Require the official master branch
+        run: |
+          test "$GITHUB_REPOSITORY" = grupo-jocaagura/jocaaguraarchetype
+          test "$GITHUB_REF" = refs/heads/master
+      - uses: actions/checkout@v6
+        with:
+          ref: master
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Require the event commit before executing repository code
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - run: python3 -m pip install --disable-pip-version-check -r .github/scripts/requirements.txt
+      - name: Check CP-0, merged PR provenance and public version
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .github/scripts/release_dispatch.py
+      - uses: flutter-actions/setup-flutter@v4
+        if: steps.plan.outputs.state == 'ready_to_publish'
+        with:
+          version: '3.50.0'
+          channel: stable
+      - if: steps.plan.outputs.state == 'ready_to_publish'
+        run: flutter pub get
+      - if: steps.plan.outputs.state == 'ready_to_publish'
+        run: flutter pub publish --dry-run
+
+  ci:
+    if: needs.plan.outputs.state == 'ready_to_publish'
+    needs: plan
+    uses: ./.github/workflows/release_ci.yaml
+
+  dispatch:
+    if: needs.plan.outputs.state == 'ready_to_publish'
+    needs: [plan, ci]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: master
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Reject master drift before executing repository code
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+      - run: python3 -m pip install --disable-pip-version-check -r .github/scripts/requirements.txt
+      - name: Recheck eligibility, create immutable tag and dispatch publisher
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .github/scripts/release_dispatch.py --execute
