@@ -219,6 +219,9 @@ Esto ayuda a detectar rápido tres tipos de regresión:
 
 El pipeline automático y sus checkpoints se describen en
 [Publicación desde master](doc/workflows/publication.md).
+La [certificación final de 5.1.0](doc/workflows/evidence/139/certification-5.1.0.md)
+registra la publicación real. En pub.dev deben estar habilitados **push y
+workflow_dispatch**, manteniendo obligatorio el entorno **pub.dev**.
 
 Flujo recomendado:
 
