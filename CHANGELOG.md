@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Preserve 5.1.0 for certification-only promotion to master; the publication
+  policy detects the hosted version and skips tag dispatch and upload.
+- Document the completed 5.1.0 publication certificate and require both push
+  and workflow_dispatch in pub.dev, retaining the required pub.dev environment.
 - Reconcile the prior squash release history without changing the validated
   package code. Readiness probes can be dispatched manually after bootstrap;
   unrelated PRs do not require publication-environment access.
