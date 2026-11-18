@@ -81,6 +81,31 @@ void main() {
         bloc.dispose();
       },
     );
+
+    test('Updating the DS preserves the custom catalog and selected page', () {
+      Widget buildPage(BuildContext _, BlocGallery _, ModelDsGalleryState _) =>
+          const SizedBox.shrink();
+      final List<ModelDsGalleryPageEntry> pages = <ModelDsGalleryPageEntry>[
+        ModelDsGalleryPageEntry(
+          id: 'first',
+          title: 'First',
+          builder: buildPage,
+        ),
+        ModelDsGalleryPageEntry(id: 'last', title: 'Last', builder: buildPage),
+      ];
+      final BlocGallery bloc = BlocGallery(pages: pages)..goTo(1);
+      addTearDown(bloc.dispose);
+
+      final ModelDesignSystem updated = bloc.designSystem.copyWith(
+        tokens: const ModelDsExtendedTokens(spacing: 20),
+      );
+      bloc.setDesignSystem(updated);
+
+      expect(bloc.designSystem, updated);
+      expect(bloc.state.pages, pages);
+      expect(bloc.state.currentIndex, 1);
+      expect(bloc.state.currentPage, pages.last);
+    });
   });
 }
 

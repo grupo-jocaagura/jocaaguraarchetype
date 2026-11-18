@@ -17,12 +17,13 @@ class DsGalleryNavigationControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ModelDsExtendedTokens tokens = state.designSystem.tokens;
     return SafeArea(
       top: false,
       child: Material(
-        elevation: 8,
+        elevation: tokens.elevationXl,
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(tokens.spacingSm),
           child: Row(
             children: <Widget>[
               OutlinedButton.icon(
@@ -30,13 +31,13 @@ class DsGalleryNavigationControls extends StatelessWidget {
                 icon: const Icon(Icons.chevron_left),
                 label: const Text('Previous'),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: tokens.spacingSm),
               OutlinedButton.icon(
                 onPressed: onIndex,
                 icon: const Icon(Icons.list),
                 label: const Text('Index'),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: tokens.spacingSm),
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -46,7 +47,7 @@ class DsGalleryNavigationControls extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: tokens.spacingXs),
                     Text(
                       state.pageIndicatorLabel,
                       textAlign: TextAlign.center,
@@ -55,7 +56,7 @@ class DsGalleryNavigationControls extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: tokens.spacingSm),
               FilledButton.icon(
                 onPressed: state.canGoNext ? onNext : null,
                 icon: const Icon(Icons.chevron_right),

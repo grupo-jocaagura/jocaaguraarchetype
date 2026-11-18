@@ -27,10 +27,11 @@ class DesignSystemGalleryCoverPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ModelDsExtendedTokens tokens = context._galleryTokens;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(tokens.spacingLg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -38,22 +39,22 @@ class DesignSystemGalleryCoverPage extends StatelessWidget {
                 anatomy.name,
                 style: Theme.of(context).textTheme.displaySmall,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: tokens.spacingSm),
               Text(
                 anatomy.description,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: tokens.spacingLg),
               _GalleryTagsWrap(tags: anatomy.tags),
-              const SizedBox(height: 24),
+              SizedBox(height: tokens.spacingLg),
               _GalleryMetadataCard(anatomy: anatomy),
-              const SizedBox(height: 24),
+              SizedBox(height: tokens.spacingLg),
               _GalleryLinksCard(
                 anatomy: anatomy,
                 onOpenDetailedInfo: onOpenDetailedInfo,
                 onOpenLink: onOpenLink,
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: tokens.spacingXl),
               FilledButton(
                 onPressed: onStart,
                 child: const Text('Start gallery'),

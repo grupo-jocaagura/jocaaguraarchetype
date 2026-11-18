@@ -17,23 +17,28 @@ class SideBySideWidget extends StatelessWidget {
     this.lightLabel = 'Light',
     this.darkLabel = 'Dark',
     this.height = 360,
-    this.spacing = 16,
+    double? spacing,
     super.key,
-  });
+    // Keep the public parameter separate from the nullable backing field.
+    // ignore: prefer_initializing_formals
+  }) : _spacing = spacing;
 
   final ModelDesignSystem designSystem;
   final GalleryPreviewBuilder builder;
   final String lightLabel;
   final String darkLabel;
   final double height;
-  final double spacing;
+  final double? _spacing;
+
+  /// Gap between panels. Defaults to the DS spacing token.
+  double get spacing => _spacing ?? designSystem.tokens.spacing;
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData lightTheme = designSystem.theme.toThemeData(
+    final ThemeData lightTheme = designSystem.toThemeData(
       brightness: Brightness.light,
     );
-    final ThemeData darkTheme = designSystem.theme.toThemeData(
+    final ThemeData darkTheme = designSystem.toThemeData(
       brightness: Brightness.dark,
     );
 
@@ -79,13 +84,14 @@ class _SideBySidePreviewPanel extends StatelessWidget {
     return Theme(
       data: theme,
       child: Builder(
-        builder: (BuildContext previewContext) {
+        builder: (BuildContext panelContext) {
+          final ModelDsExtendedTokens tokens = panelContext.dsTokens;
           return Material(
             color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(tokens.borderRadiusLg),
             clipBehavior: Clip.antiAlias,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(tokens.spacing),
               child: DefaultTextStyle(
                 style: theme.textTheme.bodyMedium!.copyWith(
                   color: theme.colorScheme.onSurface,
@@ -96,8 +102,10 @@ class _SideBySidePreviewPanel extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
                       Text(label, style: theme.textTheme.titleMedium),
-                      const SizedBox(height: 12),
-                      Expanded(child: Center(child: builder(previewContext))),
+                      SizedBox(height: tokens.spacingSm),
+                      Expanded(
+                        child: Center(child: Builder(builder: builder)),
+                      ),
                     ],
                   ),
                 ),

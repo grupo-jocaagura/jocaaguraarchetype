@@ -1,9 +1,25 @@
 # Changelog
+<!-- master-sync: 8a7713a49b277493658349cb6424dcd8657407f5 -->
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [5.2.0] - 2026-11-18
+
+### Added
+
+- Add light and dark gallery previews for `DsLayeredSurfaceWidget` and
+  `DsInteractiveBuilder` (#152).
+
+### Fixed
+
+- Apply the full Design System to the gallery and both preview panels. Read
+  spacing, elevation and default layer opacity from tokens while respecting
+  caller overrides and preserving model theme extensions.
+- Keep the active page and custom gallery catalog when changing the Design
+  System. Release gallery-owned BLoCs while keeping caller-owned BLoCs usable.
 
 ## [5.1.0] - 2026-11-12
 
