@@ -47,20 +47,23 @@ class DsLayeredSurfaceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme scheme = theme.colorScheme;
+    final ModelDsExtendedTokens tokens =
+        theme.extension<DsExtendedTokensExtension>()?.tokens ??
+        const ModelDsExtendedTokens();
     final BorderRadius resolvedRadius =
-        borderRadius ?? BorderRadius.circular(context.dsTokens.borderRadiusXXl);
+        borderRadius ?? BorderRadius.circular(tokens.borderRadiusXXl);
     final List<Color> resolvedGradientColors = gradientColors.isEmpty
-        ? <Color>[Theme.of(context).colorScheme.primary]
+        ? <Color>[scheme.primary]
         : gradientColors;
     final Color resolvedOverlay =
-        overlayColor ??
-        Theme.of(context).colorScheme.primary.withValues(alpha: 0.18);
+        overlayColor ?? scheme.primary.withValues(alpha: tokens.withAlpha);
     final Color resolvedTexture =
-        textureColor ??
-        Theme.of(context).colorScheme.surface.withValues(alpha: 0.16);
+        textureColor ?? scheme.surface.withValues(alpha: tokens.withAlpha);
     final Color resolvedTextureHighlight =
         textureHighlightColor ??
-        Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12);
+        scheme.onSurface.withValues(alpha: tokens.withAlphaSm);
 
     return Opacity(
       opacity: opacity.clamp(0.0, 1.0),

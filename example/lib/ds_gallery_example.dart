@@ -16,23 +16,21 @@ class DsGalleryExampleApp extends StatelessWidget {
       designSystem: designSystem,
       pages: <ModelDsGalleryPageEntry>[
         ...BlocGallery.defaultPages(designSystem: designSystem),
-        ..._exampleWidgetPages(designSystem),
+        ..._exampleWidgetPages(),
       ],
     );
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Jocaagura DS Gallery',
-      theme: designSystem.theme.toThemeData(brightness: Brightness.light),
-      darkTheme: designSystem.theme.toThemeData(brightness: Brightness.dark),
+      theme: designSystem.toThemeData(brightness: Brightness.light),
+      darkTheme: designSystem.toThemeData(brightness: Brightness.dark),
       home: DsGalleryPage(designSystem: designSystem, bloc: galleryBloc),
     );
   }
 }
 
-List<ModelDsGalleryPageEntry> _exampleWidgetPages(
-  ModelDesignSystem designSystem,
-) {
+List<ModelDsGalleryPageEntry> _exampleWidgetPages() {
   return <ModelDsGalleryPageEntry>[
     ModelDsGalleryPageEntry(
       id: 'example.ds.widgets.buttons',
@@ -61,60 +59,6 @@ List<ModelDsGalleryPageEntry> _exampleWidgetPages(
                     const DsPrimaryButtonWidget(
                       label: 'Loading action',
                       isLoading: true,
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-    ),
-    ModelDsGalleryPageEntry(
-      id: 'example.ds.widgets.interactive_builder',
-      title: 'DsInteractiveBuilder',
-      section: 'Widgets',
-      description: 'Interactive state rendering examples.',
-      builder:
-          (BuildContext context, BlocGallery bloc, ModelDsGalleryState state) {
-            return DesignSystemGalleryPage(
-              anatomy: _interactiveBuilderAnatomy(),
-              designSystem: state.designSystem,
-              previewBuilder: (BuildContext previewContext) {
-                return const Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    _ExampleInteractiveButton(
-                      label: 'Enabled',
-                      state: ModelInteractiveState(
-                        semantic: ModelInteractiveSemantic.primary,
-                      ),
-                    ),
-                    SizedBox(height: 12),
-                    _ExampleInteractiveButton(
-                      label: 'Loading',
-                      state: ModelInteractiveState(
-                        isEnabled: false,
-                        isLoading: true,
-                        reasonText: 'Processing...',
-                        semantic: ModelInteractiveSemantic.primary,
-                      ),
-                    ),
-                    SizedBox(height: 12),
-                    _ExampleInteractiveButton(
-                      label: 'Disabled',
-                      state: ModelInteractiveState(
-                        isEnabled: false,
-                        reasonText: 'Missing required data',
-                        semantic: ModelInteractiveSemantic.warning,
-                      ),
-                    ),
-                    SizedBox(height: 12),
-                    _ExampleInteractiveButton(
-                      label: 'Error',
-                      state: ModelInteractiveState(
-                        isEnabled: false,
-                        errorText: 'Action unavailable',
-                        semantic: ModelInteractiveSemantic.danger,
-                      ),
                     ),
                   ],
                 );
@@ -254,37 +198,6 @@ class DsSecondaryButtonWidget extends StatelessWidget {
   }
 }
 
-class _ExampleInteractiveButton extends StatelessWidget {
-  const _ExampleInteractiveButton({required this.label, required this.state});
-
-  final String label;
-  final ModelInteractiveState state;
-
-  @override
-  Widget build(BuildContext context) {
-    return DsInteractiveBuilder(
-      state: state,
-      loadingBuilder: (BuildContext context, ModelInteractiveState state) {
-        return DsPrimaryButtonWidget(
-          label: state.reasonText.isEmpty ? label : state.reasonText,
-          isLoading: true,
-        );
-      },
-      errorBuilder: (BuildContext context, ModelInteractiveState state) {
-        return DsSecondaryButtonWidget(label: state.errorText);
-      },
-      disabledBuilder: (BuildContext context, ModelInteractiveState state) {
-        return DsSecondaryButtonWidget(
-          label: state.reasonText.isEmpty ? label : state.reasonText,
-        );
-      },
-      enabledBuilder: (BuildContext context, ModelInteractiveState state) {
-        return DsPrimaryButtonWidget(label: label, onPressed: () {});
-      },
-    );
-  }
-}
-
 ModelDsComponentAnatomy _buttonsAnatomy() {
   return const ModelDsComponentAnatomy(
     id: 'example.ds.widgets.buttons',
@@ -319,44 +232,6 @@ ModelDsComponentAnatomy _buttonsAnatomy() {
           'Must not compete visually with the primary action.',
         ],
         tokensUsed: <String>['colorScheme.outline', 'textTheme.labelLarge'],
-      ),
-    ],
-  );
-}
-
-ModelDsComponentAnatomy _interactiveBuilderAnatomy() {
-  return const ModelDsComponentAnatomy(
-    id: 'example.ds.widgets.interactive_builder',
-    name: 'DsInteractiveBuilder',
-    description: 'Shows how ModelInteractiveState can be interpreted by reusable UI builders.',
-    tags: <String>['interactive', 'bloc', 'state', 'builder'],
-    status: ModelDsComponentStatusEnum.draft,
-    platforms: <ModelDsComponentPlatformEnum>[
-      ModelDsComponentPlatformEnum.android,
-      ModelDsComponentPlatformEnum.ios,
-      ModelDsComponentPlatformEnum.web,
-      ModelDsComponentPlatformEnum.windows,
-      ModelDsComponentPlatformEnum.macos,
-      ModelDsComponentPlatformEnum.linux,
-    ],
-    slots: <ModelDsComponentSlot>[
-      ModelDsComponentSlot(
-        name: 'State',
-        role: 'Carries the interaction intent emitted by a BLoC.',
-        rules: <String>[
-          'The widget must interpret the state, not decide business rules.',
-          'The BLoC owns enabled, loading, error and visibility decisions.',
-        ],
-        tokensUsed: <String>['ModelInteractiveState'],
-      ),
-      ModelDsComponentSlot(
-        name: 'Builders',
-        role:
-            'Render variants for loading, error, disabled and enabled states.',
-        rules: <String>[
-          'Use fallback builders when a specific state builder is omitted.',
-        ],
-        tokensUsed: <String>['InteractiveWidgetBuilder'],
       ),
     ],
   );

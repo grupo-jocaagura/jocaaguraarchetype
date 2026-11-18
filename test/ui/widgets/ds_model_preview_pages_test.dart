@@ -29,6 +29,36 @@ void main() {
       },
     );
 
+    testWidgets('Theme previews keep the extensions supplied by the model', (
+      WidgetTester tester,
+    ) async {
+      final ModelDesignSystem designSystem = defaultModelDesignSystem()
+          .copyWith(tokens: const ModelDsExtendedTokens(spacing: 20));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: designSystem.toThemeData(brightness: Brightness.light),
+          home: ModelThemeDataPage(
+            model: _ThemeModelWithExtensions(designSystem),
+          ),
+        ),
+      );
+
+      final Iterable<Element> previews = tester.elementList(
+        find.byType(TextThemePreviewWidget),
+      );
+      expect(previews, hasLength(2));
+      for (final Element preview in previews) {
+        expect(preview.dsTokens, designSystem.tokens);
+        expect(preview.dsDataViz, designSystem.dataViz);
+        expect(
+          preview.dsSemantic,
+          Theme.of(preview).brightness == Brightness.dark
+              ? designSystem.semanticDark
+              : designSystem.semanticLight,
+        );
+      }
+    });
+
     testWidgets('Given TextTheme When rendered Then shows text style names', (
       WidgetTester tester,
     ) async {
@@ -132,6 +162,7 @@ void main() {
             home: Scaffold(
               body: SideBySideWidget(
                 designSystem: designSystem,
+                spacing: 12,
                 builder: (BuildContext context) {
                   return const Text('Preview child');
                 },
@@ -143,7 +174,94 @@ void main() {
         expect(find.text('Light'), findsOneWidget);
         expect(find.text('Dark'), findsOneWidget);
         expect(find.text('Preview child'), findsNWidgets(2));
+        expect(
+          tester
+              .widget<SideBySideWidget>(find.byType(SideBySideWidget))
+              .spacing,
+          12,
+        );
       },
     );
+
+    testWidgets('Preview builders inherit the styling of their own panel', (
+      WidgetTester tester,
+    ) async {
+      final ModelDesignSystem designSystem = defaultModelDesignSystem()
+          .copyWith(tokens: const ModelDsExtendedTokens(spacing: 20));
+      final Map<Brightness, Material?> surfaces = <Brightness, Material?>{};
+      final Map<Brightness, Color?> textColors = <Brightness, Color?>{};
+      final Map<Brightness, Color?> iconColors = <Brightness, Color?>{};
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 320,
+                child: SideBySideWidget(
+                  designSystem: designSystem,
+                  builder: (BuildContext context) {
+                    final Brightness brightness = Theme.of(context).brightness;
+                    surfaces[brightness] = context
+                        .findAncestorWidgetOfExactType<Material>();
+                    textColors[brightness] = DefaultTextStyle.of(context)
+                        .style
+                        .color;
+                    iconColors[brightness] = IconTheme.of(context).color;
+                    return const Text('Preview child');
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      for (final ColorScheme scheme in <ColorScheme>[
+        designSystem.theme.lightScheme,
+        designSystem.theme.darkScheme,
+      ]) {
+        expect(surfaces[scheme.brightness]?.color, scheme.surface);
+        expect(textColors[scheme.brightness], scheme.onSurface);
+        expect(iconColors[scheme.brightness], scheme.onSurface);
+      }
+      final Rect light = tester.getRect(
+        find.byWidget(surfaces[Brightness.light]!),
+      );
+      final Rect dark = tester.getRect(
+        find.byWidget(surfaces[Brightness.dark]!),
+      );
+      expect(dark.left - light.right, designSystem.tokens.spacing);
+      expect(tester.takeException(), isNull);
+    });
   });
+}
+
+class _ThemeModelWithExtensions extends ModelThemeData {
+  _ThemeModelWithExtensions(this.designSystem)
+    : super(
+        lightScheme: designSystem.theme.lightScheme,
+        darkScheme: designSystem.theme.darkScheme,
+        lightTextTheme: designSystem.theme.lightTextTheme,
+        darkTextTheme: designSystem.theme.darkTextTheme,
+        useMaterial3: designSystem.theme.useMaterial3,
+      );
+
+  final ModelDesignSystem designSystem;
+
+  @override
+  ThemeData toThemeData({required Brightness brightness}) {
+    return super
+        .toThemeData(brightness: brightness)
+        .copyWith(
+          extensions: <ThemeExtension<dynamic>>[
+            DsDataVizPaletteExtension(palette: designSystem.dataViz),
+            DsSemanticColorsExtension(
+              semantic: brightness == Brightness.dark
+                  ? designSystem.semanticDark
+                  : designSystem.semanticLight,
+            ),
+          ],
+        );
+  }
 }

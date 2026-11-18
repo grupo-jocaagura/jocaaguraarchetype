@@ -39,40 +39,41 @@ class DesignSystemGalleryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ModelDsExtendedTokens tokens = context._galleryTokens;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(tokens.spacingLg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               _GalleryHeader(anatomy: anatomy),
-              const SizedBox(height: 24),
+              SizedBox(height: tokens.spacingLg),
               if (previewBuilder != null) ...<Widget>[
                 SideBySideWidget(
                   designSystem: designSystem,
                   builder: previewBuilder!,
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: tokens.spacingLg),
               ],
               if (anatomy.previewAssetKey?.isNotEmpty ?? false) ...<Widget>[
                 _GalleryAssetPreview(
                   previewAssetKey: anatomy.previewAssetKey.toString(),
                   previewAssetBuilder: previewAssetBuilder,
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: tokens.spacingLg),
               ],
               if (anatomy.previewUrlImage?.isNotEmpty ?? false) ...<Widget>[
                 _GalleryUrlImagePreview(
                   previewUrlImage: anatomy.previewUrlImage.toString(),
                   previewUrlImageBuilder: previewUrlImageBuilder,
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: tokens.spacingLg),
               ],
               _GalleryDescriptionCard(anatomy: anatomy),
-              const SizedBox(height: 16),
+              SizedBox(height: tokens.spacing),
               _GallerySlotsCard(anatomy: anatomy),
-              const SizedBox(height: 16),
+              SizedBox(height: tokens.spacing),
               _GalleryLinksCard(
                 anatomy: anatomy,
                 onOpenDetailedInfo: onOpenDetailedInfo,

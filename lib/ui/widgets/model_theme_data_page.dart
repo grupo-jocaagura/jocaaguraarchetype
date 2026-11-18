@@ -6,17 +6,34 @@ class ModelThemeDataPage extends StatelessWidget {
 
   final ModelThemeData model;
 
+  ThemeData _previewTheme(
+    Brightness brightness,
+    DsExtendedTokensExtension? galleryTokens,
+  ) {
+    final ThemeData theme = model.toThemeData(brightness: brightness);
+    if (galleryTokens == null) {
+      return theme;
+    }
+    return theme.copyWith(
+      extensions: <ThemeExtension<dynamic>>[
+        ...theme.extensions.values
+            .cast<ThemeExtension<ThemeExtension<dynamic>>>(),
+        galleryTokens,
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final ThemeData lightTheme = model.toThemeData(
-      brightness: Brightness.light,
-    );
-    final ThemeData darkTheme = model.toThemeData(brightness: Brightness.dark);
+    final DsExtendedTokensExtension? galleryTokens = Theme.of(context)
+        .extension<DsExtendedTokensExtension>();
+    final ModelDsExtendedTokens tokens =
+        galleryTokens?.tokens ?? const ModelDsExtendedTokens();
 
     return Scaffold(
       appBar: AppBar(title: const Text('ModelThemeData')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(tokens.spacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
@@ -24,27 +41,27 @@ class ModelThemeDataPage extends StatelessWidget {
               title: 'Theme config',
               children: <Widget>[Text('useMaterial3: ${model.useMaterial3}')],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: tokens.spacing),
             _DsModelGalleryColorSchemeSection(
               title: 'Light ColorScheme',
               colorScheme: model.lightScheme,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: tokens.spacing),
             _DsModelGalleryColorSchemeSection(
               title: 'Dark ColorScheme',
               colorScheme: model.darkScheme,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: tokens.spacing),
             Theme(
-              data: lightTheme,
+              data: _previewTheme(Brightness.light, galleryTokens),
               child: TextThemePreviewWidget(
                 title: 'Light TextTheme',
                 textTheme: model.lightTextTheme,
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: tokens.spacing),
             Theme(
-              data: darkTheme,
+              data: _previewTheme(Brightness.dark, galleryTokens),
               child: TextThemePreviewWidget(
                 title: 'Dark TextTheme',
                 textTheme: model.darkTextTheme,
@@ -70,10 +87,11 @@ class TextThemePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ModelDsExtendedTokens tokens = context._galleryTokens;
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(tokens.spacing),
         child: TextThemePreviewWidget(title: title, textTheme: textTheme),
       ),
     );
@@ -176,10 +194,11 @@ class ModelDsExtendedTokensPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ModelDsExtendedTokens tokens = context._galleryTokens;
     return Scaffold(
       appBar: AppBar(title: const Text('ModelDsExtendedTokens')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(tokens.spacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
@@ -194,7 +213,7 @@ class ModelDsExtendedTokensPage extends StatelessWidget {
                 _DsModelGalleryNumberToken('spacingXXl', model.spacingXXl),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: tokens.spacing),
             _DsModelGalleryTokenScaleSection(
               title: 'Border radius',
               items: <_DsModelGalleryNumberToken>[
@@ -221,7 +240,7 @@ class ModelDsExtendedTokensPage extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: tokens.spacing),
             _DsModelGalleryTokenScaleSection(
               title: 'Elevation',
               items: <_DsModelGalleryNumberToken>[
@@ -233,7 +252,7 @@ class ModelDsExtendedTokensPage extends StatelessWidget {
                 _DsModelGalleryNumberToken('elevationXXl', model.elevationXXl),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: tokens.spacing),
             _DsModelGalleryTokenScaleSection(
               title: 'Alpha',
               items: <_DsModelGalleryNumberToken>[
@@ -246,7 +265,7 @@ class ModelDsExtendedTokensPage extends StatelessWidget {
               ],
               maxVisualValue: 1.0,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: tokens.spacing),
             _DsModelGalleryInfoCard(
               title: 'Animation durations',
               children: <Widget>[
@@ -275,10 +294,11 @@ class ModelSemanticColorsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ModelDsExtendedTokens tokens = context._galleryTokens;
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(tokens.spacing),
         child: _DsModelGalleryInfoCard(
           title: title,
           children: <Widget>[
@@ -327,10 +347,11 @@ class ModelDataVizPalettePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ModelDsExtendedTokens tokens = context._galleryTokens;
     return Scaffold(
       appBar: AppBar(title: const Text('ModelDataVizPalette')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(tokens.spacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
@@ -338,12 +359,12 @@ class ModelDataVizPalettePage extends StatelessWidget {
               title: 'Categorical',
               colors: model.categorical,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: tokens.spacing),
             _DsModelGalleryPaletteSection(
               title: 'Sequential',
               colors: model.sequential,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: tokens.spacing),
             _DsModelGalleryInfoCard(
               title: 'Palette helpers',
               children: <Widget>[
