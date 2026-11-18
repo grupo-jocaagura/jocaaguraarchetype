@@ -41,6 +41,74 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('Uses theme alpha tokens unless layer colors are supplied', (
+    WidgetTester tester,
+  ) async {
+    const ModelDsExtendedTokens tokens = ModelDsExtendedTokens(
+      withAlpha: 0.21,
+      withAlphaSm: 0.09,
+    );
+    final ThemeData theme = defaultModelDesignSystem()
+        .copyWith(tokens: tokens)
+        .toThemeData(brightness: Brightness.light);
+    final Finder surface = find.byType(DsLayeredSurfaceWidget);
+    final Finder overlay = find.descendant(
+      of: surface,
+      matching: find.byType(ColoredBox),
+    );
+    DsOrganicTexturePainter painter() {
+      final Finder texture = find.descendant(
+        of: surface,
+        matching: find.byWidgetPredicate(
+          (Widget widget) =>
+              widget is CustomPaint &&
+              widget.painter is DsOrganicTexturePainter,
+        ),
+      );
+      return tester.widget<CustomPaint>(texture).painter!
+          as DsOrganicTexturePainter;
+    }
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: const DsLayeredSurfaceWidget(
+          gradientColors: <Color>[],
+          child: SizedBox.shrink(),
+        ),
+      ),
+    );
+    expect(
+      tester.widget<ColoredBox>(overlay).color,
+      theme.colorScheme.primary.withValues(alpha: tokens.withAlpha),
+    );
+    expect(
+      painter().color,
+      theme.colorScheme.surface.withValues(alpha: tokens.withAlpha),
+    );
+    expect(
+      painter().highlightColor,
+      theme.colorScheme.onSurface.withValues(alpha: tokens.withAlphaSm),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: const DsLayeredSurfaceWidget(
+          gradientColors: <Color>[],
+          overlayColor: Colors.red,
+          textureColor: Colors.blue,
+          textureHighlightColor: Colors.green,
+          child: SizedBox.shrink(),
+        ),
+      ),
+    );
+    expect(tester.widget<ColoredBox>(overlay).color, Colors.red);
+    expect(painter().color, Colors.blue);
+    expect(painter().highlightColor, Colors.green);
+  });
+
   for (final List<Color> colors in <List<Color>>[
     <Color>[],
     <Color>[Colors.red],

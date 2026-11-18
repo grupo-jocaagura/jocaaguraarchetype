@@ -15,35 +15,33 @@ class DsGalleryPage extends StatefulWidget {
 }
 
 class _DsGalleryPageState extends State<DsGalleryPage> {
-  late final BlocGallery _bloc;
-  late final bool _ownsBloc;
+  late BlocGallery _bloc;
 
   @override
   void initState() {
     super.initState();
 
-    _ownsBloc = widget.bloc == null;
-    _bloc =
-        widget.bloc ??
-        BlocGallery(
-          designSystem: widget.designSystem ?? defaultModelDesignSystem(),
-        );
+    _bloc = widget.bloc ?? BlocGallery(designSystem: widget.designSystem);
   }
 
   @override
   void didUpdateWidget(covariant DsGalleryPage oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.bloc == null &&
-        widget.designSystem != null &&
+    if (oldWidget.bloc != widget.bloc) {
+      if (oldWidget.bloc == null) {
+        _bloc.dispose();
+      }
+      _bloc = widget.bloc ?? BlocGallery(designSystem: widget.designSystem);
+    } else if (widget.bloc == null &&
         oldWidget.designSystem != widget.designSystem) {
-      _bloc.setDesignSystem(widget.designSystem!);
+      _bloc.setDesignSystem(widget.designSystem ?? defaultModelDesignSystem());
     }
   }
 
   @override
   void dispose() {
-    if (_ownsBloc) {
+    if (widget.bloc == null) {
       _bloc.dispose();
     }
 
@@ -53,6 +51,7 @@ class _DsGalleryPageState extends State<DsGalleryPage> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<ModelDsGalleryState>(
+      key: ObjectKey(_bloc),
       stream: _bloc.stream,
       initialData: _bloc.state,
       builder:
@@ -60,15 +59,23 @@ class _DsGalleryPageState extends State<DsGalleryPage> {
             final ModelDsGalleryState state = snapshot.data ?? _bloc.state;
             final ModelDsGalleryPageEntry? currentPage = state.currentPage;
 
-            return Scaffold(
-              body: currentPage == null
-                  ? const Center(child: Text('No gallery pages available.'))
-                  : currentPage.builder(context, _bloc, state),
-              bottomNavigationBar: DsGalleryNavigationControls(
-                state: state,
-                onPrevious: _bloc.previous,
-                onIndex: _bloc.goToIndex,
-                onNext: _bloc.next,
+            return Theme(
+              data: state.designSystem.toThemeData(
+                brightness: Theme.of(context).brightness,
+              ),
+              child: Scaffold(
+                body: currentPage == null
+                    ? const Center(child: Text('No gallery pages available.'))
+                    : Builder(
+                        builder: (BuildContext galleryContext) =>
+                            currentPage.builder(galleryContext, _bloc, state),
+                      ),
+                bottomNavigationBar: DsGalleryNavigationControls(
+                  state: state,
+                  onPrevious: _bloc.previous,
+                  onIndex: _bloc.goToIndex,
+                  onNext: _bloc.next,
+                ),
               ),
             );
           },

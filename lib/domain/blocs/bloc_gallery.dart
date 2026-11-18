@@ -86,23 +86,9 @@ class BlocGallery extends BlocModule {
     emit(state.copyWith(currentIndex: 0));
   }
 
+  /// Updates the theme while keeping the current page and catalog.
   void setDesignSystem(ModelDesignSystem designSystem) {
-    final List<ModelDsGalleryPageEntry> nextPages = BlocGallery.defaultPages(
-      designSystem: designSystem,
-    );
-
-    final int nextIndex = state.currentIndex.clamp(
-      0,
-      nextPages.isEmpty ? 0 : nextPages.length - 1,
-    );
-
-    emit(
-      ModelDsGalleryState(
-        designSystem: designSystem,
-        pages: nextPages,
-        currentIndex: nextIndex,
-      ),
-    );
+    emit(state.copyWith(designSystem: designSystem));
   }
 
   static List<ModelDsGalleryPageEntry> defaultPages({
@@ -166,7 +152,7 @@ class BlocGallery extends BlocModule {
               ModelDsGalleryState state,
             ) {
               return Theme(
-                data: state.designSystem.theme.toThemeData(
+                data: state.designSystem.toThemeData(
                   brightness: Brightness.light,
                 ),
                 child: TextThemePage(
@@ -188,7 +174,7 @@ class BlocGallery extends BlocModule {
               ModelDsGalleryState state,
             ) {
               return Theme(
-                data: state.designSystem.theme.toThemeData(
+                data: state.designSystem.toThemeData(
                   brightness: Brightness.dark,
                 ),
                 child: TextThemePage(
@@ -262,6 +248,14 @@ class BlocGallery extends BlocModule {
               return ModelDataVizPalettePage(model: state.designSystem.dataViz);
             },
       ),
+      _galleryComponentPage(
+        _layeredSurfaceAnatomy,
+        _buildLayeredSurfacePreview,
+      ),
+      _galleryComponentPage(
+        _interactiveBuilderAnatomy,
+        _buildInteractivePreview,
+      ),
     ];
   }
 
@@ -288,7 +282,7 @@ class BlocGallery extends BlocModule {
             'Must explain the gallery purpose.',
             'Must allow users to start the gallery flow.',
           ],
-          tokensUsed: <String>['spacing', 'borderRadius', 'titleLarge'],
+          tokensUsed: <String>['spacingLg', 'spacingXl', 'displaySmall'],
         ),
       ],
     );

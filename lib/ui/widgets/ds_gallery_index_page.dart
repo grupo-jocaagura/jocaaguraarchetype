@@ -19,7 +19,7 @@ class DsGalleryIndexPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Design System Gallery Index')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(state.designSystem.tokens.spacing),
         children: sections.entries
             .map((MapEntry<String, List<ModelDsGalleryPageEntry>> section) {
               return _DsGalleryIndexSection(
@@ -50,14 +50,15 @@ class _DsGalleryIndexSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ModelDsExtendedTokens tokens = state.designSystem.tokens;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(tokens.spacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(title, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 8),
+            SizedBox(height: tokens.spacingSm),
             for (final ModelDsGalleryPageEntry page in pages)
               _DsGalleryIndexTile(
                 page: page,
