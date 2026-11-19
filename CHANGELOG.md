@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.10] - 2026-11-19
+
+### Added
+
+- Add `DsNumberInputWidget`, a single-line field with configurable signed
+  and decimal keyboard options and consumer-owned validation through
+  `ModelFieldState`. Preserve leading zeros, signs, and separators when
+  editing, pasting, or submitting.
+- Document the field in the DS index and show its states and text at 200%
+  in both gallery themes (#175).
+
 ## [5.2.9] - 2026-11-19
 
 ### Added

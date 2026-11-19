@@ -29,6 +29,7 @@ import 'package:flutter/widgets.dart';
 | `DsTextInputWidget` | Campo de texto con edición y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_text_input_widget.dart) · [Ficha](#ds.widget.text_input) | `ds.widget.text_input` |
 | `DsPasswordInputWidget` | Campo de contraseña con visibilidad y validación controlada por el consumidor | [Fuente](../lib/ui/widgets/forms/ds_password_input_widget.dart) · [Ficha](#ds.widget.password_input) | `ds.widget.password_input` |
 | `DsEmailInputWidget` | Campo de correo de una línea con validación controlada | [Fuente](../lib/ui/widgets/forms/ds_email_input_widget.dart) · [Ficha](#ds.widget.email_input) | `ds.widget.email_input` |
+| `DsNumberInputWidget` | Campo de una línea con teclado numérico y validación controlada | [Fuente](../lib/ui/widgets/forms/ds_number_input_widget.dart) · [Ficha](#ds.widget.number_input) | `ds.widget.number_input` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
 | `DsInteractiveBuilder` | Variantes: `DsInteractiveBuilder(state: state, enabledBuilder: (context, state) => Text('Activo'))` | [Fuente](../lib/ui/widgets/ds_interactive_widget.dart) | `ds.widget.interactive_builder` |
 | `TextResponsiveWidget` | Ajuste de texto: `TextResponsiveWidget(child: Text('Título', maxLines: 1))` | [API](https://pub.dev/documentation/text_responsive/1.3.0/text_responsive/TextResponsiveWidget-class.html) | `ds.widget.text_responsive` |
@@ -49,7 +50,8 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [campo de selección](../example/lib/ds_select_input_catalog.dart),
   [campo de texto](../example/lib/ds_text_input_catalog.dart),
   [campo de contraseña](../example/lib/ds_password_input_catalog.dart),
-  [campo de correo](../example/lib/ds_email_input_catalog.dart) y
+  [campo de correo](../example/lib/ds_email_input_catalog.dart),
+  [campo numérico](../example/lib/ds_number_input_catalog.dart) y
   [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
 - Las herramientas de galería del ejemplo usan el prefijo `example.ds.widgets.*`.
 
@@ -349,6 +351,37 @@ El modo `readOnly` permite consultar, seleccionar y copiar el correo. Usa
 `requiredSemanticLabel` y `readOnlySemanticLabel` para localizar los anuncios
 de estado. La ficha de **Forms** muestra edición, error, solo lectura,
 deshabilitado y texto al 200 % en ambos temas.
+
+<a id="ds.widget.number_input"></a>
+### Campo numérico
+
+Usa `DsNumberInputWidget` para capturar texto en una sola línea con un teclado
+numérico. Por defecto solicita un teclado para enteros sin signo. Configura
+`signed` y `decimal` según las teclas que quieras solicitar a la plataforma.
+El formulario decide qué valores acepta.
+
+Las propuestas de edición y envío conservan el valor de `ModelFieldState`
+tal como se escribió o pegó, incluidos ceros iniciales, espacios, signos y
+valores intermedios como `-` y `1,`. El consumidor interpreta `.` y `,`,
+valida la precisión y el rango, y convierte el texto cuando lo necesita.
+El error del modelo tiene prioridad sobre la ayuda.
+
+```dart
+DsNumberInputWidget(
+  field: measurement,
+  label: 'Medición',
+  signed: true,
+  decimal: true,
+  onChangedAttempt: onMeasurementChanged,
+)
+```
+
+Usa `onSubmittedAttempt` y `textInputAction` para reaccionar al envío desde el
+teclado. `autofillHints` es opcional y tiene valor inicial `null`. En
+`readOnly` se puede consultar, seleccionar y copiar el valor. Usa
+`requiredSemanticLabel` y `readOnlySemanticLabel` para localizar los anuncios
+de estado. La ficha de **Forms** muestra un entero, un decimal con signo,
+error, solo lectura, deshabilitado y texto al 200 % en ambos temas.
 
 <a id="ds.widget.text_responsive"></a>
 <a id="ds.widget.paragraph_text"></a>
