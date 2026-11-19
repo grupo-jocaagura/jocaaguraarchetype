@@ -69,7 +69,8 @@ void main() {
         expect(rendered.anatomy.description, page.description);
         expect(
           find.byWidgetPredicate(
-            (Widget widget) => widget.runtimeType.toString() == name,
+            (Widget widget) =>
+                widget.runtimeType.toString().split('<').first == name,
           ),
           findsWidgets,
         );

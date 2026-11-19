@@ -126,6 +126,7 @@ part 'ui/widgets/design_system_gallery_page.dart';
 part 'ui/widgets/drawer_option_widget.dart';
 part 'ui/widgets/ds_layered_surface_widget.dart';
 part 'ui/widgets/ds_action_button_widget.dart';
+part 'ui/widgets/ds_dropdown_button_widget.dart';
 part 'ui/widgets/ds_gallerry_navigation_controls.dart';
 part 'ui/widgets/ds_gallery_index_page.dart';
 part 'ui/widgets/ds_gallery_page.dart';

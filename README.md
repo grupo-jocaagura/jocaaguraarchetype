@@ -11,9 +11,9 @@ Arquetipo base para aplicaciones Flutter con enfoque de Clean Architecture, BLoC
 - Requiere **Flutter >=3.50.0** y **Dart >=3.14.0 <4.0.0**.
 - Dependencia oficial `jocaagura_domain: ^2.0.0` desde pub.dev, con
   `jocaagura_domain_core: ^1.3.0` de forma transitiva.
-- Versión de desarrollo **5.2.4**, con `DsPrimaryButtonWidget` y
-  `DsSecondaryButtonWidget` para acciones con etiqueta multilínea y estados
-  controlados. La galería incluye ambos botones y `DsIconButtonWidget`.
+- Versión de desarrollo **5.2.5**, con `DsDropdownButtonWidget<T>` para selección
+  controlada de un valor. La galería muestra su composición con `InputDecorator`
+  y opciones con texto ampliado.
 - Reexporta `text_responsive: ^1.3.0` e incluye `DsIconWidget` y una galería DS
   autocontenida para consultar anatomía y ejemplos en claro/oscuro.
 - [Guía de migración a 5.0.0](doc/migration-5.md).
