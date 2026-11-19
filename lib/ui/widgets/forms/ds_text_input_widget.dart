@@ -23,7 +23,27 @@ class DsTextInputWidget extends StatefulWidget {
     this.requiredSemanticLabel = 'Required',
     this.readOnlySemanticLabel = 'Read only',
     super.key,
-  }) : assert(maxLines > 0);
+  }) : assert(maxLines > 0),
+       _passwordLabels = null;
+
+  const DsTextInputWidget._password({
+    required this.field,
+    required this.onChangedAttempt,
+    required this.label,
+    required this._passwordLabels,
+    this.onSubmittedAttempt,
+    this.placeholder,
+    this.helperText,
+    this.required = false,
+    this.enabled = true,
+    this.readOnly = false,
+    this.textInputAction,
+    this.autofillHints = const <String>[AutofillHints.password],
+    this.requiredSemanticLabel = 'Required',
+    this.readOnlySemanticLabel = 'Read only',
+    super.key,
+  }) : textInputType = TextInputType.visiblePassword,
+       maxLines = 1;
 
   /// The accepted text and validation supplied by the consumer.
   final ModelFieldState field;
@@ -57,24 +77,43 @@ class DsTextInputWidget extends StatefulWidget {
   /// Localizable status announced in read-only mode.
   final String readOnlySemanticLabel;
 
+  final ({String show, String hide})? _passwordLabels;
+
   @override
   State<DsTextInputWidget> createState() => _DsTextInputWidgetState();
 }
 
 class _DsTextInputWidgetState extends State<DsTextInputWidget> {
+  static final _DsPasswordSelectionControls _passwordSelectionControls =
+      _DsPasswordSelectionControls();
+
   late final TextEditingController _controller;
   final FocusNode _focusNode = FocusNode();
+  FocusNode? _passwordFocus;
+  VoidCallback? _stopBlockingClipboard;
   bool _hasUnacceptedEdit = false;
+  bool _revealed = false;
+
+  bool get _canEdit => widget.enabled && !widget.readOnly;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.field.value);
+    if (widget._passwordLabels != null) {
+      _passwordFocus = FocusNode(debugLabel: 'Password input');
+      _stopBlockingClipboard = blockPasswordClipboard(
+        () => _focusNode.hasFocus,
+      );
+    }
   }
 
   @override
   void didUpdateWidget(covariant DsTextInputWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!_canEdit) {
+      _revealed = false;
+    }
     final String text = widget.field.value;
     if (oldWidget.field.value == text) {
       return;
@@ -144,9 +183,21 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
 
   @override
   void dispose() {
+    _stopBlockingClipboard?.call();
+    _passwordFocus?.dispose();
     _focusNode.dispose();
     _controller.dispose();
     super.dispose();
+  }
+
+  void _togglePassword() {
+    if (!_canEdit) {
+      return;
+    }
+    if (!_passwordFocus!.hasFocus) {
+      _focusNode.requestFocus();
+    }
+    setState(() => _revealed = !_revealed);
   }
 
   @override
@@ -156,8 +207,11 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
       throw ArgumentError.value(widget.label, 'label', 'Name the field.');
     }
 
-    final bool canEdit = widget.enabled && !widget.readOnly;
+    final bool canEdit = _canEdit;
     final bool isReadOnly = widget.enabled && widget.readOnly;
+    final ({String show, String hide})? passwordLabels = widget._passwordLabels;
+    final bool isPassword = passwordLabels != null;
+    final bool obscured = isPassword && (!_revealed || !canEdit);
     final String? error = widget.field.errorTextToInput;
     final String? help =
         error == null && widget.helperText?.trim().isNotEmpty == true
@@ -173,7 +227,7 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
         ? SemanticsValidationResult.none
         : SemanticsValidationResult.invalid;
 
-    final Widget input = TextField(
+    Widget input = TextField(
       controller: _controller,
       focusNode: _focusNode,
       keyboardType: widget.textInputType,
@@ -182,6 +236,13 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
       maxLines: widget.maxLines,
       readOnly: widget.readOnly,
       enabled: widget.enabled,
+      obscureText: obscured,
+      autocorrect: isPassword ? false : null,
+      enableSuggestions: !isPassword,
+      enableIMEPersonalizedLearning: !isPassword,
+      smartDashesType: isPassword ? SmartDashesType.disabled : null,
+      smartQuotesType: isPassword ? SmartQuotesType.disabled : null,
+      selectionControls: isPassword ? _passwordSelectionControls : null,
       style: theme.textTheme.bodyLarge,
       onChanged: canEdit
           ? (String raw) {
@@ -212,13 +273,44 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
         helperMaxLines: help?.length,
         errorText: error,
         errorMaxLines: error?.length,
+        suffixIcon: passwordLabels != null && canEdit
+            ? DsIconButtonWidget(
+                icon: obscured ? Icons.visibility : Icons.visibility_off,
+                semanticLabel: obscured
+                    ? passwordLabels.show
+                    : passwordLabels.hide,
+                variant: DsSurfaceVariant.outlined,
+                onPressed: _togglePassword,
+              )
+            : null,
       ),
     );
 
+    if (isPassword) {
+      input = Focus(
+        focusNode: _passwordFocus,
+        canRequestFocus: false,
+        includeSemantics: false,
+        onFocusChange: (bool focused) {
+          if (!focused && _revealed && mounted) {
+            setState(() => _revealed = false);
+          }
+        },
+        child: Actions(
+          actions: <Type, Action<Intent>>{
+            CopySelectionTextIntent: CallbackAction<CopySelectionTextIntent>(
+              onInvoke: (CopySelectionTextIntent intent) => null,
+            ),
+          },
+          child: input,
+        ),
+      );
+    }
+
     if (kIsWeb && isReadOnly) {
       // Flutter web exposes native text-field semantics as an editable DOM
-      // input even in read-only mode. Publish the readable value separately
-      // and retain the native field's focus, selection and copy behavior.
+      // input even in read-only mode. Publish the field's name and status
+      // separately, including the value only for ordinary text fields.
       final String? supportingText = error ?? help;
       final String description = <String>[
         if (status.isNotEmpty) status,
@@ -237,7 +329,7 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
           focused: _focusNode.hasFocus,
           onFocus: _focusNode.requestFocus,
           label: name,
-          value: _controller.text,
+          value: isPassword ? null : _controller.text,
           hint: description.isEmpty ? null : description,
           isRequired: widget.required,
           validationResult: validation,

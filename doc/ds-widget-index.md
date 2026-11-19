@@ -27,6 +27,7 @@ import 'package:flutter/widgets.dart';
 | `DsDropdownButtonWidget` | Selección de un valor controlada por el consumidor | [Fuente](../lib/ui/widgets/ds_dropdown_button_widget.dart) · [Ficha](#ds.widget.dropdown_button) | `ds.widget.dropdown_button` |
 | `DsSelectInputWidget` | Campo de formulario con selección y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_select_input_widget.dart) · [Ficha](#ds.widget.select_input) | `ds.widget.select_input` |
 | `DsTextInputWidget` | Campo de texto con edición y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_text_input_widget.dart) · [Ficha](#ds.widget.text_input) | `ds.widget.text_input` |
+| `DsPasswordInputWidget` | Campo de contraseña con visibilidad y validación controlada por el consumidor | [Fuente](../lib/ui/widgets/forms/ds_password_input_widget.dart) · [Ficha](#ds.widget.password_input) | `ds.widget.password_input` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
 | `DsInteractiveBuilder` | Variantes: `DsInteractiveBuilder(state: state, enabledBuilder: (context, state) => Text('Activo'))` | [Fuente](../lib/ui/widgets/ds_interactive_widget.dart) | `ds.widget.interactive_builder` |
 | `TextResponsiveWidget` | Ajuste de texto: `TextResponsiveWidget(child: Text('Título', maxLines: 1))` | [API](https://pub.dev/documentation/text_responsive/1.3.0/text_responsive/TextResponsiveWidget-class.html) | `ds.widget.text_responsive` |
@@ -45,7 +46,8 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [botones de acción](../example/lib/ds_action_button_catalog.dart),
   [selector](../example/lib/ds_dropdown_button_catalog.dart),
   [campo de selección](../example/lib/ds_select_input_catalog.dart),
-  [campo de texto](../example/lib/ds_text_input_catalog.dart) y
+  [campo de texto](../example/lib/ds_text_input_catalog.dart),
+  [campo de contraseña](../example/lib/ds_password_input_catalog.dart) y
   [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
 - Las herramientas de galería del ejemplo usan el prefijo `example.ds.widgets.*`.
 
@@ -275,6 +277,43 @@ DsTextInputWidget(
 
 La ficha de **Forms** muestra edición controlada, error, solo lectura,
 deshabilitado, varias líneas y texto al 200 % en ambos temas.
+
+<a id="ds.widget.password_input"></a>
+### Campo de contraseña
+
+Usa `DsPasswordInputWidget` para contraseñas de una sola línea. El consumidor
+acepta las propuestas de edición y valida mediante `ModelFieldState`. El error
+del modelo tiene prioridad sobre `helperText`.
+
+El valor empieza oculto. Al mostrarlo u ocultarlo se conserva la selección.
+El campo lo vuelve a ocultar al salir del grupo formado por el editor y su
+botón, al deshabilitar el campo o al pasar a solo lectura. Mientras el campo
+sea editable se puede pegar. Copiar y cortar están bloqueados incluso cuando
+la contraseña está visible.
+
+El autocompletado usa `AutofillHints.password` por defecto. Para crear o cambiar
+una contraseña usa `autofillHints: const [AutofillHints.newPassword]`. Pasa
+`autofillHints: null` para desactivar el autocompletado. Localiza los nombres
+del botón con `showPasswordLabel` y `hidePasswordLabel`, y los anuncios del campo
+con `requiredSemanticLabel` y `readOnlySemanticLabel`.
+
+```dart
+DsPasswordInputWidget(
+  field: password,
+  label: 'Contraseña',
+  placeholder: 'Escribe tu contraseña',
+  required: true,
+  requiredSemanticLabel: 'Obligatorio',
+  showPasswordLabel: 'Mostrar contraseña',
+  hidePasswordLabel: 'Ocultar contraseña',
+  onChangedAttempt: onPasswordChanged,
+)
+```
+
+El valor de `ModelFieldState` contiene la contraseña en claro. Consérvalo en
+memoria solo durante el tiempo necesario y evita registrarlo o persistirlo.
+La ficha de **Forms** usa datos ficticios y muestra visibilidad, error, solo
+lectura, deshabilitado y texto al 200 % en ambos temas.
 
 <a id="ds.widget.text_responsive"></a>
 <a id="ds.widget.paragraph_text"></a>

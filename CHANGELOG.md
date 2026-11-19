@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.8] - 2026-11-19
+
+### Added
+
+- Add `DsPasswordInputWidget`, a single-line password field with
+  `ModelFieldState` validation, an accessible visibility toggle and
+  configurable autofill. Preserve the selection while toggling and hide
+  the password again when focus leaves the control.
+- Allow paste while editing and block copy and cut. Document the field in
+  the DS index and show its states and text at 200% in both themes (#171).
+
 ## [5.2.7] - 2026-11-19
 
 ### Added
