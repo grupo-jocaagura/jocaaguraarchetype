@@ -13,6 +13,7 @@ import 'jocaaguraarchetype.dart';
 
 export 'either_flow/exports.dart';
 export 'jocaaguraarchetype_domain.dart';
+export 'jocaaguraarchetype_text_responsive.dart';
 
 part 'app_config.dart';
 part 'consts/app_constants.dart';
@@ -127,6 +128,7 @@ part 'ui/widgets/ds_layered_surface_widget.dart';
 part 'ui/widgets/ds_gallerry_navigation_controls.dart';
 part 'ui/widgets/ds_gallery_index_page.dart';
 part 'ui/widgets/ds_gallery_page.dart';
+part 'ui/widgets/ds_icon_widget.dart';
 part 'ui/widgets/ds_interactive_widget.dart';
 part 'ui/widgets/forms/custom_autocomplete_input_widget.dart';
 part 'ui/widgets/forms/jocaagura_autocomplete_input_widget.dart';

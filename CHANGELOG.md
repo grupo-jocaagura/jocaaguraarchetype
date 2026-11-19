@@ -6,6 +6,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.1] - 2026-11-19
+
+### Added
+
+- Reexport `text_responsive ^1.3.0` through the main library and the dedicated
+  `jocaaguraarchetype_text_responsive.dart` entrypoint.
+- Add passive `DsIconWidget` with explicit/inherited/DS appearance and accessible
+  informational or decorative semantics.
+- Add a DS widget index and expand the standalone gallery example with anatomy,
+  usage snippets and light/dark previews for icons and responsive text (#157).
+- Verify the assembled gallery against documented component IDs and render the
+  icon preview as labeled cases with DS spacing, sizing and theme colors.
+
+### Fixed
+
+- Dispose the example-owned gallery BLoC and preserve it across app rebuilds.
+- Keep synthetic master synchronization fixtures on a release version so the
+  policy suite also works from development patch versions.
+
 ## [5.2.0] - 2026-11-18
 
 ### Added

@@ -1,5 +1,8 @@
 # JocaaguraArchetype
 
+Consulta el [índice rápido de widgets DS](doc/ds-widget-index.md) para descubrir
+componentes públicos, texto responsive y la galería ejecutable.
+
 Arquetipo base para aplicaciones Flutter con enfoque de Clean Architecture, BLoCs transversales, navegación, theming y utilidades reutilizables sobre `jocaagura_domain`.
 
 ## Estado actual
@@ -8,8 +11,9 @@ Arquetipo base para aplicaciones Flutter con enfoque de Clean Architecture, BLoC
 - Requiere **Flutter >=3.50.0** y **Dart >=3.14.0 <4.0.0**.
 - Dependencia oficial `jocaagura_domain: ^2.0.0` desde pub.dev, con
   `jocaagura_domain_core: ^1.3.0` de forma transitiva.
-- El paquete usa dependencias publicadas y conserva la versión **5.0.0**
-  para su próximo release.
+- Versión de desarrollo **5.2.1**, integrada sin publicar un nuevo paquete en pub.dev.
+- Reexporta `text_responsive: ^1.3.0` e incluye `DsIconWidget` y una galería DS
+  autocontenida para consultar anatomía y ejemplos en claro/oscuro.
 - [Guía de migración a 5.0.0](doc/migration-5.md).
 - [Certificación con domain 2.0.0 publicado](doc/workflows/evidence/135/certification-domain-2.0.0.md).
 
