@@ -2,6 +2,7 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 import 'package:material_ui/material_ui.dart';
 
 part 'ds_item_family_catalog.dart';
+part 'ds_icon_button_catalog.dart';
 
 /// Local documentation and executable previews share the same stable IDs.
 class DsWidgetCatalogEntry {
@@ -91,6 +92,7 @@ final List<DsWidgetCatalogEntry> dsWidgetCatalog = <DsWidgetCatalogEntry>[
         "const DsIconWidget(icon: Icons.info, semanticLabel: 'Information')",
     preview: _iconPreview,
   ),
+  _iconButtonEntry,
   DsWidgetCatalogEntry(
     anatomy: _anatomy(
       'ds.widget.text_responsive',

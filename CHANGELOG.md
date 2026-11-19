@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.3] - 2026-11-19
+
+### Added
+
+- Add `DsIconButtonWidget` with a 32 px circular surface, 48 × 48 px activation
+  target, controlled states, semantic colors and a configurable loading indicator.
+  Document filled and outlined variants in the DS widget gallery (#161).
+
 ## [5.2.2] - 2026-11-19
 
 ### Added

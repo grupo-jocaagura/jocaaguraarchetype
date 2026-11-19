@@ -60,7 +60,7 @@ class DsItemButtonWidget extends StatelessWidget {
   }) {
     final ThemeData theme = Theme.of(context);
     final ModelDsExtendedTokens tokens = _itemTokensOf(context);
-    final _DsItemAppearance appearance = _DsItemAppearance.resolve(
+    final _DsSurfaceAppearance appearance = _DsSurfaceAppearance.resolve(
       theme,
       variant,
       intent: intent ?? state.semantic,
