@@ -15,6 +15,10 @@ previews simultáneas en claro y oscuro. Incluye iconos pasivos, superficies,
 estados interactivos y los tres widgets de `text_responsive` reexportados.
 Cada nueva entrada muestra anatomía, reglas, tokens y uso mínimo.
 
+Las familias **DS Typography** y **Grid items** muestran los 15 roles de Material,
+texto en línea y párrafos, carga y botones con estados en grilla. Cada panel
+permite probar la selección del botón de forma independiente.
+
 El catálogo local está en `lib/ds_widget_catalog.dart`; conserva el mismo ID
 entre anatomía, entrada y [documentación](../doc/ds-widget-index.md).
 Los botones y textos de **Local demonstrations** son clases exclusivas del ejemplo.
@@ -22,7 +26,7 @@ La app crea y libera su propio `BlocGallery`.
 
 Un proyecto transversal para desarrollo de las aplicaciones transversales
 
-Este ejemplo consume la integración de 5.2.1 por ruta local. Requiere Flutter
+Este ejemplo consume la integración de 5.2.2 por ruta local. Requiere Flutter
 >=3.50.0 y Dart >=3.14.0 <4.0.0, y usa `material_ui` en sus imports.
 Consulta la [guía de migración](../doc/migration-5.md) para la dependencia oficial
 domain 2.0.0 y las condiciones previas a la publicación.

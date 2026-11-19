@@ -1,6 +1,8 @@
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 import 'package:material_ui/material_ui.dart';
 
+part 'ds_item_family_catalog.dart';
+
 /// Local documentation and executable previews share the same stable IDs.
 class DsWidgetCatalogEntry {
   const DsWidgetCatalogEntry({
@@ -47,8 +49,9 @@ ModelDsComponentAnatomy _anatomy(
   String name,
   String description,
   List<String> rules,
-  List<String> tokens,
-) => ModelDsComponentAnatomy(
+  List<String> tokens, {
+  List<ModelDsComponentSlot>? slots,
+}) => ModelDsComponentAnatomy(
   id: id,
   name: name,
   description: description,
@@ -56,18 +59,21 @@ ModelDsComponentAnatomy _anatomy(
   status: ModelDsComponentStatusEnum.stable,
   platforms: ModelDsComponentPlatformEnum.values,
   urlDetailedInfo: 'doc/ds-widget-index.md#$id',
-  slots: <ModelDsComponentSlot>[
-    ModelDsComponentSlot(
-      name: 'Content',
-      role: description,
-      rules: rules,
-      tokensUsed: tokens,
-    ),
-  ],
+  slots:
+      slots ??
+      <ModelDsComponentSlot>[
+        ModelDsComponentSlot(
+          name: 'Content',
+          role: description,
+          rules: rules,
+          tokensUsed: tokens,
+        ),
+      ],
 );
 
 /// Public additions; existing surfaces and interaction states use built-in pages.
 final List<DsWidgetCatalogEntry> dsWidgetCatalog = <DsWidgetCatalogEntry>[
+  ..._itemFamilyEntries,
   DsWidgetCatalogEntry(
     anatomy: _anatomy(
       'ds.widget.icon',
