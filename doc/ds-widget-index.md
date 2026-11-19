@@ -22,6 +22,8 @@ import 'package:flutter/widgets.dart';
 | --- | --- | --- | --- |
 | `DsIconWidget` | Icono pasivo: `DsIconWidget(icon: Icons.info, semanticLabel: 'Información')` | [Fuente](../lib/ui/widgets/ds_icon_widget.dart) | `ds.widget.icon` |
 | `DsIconButtonWidget` | Acción por icono: `DsIconButtonWidget(icon: Icons.add, semanticLabel: 'Agregar ítem', onPressed: addItem)` | [Fuente](../lib/ui/widgets/ds_icon_button_widget.dart) | `ds.widget.icon_button` |
+| `DsPrimaryButtonWidget` | Acción principal · `DsPrimaryButtonWidget(label: 'Guardar', onPressed: save)` | [Fuente](../lib/ui/widgets/ds_action_button_widget.dart) · [Ficha](#ds.widget.primary_button) | `ds.widget.primary_button` |
+| `DsSecondaryButtonWidget` | Acción de menor énfasis · `DsSecondaryButtonWidget(label: 'Cancelar', onPressed: cancel)` | [Fuente](../lib/ui/widgets/ds_action_button_widget.dart) · [Ficha](#ds.widget.secondary_button) | `ds.widget.secondary_button` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
 | `DsInteractiveBuilder` | Variantes: `DsInteractiveBuilder(state: state, enabledBuilder: (context, state) => Text('Activo'))` | [Fuente](../lib/ui/widgets/ds_interactive_widget.dart) | `ds.widget.interactive_builder` |
 | `TextResponsiveWidget` | Ajuste de texto: `TextResponsiveWidget(child: Text('Título', maxLines: 1))` | [API](https://pub.dev/documentation/text_responsive/1.3.0/text_responsive/TextResponsiveWidget-class.html) | `ds.widget.text_responsive` |
@@ -35,10 +37,11 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
 - `BlocGallery.defaultPages()` aporta `ds.widget.layered_surface` y
   `ds.widget.interactive_builder`, con sus anatomías y previews integradas en
   [gallery_widgets.dart](../lib/ui/widgets/gallery_widgets.dart).
-- `dsWidgetCatalog` aporta icono, texto responsive, tipografía DS y grillas desde
-  [ds_widget_catalog.dart](../example/lib/ds_widget_catalog.dart) y el catálogo
-  de [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
-- Las demostraciones locales usan el prefijo `example.ds.widgets.*`.
+- `dsWidgetCatalog` aporta iconos, botones, texto responsive, tipografía DS y grillas.
+  Consulta el [catálogo](../example/lib/ds_widget_catalog.dart) y sus fichas de
+  [botones de acción](../example/lib/ds_action_button_catalog.dart) y
+  [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
+- Las herramientas de galería del ejemplo usan el prefijo `example.ds.widgets.*`.
 
 La prueba de catálogo recorre el índice de la app real para verificar que cada
 componente de esta tabla tiene una sola entrada, conserva su anatomía y renderiza
@@ -86,6 +89,49 @@ La carga mantiene el nombre de la acción y anuncia `loadingSemanticLabel` por
 separado. Puedes suministrar un `DsLoading` para reemplazar el indicador
 circular predeterminado. La paleta y los fallbacks de `success`, `warning` y
 `danger` son los mismos que los de `DsItemButtonWidget`.
+
+<a id="ds.widget.primary_button"></a>
+### Botón primario
+
+Usa `DsPrimaryButtonWidget` para la acción principal de una sección, como
+«Guardar» o «Continuar». Usa la superficie `filled` y su intención inicial es
+`primary`.
+
+<a id="ds.widget.secondary_button"></a>
+### Botón secundario
+
+Usa `DsSecondaryButtonWidget` para una acción de menor énfasis, como «Cancelar»
+o «Volver». Usa la superficie `outlined` y su intención inicial es `secondary`.
+
+```dart
+Wrap(
+  spacing: context.dsTokens.spacingSm,
+  runSpacing: context.dsTokens.spacingSm,
+  children: [
+    DsPrimaryButtonWidget(label: 'Guardar', icon: Icons.save, onPressed: save),
+    DsSecondaryButtonWidget(label: 'Cancelar', onPressed: cancel),
+  ],
+)
+```
+
+Da a cada botón una etiqueta de acción localizada. El `icon` inicial es
+decorativo. La etiqueta usa `TextTheme.labelLarge`, conserva el escalado del
+usuario y se distribuye en varias líneas si hace falta. Deja espacio para un
+objetivo táctil de al menos 48 × 48 píxeles lógicos y permite que la altura crezca
+según la etiqueta. En una fila estrecha, da al botón un ancho acotado con
+`Flexible` o permite que los botones pasen a otra fila con `Wrap`.
+
+Controla el estado mediante `ModelInteractiveState`. La precedencia visual es
+oculto → carga → error → selección → deshabilitado → normal. El callback depende
+de `state.canInteract`, así que un error habilitado permite reintentar. Al pasar
+un estado explícito, fija `semantic` a la intención deseada. `success` y `warning`
+usan `DsSemanticColorsExtension` o el respaldo claro u oscuro. `danger` usa los
+colores de error de `ColorScheme`.
+
+Durante la carga, el indicador usa el espacio del icono inicial y la etiqueta
+conserva su posición. Usa `loading` para suministrar otro `DsLoading` y
+`loadingSemanticLabel` para localizar el estado que se anuncia. Consulta ambos
+botones en la familia **Buttons** de la galería.
 
 <a id="ds.widget.text_responsive"></a>
 <a id="ds.widget.paragraph_text"></a>
@@ -292,9 +338,6 @@ claro/oscuro del paquete. Las nuevas entradas y snippets están en
 [ds_widget_catalog.dart](../example/lib/ds_widget_catalog.dart), con
 `ModelDsComponentAnatomy` como metadatos y el mismo ID en `ModelDsGalleryPageEntry`.
 Los IDs nuevos tienen anclas explícitas en este índice.
-
-**Local demonstrations** muestra `DsPrimaryButtonWidget` y `DsSecondaryButtonWidget`,
-clases exclusivas del ejemplo en `example.ds.widgets.buttons`.
 
 BienvenidoApp es una referencia de comportamiento y anatomía. Este ejemplo no
 depende de su código ni configuración.

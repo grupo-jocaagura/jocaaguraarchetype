@@ -1,6 +1,7 @@
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 import 'package:material_ui/material_ui.dart';
 
+part 'ds_action_button_catalog.dart';
 part 'ds_item_family_catalog.dart';
 part 'ds_icon_button_catalog.dart';
 
@@ -93,6 +94,8 @@ final List<DsWidgetCatalogEntry> dsWidgetCatalog = <DsWidgetCatalogEntry>[
     preview: _iconPreview,
   ),
   _iconButtonEntry,
+  _actionButtonEntry(primary: true),
+  _actionButtonEntry(primary: false),
   DsWidgetCatalogEntry(
     anatomy: _anatomy(
       'ds.widget.text_responsive',

@@ -6,6 +6,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.4] - 2026-11-19
+
+### Added
+
+- Add `DsPrimaryButtonWidget` for filled primary actions and
+  `DsSecondaryButtonWidget` for outlined supporting actions. Both support
+  multiline `labelLarge` text, 48 × 48 minimum activation targets, controlled
+  states, semantic color fallbacks and a replaceable `DsLoading` that keeps the
+  action label visible.
+- Replace the local button demos with public catalog entries. Show both actions
+  in light and dark themes alongside state and enlarged-text examples (#163).
+
 ## [5.2.3] - 2026-11-19
 
 ### Added
