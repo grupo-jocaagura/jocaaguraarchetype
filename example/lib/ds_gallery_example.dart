@@ -80,36 +80,6 @@ List<ModelDsGalleryPageEntry> _exampleWidgetPages() {
           },
     ),
     ModelDsGalleryPageEntry(
-      id: 'example.ds.widgets.typography',
-      title: 'Example-only typography',
-      section: 'Local demonstrations',
-      description: 'Text widgets using the active ThemeData.',
-      builder:
-          (BuildContext context, BlocGallery bloc, ModelDsGalleryState state) {
-            return DesignSystemGalleryPage(
-              anatomy: _typographyAnatomy(),
-              designSystem: state.designSystem,
-              previewBuilder: (BuildContext previewContext) {
-                return const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    DsTextHeadlineMediumWidget(label: 'Headline medium'),
-                    SizedBox(height: 8),
-                    DsTextTitleLargeWidget(label: 'Title large'),
-                    SizedBox(height: 8),
-                    DsTextBodyMediumWidget(
-                      label: 'Body medium text rendered from DS typography.',
-                    ),
-                    SizedBox(height: 8),
-                    DsTextLabelSmallWidget(label: 'Label small'),
-                  ],
-                );
-              },
-            );
-          },
-    ),
-    ModelDsGalleryPageEntry(
       id: 'example.ds.widgets.side_by_side',
       title: 'SideBySideWidget',
       section: 'Gallery Tools',
@@ -247,70 +217,4 @@ ModelDsComponentAnatomy _buttonsAnatomy() {
       ),
     ],
   );
-}
-
-ModelDsComponentAnatomy _typographyAnatomy() {
-  return const ModelDsComponentAnatomy(
-    id: 'example.ds.widgets.typography',
-    name: 'Example-only typography',
-    description:
-        'Local text demonstrations; these classes are not public package APIs.',
-    tags: <String>['typography', 'text', 'theme'],
-    status: ModelDsComponentStatusEnum.stable,
-    platforms: <ModelDsComponentPlatformEnum>[
-      ModelDsComponentPlatformEnum.android,
-      ModelDsComponentPlatformEnum.ios,
-      ModelDsComponentPlatformEnum.web,
-      ModelDsComponentPlatformEnum.windows,
-      ModelDsComponentPlatformEnum.macos,
-      ModelDsComponentPlatformEnum.linux,
-    ],
-    slots: <ModelDsComponentSlot>[
-      ModelDsComponentSlot(
-        name: 'TextScale',
-        role: 'Represents Material text styles through DS text widgets.',
-        rules: <String>[
-          'Do not hardcode text styles in consumers.',
-          'Prefer DS text widgets or Theme.of(context).textTheme with criteria.',
-        ],
-        tokensUsed: <String>['textTheme'],
-      ),
-    ],
-  );
-}
-
-class DsTextHeadlineMediumWidget extends StatelessWidget {
-  const DsTextHeadlineMediumWidget({required this.label, super.key});
-  final String label;
-  @override
-  Widget build(BuildContext context) {
-    return Text(label, style: Theme.of(context).textTheme.headlineMedium);
-  }
-}
-
-class DsTextTitleLargeWidget extends StatelessWidget {
-  const DsTextTitleLargeWidget({required this.label, super.key});
-  final String label;
-  @override
-  Widget build(BuildContext context) {
-    return Text(label, style: Theme.of(context).textTheme.titleLarge);
-  }
-}
-
-class DsTextBodyMediumWidget extends StatelessWidget {
-  const DsTextBodyMediumWidget({required this.label, super.key});
-  final String label;
-  @override
-  Widget build(BuildContext context) {
-    return Text(label, style: Theme.of(context).textTheme.bodyMedium);
-  }
-}
-
-class DsTextLabelSmallWidget extends StatelessWidget {
-  const DsTextLabelSmallWidget({required this.label, super.key});
-  final String label;
-  @override
-  Widget build(BuildContext context) {
-    return Text(label, style: Theme.of(context).textTheme.bodySmall);
-  }
 }

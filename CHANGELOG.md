@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.2] - 2026-11-19
+
+### Added
+
+- Add all Material text roles and responsive inline and paragraph DS widgets.
+- Add passive and interactive grid items with shared surface variants and a
+  replaceable loading indicator. Document and preview the family in the DS gallery (#159).
+- Keep short labels in compact grid items and let longer or scaled labels wrap
+  through `DsTextParagraphWidget` with `labelMedium`. Use ellipsis when the
+  parent limits the height and preserve the full accessible name.
+
 ## [5.2.1] - 2026-11-19
 
 ### Added

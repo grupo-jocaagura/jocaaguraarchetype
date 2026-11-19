@@ -34,9 +34,9 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
 - `BlocGallery.defaultPages()` aporta `ds.widget.layered_surface` y
   `ds.widget.interactive_builder`, con sus anatomías y previews integradas en
   [gallery_widgets.dart](../lib/ui/widgets/gallery_widgets.dart).
-- `dsWidgetCatalog` aporta `ds.widget.icon`, `ds.widget.text_responsive`,
-  `ds.widget.paragraph_text` y `ds.widget.inline_text` desde
-  [ds_widget_catalog.dart](../example/lib/ds_widget_catalog.dart).
+- `dsWidgetCatalog` aporta icono, texto responsive, tipografía DS y grillas desde
+  [ds_widget_catalog.dart](../example/lib/ds_widget_catalog.dart) y el catálogo
+  de [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
 - Las demostraciones locales usan el prefijo `example.ds.widgets.*`.
 
 La prueba de catálogo recorre el índice de la app real para verificar que cada
@@ -90,6 +90,134 @@ SizedBox(
 - `overflowCallback` se entrega después del frame, una vez por episodio continuo
   de overflow del tamaño original.
 
+## Tipografía Material
+
+| Componente | Cuándo usarlo y ejemplo | API | ID de galería |
+| --- | --- | --- | --- |
+| `DsTextDisplayLargeWidget` | Mensaje principal de una portada. Espacio amplio para pocas palabras. · `DsTextDisplayLargeWidget(label: 'Explora')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_display_large` |
+| `DsTextDisplayMediumWidget` | Mensaje destacado de una campaña. Ancho amplio para una frase breve. · `DsTextDisplayMediumWidget(label: 'Descubre lo nuevo')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_display_medium` |
+| `DsTextDisplaySmallWidget` | Cifra o mensaje principal en un espacio moderado. Espacio moderado y contenido corto. · `DsTextDisplaySmallWidget(label: '12 proyectos')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_display_small` |
+| `DsTextHeadlineLargeWidget` | Encabezado principal de página. Reserva la línea principal del encabezado. · `DsTextHeadlineLargeWidget(label: 'Panel principal')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_headline_large` |
+| `DsTextHeadlineMediumWidget` | Encabezado de sección. Da al encabezado el ancho de su sección. · `DsTextHeadlineMediumWidget(label: 'Actividad reciente')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_headline_medium` |
+| `DsTextHeadlineSmallWidget` | Encabezado de subsección. Usa una línea breve en el bloque. · `DsTextHeadlineSmallWidget(label: 'Próximos pasos')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_headline_small` |
+| `DsTextTitleLargeWidget` | Título de un contenido destacado. Deja espacio en la cabecera del contenido. · `DsTextTitleLargeWidget(label: 'Resumen de cuenta')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_title_large` |
+| `DsTextTitleMediumWidget` | Título de una tarjeta o grupo. Acota el ancho disponible en la tarjeta. · `DsTextTitleMediumWidget(label: 'Informe mensual')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_title_medium` |
+| `DsTextTitleSmallWidget` | Título de un componente compacto. Resérvalo para nombres cortos. · `DsTextTitleSmallWidget(label: 'Detalles')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_title_small` |
+| `DsTextBodyLargeWidget` | Texto de lectura destacado. Usa ancho generoso o un párrafo para varias líneas. · `DsTextBodyLargeWidget(label: 'Lee lo más destacado')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_body_large` |
+| `DsTextBodyMediumWidget` | Texto principal de lectura. Usa el párrafo para lectura que ocupe varias líneas. · `DsTextBodyMediumWidget(label: 'Guardamos tus cambios')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_body_medium` |
+| `DsTextBodySmallWidget` | Texto auxiliar o nota breve. Mantén la nota breve o usa un párrafo de detalle. · `DsTextBodySmallWidget(label: 'Actualizado ayer')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_body_small` |
+| `DsTextLabelLargeWidget` | Etiqueta de una acción destacada. Reserva el ancho del control para la etiqueta. · `DsTextLabelLargeWidget(label: 'Continuar')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_label_large` |
+| `DsTextLabelMediumWidget` | Etiqueta de un ítem compacto. Dale un espacio acotado dentro del ítem. · `DsTextLabelMediumWidget(label: 'Favoritos')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_label_medium` |
+| `DsTextLabelSmallWidget` | Texto de una insignia o metadato breve. Usa espacio reducido con texto muy breve. · `DsTextLabelSmallWidget(label: 'Nuevo')` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_label_small` |
+| `DsInlineTextWidget` | Texto breve con rol configurable · `DsInlineTextWidget(label: 'Estado', role: DsTextStyleKey.labelLarge)` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.ds_inline_text` |
+| `DsTextParagraphWidget` | Lectura en varias líneas · `DsTextParagraphWidget(label: 'Consulta los detalles.', maxLines: 3)` | [Fuente](../lib/ui/widgets/ds_text_widgets.dart) | `ds.widget.text_paragraph` |
+
+<a id="ds.widget.text_display_large"></a>
+<a id="ds.widget.text_display_medium"></a>
+<a id="ds.widget.text_display_small"></a>
+<a id="ds.widget.text_headline_large"></a>
+<a id="ds.widget.text_headline_medium"></a>
+<a id="ds.widget.text_headline_small"></a>
+<a id="ds.widget.text_title_large"></a>
+<a id="ds.widget.text_title_medium"></a>
+<a id="ds.widget.text_title_small"></a>
+<a id="ds.widget.text_body_large"></a>
+<a id="ds.widget.text_body_medium"></a>
+<a id="ds.widget.text_body_small"></a>
+<a id="ds.widget.text_label_large"></a>
+<a id="ds.widget.text_label_medium"></a>
+<a id="ds.widget.text_label_small"></a>
+<a id="ds.widget.ds_inline_text"></a>
+<a id="ds.widget.text_paragraph"></a>
+### Elegir el rol y reservar espacio
+
+Elige el rol por la función del texto y usa el tamaño como grado de énfasis
+dentro de la familia. Da a `display` y `headline` un ancho generoso. En tarjetas
+o barras reserva espacio para títulos breves, y en controles compactos usa
+etiquetas de una línea. Para lectura continua, usa el párrafo con ancho acotado
+y altura acorde al número de líneas. `normal`, `detail` y `display` del párrafo
+usan respectivamente `bodyMedium`, `bodySmall` y `headlineMedium`.
+Consulta la [escala Material de TextTheme](https://api.flutter.dev/flutter/material/TextTheme-class.html).
+
+Elige en este orden:
+
+1. **Función.** Escoge `display`, `headline`, `title`, `body` o `label` según el
+   propósito del texto.
+2. **Jerarquía.** Usa `large`, `medium` o `small` según el énfasis dentro de esa familia.
+3. **Comportamiento.** Las 15 especializaciones `DsText*Widget` muestran una
+   sola línea. Usa `DsInlineTextWidget` si el rol se selecciona dinámicamente.
+   Usa `DsTextParagraphWidget` para varias líneas con un rol predefinido o uno
+   explícito del `TextTheme` a través de `role`.
+
+Por ejemplo, `DsTextBodyMediumWidget` y este párrafo comparten el rol `bodyMedium`.
+El párrafo puede ocupar hasta cuatro líneas. Para otros roles multilínea, como
+`bodyLarge`, pasa `role: DsTextStyleKey.bodyLarge`. El rol explícito tiene
+prioridad sobre `paragraphStyle`.
+
+```dart
+DsTextParagraphWidget(
+  label: 'Consulta los movimientos recientes y revisa el resumen de tu cuenta.',
+  paragraphStyle: DsTextParagraphStyle.normal,
+  maxLines: 4,
+)
+```
+
+Personaliza fuente, tamaño, peso e interlineado en el `TextTheme` de la app o
+del `Theme` local. El rol tipográfico no anuncia por sí solo un encabezado
+accesible. Añade la semántica de encabezado en la composición cuando corresponda.
+
+```dart
+Semantics(
+  header: true,
+  child: DsTextHeadlineMediumWidget(label: 'Actividad reciente'),
+)
+```
+
+El texto en línea se ajusta al espacio disponible y conserva el escalado
+del usuario como entrada a la medición. Un `overflow` explícito, incluido el del
+estilo del tema, delega el desbordamiento a Flutter sin ajuste de fuente.
+Usa texto breve y amplía el contenedor si el mínimo de ajuste no basta.
+
+## Ítems de grilla e indicador
+
+| Componente | Propósito y ejemplo mínimo | API | ID de galería |
+| --- | --- | --- | --- |
+| `DsItemWidget` | Ítem pasivo · `DsItemWidget(label: 'Favoritos', child: DsIconWidget(icon: Icons.star))` | [Fuente](../lib/ui/widgets/ds_item_widget.dart) | `ds.widget.item` |
+| `DsItemButtonWidget` | Acción controlada · `DsItemButtonWidget(label: 'Abrir', child: DsIconWidget(icon: Icons.folder), onPressed: open)` | [Fuente](../lib/ui/widgets/ds_item_button_widget.dart) | `ds.widget.item_button` |
+| `DsLoadingWidget` | Carga indeterminada · `DsLoadingWidget(semanticLabel: 'Cargando resultados')` | [Fuente](../lib/ui/widgets/ds_loading_widget.dart) | `ds.widget.loading` |
+
+<a id="ds.widget.item"></a>
+<a id="ds.widget.item_button"></a>
+<a id="ds.widget.loading"></a>
+### Componer la grilla
+
+Los ítems comparten `DsSurfaceVariant.filled` y `DsSurfaceVariant.outlined`.
+El tamaño preferido por defecto es el cuadrado `spacingXXl` (64 × 64 con los
+tokens base). La etiqueta usa `DsTextParagraphWidget` con el rol `labelMedium`
+y el escalado del usuario.
+Si necesita varias líneas, conserva su ancho y crece en altura cuando el padre
+lo permite. Usa una grilla que admita alturas variables. Si una palabra larga
+se parte al ampliar el texto, elige una celda más ancha. Con una altura máxima,
+el ítem muestra las líneas que quepan y usa elipsis. Si el espacio es demasiado
+pequeño incluso para una línea, reduce visualmente esa línea como último recurso.
+El texto completo sigue disponible para accesibilidad. El `child` debe ser
+compacto y pasivo.
+
+La prioridad visual del botón es **oculto → carga → error → selección →
+deshabilitado → normal**. El callback depende de `canInteract`. Un error puede
+permitir reintentar y una selección deshabilitada conserva su marca sin
+activar. La carga reemplaza el contenido visual por un `DsLoading` y mantiene
+la etiqueta. Puedes definir `loadingSemanticLabel` en el idioma de tu app.
+
+`primary`, `secondary`, `neutral` y `danger` se resuelven con `ColorScheme`.
+`success` y `warning` usan `DsSemanticColorsExtension` o la paleta de
+respaldo según el brillo. `filled` usa pares de contenedor y contenido.
+`outlined` utiliza `surface` y `onSurface`, con la intención aplicada al borde.
+El error usa los roles `error` y añade un símbolo. La selección añade una marca.
+El botón deriva el color de la etiqueta de la misma superficie y conserva las
+demás propiedades de `TextTheme.labelMedium`.
+
+
 ## Infraestructura pública de galería
 
 Import: entrypoint principal. Las páginas iniciales son `ds.gallery.cover` y
@@ -140,10 +268,8 @@ claro/oscuro del paquete. Las nuevas entradas y snippets están en
 `ModelDsComponentAnatomy` como metadatos y el mismo ID en `ModelDsGalleryPageEntry`.
 Los IDs nuevos tienen anclas explícitas en este índice.
 
-**Local demonstrations** contiene `DsPrimaryButtonWidget`, `DsSecondaryButtonWidget`,
-`DsTextHeadlineMediumWidget`, `DsTextTitleLargeWidget`, `DsTextBodyMediumWidget` y
-`DsTextLabelSmallWidget`: clases exclusivas del ejemplo, no exportadas por el paquete.
-Sus IDs agrupados son `example.ds.widgets.buttons` y `example.ds.widgets.typography`.
+**Local demonstrations** muestra `DsPrimaryButtonWidget` y `DsSecondaryButtonWidget`,
+clases exclusivas del ejemplo en `example.ds.widgets.buttons`.
 
 BienvenidoApp es una referencia de comportamiento y anatomía. Este ejemplo no
 depende de su código ni configuración.
