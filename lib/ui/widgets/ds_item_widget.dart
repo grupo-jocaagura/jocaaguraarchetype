@@ -1,8 +1,5 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// Visual treatment shared by DS surfaces.
-enum DsSurfaceVariant { filled, outlined }
-
 /// A passive grid item with visual content above a label that wraps at the active text scale.
 ///
 /// Keep the [child] compact and free of nested controls. [size] defaults to a
@@ -29,7 +26,7 @@ class DsItemWidget extends StatelessWidget {
   final String label;
   final Size? size;
   final DsSurfaceVariant variant;
-  final _DsItemAppearance? _appearance;
+  final _DsSurfaceAppearance? _appearance;
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +40,8 @@ class DsItemWidget extends StatelessWidget {
         'Use finite, positive dimensions.',
       );
     }
-    final _DsItemAppearance appearance =
-        _appearance ?? _DsItemAppearance.resolve(theme, variant);
+    final _DsSurfaceAppearance appearance =
+        _appearance ?? _DsSurfaceAppearance.resolve(theme, variant);
     final DefaultTextStyle defaults = DefaultTextStyle.of(context);
     final TextStyle? themeLabel = theme.textTheme.labelMedium;
     TextStyle labelStyle = themeLabel?.inherit == false
@@ -200,7 +197,7 @@ ModelDsExtendedTokens _itemTokensOf(BuildContext context) =>
 
 RoundedRectangleBorder _itemShape(
   ModelDsExtendedTokens tokens,
-  _DsItemAppearance appearance,
+  _DsSurfaceAppearance appearance,
 ) => RoundedRectangleBorder(
   borderRadius: BorderRadius.circular(tokens.borderRadius),
   side: appearance.border == null
@@ -212,86 +209,3 @@ RoundedRectangleBorder _itemShape(
               : tokens.borderRadiusXs / 2,
         ),
 );
-
-class _DsItemAppearance {
-  const _DsItemAppearance(
-    this.background,
-    this.foreground,
-    this.border,
-    this.emphasized,
-  );
-
-  final Color background;
-  final Color foreground;
-  final Color? border;
-  final bool emphasized;
-
-  static _DsItemAppearance resolve(
-    ThemeData theme,
-    DsSurfaceVariant variant, {
-    ModelInteractiveSemantic intent = ModelInteractiveSemantic.neutral,
-    bool emphasized = false,
-  }) {
-    final ColorScheme colors = theme.colorScheme;
-    final (Color container, Color onContainer, Color accent) = switch (intent) {
-      ModelInteractiveSemantic.primary => (
-        colors.primaryContainer,
-        colors.onPrimaryContainer,
-        colors.primary,
-      ),
-      ModelInteractiveSemantic.secondary => (
-        colors.secondaryContainer,
-        colors.onSecondaryContainer,
-        colors.secondary,
-      ),
-      ModelInteractiveSemantic.neutral => (
-        colors.surfaceContainerHighest,
-        colors.onSurface,
-        emphasized ? colors.primary : colors.outline,
-      ),
-      ModelInteractiveSemantic.danger => (
-        colors.errorContainer,
-        colors.onErrorContainer,
-        colors.error,
-      ),
-      ModelInteractiveSemantic.success ||
-      ModelInteractiveSemantic.warning => _positivePalette(theme, intent),
-    };
-    return switch (variant) {
-      DsSurfaceVariant.filled => _DsItemAppearance(
-        container,
-        onContainer,
-        emphasized ? accent : null,
-        emphasized,
-      ),
-      DsSurfaceVariant.outlined => _DsItemAppearance(
-        colors.surface,
-        colors.onSurface,
-        accent,
-        emphasized,
-      ),
-    };
-  }
-
-  static (Color, Color, Color) _positivePalette(
-    ThemeData theme,
-    ModelInteractiveSemantic intent,
-  ) {
-    final ModelSemanticColors semantic =
-        theme.extension<DsSemanticColorsExtension>()?.semantic ??
-        (theme.brightness == Brightness.dark
-            ? ModelSemanticColors.fallbackDark()
-            : ModelSemanticColors.fallbackLight());
-    return intent == ModelInteractiveSemantic.success
-        ? (
-            semantic.successContainer,
-            semantic.onSuccessContainer,
-            semantic.success,
-          )
-        : (
-            semantic.warningContainer,
-            semantic.onWarningContainer,
-            semantic.warning,
-          );
-  }
-}

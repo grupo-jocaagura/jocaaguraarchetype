@@ -21,6 +21,7 @@ import 'package:flutter/widgets.dart';
 | Componente | Propósito y ejemplo mínimo | API | ID de galería |
 | --- | --- | --- | --- |
 | `DsIconWidget` | Icono pasivo: `DsIconWidget(icon: Icons.info, semanticLabel: 'Información')` | [Fuente](../lib/ui/widgets/ds_icon_widget.dart) | `ds.widget.icon` |
+| `DsIconButtonWidget` | Acción por icono: `DsIconButtonWidget(icon: Icons.add, semanticLabel: 'Agregar ítem', onPressed: addItem)` | [Fuente](../lib/ui/widgets/ds_icon_button_widget.dart) | `ds.widget.icon_button` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
 | `DsInteractiveBuilder` | Variantes: `DsInteractiveBuilder(state: state, enabledBuilder: (context, state) => Text('Activo'))` | [Fuente](../lib/ui/widgets/ds_interactive_widget.dart) | `ds.widget.interactive_builder` |
 | `TextResponsiveWidget` | Ajuste de texto: `TextResponsiveWidget(child: Text('Título', maxLines: 1))` | [API](https://pub.dev/documentation/text_responsive/1.3.0/text_responsive/TextResponsiveWidget-class.html) | `ds.widget.text_responsive` |
@@ -61,6 +62,30 @@ El color final es `colorScheme.onSurface`. Un `IconTheme` completo, como el de
 Un tamaño explícito no positivo o no finito produce `ArgumentError` en `build`.
 Una etiqueta recortada no vacía expone un único nodo informativo de imagen.
 Sin etiqueta es decorativo. No maneja acciones ni estados interactivos.
+
+<a id="ds.widget.icon_button"></a>
+### Botones de icono
+
+Usa `DsIconButtonWidget` para acciones breves que se reconocen por su icono,
+como agregar, cerrar o alternar un favorito. Proporciona un `semanticLabel`
+localizado y no vacío que describa la acción, como «Agregar ítem».
+
+La superficie circular mide 32 píxeles lógicos y ocupa el centro de un área de
+48 × 48. Reserva ese espacio por botón, incluso en barras con varios controles.
+La variante predeterminada es `filled`. Para mostrar un borde sobre la
+superficie del tema, usa `DsSurfaceVariant.outlined`.
+
+Controla la selección con `ModelInteractiveState` y usa `selectedIcon` si hay
+un icono alternativo. La selección añade una marca visual. El callback depende
+de `state.canInteract` para puntero, teclado y lector de pantalla. El orden visual
+es oculto → carga → error → selección → deshabilitado → normal. Un error
+habilitado permite reintentar. El tooltip muestra el nombre de la acción o el
+mensaje de feedback del estado, que también se anuncia como pista accesible.
+
+La carga mantiene el nombre de la acción y anuncia `loadingSemanticLabel` por
+separado. Puedes suministrar un `DsLoading` para reemplazar el indicador
+circular predeterminado. La paleta y los fallbacks de `success`, `warning` y
+`danger` son los mismos que los de `DsItemButtonWidget`.
 
 <a id="ds.widget.text_responsive"></a>
 <a id="ds.widget.paragraph_text"></a>
