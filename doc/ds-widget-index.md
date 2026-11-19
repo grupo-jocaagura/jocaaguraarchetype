@@ -26,6 +26,7 @@ import 'package:flutter/widgets.dart';
 | `DsSecondaryButtonWidget` | Acción de menor énfasis · `DsSecondaryButtonWidget(label: 'Cancelar', onPressed: cancel)` | [Fuente](../lib/ui/widgets/ds_action_button_widget.dart) · [Ficha](#ds.widget.secondary_button) | `ds.widget.secondary_button` |
 | `DsDropdownButtonWidget` | Selección de un valor controlada por el consumidor | [Fuente](../lib/ui/widgets/ds_dropdown_button_widget.dart) · [Ficha](#ds.widget.dropdown_button) | `ds.widget.dropdown_button` |
 | `DsSelectInputWidget` | Campo de formulario con selección y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_select_input_widget.dart) · [Ficha](#ds.widget.select_input) | `ds.widget.select_input` |
+| `DsTextInputWidget` | Campo de texto con edición y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_text_input_widget.dart) · [Ficha](#ds.widget.text_input) | `ds.widget.text_input` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
 | `DsInteractiveBuilder` | Variantes: `DsInteractiveBuilder(state: state, enabledBuilder: (context, state) => Text('Activo'))` | [Fuente](../lib/ui/widgets/ds_interactive_widget.dart) | `ds.widget.interactive_builder` |
 | `TextResponsiveWidget` | Ajuste de texto: `TextResponsiveWidget(child: Text('Título', maxLines: 1))` | [API](https://pub.dev/documentation/text_responsive/1.3.0/text_responsive/TextResponsiveWidget-class.html) | `ds.widget.text_responsive` |
@@ -43,7 +44,8 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   Consulta el [catálogo](../example/lib/ds_widget_catalog.dart) y sus fichas de
   [botones de acción](../example/lib/ds_action_button_catalog.dart),
   [selector](../example/lib/ds_dropdown_button_catalog.dart),
-  [campo de selección](../example/lib/ds_select_input_catalog.dart) y
+  [campo de selección](../example/lib/ds_select_input_catalog.dart),
+  [campo de texto](../example/lib/ds_text_input_catalog.dart) y
   [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
 - Las herramientas de galería del ejemplo usan el prefijo `example.ds.widgets.*`.
 
@@ -230,6 +232,49 @@ DsSelectInputWidget(
 
 La ficha de **Forms** incluye ejemplos controlados, con error, de solo lectura,
 deshabilitados y con texto al 200 % en los dos temas.
+
+<a id="ds.widget.text_input"></a>
+### Campo de texto de formulario
+
+Usa `DsTextInputWidget` para editar texto con `ModelFieldState`. Cada edición
+envía una propuesta con el texto tal como se escribió e `isDirty: true`. El
+consumidor acepta el valor y determina la validez. El error de `field` tiene
+prioridad sobre `helperText`. `required` indica la obligatoriedad del campo.
+
+El controlador conserva la selección y la composición del teclado al actualizar
+solo la validación o confirmar el texto que ya se está editando. Un cambio
+externo de `field.value` se refleja sin emitir otra propuesta. Si necesitas
+descartar un borrador y volver al mismo valor aceptado, recrea el campo con una
+`Key` nueva.
+
+Si una actualización externa desplaza un sufijo intacto que contiene la
+composición activa, los extremos de la selección dentro de ese sufijo se
+desplazan con el texto.
+
+`onSubmittedAttempt` es opcional y recibe el texto actual. En un envío sin
+ediciones se conserva `field.isDirty`. Configura `textInputType`,
+`textInputAction` y `autofillHints` según el contenido. Elige `maxLines` mayor
+que 1 para admitir varias líneas. `TextInputAction.next` avanza al siguiente
+campo y `TextInputAction.newline` permite un salto de línea en modo multilínea.
+
+El modo `readOnly` permite consultar, seleccionar y copiar el texto.
+`enabled: false` bloquea la interacción. Los anuncios de obligatoriedad y solo
+lectura se localizan con `requiredSemanticLabel` y `readOnlySemanticLabel`.
+
+```dart
+DsTextInputWidget(
+  field: name,
+  label: 'Nombre',
+  placeholder: 'Escribe tu nombre',
+  required: true,
+  requiredSemanticLabel: 'Obligatorio',
+  textInputAction: TextInputAction.next,
+  onChangedAttempt: onNameChanged,
+)
+```
+
+La ficha de **Forms** muestra edición controlada, error, solo lectura,
+deshabilitado, varias líneas y texto al 200 % en ambos temas.
 
 <a id="ds.widget.text_responsive"></a>
 <a id="ds.widget.paragraph_text"></a>

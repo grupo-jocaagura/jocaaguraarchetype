@@ -138,6 +138,7 @@ part 'ui/widgets/ds_item_button_widget.dart';
 part 'ui/widgets/ds_item_widget.dart';
 part 'ui/widgets/ds_loading_widget.dart';
 part 'ui/widgets/forms/ds_select_input_widget.dart';
+part 'ui/widgets/forms/ds_text_input_widget.dart';
 part 'ui/widgets/ds_surface_appearance.dart';
 part 'ui/widgets/ds_text_widgets.dart';
 part 'ui/widgets/forms/custom_autocomplete_input_widget.dart';
