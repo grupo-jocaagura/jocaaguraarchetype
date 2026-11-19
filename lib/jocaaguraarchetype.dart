@@ -6,6 +6,7 @@ import 'dart:math';
 
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/semantics.dart' show SemanticsValidationResult;
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -136,6 +137,7 @@ part 'ui/widgets/ds_interactive_widget.dart';
 part 'ui/widgets/ds_item_button_widget.dart';
 part 'ui/widgets/ds_item_widget.dart';
 part 'ui/widgets/ds_loading_widget.dart';
+part 'ui/widgets/forms/ds_select_input_widget.dart';
 part 'ui/widgets/ds_surface_appearance.dart';
 part 'ui/widgets/ds_text_widgets.dart';
 part 'ui/widgets/forms/custom_autocomplete_input_widget.dart';

@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.6] - 2026-11-19
+
+### Added
+
+- Add `DsSelectInputWidget`, an outlined single-selection field that composes
+  `DsDropdownButtonWidget<String>` with `ModelFieldState`. Keep validation
+  controlled by the consumer and support required, read-only and disabled
+  states with accessible announcements.
+- Document the field in the DS index and gallery, including validation errors,
+  localized option labels and enlarged text in both themes (#167).
+
 ## [5.2.5] - 2026-11-19
 
 ### Added

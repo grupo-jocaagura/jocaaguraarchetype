@@ -25,6 +25,7 @@ import 'package:flutter/widgets.dart';
 | `DsPrimaryButtonWidget` | Acción principal · `DsPrimaryButtonWidget(label: 'Guardar', onPressed: save)` | [Fuente](../lib/ui/widgets/ds_action_button_widget.dart) · [Ficha](#ds.widget.primary_button) | `ds.widget.primary_button` |
 | `DsSecondaryButtonWidget` | Acción de menor énfasis · `DsSecondaryButtonWidget(label: 'Cancelar', onPressed: cancel)` | [Fuente](../lib/ui/widgets/ds_action_button_widget.dart) · [Ficha](#ds.widget.secondary_button) | `ds.widget.secondary_button` |
 | `DsDropdownButtonWidget` | Selección de un valor controlada por el consumidor | [Fuente](../lib/ui/widgets/ds_dropdown_button_widget.dart) · [Ficha](#ds.widget.dropdown_button) | `ds.widget.dropdown_button` |
+| `DsSelectInputWidget` | Campo de formulario con selección y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_select_input_widget.dart) · [Ficha](#ds.widget.select_input) | `ds.widget.select_input` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
 | `DsInteractiveBuilder` | Variantes: `DsInteractiveBuilder(state: state, enabledBuilder: (context, state) => Text('Activo'))` | [Fuente](../lib/ui/widgets/ds_interactive_widget.dart) | `ds.widget.interactive_builder` |
 | `TextResponsiveWidget` | Ajuste de texto: `TextResponsiveWidget(child: Text('Título', maxLines: 1))` | [API](https://pub.dev/documentation/text_responsive/1.3.0/text_responsive/TextResponsiveWidget-class.html) | `ds.widget.text_responsive` |
@@ -41,7 +42,8 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
 - `dsWidgetCatalog` aporta iconos, botones, texto responsive, tipografía DS y grillas.
   Consulta el [catálogo](../example/lib/ds_widget_catalog.dart) y sus fichas de
   [botones de acción](../example/lib/ds_action_button_catalog.dart),
-  [selector](../example/lib/ds_dropdown_button_catalog.dart) y
+  [selector](../example/lib/ds_dropdown_button_catalog.dart),
+  [campo de selección](../example/lib/ds_select_input_catalog.dart) y
   [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
 - Las herramientas de galería del ejemplo usan el prefijo `example.ds.widgets.*`.
 
@@ -187,6 +189,47 @@ InputDecorator(
 
 La ficha de la familia **Buttons** muestra el filtro, el campo con borde y
 ejemplos sin opciones y con texto al 200 % en temas claro y oscuro.
+
+<a id="ds.widget.select_input"></a>
+### Campo de selección de formulario
+
+Usa `DsSelectInputWidget` cuando quieras vincular una selección a
+`ModelFieldState` y mostrar obligatoriedad, ayuda o error del formulario. Para
+un filtro independiente o una composición propia, usa
+[`DsDropdownButtonWidget<T>`](#ds.widget.dropdown_button).
+
+Proporciona claves únicas y no vacías en `options`. `optionLabelBuilder`
+permite mostrar una etiqueta localizada para cada clave. Si el estado trae un
+valor vacío o una clave que ya no está en las opciones, se muestra el
+`placeholder`. Al elegir otra opción, `onChangedAttempt` recibe una copia del
+campo con el nuevo valor e `isDirty: true`. El consumidor acepta la propuesta y
+gestiona la validación.
+
+`required` muestra y anuncia la obligatoriedad. Usa `requiredSemanticLabel`
+para localizar ese anuncio. El error de `field` sustituye
+la ayuda y se expone a tecnologías de asistencia. `readOnly` identifica un
+valor de consulta con un candado y un anuncio localizable mediante
+`readOnlySemanticLabel`. `enabled: false` muestra el campo
+deshabilitado y tiene prioridad si se combinan ambos estados. En los dos casos
+se conserva la selección y se bloquea la edición.
+
+Deja que el campo crezca en altura cuando el texto ocupe varias líneas. En un
+formulario con altura limitada, coloca los campos en un contenedor desplazable.
+
+```dart
+DsSelectInputWidget(
+  field: documentType,
+  label: 'Tipo de documento',
+  placeholder: 'Selecciona un tipo',
+  required: true,
+  options: const ['id_card', 'passport'],
+  optionLabelBuilder: (key) => key == 'id_card' ? 'Cédula' : 'Pasaporte',
+  onChangedAttempt: onDocumentTypeChanged,
+)
+```
+
+La ficha de **Forms** incluye ejemplos controlados, con error, de solo lectura,
+deshabilitados y con texto al 200 % en los dos temas.
 
 <a id="ds.widget.text_responsive"></a>
 <a id="ds.widget.paragraph_text"></a>
