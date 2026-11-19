@@ -1,5 +1,8 @@
 # Sistema de diseño guía rápida de inicio
 
+Consulta el [índice de widgets DS](ds-widget-index.md) para APIs públicas,
+imports y ejemplos de la galería autocontenida.
+
 Este documento resume el avance del Design System basado en `jocaaguraarchetype`, con foco en:
 
 * **Tokens**: spacing, radius, elevation, alpha, animaciones.

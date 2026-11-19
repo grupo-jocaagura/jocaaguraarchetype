@@ -1,5 +1,6 @@
 """Synthetic Git histories exercise reconciliation without network or signing keys."""
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -26,7 +27,10 @@ class SyncTests(unittest.TestCase):
         self.g('config', 'user.email', 'test@example.invalid')
         self.g('config', 'commit.gpgsign', 'false')
         self.g('config', 'core.autocrlf', 'false')
-        self.spec = Path('pubspec.yaml').read_text(encoding='utf-8')
+        # These histories represent a published minor release, independently of
+        # the development patch version in the working checkout.
+        self.spec = re.sub(r'^version:.*$', 'version: 5.0.0',
+                           Path('pubspec.yaml').read_text(encoding='utf-8'), flags=re.M)
         (self.root / 'pubspec.yaml').write_text(self.spec, encoding='utf-8')
         (self.root / 'CHANGELOG.md').write_text('# Changelog\n\n## Release\n', encoding='utf-8')
         self.commit('base')

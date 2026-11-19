@@ -1,25 +1,38 @@
 import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 import 'package:material_ui/material_ui.dart';
 
+import 'ds_widget_catalog.dart';
+
 void main() {
   runApp(const DsGalleryExampleApp());
 }
 
-class DsGalleryExampleApp extends StatelessWidget {
+class DsGalleryExampleApp extends StatefulWidget {
   const DsGalleryExampleApp({super.key});
 
   @override
+  State<DsGalleryExampleApp> createState() => _DsGalleryExampleAppState();
+}
+
+class _DsGalleryExampleAppState extends State<DsGalleryExampleApp> {
+  final ModelDesignSystem designSystem = defaultModelDesignSystem();
+  late final BlocGallery galleryBloc = BlocGallery(
+    designSystem: designSystem,
+    pages: <ModelDsGalleryPageEntry>[
+      ...BlocGallery.defaultPages(designSystem: designSystem),
+      ...dsWidgetCatalog.map((DsWidgetCatalogEntry entry) => entry.toPage()),
+      ..._exampleWidgetPages(),
+    ],
+  );
+
+  @override
+  void dispose() {
+    galleryBloc.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final ModelDesignSystem designSystem = defaultModelDesignSystem();
-
-    final BlocGallery galleryBloc = BlocGallery(
-      designSystem: designSystem,
-      pages: <ModelDsGalleryPageEntry>[
-        ...BlocGallery.defaultPages(designSystem: designSystem),
-        ..._exampleWidgetPages(),
-      ],
-    );
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Jocaagura DS Gallery',
@@ -34,8 +47,8 @@ List<ModelDsGalleryPageEntry> _exampleWidgetPages() {
   return <ModelDsGalleryPageEntry>[
     ModelDsGalleryPageEntry(
       id: 'example.ds.widgets.buttons',
-      title: 'DS Buttons',
-      section: 'Widgets',
+      title: 'Example-only buttons',
+      section: 'Local demonstrations',
       description: 'Primary and secondary button examples.',
       builder:
           (BuildContext context, BlocGallery bloc, ModelDsGalleryState state) {
@@ -68,8 +81,8 @@ List<ModelDsGalleryPageEntry> _exampleWidgetPages() {
     ),
     ModelDsGalleryPageEntry(
       id: 'example.ds.widgets.typography',
-      title: 'DS Typography Widgets',
-      section: 'Widgets',
+      title: 'Example-only typography',
+      section: 'Local demonstrations',
       description: 'Text widgets using the active ThemeData.',
       builder:
           (BuildContext context, BlocGallery bloc, ModelDsGalleryState state) {
@@ -201,9 +214,8 @@ class DsSecondaryButtonWidget extends StatelessWidget {
 ModelDsComponentAnatomy _buttonsAnatomy() {
   return const ModelDsComponentAnatomy(
     id: 'example.ds.widgets.buttons',
-    name: 'DS Buttons',
-    description:
-        'Shows primary, secondary and loading button states using DS widgets.',
+    name: 'Example-only buttons',
+    description: 'Local button demonstrations; these classes are not public package APIs.',
     tags: <String>['buttons', 'actions', 'design-system'],
     status: ModelDsComponentStatusEnum.stable,
     platforms: <ModelDsComponentPlatformEnum>[
@@ -240,9 +252,9 @@ ModelDsComponentAnatomy _buttonsAnatomy() {
 ModelDsComponentAnatomy _typographyAnatomy() {
   return const ModelDsComponentAnatomy(
     id: 'example.ds.widgets.typography',
-    name: 'DS Typography Widgets',
+    name: 'Example-only typography',
     description:
-        'Shows typography widgets that read styles from the active ThemeData.',
+        'Local text demonstrations; these classes are not public package APIs.',
     tags: <String>['typography', 'text', 'theme'],
     status: ModelDsComponentStatusEnum.stable,
     platforms: <ModelDsComponentPlatformEnum>[
