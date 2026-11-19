@@ -28,6 +28,7 @@ import 'package:flutter/widgets.dart';
 | `DsSelectInputWidget` | Campo de formulario con selección y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_select_input_widget.dart) · [Ficha](#ds.widget.select_input) | `ds.widget.select_input` |
 | `DsTextInputWidget` | Campo de texto con edición y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_text_input_widget.dart) · [Ficha](#ds.widget.text_input) | `ds.widget.text_input` |
 | `DsPasswordInputWidget` | Campo de contraseña con visibilidad y validación controlada por el consumidor | [Fuente](../lib/ui/widgets/forms/ds_password_input_widget.dart) · [Ficha](#ds.widget.password_input) | `ds.widget.password_input` |
+| `DsEmailInputWidget` | Campo de correo de una línea con validación controlada | [Fuente](../lib/ui/widgets/forms/ds_email_input_widget.dart) · [Ficha](#ds.widget.email_input) | `ds.widget.email_input` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
 | `DsInteractiveBuilder` | Variantes: `DsInteractiveBuilder(state: state, enabledBuilder: (context, state) => Text('Activo'))` | [Fuente](../lib/ui/widgets/ds_interactive_widget.dart) | `ds.widget.interactive_builder` |
 | `TextResponsiveWidget` | Ajuste de texto: `TextResponsiveWidget(child: Text('Título', maxLines: 1))` | [API](https://pub.dev/documentation/text_responsive/1.3.0/text_responsive/TextResponsiveWidget-class.html) | `ds.widget.text_responsive` |
@@ -47,7 +48,8 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [selector](../example/lib/ds_dropdown_button_catalog.dart),
   [campo de selección](../example/lib/ds_select_input_catalog.dart),
   [campo de texto](../example/lib/ds_text_input_catalog.dart),
-  [campo de contraseña](../example/lib/ds_password_input_catalog.dart) y
+  [campo de contraseña](../example/lib/ds_password_input_catalog.dart),
+  [campo de correo](../example/lib/ds_email_input_catalog.dart) y
   [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
 - Las herramientas de galería del ejemplo usan el prefijo `example.ds.widgets.*`.
 
@@ -314,6 +316,39 @@ El valor de `ModelFieldState` contiene la contraseña en claro. Consérvalo en
 memoria solo durante el tiempo necesario y evita registrarlo o persistirlo.
 La ficha de **Forms** usa datos ficticios y muestra visibilidad, error, solo
 lectura, deshabilitado y texto al 200 % en ambos temas.
+
+<a id="ds.widget.email_input"></a>
+### Campo de correo electrónico
+
+Usa `DsEmailInputWidget` para capturar un correo en una sola línea con el teclado
+de correo. Proporciona una etiqueta localizada y, si hace falta, un ejemplo en
+`placeholder`. El campo entrega el valor de `ModelFieldState` tal como se editó,
+incluidos espacios y mayúsculas. Aplica la normalización que requiera el
+formulario al validar o enviar. El error del modelo tiene prioridad sobre la
+ayuda.
+
+El autocompletado usa `AutofillHints.email` por defecto. Puedes configurar
+`autofillHints: const [AutofillHints.username]` cuando el correo funciona como
+identificador de inicio de sesión, o pasar `autofillHints: null` para
+desactivarlo. La autocorrección y las sugerencias del teclado están
+desactivadas. Usa `onSubmittedAttempt` y `textInputAction` si el formulario
+necesita reaccionar al envío desde el teclado.
+
+```dart
+DsEmailInputWidget(
+  field: email,
+  label: 'Correo electrónico',
+  placeholder: 'nombre@example.com',
+  required: true,
+  requiredSemanticLabel: 'Obligatorio',
+  onChangedAttempt: onEmailChanged,
+)
+```
+
+El modo `readOnly` permite consultar, seleccionar y copiar el correo. Usa
+`requiredSemanticLabel` y `readOnlySemanticLabel` para localizar los anuncios
+de estado. La ficha de **Forms** muestra edición, error, solo lectura,
+deshabilitado y texto al 200 % en ambos temas.
 
 <a id="ds.widget.text_responsive"></a>
 <a id="ds.widget.paragraph_text"></a>

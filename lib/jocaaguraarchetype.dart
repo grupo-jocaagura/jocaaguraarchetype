@@ -11,8 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'jocaaguraarchetype.dart';
-import 'ui/widgets/forms/password_clipboard_stub.dart'
-    if (dart.library.js_interop) 'ui/widgets/forms/password_clipboard_web.dart';
+import 'ui/widgets/forms/ds_text_input_clipboard_stub.dart'
+    if (dart.library.js_interop) 'ui/widgets/forms/ds_text_input_clipboard_web.dart';
 
 export 'either_flow/exports.dart';
 export 'jocaaguraarchetype_domain.dart';
@@ -140,6 +140,7 @@ part 'ui/widgets/ds_item_button_widget.dart';
 part 'ui/widgets/ds_item_widget.dart';
 part 'ui/widgets/ds_loading_widget.dart';
 part 'ui/widgets/forms/ds_select_input_widget.dart';
+part 'ui/widgets/forms/ds_email_input_widget.dart';
 part 'ui/widgets/forms/ds_password_input_widget.dart';
 part 'ui/widgets/forms/ds_text_input_widget.dart';
 part 'ui/widgets/ds_surface_appearance.dart';

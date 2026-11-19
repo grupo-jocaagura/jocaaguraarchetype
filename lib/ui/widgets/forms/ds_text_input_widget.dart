@@ -79,6 +79,8 @@ class DsTextInputWidget extends StatefulWidget {
 
   final ({String show, String hide})? _passwordLabels;
 
+  bool get _enableKeyboardAssistance => _passwordLabels == null;
+
   @override
   State<DsTextInputWidget> createState() => _DsTextInputWidgetState();
 }
@@ -90,7 +92,7 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
   late final TextEditingController _controller;
   final FocusNode _focusNode = FocusNode();
   FocusNode? _passwordFocus;
-  VoidCallback? _stopBlockingClipboard;
+  VoidCallback? _removeClipboardListener;
   bool _hasUnacceptedEdit = false;
   bool _revealed = false;
 
@@ -102,15 +104,20 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
     _controller = TextEditingController(text: widget.field.value);
     if (widget._passwordLabels != null) {
       _passwordFocus = FocusNode(debugLabel: 'Password input');
-      _stopBlockingClipboard = blockPasswordClipboard(
+      _removeClipboardListener = blockPasswordClipboard(
         () => _focusNode.hasFocus,
       );
+    } else if (kIsWeb) {
+      _focusNode.addListener(_syncReadOnlyCopyListener);
     }
   }
 
   @override
   void didUpdateWidget(covariant DsTextInputWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (kIsWeb && widget._passwordLabels == null) {
+      _syncReadOnlyCopyListener();
+    }
     if (!_canEdit) {
       _revealed = false;
     }
@@ -181,9 +188,24 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
     return TextRange.empty;
   }
 
+  void _syncReadOnlyCopyListener() {
+    if (_focusNode.hasFocus && widget.enabled && widget.readOnly) {
+      _removeClipboardListener ??= listenToReadOnlyCopy(() {
+        final TextEditingValue value = _controller.value;
+        final TextSelection selection = value.selection;
+        return selection.isValid && !selection.isCollapsed
+            ? selection.textInside(value.text)
+            : null;
+      });
+      return;
+    }
+    _removeClipboardListener?.call();
+    _removeClipboardListener = null;
+  }
+
   @override
   void dispose() {
-    _stopBlockingClipboard?.call();
+    _removeClipboardListener?.call();
     _passwordFocus?.dispose();
     _focusNode.dispose();
     _controller.dispose();
@@ -211,6 +233,7 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
     final bool isReadOnly = widget.enabled && widget.readOnly;
     final ({String show, String hide})? passwordLabels = widget._passwordLabels;
     final bool isPassword = passwordLabels != null;
+    final bool enableKeyboardAssistance = widget._enableKeyboardAssistance;
     final bool obscured = isPassword && (!_revealed || !canEdit);
     final String? error = widget.field.errorTextToInput;
     final String? help =
@@ -237,11 +260,15 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
       readOnly: widget.readOnly,
       enabled: widget.enabled,
       obscureText: obscured,
-      autocorrect: isPassword ? false : null,
-      enableSuggestions: !isPassword,
+      autocorrect: enableKeyboardAssistance ? null : false,
+      enableSuggestions: enableKeyboardAssistance,
       enableIMEPersonalizedLearning: !isPassword,
-      smartDashesType: isPassword ? SmartDashesType.disabled : null,
-      smartQuotesType: isPassword ? SmartQuotesType.disabled : null,
+      smartDashesType: enableKeyboardAssistance
+          ? null
+          : SmartDashesType.disabled,
+      smartQuotesType: enableKeyboardAssistance
+          ? null
+          : SmartQuotesType.disabled,
       selectionControls: isPassword ? _passwordSelectionControls : null,
       style: theme.textTheme.bodyLarge,
       onChanged: canEdit
@@ -318,6 +345,19 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
           widget.placeholder!,
         if (supportingText != null) supportingText,
       ].join('\n');
+      if (!isPassword) {
+        // The semantic node has no native selection. Select the editor's text
+        // here and let the focused clipboard listener handle the copy event.
+        input = Shortcuts(
+          shortcuts: const <ShortcutActivator, Intent>{
+            SingleActivator(LogicalKeyboardKey.keyA, control: true):
+                SelectAllTextIntent(SelectionChangedCause.keyboard),
+            SingleActivator(LogicalKeyboardKey.keyA, meta: true):
+                SelectAllTextIntent(SelectionChangedCause.keyboard),
+          },
+          child: input,
+        );
+      }
       return ListenableBuilder(
         listenable: _focusNode,
         child: ExcludeSemantics(child: input),

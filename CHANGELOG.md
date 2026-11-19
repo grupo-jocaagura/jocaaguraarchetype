@@ -6,6 +6,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.9] - 2026-11-19
+
+### Added
+
+- Add `DsEmailInputWidget`, a single-line email field with `ModelFieldState`
+  validation, configurable autofill and optional keyboard submission. Preserve
+  spaces and case during editing and submission. Document the field and show
+  its states and text at 200% in the DS gallery (#173).
+
+### Fixed
+
+- Restore keyboard selection and copying in read-only DS text fields on the
+  web while exposing their values as readable text to assistive technology.
+
 ## [5.2.8] - 2026-11-19
 
 ### Added
