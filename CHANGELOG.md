@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.5] - 2026-11-19
+
+### Added
+
+- Add `DsDropdownButtonWidget<T>`, a controlled, borderless single-value
+  selector with `DropdownMenuItem<T>` options and `ModelInteractiveState` for
+  selected values. Support keyboard navigation, multiline text at large scales,
+  and a single accessible announcement for the field name and placeholder.
+- Add a gallery entry and index guidance for `InputDecorator` composition and
+  DS typography in textual options (#165).
+
 ## [5.2.4] - 2026-11-19
 
 ### Added

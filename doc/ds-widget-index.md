@@ -24,6 +24,7 @@ import 'package:flutter/widgets.dart';
 | `DsIconButtonWidget` | Acción por icono: `DsIconButtonWidget(icon: Icons.add, semanticLabel: 'Agregar ítem', onPressed: addItem)` | [Fuente](../lib/ui/widgets/ds_icon_button_widget.dart) | `ds.widget.icon_button` |
 | `DsPrimaryButtonWidget` | Acción principal · `DsPrimaryButtonWidget(label: 'Guardar', onPressed: save)` | [Fuente](../lib/ui/widgets/ds_action_button_widget.dart) · [Ficha](#ds.widget.primary_button) | `ds.widget.primary_button` |
 | `DsSecondaryButtonWidget` | Acción de menor énfasis · `DsSecondaryButtonWidget(label: 'Cancelar', onPressed: cancel)` | [Fuente](../lib/ui/widgets/ds_action_button_widget.dart) · [Ficha](#ds.widget.secondary_button) | `ds.widget.secondary_button` |
+| `DsDropdownButtonWidget` | Selección de un valor controlada por el consumidor | [Fuente](../lib/ui/widgets/ds_dropdown_button_widget.dart) · [Ficha](#ds.widget.dropdown_button) | `ds.widget.dropdown_button` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
 | `DsInteractiveBuilder` | Variantes: `DsInteractiveBuilder(state: state, enabledBuilder: (context, state) => Text('Activo'))` | [Fuente](../lib/ui/widgets/ds_interactive_widget.dart) | `ds.widget.interactive_builder` |
 | `TextResponsiveWidget` | Ajuste de texto: `TextResponsiveWidget(child: Text('Título', maxLines: 1))` | [API](https://pub.dev/documentation/text_responsive/1.3.0/text_responsive/TextResponsiveWidget-class.html) | `ds.widget.text_responsive` |
@@ -39,7 +40,8 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [gallery_widgets.dart](../lib/ui/widgets/gallery_widgets.dart).
 - `dsWidgetCatalog` aporta iconos, botones, texto responsive, tipografía DS y grillas.
   Consulta el [catálogo](../example/lib/ds_widget_catalog.dart) y sus fichas de
-  [botones de acción](../example/lib/ds_action_button_catalog.dart) y
+  [botones de acción](../example/lib/ds_action_button_catalog.dart),
+  [selector](../example/lib/ds_dropdown_button_catalog.dart) y
   [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
 - Las herramientas de galería del ejemplo usan el prefijo `example.ds.widgets.*`.
 
@@ -132,6 +134,59 @@ Durante la carga, el indicador usa el espacio del icono inicial y la etiqueta
 conserva su posición. Usa `loading` para suministrar otro `DsLoading` y
 `loadingSemanticLabel` para localizar el estado que se anuncia. Consulta ambos
 botones en la familia **Buttons** de la galería.
+
+<a id="ds.widget.dropdown_button"></a>
+### Selector de un valor
+
+Usa `DsDropdownButtonWidget<T>` para elegir un valor en un filtro o dentro de
+un campo compuesto. Cada `DropdownMenuItem<T>` tiene un valor único y no nulo.
+Usa contenido de presentación en `child` y `enabled` para indicar si la opción
+se puede elegir. El consumidor controla `value` y lo actualiza desde `onChanged`.
+
+Para opciones textuales que sigan la tipografía del DS, usa
+`DsTextBodyLargeWidget` si la etiqueta cabe en una línea. Si debe poder ocupar
+varias líneas, usa `DsTextParagraphWidget` con `DsTextStyleKey.bodyLarge` y
+ajusta `maxLines` al espacio disponible.
+
+El `placeholder` se muestra cuando `value` es `null` o ya no está en la lista.
+Actualizar `value` o `items` no llama a `onChanged`. Con el menú abierto, una
+opción retirada o deshabilitada ya no puede confirmarse. Una lista vacía impide
+abrir el menú.
+
+Proporciona `state` siempre que `value` sea distinto de `null`. La visibilidad
+y disponibilidad siguen ese estado y `enabled` permite bloquear el control
+desde el contenedor. El valor válido sigue visible al deshabilitar el selector.
+
+Usa `label` para mostrar el nombre del campo con `TextTheme.labelLarge`, o
+`semanticLabel` cuando el nombre visible provenga del contenedor. El selector
+y sus opciones reservan al menos 48 × 48 píxeles lógicos. Dale un ancho acotado
+para que el texto largo pueda envolver. Usa `isExpanded` si debe ocupar todo
+el ancho disponible.
+
+```dart
+InputDecorator(
+  decoration: const InputDecoration(
+    label: ExcludeSemantics(child: Text('Estado')),
+    border: OutlineInputBorder(),
+    floatingLabelBehavior: FloatingLabelBehavior.always,
+  ),
+  child: DsDropdownButtonWidget<String>(
+    semanticLabel: 'Estado',
+    isExpanded: true,
+    value: status,
+    state: status == null ? null : const ModelInteractiveState(),
+    placeholder: 'Seleccionar estado',
+    items: const [
+      DropdownMenuItem(value: 'open', child: Text('Abierto')),
+      DropdownMenuItem(value: 'closed', child: Text('Cerrado')),
+    ],
+    onChanged: onStatusChanged,
+  ),
+)
+```
+
+La ficha de la familia **Buttons** muestra el filtro, el campo con borde y
+ejemplos sin opciones y con texto al 200 % en temas claro y oscuro.
 
 <a id="ds.widget.text_responsive"></a>
 <a id="ds.widget.paragraph_text"></a>
