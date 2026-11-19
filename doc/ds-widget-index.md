@@ -30,6 +30,7 @@ import 'package:flutter/widgets.dart';
 | `DsPasswordInputWidget` | Campo de contraseña con visibilidad y validación controlada por el consumidor | [Fuente](../lib/ui/widgets/forms/ds_password_input_widget.dart) · [Ficha](#ds.widget.password_input) | `ds.widget.password_input` |
 | `DsEmailInputWidget` | Campo de correo de una línea con validación controlada | [Fuente](../lib/ui/widgets/forms/ds_email_input_widget.dart) · [Ficha](#ds.widget.email_input) | `ds.widget.email_input` |
 | `DsNumberInputWidget` | Campo de una línea con teclado numérico y validación controlada | [Fuente](../lib/ui/widgets/forms/ds_number_input_widget.dart) · [Ficha](#ds.widget.number_input) | `ds.widget.number_input` |
+| `DsFormStepperWidget` | Formulario lineal con paso activo y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_form_stepper_widget.dart) · [Ficha](#ds.widget.form_stepper) | `ds.widget.form_stepper` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
 | `DsInteractiveBuilder` | Variantes: `DsInteractiveBuilder(state: state, enabledBuilder: (context, state) => Text('Activo'))` | [Fuente](../lib/ui/widgets/ds_interactive_widget.dart) | `ds.widget.interactive_builder` |
 | `TextResponsiveWidget` | Ajuste de texto: `TextResponsiveWidget(child: Text('Título', maxLines: 1))` | [API](https://pub.dev/documentation/text_responsive/1.3.0/text_responsive/TextResponsiveWidget-class.html) | `ds.widget.text_responsive` |
@@ -51,7 +52,8 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [campo de texto](../example/lib/ds_text_input_catalog.dart),
   [campo de contraseña](../example/lib/ds_password_input_catalog.dart),
   [campo de correo](../example/lib/ds_email_input_catalog.dart),
-  [campo numérico](../example/lib/ds_number_input_catalog.dart) y
+  [campo numérico](../example/lib/ds_number_input_catalog.dart),
+  [formulario por pasos](../example/lib/ds_form_stepper_catalog.dart) y
   [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
 - Las herramientas de galería del ejemplo usan el prefijo `example.ds.widgets.*`.
 
@@ -382,6 +384,51 @@ teclado. `autofillHints` es opcional y tiene valor inicial `null`. En
 `requiredSemanticLabel` y `readOnlySemanticLabel` para localizar los anuncios
 de estado. La ficha de **Forms** muestra un entero, un decimal con signo,
 error, solo lectura, deshabilitado y texto al 200 % en ambos temas.
+
+<a id="ds.widget.form_stepper"></a>
+### Formulario por pasos
+
+Usa `DsFormStepperWidget` para un formulario lineal. Cada `DsFormStep`
+requiere un ID estable y único, un título y un contenido. La lista tiene al
+menos un paso y `activeStepId` corresponde a uno de sus IDs. El indicador
+muestra la posición y el título activo. Las acciones de navegación usan
+`DsPrimaryButtonWidget` y `DsSecondaryButtonWidget`.
+
+`onStepChangeAttempt` recibe el ID del paso adyacente. Valida en el consumidor
+cuando corresponda y actualiza `activeStepId` para aceptar el cambio.
+`onFinishAttempt` recibe la solicitud de envío desde el último paso.
+Conserva los valores y errores en los `ModelFieldState` del formulario y
+pásalos a campos como `DsTextInputWidget`. Al regresar, el paso se monta con
+esos modelos. El encabezado recibe foco cuando cambia el paso activo.
+La navegación por teclado recorre los campos y acciones de cada formulario
+como un grupo.
+
+```dart
+DsFormStepperWidget(
+  steps: [
+    DsFormStep(id: 'contact', title: 'Contacto', content: contactForm),
+    DsFormStep(id: 'details', title: 'Detalles', content: detailsForm),
+  ],
+  activeStepId: activeStepId,
+  onStepChangeAttempt: validateStepChange,
+  onFinishAttempt: submitForm,
+  primaryState: ModelInteractiveState(
+    semantic: ModelInteractiveSemantic.primary,
+    isLoading: isSubmitting,
+  ),
+  previousLabel: 'Atrás',
+  continueLabel: 'Continuar',
+  finishLabel: 'Finalizar',
+  loadingSemanticLabel: 'Enviando',
+  progressLabelBuilder: (step, total) => 'Paso $step de $total',
+)
+```
+
+Activa `primaryState.isLoading` antes de esperar una validación o un envío
+asíncrono. Durante la carga, la acción principal muestra su indicador y
+las acciones de retroceso, avance y envío quedan deshabilitadas. La ficha
+de **Forms** permite probar validación, regreso y carga en ambos temas y
+activar texto al 200 %.
 
 <a id="ds.widget.text_responsive"></a>
 <a id="ds.widget.paragraph_text"></a>
