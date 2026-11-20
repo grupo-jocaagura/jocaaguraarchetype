@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 part 'ds_action_button_catalog.dart';
 part 'ds_dropdown_button_catalog.dart';
 part 'ds_email_input_catalog.dart';
+part 'ds_form_actions_catalog.dart';
 part 'ds_form_stepper_catalog.dart';
 part 'ds_number_input_catalog.dart';
 part 'ds_password_input_catalog.dart';
@@ -112,6 +113,7 @@ final List<DsWidgetCatalogEntry> dsWidgetCatalog = <DsWidgetCatalogEntry>[
   _emailInputEntry,
   _numberInputEntry,
   _formStepperEntry,
+  _formActionsEntry,
   DsWidgetCatalogEntry(
     anatomy: _anatomy(
       'ds.widget.text_responsive',

@@ -123,6 +123,36 @@ void main() {
     }
   });
 
+  for (final String label in <String>[
+    'Guardar todos los cambios',
+    'Cancelar edición',
+  ]) {
+    testWidgets('$label cancels pending work after rapid taps and unmount', (
+      WidgetTester tester,
+    ) async {
+      final DsWidgetCatalogEntry entry = dsWidgetCatalog.singleWhere(
+        (DsWidgetCatalogEntry entry) =>
+            entry.anatomy.id == 'ds.widget.form_actions',
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: defaultModelDesignSystem().toThemeData(
+            brightness: Brightness.light,
+          ),
+          home: Scaffold(body: Builder(builder: entry.preview)),
+        ),
+      );
+
+      final Finder action = find.text(label);
+      await tester.tap(action);
+      await tester.tap(action);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(seconds: 5));
+
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('example survives rebuild and unmount with its owned gallery', (
     WidgetTester tester,
   ) async {
