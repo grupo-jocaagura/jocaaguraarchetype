@@ -27,6 +27,7 @@ import 'package:flutter/widgets.dart';
 | `DsDropdownButtonWidget` | Selección de un valor controlada por el consumidor | [Fuente](../lib/ui/widgets/ds_dropdown_button_widget.dart) · [Ficha](#ds.widget.dropdown_button) | `ds.widget.dropdown_button` |
 | `DsSelectInputWidget` | Campo de formulario con selección y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_select_input_widget.dart) · [Ficha](#ds.widget.select_input) | `ds.widget.select_input` |
 | `DsRadioGroupFieldWidget` | Grupo vertical de selección única con valor y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_radio_group_field_widget.dart) · [Ficha](#ds.widget.radio_group_field) | `ds.widget.radio_group_field` |
+| `DsChipsSelectWidget` | Selección múltiple con chips, valor y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_chips_select_widget.dart) · [Ficha](#ds.widget.chips_select) | `ds.widget.chips_select` |
 | `DsCheckboxFieldWidget` | Casilla binaria con valor y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_checkbox_field_widget.dart) · [Ficha](#ds.widget.checkbox_field) | `ds.widget.checkbox_field` |
 | `DsSwitchFieldWidget` | Interruptor de preferencias con valor y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_switch_field_widget.dart) · [Ficha](#ds.widget.switch_field) | `ds.widget.switch_field` |
 | `DsTextInputWidget` | Campo de texto con edición y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_text_input_widget.dart) · [Ficha](#ds.widget.text_input) | `ds.widget.text_input` |
@@ -57,6 +58,7 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [selector](../example/lib/ds_dropdown_button_catalog.dart),
   [campo de selección](../example/lib/ds_select_input_catalog.dart),
   [grupo de radio](../example/lib/ds_radio_group_field_catalog.dart),
+  [selección con chips](../example/lib/ds_chips_select_catalog.dart),
   [casilla de formulario](../example/lib/ds_checkbox_field_catalog.dart),
   [interruptor de formulario](../example/lib/ds_switch_field_catalog.dart),
   [campo de texto](../example/lib/ds_text_input_catalog.dart),
@@ -293,6 +295,48 @@ DsRadioGroupFieldWidget(
 
 La ficha de **Forms** muestra los estados del grupo en ambos temas y permite
 revisarlos con texto al 200 %.
+
+<a id="ds.widget.chips_select"></a>
+### Selección múltiple con chips
+
+Usa `DsChipsSelectWidget` cuando varias opciones visibles puedan estar
+activas a la vez. Pasa claves únicas y no vacías en `options`, en el orden de
+presentación. `optionLabelBuilder` permite localizar las etiquetas.
+
+Guarda un arreglo JSON de cadenas en `ModelFieldState.value`, como
+`["catalog","inventory"]`. El campo muestra una selección vacía con `''`,
+`[]` o un valor que no sea un arreglo JSON de cadenas. Conserva el valor
+recibido hasta que el consumidor acepte una propuesta.
+
+Al activar un chip, `onChangedAttempt` propone un nuevo arreglo con
+`isDirty: true`. La propuesta conserva el orden de primera aparición,
+elimina duplicados y añade al final las nuevas claves. Las claves ausentes
+de `options` siguen en el JSON aunque no tengan chip visible. Al retirar la
+última clave del arreglo, el campo propone `[]`.
+
+El error del consumidor sustituye a `helperText`. `required` indica
+obligatoriedad y el consumidor decide la cantidad válida de selecciones.
+`readOnly` y `enabled: false` conservan el estado y bloquean el cambio.
+Localiza los avisos con `requiredSemanticLabel` y `readOnlySemanticLabel`.
+Usa `emptyMessage` cuando quieras localizar el mensaje de lista vacía.
+
+Da al grupo un ancho acotado de al menos 48 píxeles lógicos y espacio
+vertical para distribuir los chips y sus etiquetas. Tab recorre los chips
+editables y Espacio alterna la selección del chip enfocado.
+
+```dart
+DsChipsSelectWidget(
+  field: capabilities,
+  label: 'Capacidades de la tienda',
+  options: const ['catalog', 'inventory'],
+  optionLabelBuilder: (key) => key == 'catalog' ? 'Catálogo' : 'Inventario',
+  emptyMessage: 'Sin opciones disponibles',
+  onChangedAttempt: acceptCapabilities,
+)
+```
+
+La ficha de **Forms** muestra la selección múltiple y los estados del campo
+con texto al 200 % en ambos temas.
 
 <a id="ds.widget.checkbox_field"></a>
 ### Casilla de formulario

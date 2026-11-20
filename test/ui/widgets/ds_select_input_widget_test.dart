@@ -77,7 +77,14 @@ void main() {
       <String>['id_card', 'id_card'],
     ]) {
       await tester.pumpWidget(_host(_field(options: options)));
-      expect(tester.takeException(), isArgumentError);
+      expect(
+        tester.takeException(),
+        isA<ArgumentError>().having(
+          (ArgumentError error) => error.name,
+          'name',
+          'options',
+        ),
+      );
     }
   });
 

@@ -11,9 +11,9 @@ Arquetipo base para aplicaciones Flutter con enfoque de Clean Architecture, BLoC
 - Requiere **Flutter >=3.50.0** y **Dart >=3.14.0 <4.0.0**.
 - Dependencia oficial `jocaagura_domain: ^2.0.0` desde pub.dev, con
   `jocaagura_domain_core: ^1.3.0` de forma transitiva.
-- Versión de desarrollo **5.2.19**, con `DsRadioGroupFieldWidget` para una
-  selección única en `ModelFieldState`. El campo muestra las opciones en
-  filas verticales y admite navegación por teclado y validación del consumidor.
+- Versión de desarrollo **5.2.20**, con `DsChipsSelectWidget` para selección
+  múltiple en `ModelFieldState`. Los chips admiten navegación por teclado y
+  las propuestas conservan el orden y las claves de opciones ausentes.
 - Reexporta `text_responsive: ^1.3.0` e incluye `DsIconWidget` y una galería DS
   autocontenida para consultar anatomía y ejemplos en claro/oscuro.
 - [Guía de migración a 5.0.0](doc/migration-5.md).

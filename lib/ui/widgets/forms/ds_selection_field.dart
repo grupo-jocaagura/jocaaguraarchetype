@@ -1,7 +1,7 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-abstract class _DsSingleSelectionField extends StatelessWidget {
-  const _DsSingleSelectionField({
+abstract class _DsSelectionField extends StatelessWidget {
+  const _DsSelectionField({
     required this.field,
     required this.onChangedAttempt,
     required this.options,
@@ -58,7 +58,8 @@ abstract class _DsSingleSelectionField extends StatelessWidget {
 
   bool get _isReadOnly => enabled && readOnly;
   bool get _canChange => enabled && !readOnly;
-  String? get _selection => options.contains(field.value) ? field.value : null;
+  String? get _singleSelection =>
+      options.contains(field.value) ? field.value : null;
   String? get _error => field.errorTextToInput;
   String? get _help => _error == null && helperText?.trim().isNotEmpty == true
       ? helperText
@@ -72,18 +73,39 @@ abstract class _DsSingleSelectionField extends StatelessWidget {
   void _proposeSelection(String next) =>
       onChangedAttempt(field.copyWith(value: next, isDirty: true));
 
-  String _optionLabel(String option) {
-    if (option.trim().isEmpty) {
-      throw ArgumentError.value(option, 'options', 'Use nonblank keys.');
+  Map<String, String> _optionLabels() {
+    final Map<String, String> labels = <String, String>{};
+    for (final String option in options) {
+      if (option.trim().isEmpty) {
+        throw ArgumentError.value(option, 'options', 'Use nonblank keys.');
+      }
+      if (labels.containsKey(option)) {
+        throw ArgumentError.value(
+          option,
+          'options',
+          'Option keys must be unique.',
+        );
+      }
+      final String caption = optionLabelBuilder?.call(option) ?? option;
+      if (caption.trim().isEmpty) {
+        throw ArgumentError.value(
+          caption,
+          'optionLabelBuilder',
+          'Name the option.',
+        );
+      }
+      labels[option] = caption;
     }
-    final String caption = optionLabelBuilder?.call(option) ?? option;
-    if (caption.trim().isEmpty) {
+    return labels;
+  }
+
+  void _validateEmptyMessage(String emptyMessage) {
+    if (options.isEmpty && emptyMessage.trim().isEmpty) {
       throw ArgumentError.value(
-        caption,
-        'optionLabelBuilder',
-        'Name the option.',
+        emptyMessage,
+        'emptyMessage',
+        'Name the empty state.',
       );
     }
-    return caption;
   }
 }

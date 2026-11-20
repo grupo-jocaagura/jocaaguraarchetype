@@ -5,7 +5,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 /// Keep [field] in the form controller and update it to accept a proposal
 /// from [onChangedAttempt]. An empty or unavailable key leaves all options
 /// unselected. Give the group a bounded width and room for labels to wrap.
-class DsRadioGroupFieldWidget extends _DsSingleSelectionField {
+class DsRadioGroupFieldWidget extends _DsSelectionField {
   const DsRadioGroupFieldWidget({
     required super.field,
     required super.onChangedAttempt,
@@ -28,35 +28,20 @@ class DsRadioGroupFieldWidget extends _DsSingleSelectionField {
   @override
   Widget build(BuildContext context) {
     final String name = _fieldName;
-    final String? selection = _selection;
+    final String? selection = _singleSelection;
     final String? error = _error;
     final String? message = error ?? _help;
     final bool isEmpty = options.isEmpty;
-    if (isEmpty && emptyMessage.trim().isEmpty) {
-      throw ArgumentError.value(
-        emptyMessage,
-        'emptyMessage',
-        'Name the empty state.',
-      );
-    }
+    _validateEmptyMessage(emptyMessage);
+    final Map<String, String> labels = _optionLabels();
 
     final ThemeData theme = Theme.of(context);
     final ModelDsExtendedTokens tokens = _itemTokensOf(context);
-    final Set<String> seen = <String>{};
-    final List<Widget> rows = <Widget>[];
-    for (final String option in options) {
-      if (!seen.add(option)) {
-        throw ArgumentError.value(
-          option,
-          'options',
-          'Option keys must be unique.',
-        );
-      }
-      final String caption = _optionLabel(option);
-      rows.add(
+    final List<Widget> rows = <Widget>[
+      for (final MapEntry<String, String> entry in labels.entries)
         RadioListTile<String>(
-          key: ValueKey<String>(option),
-          value: option,
+          key: ValueKey<String>(entry.key),
+          value: entry.key,
           enabled: _canChange,
           controlAffinity: ListTileControlAffinity.leading,
           titleAlignment: ListTileTitleAlignment.top,
@@ -68,10 +53,9 @@ class DsRadioGroupFieldWidget extends _DsSingleSelectionField {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(tokens.borderRadius),
           ),
-          title: Text(caption, style: theme.textTheme.bodyLarge),
+          title: Text(entry.value, style: theme.textTheme.bodyLarge),
         ),
-      );
-    }
+    ];
 
     final String hint = <String>[
       ..._statusAnnouncements,
@@ -86,7 +70,7 @@ class DsRadioGroupFieldWidget extends _DsSingleSelectionField {
           if (_canChange &&
               next != null &&
               next != selection &&
-              seen.contains(next)) {
+              labels.containsKey(next)) {
             _proposeSelection(next);
           }
         },
