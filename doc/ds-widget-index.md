@@ -31,6 +31,7 @@ import 'package:flutter/widgets.dart';
 | `DsCheckboxFieldWidget` | Casilla binaria con valor y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_checkbox_field_widget.dart) · [Ficha](#ds.widget.checkbox_field) | `ds.widget.checkbox_field` |
 | `DsSwitchFieldWidget` | Interruptor de preferencias con valor y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_switch_field_widget.dart) · [Ficha](#ds.widget.switch_field) | `ds.widget.switch_field` |
 | `DsTextInputWidget` | Campo de texto con edición y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_text_input_widget.dart) · [Ficha](#ds.widget.text_input) | `ds.widget.text_input` |
+| `DsAutocompleteInputWidget` | Campo de texto libre con sugerencias controladas | [Fuente](../lib/ui/widgets/forms/ds_autocomplete_input_widget.dart) · [Ficha](#ds.widget.autocomplete_input) | `ds.widget.autocomplete_input` |
 | `DsPasswordInputWidget` | Campo de contraseña con visibilidad y validación controlada por el consumidor | [Fuente](../lib/ui/widgets/forms/ds_password_input_widget.dart) · [Ficha](#ds.widget.password_input) | `ds.widget.password_input` |
 | `DsEmailInputWidget` | Campo de correo de una línea con validación controlada | [Fuente](../lib/ui/widgets/forms/ds_email_input_widget.dart) · [Ficha](#ds.widget.email_input) | `ds.widget.email_input` |
 | `DsNumberInputWidget` | Campo de una línea con teclado numérico y validación controlada | [Fuente](../lib/ui/widgets/forms/ds_number_input_widget.dart) · [Ficha](#ds.widget.number_input) | `ds.widget.number_input` |
@@ -62,6 +63,7 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [casilla de formulario](../example/lib/ds_checkbox_field_catalog.dart),
   [interruptor de formulario](../example/lib/ds_switch_field_catalog.dart),
   [campo de texto](../example/lib/ds_text_input_catalog.dart),
+  [autocompletado](../example/lib/ds_autocomplete_input_catalog.dart),
   [campo de contraseña](../example/lib/ds_password_input_catalog.dart),
   [campo de correo](../example/lib/ds_email_input_catalog.dart),
   [campo numérico](../example/lib/ds_number_input_catalog.dart),
@@ -449,6 +451,51 @@ DsTextInputWidget(
 
 La ficha de **Forms** muestra edición controlada, error, solo lectura,
 deshabilitado, varias líneas y texto al 200 % en ambos temas.
+
+<a id="ds.widget.autocomplete_input"></a>
+### Campo de autocompletado
+
+Usa `DsAutocompleteInputWidget` cuando el campo deba aceptar texto libre y
+ofrecer sugerencias. Proporciona una etiqueta y, si ayuda a describir qué
+escribir, un `placeholder`. El campo comparte con `DsTextInputWidget` la
+validación controlada, los estados `enabled` y `readOnly` y la presentación
+de ayuda y errores.
+
+Filtra las opciones en el consumidor y pásalas en `field.suggestions` en
+orden de presentación. Publica una lista nueva al recibir resultados, incluso
+si `field.value` sigue igual. Si la búsqueda es asíncrona, aplica solo los
+resultados de la consulta vigente. Actualizar las opciones conserva la
+selección y la composición del teclado.
+
+La lista se abre al escribir cuando hay sugerencias. Se cierra al quedar sin
+texto u opciones, perder el foco o dejar de ser editable. Usa las flechas
+para resaltar opciones y Enter para confirmar la resaltada. Escape cierra la
+lista y conserva el texto. Tab avanza al siguiente control.
+
+Al escribir o elegir una sugerencia, `onChangedAttempt` recibe una propuesta
+con el nuevo texto e `isDirty: true`. Acepta la propuesta y valida el valor en
+el consumidor. Enter invoca `onSubmittedAttempt`, si está configurado,
+cuando no hay una opción resaltada.
+
+```dart
+DsAutocompleteInputWidget(
+  field: city,
+  label: 'Ciudad',
+  placeholder: 'Escribe una ciudad',
+  onChangedAttempt: (next) {
+    final query = next.value.trim().toLowerCase();
+    final suggestions = [
+      for (final name in cities)
+        if (query.isNotEmpty && name.toLowerCase().contains(query)) name,
+    ];
+    setState(() => city = next.copyWith(suggestions: suggestions));
+  },
+  onSubmittedAttempt: (next) => submitCity(next.value),
+)
+```
+
+La ficha de **Forms** muestra sugerencias tardías, envío opcional, error,
+solo lectura, deshabilitado y texto al 200 % en ambos temas.
 
 <a id="ds.widget.password_input"></a>
 ### Campo de contraseña

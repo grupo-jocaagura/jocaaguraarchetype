@@ -6,7 +6,8 @@ import 'dart:math';
 
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/semantics.dart' show SemanticsValidationResult;
+import 'package:flutter/semantics.dart'
+    show SemanticsRole, SemanticsService, SemanticsValidationResult;
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -151,6 +152,7 @@ part 'ui/widgets/forms/ds_date_input_widget.dart';
 part 'ui/widgets/forms/ds_date_range_input_widget.dart';
 part 'ui/widgets/forms/ds_picker_input.dart';
 part 'ui/widgets/forms/ds_time_input_widget.dart';
+part 'ui/widgets/forms/ds_autocomplete_input_widget.dart';
 part 'ui/widgets/forms/ds_email_input_widget.dart';
 part 'ui/widgets/forms/ds_form_actions_widget.dart';
 part 'ui/widgets/forms/ds_form_stepper_widget.dart';
