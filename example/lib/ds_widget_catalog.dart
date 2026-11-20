@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 
 part 'ds_action_button_catalog.dart';
 part 'ds_date_input_catalog.dart';
+part 'ds_date_range_input_catalog.dart';
 part 'ds_dropdown_button_catalog.dart';
 part 'ds_email_input_catalog.dart';
 part 'ds_form_actions_catalog.dart';
@@ -114,6 +115,7 @@ final List<DsWidgetCatalogEntry> dsWidgetCatalog = <DsWidgetCatalogEntry>[
   _emailInputEntry,
   _numberInputEntry,
   _dateInputEntry,
+  _dateRangeInputEntry,
   _formStepperEntry,
   _formActionsEntry,
   DsWidgetCatalogEntry(
