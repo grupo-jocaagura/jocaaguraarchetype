@@ -4,74 +4,33 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// Give the field a bounded width and localized [label] and [placeholder].
 /// The consumer owns [field] and handles validation after [onChangedAttempt].
-class DsSelectInputWidget extends StatelessWidget {
+class DsSelectInputWidget extends _DsSingleSelectionField {
   const DsSelectInputWidget({
-    required this.field,
-    required this.onChangedAttempt,
-    required this.options,
-    required this.label,
+    required super.field,
+    required super.onChangedAttempt,
+    required super.options,
+    required super.label,
     required this.placeholder,
-    this.optionLabelBuilder,
-    this.helperText,
-    this.required = false,
-    this.enabled = true,
-    this.readOnly = false,
-    this.requiredSemanticLabel = 'Required',
-    this.readOnlySemanticLabel = 'Read only',
+    super.optionLabelBuilder,
+    super.helperText,
+    super.required,
+    super.enabled,
+    super.readOnly,
+    super.requiredSemanticLabel,
+    super.readOnlySemanticLabel,
     super.key,
   });
 
-  /// The last accepted value and validation result from the consumer.
-  final ModelFieldState field;
-
-  /// Proposes a new value with [ModelFieldState.isDirty] set to true.
-  final ValueChanged<ModelFieldState> onChangedAttempt;
-
-  /// Unique, nonblank keys. An empty [ModelFieldState.value] is unselected.
-  final List<String> options;
-
-  final String label;
+  /// Localized prompt for the empty selection.
   final String placeholder;
-
-  /// Maps a key to its display text. Defaults to displaying the key itself.
-  final String Function(String option)? optionLabelBuilder;
-
-  /// Guidance shown when [field] has no validation message.
-  final String? helperText;
-
-  /// Marks the field as mandatory. The consumer decides when to validate it.
-  final bool required;
-
-  final bool enabled;
-
-  /// Shows the current value and blocks editing in an otherwise enabled field.
-  final bool readOnly;
-
-  /// Localizable status announced for a mandatory field.
-  final String requiredSemanticLabel;
-
-  /// Localizable status announced in read-only mode.
-  final String readOnlySemanticLabel;
 
   @override
   Widget build(BuildContext context) {
-    final String name = label.trim();
-    if (name.isEmpty) {
-      throw ArgumentError.value(label, 'label', 'Name the field.');
-    }
-    final bool isReadOnly = enabled && readOnly;
-    final bool canChange = enabled && !readOnly;
-    final String? selection = options.contains(field.value)
-        ? field.value
-        : null;
-    final String? error = field.errorTextToInput;
-    final String? help = error == null && helperText?.trim().isNotEmpty == true
-        ? helperText
-        : null;
-    final String status = <String>[
-      if (required) requiredSemanticLabel,
-      if (isReadOnly) readOnlySemanticLabel,
-    ].join('\n');
+    final String name = _fieldName;
+    final String? selection = _selection;
+    final String? error = _error;
+    final String? help = _help;
+    final String status = _statusAnnouncements.join('\n');
     final ModelDsExtendedTokens tokens = _itemTokensOf(context);
     final ThemeData theme = Theme.of(context);
 
@@ -80,7 +39,7 @@ class DsSelectInputWidget extends StatelessWidget {
       includeSemantics: false,
       child: Builder(
         builder: (BuildContext context) => InputDecorator(
-          isFocused: canChange && Focus.of(context).hasFocus,
+          isFocused: _canChange && Focus.of(context).hasFocus,
           isEmpty: selection == null,
           decoration: InputDecoration(
             enabled: enabled,
@@ -91,9 +50,9 @@ class DsSelectInputWidget extends StatelessWidget {
             label: ExcludeSemantics(
               child: Text.rich(
                 TextSpan(
-                  text: required ? '$name *' : name,
+                  text: this.required ? '$name *' : name,
                   children: <InlineSpan>[
-                    if (isReadOnly)
+                    if (_isReadOnly)
                       WidgetSpan(
                         alignment: PlaceholderAlignment.middle,
                         child: Padding(
@@ -117,8 +76,8 @@ class DsSelectInputWidget extends StatelessWidget {
             errorMaxLines: error?.length,
           ),
           child: Semantics(
-            isRequired: required,
-            readOnly: isReadOnly,
+            isRequired: this.required,
+            readOnly: _isReadOnly,
             hint: status.isEmpty ? null : status,
             validationResult: error == null
                 ? SemanticsValidationResult.none
@@ -126,11 +85,10 @@ class DsSelectInputWidget extends StatelessWidget {
             child: DsDropdownButtonWidget<String>(
               value: selection,
               items: options.map(_menuItem).toList(),
-              onChanged: (String next) =>
-                  onChangedAttempt(field.copyWith(value: next, isDirty: true)),
+              onChanged: _proposeSelection,
               placeholder: placeholder,
               semanticLabel: name,
-              state: ModelInteractiveState(isEnabled: canChange),
+              state: ModelInteractiveState(isEnabled: _canChange),
               isExpanded: true,
             ),
           ),
@@ -140,17 +98,7 @@ class DsSelectInputWidget extends StatelessWidget {
   }
 
   DropdownMenuItem<String> _menuItem(String option) {
-    if (option.trim().isEmpty) {
-      throw ArgumentError.value(option, 'options', 'Use nonblank keys.');
-    }
-    final String caption = optionLabelBuilder?.call(option) ?? option;
-    if (caption.trim().isEmpty) {
-      throw ArgumentError.value(
-        caption,
-        'optionLabelBuilder',
-        'Name the option.',
-      );
-    }
+    final String caption = _optionLabel(option);
     return DropdownMenuItem<String>(
       value: option,
       child: DsTextParagraphWidget(

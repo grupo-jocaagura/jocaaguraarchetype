@@ -26,6 +26,7 @@ import 'package:flutter/widgets.dart';
 | `DsSecondaryButtonWidget` | Acción de menor énfasis · `DsSecondaryButtonWidget(label: 'Cancelar', onPressed: cancel)` | [Fuente](../lib/ui/widgets/ds_action_button_widget.dart) · [Ficha](#ds.widget.secondary_button) | `ds.widget.secondary_button` |
 | `DsDropdownButtonWidget` | Selección de un valor controlada por el consumidor | [Fuente](../lib/ui/widgets/ds_dropdown_button_widget.dart) · [Ficha](#ds.widget.dropdown_button) | `ds.widget.dropdown_button` |
 | `DsSelectInputWidget` | Campo de formulario con selección y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_select_input_widget.dart) · [Ficha](#ds.widget.select_input) | `ds.widget.select_input` |
+| `DsRadioGroupFieldWidget` | Grupo vertical de selección única con valor y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_radio_group_field_widget.dart) · [Ficha](#ds.widget.radio_group_field) | `ds.widget.radio_group_field` |
 | `DsCheckboxFieldWidget` | Casilla binaria con valor y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_checkbox_field_widget.dart) · [Ficha](#ds.widget.checkbox_field) | `ds.widget.checkbox_field` |
 | `DsSwitchFieldWidget` | Interruptor de preferencias con valor y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_switch_field_widget.dart) · [Ficha](#ds.widget.switch_field) | `ds.widget.switch_field` |
 | `DsTextInputWidget` | Campo de texto con edición y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_text_input_widget.dart) · [Ficha](#ds.widget.text_input) | `ds.widget.text_input` |
@@ -55,6 +56,7 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [botones de acción](../example/lib/ds_action_button_catalog.dart),
   [selector](../example/lib/ds_dropdown_button_catalog.dart),
   [campo de selección](../example/lib/ds_select_input_catalog.dart),
+  [grupo de radio](../example/lib/ds_radio_group_field_catalog.dart),
   [casilla de formulario](../example/lib/ds_checkbox_field_catalog.dart),
   [interruptor de formulario](../example/lib/ds_switch_field_catalog.dart),
   [campo de texto](../example/lib/ds_text_input_catalog.dart),
@@ -252,6 +254,45 @@ DsSelectInputWidget(
 
 La ficha de **Forms** incluye ejemplos controlados, con error, de solo lectura,
 deshabilitados y con texto al 200 % en los dos temas.
+
+<a id="ds.widget.radio_group_field"></a>
+### Grupo de radio de formulario
+
+Usa `DsRadioGroupFieldWidget` cuando convenga mostrar juntas unas pocas
+opciones excluyentes. Proporciona claves únicas y no vacías en `options`, en
+el orden en que deben aparecer. Usa `optionLabelBuilder` para presentar
+etiquetas localizadas. Si la lista está vacía, `emptyMessage` permite
+localizar el mensaje de ausencia de opciones.
+
+El valor de `ModelFieldState.value` es la clave aceptada. Un valor vacío o
+ausente de la lista se muestra sin selección. Activar una opción diferente
+propone su clave con `isDirty: true` y conserva la validez, el error y las
+sugerencias. Actualiza `field` para aceptar la propuesta.
+
+El error sustituye a `helperText`. `required` indica obligatoriedad y el
+consumidor decide cuándo validar. En solo lectura o deshabilitado se
+conserva la selección y se bloquean los cambios. Localiza los avisos con
+`requiredSemanticLabel` y `readOnlySemanticLabel`.
+
+Toda la fila de cada opción admite activación. Usa Tab para entrar o salir
+del grupo, las flechas para recorrer y proponer opciones y Espacio para
+seleccionar la opción enfocada. Deja espacio para que crezcan las etiquetas y
+los mensajes. Para un formulario con altura limitada, usa un contenedor
+desplazable.
+
+```dart
+DsRadioGroupFieldWidget(
+  field: movement,
+  label: 'Tipo de movimiento',
+  options: const ['income', 'expense'],
+  optionLabelBuilder: (key) => key == 'income' ? 'Ingreso' : 'Gasto',
+  emptyMessage: 'Sin opciones disponibles',
+  onChangedAttempt: acceptMovement,
+)
+```
+
+La ficha de **Forms** muestra los estados del grupo en ambos temas y permite
+revisarlos con texto al 200 %.
 
 <a id="ds.widget.checkbox_field"></a>
 ### Casilla de formulario
