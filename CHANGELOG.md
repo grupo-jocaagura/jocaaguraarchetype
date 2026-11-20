@@ -1,10 +1,273 @@
 # Changelog
-<!-- master-sync: 8a7713a49b277493658349cb6424dcd8657407f5 -->
+<!-- master-sync: 5bd021b7a4eadf578e03acff7c75d0fcf2174041 -->
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [5.3.0] - 2026-11-20
+
+This release consolidates the changes from 5.2.1 through 5.2.21.
+
+### Added
+
+- Reexport `text_responsive ^1.3.0` from the main library and a dedicated entry
+  point. Provide DS text widgets for Material typography roles, inline text,
+  and paragraphs.
+- Provide DS icons, compact grid items, loading indicators, and icon, primary,
+  secondary, and dropdown buttons. The action button family supports controlled
+  interaction states.
+- Provide controlled text, password, email, number, date, date range, and time
+  fields. Select, autocomplete, radio, checkbox, switch, and chip fields use
+  `ModelFieldState` with consumer-owned validation. Autocomplete updates
+  suggestions without another edit and preserves the cursor and IME composition.
+- Provide linear forms with `DsFormStepperWidget` and adaptive primary and
+  secondary actions with `DsFormActionsWidget`.
+- Document the public DS widgets in the index and show interactive examples
+  in both gallery themes, including keyboard navigation and text at 200%.
+
+### Changed
+
+- Share action layout between standalone form actions and the stepper, and
+  option validation across select, radio, and chip fields.
+
+## [5.2.21] - 2026-11-20
+
+### Added
+
+- Add `DsAutocompleteInputWidget` for free-form text, consumer-filtered
+  suggestions in `ModelFieldState`, keyboard selection, and optional submission.
+  Late suggestions appear without another edit and preserve the cursor and
+  IME composition.
+- Document the field in the DS index and demonstrate late results, field
+  states, and text at 200% in both gallery themes (#197).
+
+## [5.2.20] - 2026-11-20
+
+### Added
+
+- Add `DsChipsSelectWidget` for controlled multiple selection with a strict
+  JSON array of strings. Proposals remove duplicates and preserve stored
+  order and unavailable keys.
+- Document the field in the DS index and demonstrate selection, validation,
+  empty and blocked states, and text at 200% in both gallery themes (#195).
+
+### Changed
+
+- Share option validation across select, radio, and chip fields.
+
+## [5.2.19] - 2026-11-20
+
+### Added
+
+- Add `DsRadioGroupFieldWidget` for controlled single selection with visible
+  radio rows, keyboard navigation, and consumer-owned validation.
+- Document the field in the DS index and show localized empty, error, and
+  blocked states with text at 200% in both gallery themes (#193).
+
+## [5.2.18] - 2026-11-20
+
+### Added
+
+- Add `DsSwitchFieldWidget` for on/off preferences stored as `'true'` or
+  `'false'` in `ModelFieldState`. Support full-row activation, native dragging,
+  and consumer-owned validation with an accessible switch.
+- Document the field in the DS index and demonstrate its states with text
+  at 200% in both gallery themes (#191).
+
+## [5.2.17] - 2026-11-20
+
+### Added
+
+- Add `DsCheckboxFieldWidget` for binary form choices stored as `'true'`
+  or `'false'` in `ModelFieldState`. The full row supports activation and
+  exposes one accessible checkbox with consumer-owned validation.
+- Document the field in the DS index and demonstrate its states with text
+  at 200% in both gallery themes (#189).
+
+## [5.2.16] - 2026-11-20
+
+### Added
+
+- Add `DsTimeInputWidget` for a localized time of day stored as `HH:mm` in
+  `ModelFieldState`. Select a time with the clock or by typing and leave
+  validation to the consumer.
+- Document the time field in the DS index and show 12- and 24-hour formats,
+  field states, and text at 200% in both gallery themes (#187).
+
+## [5.2.15] - 2026-11-20
+
+### Added
+
+- Add `DsDateRangeInputWidget` for inclusive calendar ranges, including a
+  single day. Store `start` and `end` as `yyyy-MM-dd` strings in a controlled
+  JSON value and support both calendar selection and typed dates.
+- Give both editors and the date summary room in the landscape dialog while
+  preserving the Material text scaling cap. Document the field in the DS
+  index and show its states in both gallery themes (#185).
+
+## [5.2.14] - 2026-11-19
+
+### Added
+
+- Add `DsDateInputWidget` for calendar dates backed by `ModelFieldState`.
+  Display localized dates, store `yyyy-MM-dd`, and support calendar selection
+  and typed input within inclusive date bounds.
+- Document the field in the DS index and demonstrate its states and text at
+  200% in both gallery themes (#183).
+
+## [5.2.13] - 2026-11-19
+
+### Changed
+
+- Use `DsFormActionsWidget` in `DsFormStepperWidget` so visible actions share
+  the available width or stack when their labels need more room. Preserve the
+  stepper's API, keyboard traversal, and back-action lock during loading.
+- Update the DS index and gallery to demonstrate the shared layout with long
+  labels and text at 200% in both themes (#181).
+
+## [5.2.12] - 2026-11-19
+
+### Added
+
+- Add `DsFormActionsWidget` with a primary action and an optional secondary
+  action. Lay them out at equal widths when their scaled labels fit and stack
+  them when space is limited. Each action has its own state, loading indicator,
+  and accessible loading announcement.
+- Document the widget in the DS index and show its states and text at 200% in
+  both gallery themes. Cancel superseded demo timers so rapid taps leave no
+  pending callbacks when the preview is disposed (#179).
+
+## [5.2.11] - 2026-11-19
+
+### Added
+
+- Add `DsFormStepperWidget` and `DsFormStep` for controlled linear forms.
+  Request adjacent steps and submission through DS actions, keep values and
+  errors in the consumer, and block navigation during loading.
+- Group keyboard navigation within each form and move focus to the active step
+  heading on accepted transitions. Document the stepper and show it in light
+  and dark gallery previews with text at 200% (#177).
+
+## [5.2.10] - 2026-11-19
+
+### Added
+
+- Add `DsNumberInputWidget`, a single-line field with configurable signed
+  and decimal keyboard options and consumer-owned validation through
+  `ModelFieldState`. Preserve leading zeros, signs, and separators when
+  editing, pasting, or submitting.
+- Document the field in the DS index and show its states and text at 200%
+  in both gallery themes (#175).
+
+## [5.2.9] - 2026-11-19
+
+### Added
+
+- Add `DsEmailInputWidget`, a single-line email field with `ModelFieldState`
+  validation, configurable autofill and optional keyboard submission. Preserve
+  spaces and case during editing and submission. Document the field and show
+  its states and text at 200% in the DS gallery (#173).
+
+### Fixed
+
+- Restore keyboard selection and copying in read-only DS text fields on the
+  web while exposing their values as readable text to assistive technology.
+
+## [5.2.8] - 2026-11-19
+
+### Added
+
+- Add `DsPasswordInputWidget`, a single-line password field with
+  `ModelFieldState` validation, an accessible visibility toggle and
+  configurable autofill. Preserve the selection while toggling and hide
+  the password again when focus leaves the control.
+- Allow paste while editing and block copy and cut. Document the field in
+  the DS index and show its states and text at 200% in both themes (#171).
+
+## [5.2.7] - 2026-11-19
+
+### Added
+
+- Add `DsTextInputWidget`, an outlined text field driven by `ModelFieldState`
+  with consumer-owned validation, optional keyboard submission and multiline
+  input. Preserve IME composition on validation updates and keep selection
+  aligned with a preserved suffix when it shifts.
+- Expose readable values in web accessibility for read-only fields. Document
+  the widget and show its states and enlarged text in the DS gallery (#169).
+
+## [5.2.6] - 2026-11-19
+
+### Added
+
+- Add `DsSelectInputWidget`, an outlined single-selection field that composes
+  `DsDropdownButtonWidget<String>` with `ModelFieldState`. Keep validation
+  controlled by the consumer and support required, read-only and disabled
+  states with accessible announcements.
+- Document the field in the DS index and gallery, including validation errors,
+  localized option labels and enlarged text in both themes (#167).
+
+## [5.2.5] - 2026-11-19
+
+### Added
+
+- Add `DsDropdownButtonWidget<T>`, a controlled, borderless single-value
+  selector with `DropdownMenuItem<T>` options and `ModelInteractiveState` for
+  selected values. Support keyboard navigation, multiline text at large scales,
+  and a single accessible announcement for the field name and placeholder.
+- Add a gallery entry and index guidance for `InputDecorator` composition and
+  DS typography in textual options (#165).
+
+## [5.2.4] - 2026-11-19
+
+### Added
+
+- Add `DsPrimaryButtonWidget` for filled primary actions and
+  `DsSecondaryButtonWidget` for outlined supporting actions. Both support
+  multiline `labelLarge` text, 48 × 48 minimum activation targets, controlled
+  states, semantic color fallbacks and a replaceable `DsLoading` that keeps the
+  action label visible.
+- Replace the local button demos with public catalog entries. Show both actions
+  in light and dark themes alongside state and enlarged-text examples (#163).
+
+## [5.2.3] - 2026-11-19
+
+### Added
+
+- Add `DsIconButtonWidget` with a 32 px circular surface, 48 × 48 px activation
+  target, controlled states, semantic colors and a configurable loading indicator.
+  Document filled and outlined variants in the DS widget gallery (#161).
+
+## [5.2.2] - 2026-11-19
+
+### Added
+
+- Add all Material text roles and responsive inline and paragraph DS widgets.
+- Add passive and interactive grid items with shared surface variants and a
+  replaceable loading indicator. Document and preview the family in the DS gallery (#159).
+- Keep short labels in compact grid items and let longer or scaled labels wrap
+  through `DsTextParagraphWidget` with `labelMedium`. Use ellipsis when the
+  parent limits the height and preserve the full accessible name.
+
+## [5.2.1] - 2026-11-19
+
+### Added
+
+- Reexport `text_responsive ^1.3.0` through the main library and the dedicated
+  `jocaaguraarchetype_text_responsive.dart` entrypoint.
+- Add passive `DsIconWidget` with explicit/inherited/DS appearance and accessible
+  informational or decorative semantics.
+- Add a DS widget index and expand the standalone gallery example with anatomy,
+  usage snippets and light/dark previews for icons and responsive text (#157).
+- Verify the assembled gallery against documented component IDs and render the
+  icon preview as labeled cases with DS spacing, sizing and theme colors.
+
+### Fixed
+
+- Dispose the example-owned gallery BLoC and preserve it across app rebuilds.
+- Keep synthetic master synchronization fixtures on a release version so the
+  policy suite also works from development patch versions.
 
 ## [5.2.0] - 2026-11-18
 
