@@ -6,6 +6,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.3.0] - 2026-11-20
+
+This release consolidates the changes from 5.2.1 through 5.2.21.
+
+### Added
+
+- Reexport `text_responsive ^1.3.0` from the main library and a dedicated entry
+  point. Provide DS text widgets for Material typography roles, inline text,
+  and paragraphs.
+- Provide DS icons, compact grid items, loading indicators, and icon, primary,
+  secondary, and dropdown buttons. The action button family supports controlled
+  interaction states.
+- Provide controlled text, password, email, number, date, date range, and time
+  fields. Select, autocomplete, radio, checkbox, switch, and chip fields use
+  `ModelFieldState` with consumer-owned validation. Autocomplete updates
+  suggestions without another edit and preserves the cursor and IME composition.
+- Provide linear forms with `DsFormStepperWidget` and adaptive primary and
+  secondary actions with `DsFormActionsWidget`.
+- Document the public DS widgets in the index and show interactive examples
+  in both gallery themes, including keyboard navigation and text at 200%.
+
+### Changed
+
+- Share action layout between standalone form actions and the stepper, and
+  option validation across select, radio, and chip fields.
+
 ## [5.2.21] - 2026-11-20
 
 ### Added
