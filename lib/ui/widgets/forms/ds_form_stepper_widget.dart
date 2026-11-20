@@ -21,6 +21,8 @@ class DsFormStep {
 /// list. Update it after accepting an adjacent step request. Keep field data
 /// in the consumer so each step can restore its values and errors when mounted.
 /// Set [primaryState] to loading before awaiting validation or submission.
+/// [DsFormActionsWidget] arranges the step's visible actions at the available
+/// width. Allow room for the actions to stack when their labels need it.
 class DsFormStepperWidget extends StatefulWidget {
   const DsFormStepperWidget({
     required this.steps,
@@ -126,6 +128,7 @@ class _DsFormStepperWidgetState extends State<DsFormStepperWidget> {
       );
     }
     final DsFormStep active = steps[index];
+    final bool hasPrevious = index > 0;
     final bool isLast = index == steps.length - 1;
     final ModelDsExtendedTokens tokens = _itemTokensOf(context);
     final TextTheme textTheme = Theme.of(context).textTheme;
@@ -178,32 +181,25 @@ class _DsFormStepperWidgetState extends State<DsFormStepperWidget> {
           ),
           SizedBox(height: tokens.spacing),
           KeyedSubtree(key: ValueKey<String>(active.id), child: active.content),
-          SizedBox(height: tokens.spacing),
-          Wrap(
-            alignment: WrapAlignment.end,
-            spacing: tokens.spacingSm,
-            runSpacing: tokens.spacingSm,
-            children: <Widget>[
-              if (index > 0)
-                DsSecondaryButtonWidget(
-                  label: widget.previousLabel,
-                  state: ModelInteractiveState(
-                    isEnabled: !widget.primaryState.isLoading,
-                    semantic: ModelInteractiveSemantic.secondary,
-                  ),
-                  onPressed: () =>
-                      widget.onStepChangeAttempt(steps[index - 1].id),
-                ),
-              DsPrimaryButtonWidget(
-                label: isLast ? widget.finishLabel : widget.continueLabel,
-                state: widget.primaryState,
-                loadingSemanticLabel: widget.loadingSemanticLabel,
-                onPressed: isLast
-                    ? widget.onFinishAttempt
-                    : () => widget.onStepChangeAttempt(steps[index + 1].id),
+          if (hasPrevious || widget.primaryState.isVisible) ...<Widget>[
+            SizedBox(height: tokens.spacing),
+            DsFormActionsWidget(
+              primaryLabel: isLast ? widget.finishLabel : widget.continueLabel,
+              onPrimary: isLast
+                  ? widget.onFinishAttempt
+                  : () => widget.onStepChangeAttempt(steps[index + 1].id),
+              primaryState: widget.primaryState,
+              primaryLoadingSemanticLabel: widget.loadingSemanticLabel,
+              secondaryLabel: hasPrevious ? widget.previousLabel : null,
+              onSecondary: hasPrevious
+                  ? () => widget.onStepChangeAttempt(steps[index - 1].id)
+                  : null,
+              secondaryState: ModelInteractiveState(
+                isEnabled: !widget.primaryState.isLoading,
+                semantic: ModelInteractiveSemantic.secondary,
               ),
-            ],
-          ),
+            ),
+          ],
         ],
       ),
     );

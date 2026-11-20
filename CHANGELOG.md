@@ -6,6 +6,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.13] - 2026-11-19
+
+### Changed
+
+- Use `DsFormActionsWidget` in `DsFormStepperWidget` so visible actions share
+  the available width or stack when their labels need more room. Preserve the
+  stepper's API, keyboard traversal, and back-action lock during loading.
+- Update the DS index and gallery to demonstrate the shared layout with long
+  labels and text at 200% in both themes (#181).
+
 ## [5.2.12] - 2026-11-19
 
 ### Added
