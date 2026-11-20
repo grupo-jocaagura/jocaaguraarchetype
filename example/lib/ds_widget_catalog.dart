@@ -14,6 +14,7 @@ part 'ds_form_stepper_catalog.dart';
 part 'ds_number_input_catalog.dart';
 part 'ds_password_input_catalog.dart';
 part 'ds_select_input_catalog.dart';
+part 'ds_switch_field_catalog.dart';
 part 'ds_text_input_catalog.dart';
 part 'ds_time_input_catalog.dart';
 part 'ds_item_family_catalog.dart';
@@ -113,6 +114,7 @@ final List<DsWidgetCatalogEntry> dsWidgetCatalog = <DsWidgetCatalogEntry>[
   _dropdownButtonEntry,
   _selectInputEntry,
   _checkboxFieldEntry,
+  _switchFieldEntry,
   _textInputEntry,
   _passwordInputEntry,
   _emailInputEntry,
