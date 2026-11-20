@@ -140,6 +140,8 @@ part 'ui/widgets/ds_item_button_widget.dart';
 part 'ui/widgets/ds_item_widget.dart';
 part 'ui/widgets/ds_loading_widget.dart';
 part 'ui/widgets/forms/ds_select_input_widget.dart';
+part 'ui/widgets/forms/ds_single_selection_field.dart';
+part 'ui/widgets/forms/ds_radio_group_field_widget.dart';
 part 'ui/widgets/forms/ds_binary_field.dart';
 part 'ui/widgets/forms/ds_checkbox_field_widget.dart';
 part 'ui/widgets/forms/ds_switch_field_widget.dart';
