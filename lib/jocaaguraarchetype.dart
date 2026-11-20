@@ -143,6 +143,8 @@ part 'ui/widgets/forms/ds_select_input_widget.dart';
 part 'ui/widgets/forms/ds_calendar_input.dart';
 part 'ui/widgets/forms/ds_date_input_widget.dart';
 part 'ui/widgets/forms/ds_date_range_input_widget.dart';
+part 'ui/widgets/forms/ds_picker_input.dart';
+part 'ui/widgets/forms/ds_time_input_widget.dart';
 part 'ui/widgets/forms/ds_email_input_widget.dart';
 part 'ui/widgets/forms/ds_form_actions_widget.dart';
 part 'ui/widgets/forms/ds_form_stepper_widget.dart';
