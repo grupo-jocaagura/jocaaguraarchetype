@@ -31,6 +31,7 @@ import 'package:flutter/widgets.dart';
 | `DsEmailInputWidget` | Campo de correo de una línea con validación controlada | [Fuente](../lib/ui/widgets/forms/ds_email_input_widget.dart) · [Ficha](#ds.widget.email_input) | `ds.widget.email_input` |
 | `DsNumberInputWidget` | Campo de una línea con teclado numérico y validación controlada | [Fuente](../lib/ui/widgets/forms/ds_number_input_widget.dart) · [Ficha](#ds.widget.number_input) | `ds.widget.number_input` |
 | `DsDateInputWidget` | Fecha de calendario localizada, con límites inclusivos | [Fuente](../lib/ui/widgets/forms/ds_date_input_widget.dart) · [Ficha](#ds.widget.date_input) | `ds.widget.date_input` |
+| `DsDateRangeInputWidget` | Rango localizado de fechas de calendario con límites inclusivos | [Fuente](../lib/ui/widgets/forms/ds_date_range_input_widget.dart) · [Ficha](#ds.widget.date_range_input) | `ds.widget.date_range_input` |
 | `DsFormStepperWidget` | Formulario lineal con paso activo y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_form_stepper_widget.dart) · [Ficha](#ds.widget.form_stepper) | `ds.widget.form_stepper` |
 | `DsFormActionsWidget` | Acciones adaptables de formulario con estados independientes | [Fuente](../lib/ui/widgets/forms/ds_form_actions_widget.dart) · [Ficha](#ds.widget.form_actions) | `ds.widget.form_actions` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
@@ -56,6 +57,7 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [campo de correo](../example/lib/ds_email_input_catalog.dart),
   [campo numérico](../example/lib/ds_number_input_catalog.dart),
   [campo de fecha](../example/lib/ds_date_input_catalog.dart),
+  [campo de rango de fechas](../example/lib/ds_date_range_input_catalog.dart),
   [formulario por pasos](../example/lib/ds_form_stepper_catalog.dart),
   [acciones de formulario](../example/lib/ds_form_actions_catalog.dart) y
   [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
@@ -428,6 +430,46 @@ para controlar su disponibilidad. Usa `requiredSemanticLabel` y
 delegados de localización de `material_ui` para los idiomas de la app. La
 ficha de **Forms** muestra el campo y el selector en ambos temas, con un
 control para probar texto al 200 %.
+
+<a id="ds.widget.date_range_input"></a>
+### Campo de rango de fechas
+
+Usa `DsDateRangeInputWidget` para escoger un periodo de calendario. Guarda
+un objeto JSON con `start` y `end` en `ModelFieldState.value`. Cada fecha usa
+`yyyy-MM-dd`. Usa `''` para representar un campo vacío. Al cargar timestamps
+existentes, conviértelos al día de calendario que corresponda a tu dominio.
+
+```dart
+DsDateRangeInputWidget(
+  field: const ModelFieldState(
+    value: '{"start":"2026-11-19","end":"2026-11-23"}',
+  ),
+  label: 'Periodo de reserva',
+  placeholder: 'Selecciona un rango de fechas',
+  firstDate: DateTime(2026, 11, 1),
+  lastDate: DateTime(2026, 11, 30),
+  onChangedAttempt: acceptReservation,
+)
+```
+
+Los límites `firstDate` y `lastDate` son obligatorios e inclusivos. Ambos
+extremos pueden ser iguales para reservar un día. El calendario abre sin
+preselección si el rango recibido está incompleto, invertido o fuera de los
+límites. Un valor que no se puede interpretar muestra el `placeholder` si se
+proporcionó. Las fechas de un rango completo y ordenado se muestran en el
+idioma de la app aunque sus extremos queden fuera de los límites actuales.
+
+Al guardar un rango diferente en el calendario o confirmar ambas fechas
+escritas, `onChangedAttempt` propone el nuevo valor con `isDirty: true`.
+Actualiza `field` para aceptarlo. Cancelar o confirmar los mismos extremos
+conserva el estado. La validación del formulario la controla el consumidor.
+`errorText` tiene prioridad sobre `helperText`.
+
+El campo expone inicio y fin en el valor accesible y vuelve a recibir el
+foco cuando se cierra el selector si sigue disponible. Usa `readOnly` para
+consultar el rango y `enabled` para controlar su disponibilidad. La ficha
+de **Forms** muestra ambos temas y permite activar texto al **200 %** para
+el campo. `material_ui` aplica un máximo de **130 %** dentro del selector.
 
 <a id="ds.widget.form_stepper"></a>
 ### Formulario por pasos

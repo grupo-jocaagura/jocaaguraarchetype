@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.15] - 2026-11-20
+
+### Added
+
+- Add `DsDateRangeInputWidget` for inclusive calendar ranges, including a
+  single day. Store `start` and `end` as `yyyy-MM-dd` strings in a controlled
+  JSON value and support both calendar selection and typed dates.
+- Give both editors and the date summary room in the landscape dialog while
+  preserving the Material text scaling cap. Document the field in the DS
+  index and show its states in both gallery themes (#185).
+
 ## [5.2.14] - 2026-11-19
 
 ### Added
