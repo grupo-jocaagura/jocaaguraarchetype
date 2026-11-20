@@ -26,6 +26,7 @@ import 'package:flutter/widgets.dart';
 | `DsSecondaryButtonWidget` | Acción de menor énfasis · `DsSecondaryButtonWidget(label: 'Cancelar', onPressed: cancel)` | [Fuente](../lib/ui/widgets/ds_action_button_widget.dart) · [Ficha](#ds.widget.secondary_button) | `ds.widget.secondary_button` |
 | `DsDropdownButtonWidget` | Selección de un valor controlada por el consumidor | [Fuente](../lib/ui/widgets/ds_dropdown_button_widget.dart) · [Ficha](#ds.widget.dropdown_button) | `ds.widget.dropdown_button` |
 | `DsSelectInputWidget` | Campo de formulario con selección y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_select_input_widget.dart) · [Ficha](#ds.widget.select_input) | `ds.widget.select_input` |
+| `DsCheckboxFieldWidget` | Casilla binaria con valor y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_checkbox_field_widget.dart) · [Ficha](#ds.widget.checkbox_field) | `ds.widget.checkbox_field` |
 | `DsTextInputWidget` | Campo de texto con edición y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_text_input_widget.dart) · [Ficha](#ds.widget.text_input) | `ds.widget.text_input` |
 | `DsPasswordInputWidget` | Campo de contraseña con visibilidad y validación controlada por el consumidor | [Fuente](../lib/ui/widgets/forms/ds_password_input_widget.dart) · [Ficha](#ds.widget.password_input) | `ds.widget.password_input` |
 | `DsEmailInputWidget` | Campo de correo de una línea con validación controlada | [Fuente](../lib/ui/widgets/forms/ds_email_input_widget.dart) · [Ficha](#ds.widget.email_input) | `ds.widget.email_input` |
@@ -53,6 +54,7 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [botones de acción](../example/lib/ds_action_button_catalog.dart),
   [selector](../example/lib/ds_dropdown_button_catalog.dart),
   [campo de selección](../example/lib/ds_select_input_catalog.dart),
+  [casilla de formulario](../example/lib/ds_checkbox_field_catalog.dart),
   [campo de texto](../example/lib/ds_text_input_catalog.dart),
   [campo de contraseña](../example/lib/ds_password_input_catalog.dart),
   [campo de correo](../example/lib/ds_email_input_catalog.dart),
@@ -248,6 +250,42 @@ DsSelectInputWidget(
 
 La ficha de **Forms** incluye ejemplos controlados, con error, de solo lectura,
 deshabilitados y con texto al 200 % en los dos temas.
+
+<a id="ds.widget.checkbox_field"></a>
+### Casilla de formulario
+
+Usa `DsCheckboxFieldWidget` para una elección binaria independiente, como
+aceptar los términos de un servicio o elegir recibir avisos. Guarda
+`'true'` o `'false'` en `ModelFieldState.value`. El valor vacío se muestra
+desmarcado. Los valores inesperados, como `' TRUE '`, también se muestran
+desmarcados y se conservan hasta que el consumidor acepte una propuesta.
+Normaliza los valores heredados al cargar el formulario si necesitas migrarlos.
+
+Toda la fila activa la casilla. `onChangedAttempt` recibe el nuevo valor
+canónico con `isDirty: true` y conserva la validación y las sugerencias. Pasa
+el nuevo estado en `field` para aceptar el cambio. Deja que la etiqueta y el
+mensaje de ayuda o error crezcan en altura. Coloca los enlaces a condiciones
+y otros controles interactivos fuera de la fila.
+
+`required` indica obligatoriedad y el consumidor decide cuándo mostrar el
+error. El mensaje de error de `field` tiene prioridad sobre `helperText`.
+`readOnly` y `enabled: false` conservan el estado marcado o desmarcado y
+bloquean el cambio. Localiza los avisos con `requiredSemanticLabel` y
+`readOnlySemanticLabel`. Con el teclado, usa Tab para llegar a la casilla
+editable y Espacio para activarla.
+
+```dart
+DsCheckboxFieldWidget(
+  field: terms,
+  label: 'Acepto los términos del servicio',
+  required: true,
+  requiredSemanticLabel: 'Obligatorio',
+  onChangedAttempt: acceptTerms,
+)
+```
+
+La ficha de **Forms** muestra los estados del campo y texto al 200 % en ambos
+temas.
 
 <a id="ds.widget.text_input"></a>
 ### Campo de texto de formulario
