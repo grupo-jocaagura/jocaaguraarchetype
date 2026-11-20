@@ -70,6 +70,25 @@ abstract class _DsActionButton extends StatelessWidget {
 
   final DsSurfaceVariant _variant;
 
+  double _widthForLabel(BuildContext context, ModelDsExtendedTokens tokens) {
+    TextStyle style = DefaultTextStyle.of(context).style
+        .merge(Theme.of(context).textTheme.labelLarge);
+    if (MediaQuery.boldTextOf(context)) {
+      style = style.merge(const TextStyle(fontWeight: FontWeight.bold));
+    }
+    final double textWidth = TextPainter.computeWidth(
+      text: TextSpan(text: label.trim(), style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      locale: Localizations.maybeLocaleOf(context),
+    );
+    // Include the padding and the leading slot reserved by _buildButton.
+    return max(
+      kMinInteractiveDimension,
+      textWidth + tokens.spacingSm * 2 + tokens.spacing + tokens.spacingXs,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (label.trim().isEmpty) {

@@ -31,6 +31,7 @@ import 'package:flutter/widgets.dart';
 | `DsEmailInputWidget` | Campo de correo de una línea con validación controlada | [Fuente](../lib/ui/widgets/forms/ds_email_input_widget.dart) · [Ficha](#ds.widget.email_input) | `ds.widget.email_input` |
 | `DsNumberInputWidget` | Campo de una línea con teclado numérico y validación controlada | [Fuente](../lib/ui/widgets/forms/ds_number_input_widget.dart) · [Ficha](#ds.widget.number_input) | `ds.widget.number_input` |
 | `DsFormStepperWidget` | Formulario lineal con paso activo y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_form_stepper_widget.dart) · [Ficha](#ds.widget.form_stepper) | `ds.widget.form_stepper` |
+| `DsFormActionsWidget` | Acciones adaptables de formulario con estados independientes | [Fuente](../lib/ui/widgets/forms/ds_form_actions_widget.dart) · [Ficha](#ds.widget.form_actions) | `ds.widget.form_actions` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
 | `DsInteractiveBuilder` | Variantes: `DsInteractiveBuilder(state: state, enabledBuilder: (context, state) => Text('Activo'))` | [Fuente](../lib/ui/widgets/ds_interactive_widget.dart) | `ds.widget.interactive_builder` |
 | `TextResponsiveWidget` | Ajuste de texto: `TextResponsiveWidget(child: Text('Título', maxLines: 1))` | [API](https://pub.dev/documentation/text_responsive/1.3.0/text_responsive/TextResponsiveWidget-class.html) | `ds.widget.text_responsive` |
@@ -53,7 +54,8 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [campo de contraseña](../example/lib/ds_password_input_catalog.dart),
   [campo de correo](../example/lib/ds_email_input_catalog.dart),
   [campo numérico](../example/lib/ds_number_input_catalog.dart),
-  [formulario por pasos](../example/lib/ds_form_stepper_catalog.dart) y
+  [formulario por pasos](../example/lib/ds_form_stepper_catalog.dart),
+  [acciones de formulario](../example/lib/ds_form_actions_catalog.dart) y
   [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
 - Las herramientas de galería del ejemplo usan el prefijo `example.ds.widgets.*`.
 
@@ -429,6 +431,46 @@ asíncrono. Durante la carga, la acción principal muestra su indicador y
 las acciones de retroceso, avance y envío quedan deshabilitadas. La ficha
 de **Forms** permite probar validación, regreso y carga en ambos temas y
 activar texto al 200 %.
+
+<a id="ds.widget.form_actions"></a>
+### Acciones de formulario
+
+Usa `DsFormActionsWidget` para agrupar la acción principal y una secundaria
+opcional. `primaryLabel` y `onPrimary` son obligatorios. Omite
+`secondaryLabel` para mostrar solo la primaria. Si proporcionas la etiqueta
+secundaria y omites `onSecondary`, la acción se muestra deshabilitada.
+
+```dart
+DsFormActionsWidget(
+  primaryLabel: 'Guardar cambios',
+  onPrimary: save,
+  primaryState: ModelInteractiveState(
+    semantic: ModelInteractiveSemantic.primary,
+    isLoading: isSaving,
+  ),
+  primaryLoadingSemanticLabel: 'Guardando',
+  secondaryLabel: 'Cancelar edición',
+  onSecondary: cancel,
+  secondaryState: ModelInteractiveState(
+    semantic: ModelInteractiveSemantic.secondary,
+    isEnabled: canCancel,
+    isLoading: isCanceling,
+  ),
+  secondaryLoadingSemanticLabel: 'Cancelando',
+)
+```
+
+Controla cada `ModelInteractiveState` desde el formulario. Un botón en carga
+mantiene su etiqueta accesible, anuncia su estado y bloquea su propia
+activación. Define los anuncios de carga en el idioma de la app.
+
+La secundaria va primero visualmente y al navegar con Tab. Ambas acciones
+ocupan anchos iguales en fila si caben sus etiquetas escaladas. Cuando falta
+espacio, se apilan y permiten etiquetas multilínea. Una sola acción visible
+llena el ancho disponible. Si ambas están ocultas, el grupo se contrae. Dale
+al menos 48 píxeles lógicos de ancho y espacio para crecer en altura. La ficha
+de **Forms** permite comprobar la carga independiente, la visibilidad,
+la habilitación y el texto al 200 % en ambos temas.
 
 <a id="ds.widget.text_responsive"></a>
 <a id="ds.widget.paragraph_text"></a>

@@ -11,9 +11,9 @@ Arquetipo base para aplicaciones Flutter con enfoque de Clean Architecture, BLoC
 - Requiere **Flutter >=3.50.0** y **Dart >=3.14.0 <4.0.0**.
 - Dependencia oficial `jocaagura_domain: ^2.0.0` desde pub.dev, con
   `jocaagura_domain_core: ^1.3.0` de forma transitiva.
-- Versión de desarrollo **5.2.11**, con `DsFormStepperWidget` para formularios
-  lineales con paso activo, datos y validación controlados por el consumidor.
-  La galería permite probar navegación, carga y texto al 200 % en ambos temas.
+- Versión de desarrollo **5.2.12**, con `DsFormActionsWidget` para agrupar la
+  acción primaria y una secundaria opcional. La galería muestra la carga por
+  acción y el ajuste de fila a columna con texto al 200 % en ambos temas.
 - Reexporta `text_responsive: ^1.3.0` e incluye `DsIconWidget` y una galería DS
   autocontenida para consultar anatomía y ejemplos en claro/oscuro.
 - [Guía de migración a 5.0.0](doc/migration-5.md).

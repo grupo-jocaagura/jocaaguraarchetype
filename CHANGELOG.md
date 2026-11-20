@@ -6,6 +6,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.12] - 2026-11-19
+
+### Added
+
+- Add `DsFormActionsWidget` with a primary action and an optional secondary
+  action. Lay them out at equal widths when their scaled labels fit and stack
+  them when space is limited. Each action has its own state, loading indicator,
+  and accessible loading announcement.
+- Document the widget in the DS index and show its states and text at 200% in
+  both gallery themes. Cancel superseded demo timers so rapid taps leave no
+  pending callbacks when the preview is disposed (#179).
+
 ## [5.2.11] - 2026-11-19
 
 ### Added
