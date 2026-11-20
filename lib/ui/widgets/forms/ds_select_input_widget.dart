@@ -4,7 +4,7 @@ part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 ///
 /// Give the field a bounded width and localized [label] and [placeholder].
 /// The consumer owns [field] and handles validation after [onChangedAttempt].
-class DsSelectInputWidget extends _DsSingleSelectionField {
+class DsSelectInputWidget extends _DsSelectionField {
   const DsSelectInputWidget({
     required super.field,
     required super.onChangedAttempt,
@@ -27,7 +27,10 @@ class DsSelectInputWidget extends _DsSingleSelectionField {
   @override
   Widget build(BuildContext context) {
     final String name = _fieldName;
-    final String? selection = _selection;
+    final List<DropdownMenuItem<String>> items = _optionLabels().entries
+        .map(_menuItem)
+        .toList();
+    final String? selection = _singleSelection;
     final String? error = _error;
     final String? help = _help;
     final String status = _statusAnnouncements.join('\n');
@@ -84,7 +87,7 @@ class DsSelectInputWidget extends _DsSingleSelectionField {
                 : SemanticsValidationResult.invalid,
             child: DsDropdownButtonWidget<String>(
               value: selection,
-              items: options.map(_menuItem).toList(),
+              items: items,
               onChanged: _proposeSelection,
               placeholder: placeholder,
               semanticLabel: name,
@@ -97,16 +100,14 @@ class DsSelectInputWidget extends _DsSingleSelectionField {
     );
   }
 
-  DropdownMenuItem<String> _menuItem(String option) {
-    final String caption = _optionLabel(option);
-    return DropdownMenuItem<String>(
-      value: option,
-      child: DsTextParagraphWidget(
-        label: caption,
-        role: DsTextStyleKey.bodyLarge,
-        maxLines: caption.length,
-        overflow: TextOverflow.clip,
-      ),
-    );
-  }
+  DropdownMenuItem<String> _menuItem(MapEntry<String, String> option) =>
+      DropdownMenuItem<String>(
+        value: option.key,
+        child: DsTextParagraphWidget(
+          label: option.value,
+          role: DsTextStyleKey.bodyLarge,
+          maxLines: option.value.length,
+          overflow: TextOverflow.clip,
+        ),
+      );
 }
