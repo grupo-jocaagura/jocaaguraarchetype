@@ -11,9 +11,9 @@ Arquetipo base para aplicaciones Flutter con enfoque de Clean Architecture, BLoC
 - Requiere **Flutter >=3.50.0** y **Dart >=3.14.0 <4.0.0**.
 - Dependencia oficial `jocaagura_domain: ^2.0.0` desde pub.dev, con
   `jocaagura_domain_core: ^1.3.0` de forma transitiva.
-- Versión de desarrollo **5.2.16**, con `DsTimeInputWidget` para guardar horas
-  como `HH:mm` en `ModelFieldState`. El campo muestra la hora en formato
-  localizado y permite elegirla con un reloj o escribirla en el diálogo.
+- Versión de desarrollo **5.2.17**, con `DsCheckboxFieldWidget` para elecciones
+  binarias en `ModelFieldState`. Toda la fila activa la casilla y el consumidor
+  controla el valor y la validación.
 - Reexporta `text_responsive: ^1.3.0` e incluye `DsIconWidget` y una galería DS
   autocontenida para consultar anatomía y ejemplos en claro/oscuro.
 - [Guía de migración a 5.0.0](doc/migration-5.md).
