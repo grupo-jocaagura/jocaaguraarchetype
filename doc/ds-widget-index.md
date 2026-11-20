@@ -32,6 +32,7 @@ import 'package:flutter/widgets.dart';
 | `DsNumberInputWidget` | Campo de una línea con teclado numérico y validación controlada | [Fuente](../lib/ui/widgets/forms/ds_number_input_widget.dart) · [Ficha](#ds.widget.number_input) | `ds.widget.number_input` |
 | `DsDateInputWidget` | Fecha de calendario localizada, con límites inclusivos | [Fuente](../lib/ui/widgets/forms/ds_date_input_widget.dart) · [Ficha](#ds.widget.date_input) | `ds.widget.date_input` |
 | `DsDateRangeInputWidget` | Rango localizado de fechas de calendario con límites inclusivos | [Fuente](../lib/ui/widgets/forms/ds_date_range_input_widget.dart) · [Ficha](#ds.widget.date_range_input) | `ds.widget.date_range_input` |
+| `DsTimeInputWidget` | Hora del día localizada con selección y validación controladas | [Fuente](../lib/ui/widgets/forms/ds_time_input_widget.dart) · [Ficha](#ds.widget.time_input) | `ds.widget.time_input` |
 | `DsFormStepperWidget` | Formulario lineal con paso activo y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_form_stepper_widget.dart) · [Ficha](#ds.widget.form_stepper) | `ds.widget.form_stepper` |
 | `DsFormActionsWidget` | Acciones adaptables de formulario con estados independientes | [Fuente](../lib/ui/widgets/forms/ds_form_actions_widget.dart) · [Ficha](#ds.widget.form_actions) | `ds.widget.form_actions` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
@@ -58,6 +59,7 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [campo numérico](../example/lib/ds_number_input_catalog.dart),
   [campo de fecha](../example/lib/ds_date_input_catalog.dart),
   [campo de rango de fechas](../example/lib/ds_date_range_input_catalog.dart),
+  [campo de hora](../example/lib/ds_time_input_catalog.dart),
   [formulario por pasos](../example/lib/ds_form_stepper_catalog.dart),
   [acciones de formulario](../example/lib/ds_form_actions_catalog.dart) y
   [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
@@ -470,6 +472,39 @@ foco cuando se cierra el selector si sigue disponible. Usa `readOnly` para
 consultar el rango y `enabled` para controlar su disponibilidad. La ficha
 de **Forms** muestra ambos temas y permite activar texto al **200 %** para
 el campo. `material_ui` aplica un máximo de **130 %** dentro del selector.
+
+<a id="ds.widget.time_input"></a>
+### Campo de hora
+
+Usa `DsTimeInputWidget` para escoger una hora del día. Guarda `HH:mm`, de
+`00:00` a `23:59`, en `ModelFieldState.value`. Usa `''` para el campo vacío.
+Al cargar timestamps existentes, interpreta primero la hora que corresponde
+al dominio y guarda sus componentes de hora y minuto.
+
+```dart
+DsTimeInputWidget(
+  field: const ModelFieldState(value: '21:30'),
+  label: 'Hora de cierre',
+  placeholder: 'Selecciona una hora',
+  onChangedAttempt: acceptClosingTime,
+)
+```
+
+El campo y el diálogo siguen el idioma y la preferencia horaria de la app.
+El diálogo abre con un reloj y permite cambiar al modo de escritura. Abre en
+la hora aceptada si es válida, o en la hora local actual. Un valor inválido
+se muestra tal como se recibió para facilitar su corrección.
+
+Al confirmar una hora distinta, `onChangedAttempt` propone el nuevo valor
+con `isDirty: true`. Actualiza `field` para aceptarlo. Cancelar o confirmar la
+misma hora conserva el estado. `errorText` tiene prioridad sobre `helperText`.
+El consumidor gestiona la validación, la limpieza y el envío.
+
+La ficha de **Forms** muestra ambos temas, formatos de 12 y 24 horas y texto
+al **200 %**. El campo respeta la escala de la app. El diálogo limita su
+escala al **110 %**, según el tamaño que reserva el selector de
+`material_ui`, para que los editores y sus etiquetas quepan. Desde el
+diálogo se puede activar el modo de escritura con el teclado.
 
 <a id="ds.widget.form_stepper"></a>
 ### Formulario por pasos

@@ -14,6 +14,7 @@ part 'ds_number_input_catalog.dart';
 part 'ds_password_input_catalog.dart';
 part 'ds_select_input_catalog.dart';
 part 'ds_text_input_catalog.dart';
+part 'ds_time_input_catalog.dart';
 part 'ds_item_family_catalog.dart';
 part 'ds_icon_button_catalog.dart';
 
@@ -116,6 +117,7 @@ final List<DsWidgetCatalogEntry> dsWidgetCatalog = <DsWidgetCatalogEntry>[
   _numberInputEntry,
   _dateInputEntry,
   _dateRangeInputEntry,
+  _timeInputEntry,
   _formStepperEntry,
   _formActionsEntry,
   DsWidgetCatalogEntry(
