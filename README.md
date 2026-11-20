@@ -11,10 +11,9 @@ Arquetipo base para aplicaciones Flutter con enfoque de Clean Architecture, BLoC
 - Requiere **Flutter >=3.50.0** y **Dart >=3.14.0 <4.0.0**.
 - Dependencia oficial `jocaagura_domain: ^2.0.0` desde pub.dev, con
   `jocaagura_domain_core: ^1.3.0` de forma transitiva.
-- Versión de desarrollo **5.2.13**. `DsFormStepperWidget` usa
-  `DsFormActionsWidget` para distribuir sus acciones según el espacio disponible.
-  La galería muestra la navegación, el bloqueo durante la carga y las etiquetas
-  ampliadas al 200 % en ambos temas.
+- Versión de desarrollo **5.2.14**, con `DsDateInputWidget` para fechas de
+  calendario en `ModelFieldState`. El campo ofrece fecha localizada, límites
+  inclusivos y un diálogo con calendario y escritura.
 - Reexporta `text_responsive: ^1.3.0` e incluye `DsIconWidget` y una galería DS
   autocontenida para consultar anatomía y ejemplos en claro/oscuro.
 - [Guía de migración a 5.0.0](doc/migration-5.md).

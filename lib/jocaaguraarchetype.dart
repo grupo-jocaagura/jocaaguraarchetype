@@ -140,6 +140,7 @@ part 'ui/widgets/ds_item_button_widget.dart';
 part 'ui/widgets/ds_item_widget.dart';
 part 'ui/widgets/ds_loading_widget.dart';
 part 'ui/widgets/forms/ds_select_input_widget.dart';
+part 'ui/widgets/forms/ds_date_input_widget.dart';
 part 'ui/widgets/forms/ds_email_input_widget.dart';
 part 'ui/widgets/forms/ds_form_actions_widget.dart';
 part 'ui/widgets/forms/ds_form_stepper_widget.dart';
