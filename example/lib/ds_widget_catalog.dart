@@ -4,6 +4,7 @@ import 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 import 'package:material_ui/material_ui.dart';
 
 part 'ds_action_button_catalog.dart';
+part 'ds_autocomplete_input_catalog.dart';
 part 'ds_checkbox_field_catalog.dart';
 part 'ds_chips_select_catalog.dart';
 part 'ds_date_input_catalog.dart';
@@ -120,6 +121,7 @@ final List<DsWidgetCatalogEntry> dsWidgetCatalog = <DsWidgetCatalogEntry>[
   _checkboxFieldEntry,
   _switchFieldEntry,
   _textInputEntry,
+  _autocompleteInputEntry,
   _passwordInputEntry,
   _emailInputEntry,
   _numberInputEntry,

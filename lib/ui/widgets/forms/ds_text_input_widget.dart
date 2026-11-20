@@ -98,6 +98,27 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
 
   bool get _canEdit => widget.enabled && !widget.readOnly;
 
+  bool? get _suggestionsExpanded => null;
+
+  VoidCallback? get _onEditingComplete => null;
+
+  ValueChanged<String>? get _onTextSubmitted =>
+      widget.onSubmittedAttempt == null ? null : _submitText;
+
+  void _onTextChanged(String raw) {
+    _hasUnacceptedEdit = true;
+    widget.onChangedAttempt(widget.field.copyWith(value: raw, isDirty: true));
+  }
+
+  void _submitText(String raw) {
+    widget.onSubmittedAttempt?.call(
+      widget.field.copyWith(
+        value: raw,
+        isDirty: widget.field.isDirty || _hasUnacceptedEdit,
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -271,22 +292,9 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
           : SmartQuotesType.disabled,
       selectionControls: isPassword ? _passwordSelectionControls : null,
       style: theme.textTheme.bodyLarge,
-      onChanged: canEdit
-          ? (String raw) {
-              _hasUnacceptedEdit = true;
-              widget.onChangedAttempt(
-                widget.field.copyWith(value: raw, isDirty: true),
-              );
-            }
-          : null,
-      onSubmitted: canEdit && widget.onSubmittedAttempt != null
-          ? (String raw) => widget.onSubmittedAttempt!(
-              widget.field.copyWith(
-                value: raw,
-                isDirty: widget.field.isDirty || _hasUnacceptedEdit,
-              ),
-            )
-          : null,
+      onChanged: canEdit ? _onTextChanged : null,
+      onEditingComplete: canEdit ? _onEditingComplete : null,
+      onSubmitted: canEdit ? _onTextSubmitted : null,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(tokens.borderRadius),
@@ -382,6 +390,7 @@ class _DsTextInputWidgetState extends State<DsTextInputWidget> {
       isRequired: widget.required,
       hint: status.isEmpty ? null : status,
       validationResult: validation,
+      expanded: _suggestionsExpanded,
       child: input,
     );
   }
