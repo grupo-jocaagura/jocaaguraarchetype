@@ -30,6 +30,7 @@ import 'package:flutter/widgets.dart';
 | `DsPasswordInputWidget` | Campo de contraseña con visibilidad y validación controlada por el consumidor | [Fuente](../lib/ui/widgets/forms/ds_password_input_widget.dart) · [Ficha](#ds.widget.password_input) | `ds.widget.password_input` |
 | `DsEmailInputWidget` | Campo de correo de una línea con validación controlada | [Fuente](../lib/ui/widgets/forms/ds_email_input_widget.dart) · [Ficha](#ds.widget.email_input) | `ds.widget.email_input` |
 | `DsNumberInputWidget` | Campo de una línea con teclado numérico y validación controlada | [Fuente](../lib/ui/widgets/forms/ds_number_input_widget.dart) · [Ficha](#ds.widget.number_input) | `ds.widget.number_input` |
+| `DsDateInputWidget` | Fecha de calendario localizada, con límites inclusivos | [Fuente](../lib/ui/widgets/forms/ds_date_input_widget.dart) · [Ficha](#ds.widget.date_input) | `ds.widget.date_input` |
 | `DsFormStepperWidget` | Formulario lineal con paso activo y validación controlados | [Fuente](../lib/ui/widgets/forms/ds_form_stepper_widget.dart) · [Ficha](#ds.widget.form_stepper) | `ds.widget.form_stepper` |
 | `DsFormActionsWidget` | Acciones adaptables de formulario con estados independientes | [Fuente](../lib/ui/widgets/forms/ds_form_actions_widget.dart) · [Ficha](#ds.widget.form_actions) | `ds.widget.form_actions` |
 | `DsLayeredSurfaceWidget` | Superficie: `DsLayeredSurfaceWidget(gradientColors: [Colors.blue, Colors.purple], child: Text('Contenido'))` | [Fuente](../lib/ui/widgets/ds_layered_surface_widget.dart) | `ds.widget.layered_surface` |
@@ -54,6 +55,7 @@ La app compone el catálogo navegable con estas fuentes, sin duplicar componente
   [campo de contraseña](../example/lib/ds_password_input_catalog.dart),
   [campo de correo](../example/lib/ds_email_input_catalog.dart),
   [campo numérico](../example/lib/ds_number_input_catalog.dart),
+  [campo de fecha](../example/lib/ds_date_input_catalog.dart),
   [formulario por pasos](../example/lib/ds_form_stepper_catalog.dart),
   [acciones de formulario](../example/lib/ds_form_actions_catalog.dart) y
   [tipografía e ítems](../example/lib/ds_item_family_catalog.dart).
@@ -386,6 +388,46 @@ teclado. `autofillHints` es opcional y tiene valor inicial `null`. En
 `requiredSemanticLabel` y `readOnlySemanticLabel` para localizar los anuncios
 de estado. La ficha de **Forms** muestra un entero, un decimal con signo,
 error, solo lectura, deshabilitado y texto al 200 % en ambos temas.
+
+<a id="ds.widget.date_input"></a>
+### Campo de fecha
+
+Usa `DsDateInputWidget` para escoger un día de calendario. Guarda el valor en
+`ModelFieldState.value` como `yyyy-MM-dd` y usa `''` para un campo vacío.
+El widget muestra la fecha con el idioma de la app y conserva un valor
+inválido como texto para que se pueda identificar y corregir. Para adaptar
+un timestamp existente, decide primero qué día representa en tu dominio y
+guarda sus componentes de calendario en el formato del campo.
+
+```dart
+DsDateInputWidget(
+  field: appointment,
+  label: 'Fecha de la cita',
+  placeholder: 'Selecciona una fecha',
+  firstDate: DateTime(2026, 11, 1),
+  lastDate: DateTime(2026, 11, 30),
+  required: true,
+  requiredSemanticLabel: 'Obligatorio',
+  onChangedAttempt: acceptAppointment,
+)
+```
+
+Ambos límites son inclusivos y se comparan por año, mes y día. El selector
+abre en el valor aceptado si está dentro del rango. En los demás casos abre
+en hoy, ajustado al límite más cercano si corresponde. El diálogo permite
+escoger un día en el calendario o escribirlo en el formato local.
+
+Al confirmar un día diferente, `onChangedAttempt` propone el valor con
+`isDirty: true`. Actualiza `field` para aceptar el cambio. Cancelar o confirmar
+el mismo día conserva el estado. El consumidor gestiona la validación, la
+limpieza y el envío. `errorText` tiene prioridad sobre `helperText`.
+
+Usa `readOnly` para consultar la fecha con el campo habilitado y `enabled`
+para controlar su disponibilidad. Usa `requiredSemanticLabel` y
+`readOnlySemanticLabel` para localizar los anuncios de estado. Configura los
+delegados de localización de `material_ui` para los idiomas de la app. La
+ficha de **Forms** muestra el campo y el selector en ambos temas, con un
+control para probar texto al 200 %.
 
 <a id="ds.widget.form_stepper"></a>
 ### Formulario por pasos
