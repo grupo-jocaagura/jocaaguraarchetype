@@ -394,7 +394,11 @@ Usa `DsFormStepperWidget` para un formulario lineal. Cada `DsFormStep`
 requiere un ID estable y único, un título y un contenido. La lista tiene al
 menos un paso y `activeStepId` corresponde a uno de sus IDs. El indicador
 muestra la posición y el título activo. Las acciones de navegación usan
-`DsPrimaryButtonWidget` y `DsSecondaryButtonWidget`.
+[`DsFormActionsWidget`](#ds.widget.form_actions). La acción de retroceso
+precede a la primaria. Las dos se muestran con anchos iguales en fila si
+caben las etiquetas escaladas y se apilan cuando necesitan más espacio.
+Una sola acción ocupa todo el ancho. Si `primaryState.isVisible` es `false`
+en el primer paso, se retira el pie y su separación del contenido.
 
 `onStepChangeAttempt` recibe el ID del paso adyacente. Valida en el consumidor
 cuando corresponda y actualiza `activeStepId` para aceptar el cambio.
@@ -428,9 +432,10 @@ DsFormStepperWidget(
 
 Activa `primaryState.isLoading` antes de esperar una validación o un envío
 asíncrono. Durante la carga, la acción principal muestra su indicador y
-las acciones de retroceso, avance y envío quedan deshabilitadas. La ficha
-de **Forms** permite probar validación, regreso y carga en ambos temas y
-activar texto al 200 %.
+anuncia `loadingSemanticLabel`. Las acciones visibles quedan deshabilitadas.
+Si solo se deshabilita la acción primaria, **Atrás** sigue disponible a
+partir del segundo paso. La ficha de **Forms** permite probar validación,
+regreso, carga y etiquetas largas con texto al 200 % en ambos temas.
 
 <a id="ds.widget.form_actions"></a>
 ### Acciones de formulario

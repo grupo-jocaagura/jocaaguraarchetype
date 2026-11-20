@@ -57,7 +57,9 @@ void main() {
         ),
         ('an unknown active step ID', _steps, 'missing', 'activeStepId'),
       ]) {
-    testWidgets('rejects $description', (WidgetTester tester) async {
+    testWidgets('Given $description When built Then throws an argument error', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         _host(_stepper(steps: steps, activeStepId: activeStepId)),
       );
@@ -72,7 +74,7 @@ void main() {
     });
   }
 
-  testWidgets('requests adjacent steps and waits for the active ID to change', (
+  testWidgets('Given a step When navigating Then requests an adjacent step', (
     WidgetTester tester,
   ) async {
     final List<String> requests = <String>[];
@@ -94,6 +96,7 @@ void main() {
     expect(data.flagsCollection.isFocused, Tristate.isFalse);
     expect(data.hasAction(SemanticsAction.tap), isFalse);
     expect(find.byType(DsSecondaryButtonWidget), findsNothing);
+    expect(tester.getSize(find.byType(DsPrimaryButtonWidget)).width, 560);
     expect(find.text('Datos de la solicitud'), findsNothing);
     await tester.tap(find.bySemanticsLabel('Continuar'));
     await tester.pumpAndSettle();
@@ -117,7 +120,7 @@ void main() {
     expect(requests, hasLength(3));
   });
 
-  testWidgets('restores field values and validation from the consumer', (
+  testWidgets('Given saved field state When returning Then restores it', (
     WidgetTester tester,
   ) async {
     const String error = 'Escribe un nombre completo.';
@@ -182,9 +185,14 @@ void main() {
     expect(find.text(error), findsOneWidget);
   });
 
-  testWidgets('keyboard can advance and focus moves only when accepted', (
+  final ValueVariant<double> actionTextScales = ValueVariant<double>(<double>{
+    1,
+    2,
+  });
+  testWidgets('Given a step When tabbing Then visits fields and actions', (
     WidgetTester tester,
   ) async {
+    final double scale = actionTextScales.currentValue!;
     const List<DsFormStep> fields = <DsFormStep>[
       DsFormStep(
         id: 'contact',
@@ -238,6 +246,8 @@ void main() {
             ),
           ],
         ),
+        width: 760,
+        scaler: TextScaler.linear(scale),
       ),
     );
 
@@ -274,9 +284,20 @@ void main() {
           .hasFocus,
       isTrue,
     );
-  });
+    for (final String label in <String>['Atrás', 'Finalizar']) {
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(
+        tester
+            .getSemantics(find.bySemanticsLabel(label))
+            .flagsCollection
+            .isFocused,
+        Tristate.isTrue,
+      );
+    }
+  }, variant: actionTextScales);
 
-  testWidgets('loading announces progress and blocks both actions', (
+  testWidgets('Given primary loading When tapped Then blocks both actions', (
     WidgetTester tester,
   ) async {
     final List<String> requests = <String>[];
@@ -337,39 +358,82 @@ void main() {
     expect(finishes, 1);
   });
 
-  testWidgets('keeps the summary and actions readable at 200 percent', (
+  testWidgets('Given disabled primary When tapping Back Then goes back', (
     WidgetTester tester,
   ) async {
+    final List<String> requests = <String>[];
+    await tester.pumpWidget(
+      _host(
+        _stepper(
+          activeStepId: 'details',
+          primaryState: const ModelInteractiveState(isEnabled: false),
+          onStepChangeAttempt: requests.add,
+        ),
+      ),
+    );
+    await tester.tap(find.bySemanticsLabel('Continuar'));
+    await tester.tap(find.bySemanticsLabel('Atrás'));
+    expect(requests, <String>['contact']);
+  });
+
+  testWidgets('Given hidden actions When built Then removes unused space', (
+    WidgetTester tester,
+  ) async {
+    const ModelInteractiveState hidden = ModelInteractiveState(
+      isVisible: false,
+    );
+    await tester.pumpWidget(_host(_stepper(primaryState: hidden)));
+    expect(find.byType(DsFormActionsWidget), findsNothing);
+    expect(find.bySemanticsLabel('Continuar'), findsNothing);
+    expect(
+      tester.getBottomLeft(find.byType(DsFormStepperWidget)).dy,
+      tester.getBottomLeft(find.text('Datos de contacto')).dy,
+    );
+
+    await tester.pumpWidget(
+      _host(_stepper(activeStepId: 'details', primaryState: hidden)),
+    );
+    expect(find.bySemanticsLabel('Continuar'), findsNothing);
+    expect(find.bySemanticsLabel('Atrás'), findsOneWidget);
+    expect(tester.getSize(find.byType(DsSecondaryButtonWidget)).width, 560);
+  });
+
+  testWidgets('Given 200% text When narrow Then stacks readable actions', (
+    WidgetTester tester,
+  ) async {
+    const String finishLabel = 'Enviar solicitud completa';
+    final Finder back = find.byType(DsSecondaryButtonWidget);
+    final Finder finish = find.byType(DsPrimaryButtonWidget);
     await tester.pumpWidget(
       _host(_stepper(activeStepId: 'review'), width: 560),
     );
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    expect(tester.getRect(back).top, tester.getRect(finish).top);
+    expect(tester.getRect(back).right, lessThan(tester.getRect(finish).left));
+    expect(tester.getSize(back).width, tester.getSize(finish).width);
     await tester.pumpWidget(
       _host(
-        _stepper(
-          activeStepId: 'review',
-          finishLabel: 'Enviar solicitud completa',
-        ),
+        _stepper(activeStepId: 'review', finishLabel: finishLabel),
         width: 200,
         scaler: const TextScaler.linear(2),
       ),
     );
     expect(find.text('Paso 3 de 3'), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsNothing);
-    expect(find.bySemanticsLabel('Enviar solicitud completa'), findsOneWidget);
-    for (final Type button in <Type>[
-      DsPrimaryButtonWidget,
-      DsSecondaryButtonWidget,
-    ]) {
-      expect(
-        tester.getSize(find.byType(button)).height,
-        greaterThanOrEqualTo(48),
-      );
+    expect(find.bySemanticsLabel(finishLabel), findsOneWidget);
+    expect(tester.getRect(back).bottom, lessThan(tester.getRect(finish).top));
+    for (final Finder button in <Finder>[back, finish]) {
+      expect(tester.getSize(button).width, 200);
+      expect(tester.getSize(button).height, greaterThanOrEqualTo(48));
     }
+    final RenderParagraph label = tester.renderObject<RenderParagraph>(
+      find.text(finishLabel),
+    );
+    expect(label.didExceedMaxLines, isFalse);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('a single-step form offers only the finish action', (
+  testWidgets('Given one step When built Then shows only Finish', (
     WidgetTester tester,
   ) async {
     int finishes = 0;
@@ -382,6 +446,7 @@ void main() {
       ),
     );
     expect(find.byType(DsSecondaryButtonWidget), findsNothing);
+    expect(tester.getSize(find.byType(DsPrimaryButtonWidget)).width, 560);
     expect(find.text('Paso 1 de 1'), findsOneWidget);
     await tester.tap(find.bySemanticsLabel('Finalizar'));
     expect(finishes, 1);

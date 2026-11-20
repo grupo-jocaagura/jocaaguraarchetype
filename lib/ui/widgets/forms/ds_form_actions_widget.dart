@@ -1,6 +1,6 @@
 part of 'package:jocaaguraarchetype/jocaaguraarchetype.dart';
 
-/// Lays out the primary and optional secondary actions of a form.
+/// Lay out the primary and optional secondary actions of a form.
 ///
 /// A visible secondary action precedes the primary in layout and keyboard
 /// traversal. The actions share the width in a row when their scaled labels
